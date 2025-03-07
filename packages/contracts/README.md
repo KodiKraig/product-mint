@@ -12,13 +12,13 @@ All of the Ethereum based chains where the system is currently deployed.
 
 <br />
 <a href="https://base.org" target="_blank">
-    <img src="./assets/BaseChainLogo.svg" width="80" height="20" alt="Base Chain">
+    <img src="./assets/BaseChainLogo.svg" width="80" height="25" alt="Base Chain">
 </a>
 
-### Base - Mainnet
+### Base - _Mainnet_
 
 - Coming soon!
 
-### Base - Testnet
+### Base - _Testnet_
 
 - Coming soon!
