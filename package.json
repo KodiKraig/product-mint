@@ -1,7 +1,7 @@
 {
   "name": "product-mint",
   "version": "1.0.0",
-  "description": "Onchain NFT based payment system to mint products with one-time payments and recurring permissionless subscriptions.",
+  "description": "NFT based payment system to mint products onchain with one-time payments or recurring permissionless subscriptions.",
   "main": "index.js",
   "scripts": {
     "test": "npm run test -w @product-mint/contracts",
