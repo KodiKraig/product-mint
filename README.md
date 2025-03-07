@@ -2,28 +2,36 @@
 
 NFT based payment system to mint products onchain with one-time payments or recurring permissionless subscriptions.
 
+Everything is onchain including the products, metadata, subscriptions, pricing models, and pricing calculations.
+
+No staking or escrow funding from users required!
+
+Stop risking your revenue to centralized payment processors and wasting time setting up over engineered subscription models that suck to manage. 
+
+We guarantee you will love the simplicity and flexibility of ProductMint. You will save time and keep more of your revenue! 💰💰💰
+
 ## Features
 
-- ✅ **One-time product**  purchases
-- ✅ **Recurring subscription products** with permissionless renewals
+- ✅ **_One-time_ product purchases**
+- ✅ **_Recurring subscription_ products with permissionless renewals**
     - Flat Rate
     - Tiered (Total quantity; paid at start of billing cycle)
     - Usage (Metered; paid at the end of billing cycle)
     - Charge Frequency - Daily, Weekly, Monthly, Quarterly, Yearly
     - Individualized for each product
-- ✅ Create pricing models with _native chain currency_ or an _ERC20_
-- ✅ Purchase additional products and add to an existing Product Pass NFT
-- ✅ No staking or escrow funding from users required
-- ✅ Fully onchain metadata
-- ✅ Apply coupons during initial purchase or with subscription renewals
-- ✅ Create limited time and lifetime coupons*
-- ✅ Upgrade/downgrade subscriptions*
-- ✅ Airdrop passes, upgrades, renewals, and tier changes to users*
-- ✅ Whitelist addresses for product mints*
-- ✅ Restrict addresses for special pricing configurations*
-- ✅ Pause subscriptions and lock up time for trading*
-- ✅ Product Pass transferability*
-- ✅ Max product supply*
+- ✅ **Create pricing models with _native chain currency_ or an _ERC20_**
+- ✅ **Purchase additional products and add to an existing Product Pass NFT**
+- ✅ **No staking or escrow funding from users required**
+- ✅ **Fully onchain metadata**
+- ✅ **Apply coupons during initial purchase or with subscription renewals**
+- ✅ **Create limited time and lifetime coupons***
+- ✅ **Upgrade/downgrade subscriptions***
+- ✅ **Airdrop passes, upgrades, renewals, and tier changes to users***
+- ✅ **Whitelist addresses for product mints***
+- ✅ **Restrict addresses for special pricing configurations***
+- ✅ **Pause subscriptions and lock up time for trading***
+- ✅ **Product Pass transferability***
+- ✅ **Max product supply***
 
 _* Additional settings configurable by the product owner_
 
@@ -31,8 +39,9 @@ _* Additional settings configurable by the product owner_
 
 ### 🔥 _Your revenue is yours and no one can take it!_ 🔥
 
-- The **PaymentEscrow** contract is responsible for holding all funds
+- The **PaymentEscrow** contract is responsible for collecting all funds
 - The contract is non-upgradeable and has no ability to mingle with user funds
+- When you sell a product, the funds are yours to keep!
 - View [PaymentEscrow](./packages/contracts/contracts/escrow/PaymentEscrow.sol)
 
 ### Product Owner Benefits
