@@ -1,4 +1,4 @@
-# ProductMint Contracts
+# ProductMint - Contracts
 
 The worlds first NFT based permissionless subscription payment system. This package includes all of the Solidity contracts.
 
@@ -6,18 +6,19 @@ The worlds first NFT based permissionless subscription payment system. This pack
 
 ![ProductMint System Architecture](./assets/ProductMintSystem.png)
 
-## Deployed Contract Addresses
+## Deployed Contracts
 
 All of the Ethereum based chains where the system is currently deployed.
 
+<br />
 <a href="https://base.org" target="_blank">
-    <img src="./assets/BaseChainLogo.svg" width="200" height="200" alt="Base Chain">
+    <img src="./assets/BaseChainLogo.svg" width="80" height="20" alt="Base Chain">
 </a>
 
-### Base - Testnet
+### Base - Mainnet
 
 - Coming soon!
 
-### Base - Mainnet
+### Base - Testnet
 
 - Coming soon!
