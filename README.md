@@ -1,6 +1,6 @@
 # ProductMint
 
-NFT based payment system to mint products onchain with one-time payments or recurring permissionless subscriptions.
+NFT based payment system to mint products onchain with one-time payments and recurring permissionless subscriptions.
 
 Everything is onchain including the products, metadata, subscriptions, pricing models, and pricing calculations.
 
