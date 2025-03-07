@@ -1,0 +1,20 @@
+node_modules
+.env
+dist
+.vscode
+.DS_Store
+
+# Hardhat files
+cache
+artifacts
+
+# TypeChain files
+**/contracts/typechain
+**/contracts/typechain-types
+
+# solidity-coverage files
+coverage
+coverage.json
+
+# Hardhat Ignition files
+**/ignition/deployments/**

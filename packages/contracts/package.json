@@ -1,0 +1,26 @@
+{
+  "name": "@product-mint/contracts",
+  "version": "1.0.0",
+  "description": "ProductMint Solidity contracts developed using Hardhat.",
+  "scripts": {
+    "test": "hardhat test",
+    "test:watch": "nodemon -e js,ts,sol --watch contracts --watch test --watch ignition/modules --exec 'hardhat test'",
+    "test:coverage": "hardhat coverage",
+    "test:coverage:watch": "nodemon -e js,ts,sol --watch contracts --watch test --watch ignition/modules --exec 'hardhat coverage'",
+    "compile": "hardhat compile",
+    "clean": "hardhat clean",
+    "visualize": "hardhat ignition visualize ./ignition/modules/ProductMintSystem.ts"
+  },
+  "keywords": [],
+  "author": "@kodikraig",
+  "license": "BUSL-1.1",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts": "^5.1.0",
+    "dotenv": "^16.4.7",
+    "hardhat": "^2.22.17",
+    "hardhat-contract-sizer": "^2.10.0",
+    "nodemon": "^3.1.9"
+  },
+  "private": true
+}

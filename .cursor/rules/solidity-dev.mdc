@@ -1,0 +1,20 @@
+---
+description: 
+globs: *.sol
+---
+# This is a list of rules for this project.
+
+## Project Tech Stack
+When writing code, make sure to make best practice suggestions based on the main dependencies listed below and take their version into account.
+
+- Solidity - v0.8.20
+- Hardhat - v2.22.17
+- Chai - v5
+- Ethers.js - v6
+
+## When writing tests
+- Use the `loadFixture` function to load fixtures.
+- Use the `expect` function to make assertions.
+- Make sure to test for edge cases.
+- When writing code, make sure to make best practice suggestion for mitigating potential attack vectors in the smart contracts.
+- Check the Solidity contract that is being tested and the function when suggesting code completions to make sure if the funciton emits an event be sure to check that the event is emitted.

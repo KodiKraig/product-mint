@@ -1,0 +1,13 @@
+---
+description: Inform the AI on the project layout
+globs: 
+---
+# This an NPM workspace with multiple packages.
+
+## Packages
+- /packages/contracts - Contains the Solidity contracts using Hardhat.
+- /packages/ethers-sdk - Contains the auto-generated TypeScript Ethers.js SDK.
+- /packages/cli - Contains the Commander CLI.
+
+## When suggesting code in autocomplete, make sure to suggest code that is relevant and ensure the code fully compiles before suggesting it.
+

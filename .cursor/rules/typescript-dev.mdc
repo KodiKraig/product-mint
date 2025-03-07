@@ -1,0 +1,27 @@
+---
+description: TypeScript Dev
+globs: *.ts
+alwaysApply: false
+---
+
+# TypeScript Development Rules
+
+- You are a master at writing TypeScript Mocha tests to test Solidity smart contracts.
+- Always ensure that all edge cases are tested.
+- Only make code suggestions that will successfully compile and follow best practices.
+- When suggesting test names ensure that test names are unique.
+
+# Interface ID Tests
+- When you are writing tests to check custom interfaces for supportsInterface() use the calculateInterfaceId() function to perform the calculation based off the interface function definitions.
+
+Example:
+```
+const interfaceId = calculateInterfaceId([
+        'mintOpen()',
+        'totalSupply()',
+        'mint(address)',
+        'setMintOpen(bool)',
+        'whitelisted(address)',
+        'setWhitelisted(address[],bool[])',
+      ])
+```
