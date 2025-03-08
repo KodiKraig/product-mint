@@ -212,7 +212,7 @@ describe('ProductPassNFT', () => {
 
       await productRegistry.connect(otherAccount).createProduct({
         orgId: 2,
-        name: 'Product 2',
+        name: 'Name 2',
         description: 'Product description 2',
         imageUrl: 'Product image',
         externalUrl: 'Product external URL',
@@ -287,27 +287,42 @@ describe('ProductPassNFT', () => {
 
       assertMetadata(tokenUris[0], {
         ...EXPECTED_DEFAULT_PASS_METADATA,
-        attributes: [{ trait_type: 'Organization ID', value: '1' }],
+        attributes: [
+          { trait_type: 'Organization ID', value: '1' },
+          { trait_type: 'Product 1', value: 'Product 1' },
+        ],
       });
 
       assertMetadata(tokenUris[1], {
         ...EXPECTED_DEFAULT_PASS_METADATA,
-        attributes: [{ trait_type: 'Organization ID', value: '1' }],
+        attributes: [
+          { trait_type: 'Organization ID', value: '1' },
+          { trait_type: 'Product 1', value: 'Product 1' },
+        ],
       });
 
       assertMetadata(tokenUris[2], {
         ...EXPECTED_DEFAULT_PASS_METADATA,
-        attributes: [{ trait_type: 'Organization ID', value: '2' }],
+        attributes: [
+          { trait_type: 'Organization ID', value: '2' },
+          { trait_type: 'Product 2', value: 'Name 2' },
+        ],
       });
 
       assertMetadata(tokenUris[3], {
         ...EXPECTED_DEFAULT_PASS_METADATA,
-        attributes: [{ trait_type: 'Organization ID', value: '1' }],
+        attributes: [
+          { trait_type: 'Organization ID', value: '1' },
+          { trait_type: 'Product 1', value: 'Product 1' },
+        ],
       });
 
       assertMetadata(tokenUris[4], {
         ...EXPECTED_DEFAULT_PASS_METADATA,
-        attributes: [{ trait_type: 'Organization ID', value: '2' }],
+        attributes: [
+          { trait_type: 'Organization ID', value: '2' },
+          { trait_type: 'Product 2', value: 'Name 2' },
+        ],
       });
 
       // Organization Token URIs

@@ -53,6 +53,10 @@ describe('Pass Metadata Provider', () => {
             trait_type: 'Organization ID',
             value: 1,
           },
+          {
+            trait_type: 'Product 1',
+            value: 'Product 1',
+          },
         ],
       });
     });

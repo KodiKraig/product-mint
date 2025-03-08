@@ -183,7 +183,7 @@ describe('Purchase Manager', () => {
       // Create products
       await productRegistry.createProduct({
         orgId: 1,
-        name: 'Product 1',
+        name: 'Name 1',
         description: 'P1 Description',
         imageUrl: 'https://example.com/product1',
         externalUrl: 'https://example.com/product1-image',
@@ -191,7 +191,7 @@ describe('Purchase Manager', () => {
       });
       await productRegistry.createProduct({
         orgId: 1,
-        name: 'Product 2',
+        name: 'Name 2',
         description: 'P2 Description',
         imageUrl: 'https://example.com/product2',
         externalUrl: 'https://example.com/product2-image',
@@ -376,12 +376,19 @@ describe('Purchase Manager', () => {
 
       assertMetadata(pass1Metadata, {
         ...EXPECTED_DEFAULT_PASS_METADATA,
-        attributes: [{ trait_type: 'Organization ID', value: '1' }],
+        attributes: [
+          { trait_type: 'Organization ID', value: '1' },
+          { trait_type: 'Product 1', value: 'Name 1' },
+          { trait_type: 'Product 2', value: 'Name 2' },
+        ],
       });
 
       assertMetadata(pass2Metadata, {
         ...EXPECTED_DEFAULT_PASS_METADATA,
-        attributes: [{ trait_type: 'Organization ID', value: '1' }],
+        attributes: [
+          { trait_type: 'Organization ID', value: '1' },
+          { trait_type: 'Product 1', value: 'Name 1' },
+        ],
       });
     });
 
