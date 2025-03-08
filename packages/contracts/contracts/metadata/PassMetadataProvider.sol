@@ -14,7 +14,6 @@ import {AttributeUtils} from "../libs/AttributeUtils.sol";
 contract PassMetadataProvider is MetadataProvider {
     using Strings for uint256;
     using AttributeUtils for string;
-    using AttributeUtils for uint256;
 
     constructor(
         address _registry
@@ -29,9 +28,10 @@ contract PassMetadataProvider is MetadataProvider {
 
         return
             string.concat(
-                purchaseRegistry.passOrganization(tokenId).attributeTraitType(
-                    "Organization ID"
-                ),
+                purchaseRegistry
+                    .passOrganization(tokenId)
+                    .toString()
+                    .attributeTraitType("Organization ID"),
                 ",",
                 _getOwnedProductAttributes(tokenId)
             );
