@@ -14,6 +14,36 @@ describe('ProductMintSystemModule', () => {
     };
   }
 
+  it('should set the correct default metadata for the pass NFT', async () => {
+    const { passMetadataProvider } = await loadFixture(deployProductMintSystem);
+
+    const metadata = await passMetadataProvider.defaultMetadata();
+    expect(metadata.name).to.equal('Product Pass');
+    expect(metadata.description).to.equal(
+      'A ProductMint Product Pass for tokenizing products and permissionless subscriptions. Organizations can sell product passes to their customers to grant them access to their products.',
+    );
+    expect(metadata.externalUrl).to.equal('https://productmint.io');
+    expect(metadata.image).to.equal('https://productmint.io/image.png');
+    expect(metadata.backgroundColor).to.equal('');
+    expect(metadata.animationUrl).to.equal('');
+  });
+
+  it('should set the correct default metadata for the organization NFT', async () => {
+    const { organizationMetadataProvider } = await loadFixture(
+      deployProductMintSystem,
+    );
+
+    const metadata = await organizationMetadataProvider.defaultMetadata();
+    expect(metadata.name).to.equal('Organization');
+    expect(metadata.description).to.equal(
+      'A ProductMint Organization is required to sell products and subscriptions onchain. Create products and pricing plans with the organization to start selling product passes for your products.',
+    );
+    expect(metadata.externalUrl).to.equal('https://productmint.io');
+    expect(metadata.image).to.equal('https://productmint.io/image.png');
+    expect(metadata.backgroundColor).to.equal('');
+    expect(metadata.animationUrl).to.equal('');
+  });
+
   it('should set the correct contracts in the contract registry', async () => {
     const {
       contractRegistry,

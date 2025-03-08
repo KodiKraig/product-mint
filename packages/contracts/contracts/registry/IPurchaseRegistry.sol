@@ -54,6 +54,13 @@ interface IPurchaseRegistry {
     function maxMints(uint256 organizationId) external view returns (uint256);
 
     /**
+     * @notice Get the whitelist status for an organization.
+     * @param organizationId The organization ID to get the whitelist status for.
+     * @return True if the organization is whitelist only, false otherwise.
+     */
+    function isWhitelist(uint256 organizationId) external view returns (bool);
+
+    /**
      * Record Purchase
      */
 

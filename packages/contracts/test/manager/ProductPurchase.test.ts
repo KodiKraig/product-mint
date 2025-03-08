@@ -10,6 +10,11 @@ import { deployPurchaseManager } from './helpers';
 import { getCycleDuration } from '../../utils/cycle-duration';
 import { parseTimestamp } from './helpers';
 import { time } from '@nomicfoundation/hardhat-toolbox/network-helpers';
+import {
+  DEFAULT_PASS_METADATA,
+  EXPECTED_DEFAULT_PASS_METADATA,
+} from '../metadata/helpers';
+import { assertMetadata } from '../metadata/helpers';
 
 describe('Purchase Manager', () => {
   describe('Successful Product Purchase', () => {
@@ -122,6 +127,7 @@ describe('Purchase Manager', () => {
         productRegistry,
         pricingRegistry,
         purchaseRegistry,
+        passMetadataProvider,
         couponRegistry,
         productPassNFT,
         mintToken,
@@ -132,6 +138,8 @@ describe('Purchase Manager', () => {
         otherAccount2,
         usageRecorder,
       } = await loadFixture(deployPurchaseManager);
+
+      await passMetadataProvider.setDefaultMetadata(DEFAULT_PASS_METADATA);
 
       // Create the org for the owner account
       await organizationNFT.mint(owner);
@@ -361,6 +369,20 @@ describe('Purchase Manager', () => {
         false,
         true,
       ]);
+
+      // Metadata
+      const pass1Metadata = await productPassNFT.tokenURI(1);
+      const pass2Metadata = await productPassNFT.tokenURI(2);
+
+      assertMetadata(pass1Metadata, {
+        ...EXPECTED_DEFAULT_PASS_METADATA,
+        attributes: [{ trait_type: 'Organization ID', value: '1' }],
+      });
+
+      assertMetadata(pass2Metadata, {
+        ...EXPECTED_DEFAULT_PASS_METADATA,
+        attributes: [{ trait_type: 'Organization ID', value: '1' }],
+      });
     });
 
     it('can purchase subscription with an initial purchase coupon and renew it with coupon still set', async () => {
@@ -897,8 +919,9 @@ describe('Purchase Manager', () => {
         .connect(otherAccount2)
         .renewSubscription(1, 1, false);
 
-      const { timestamp: renewalTimestamp } =
-        await parseTimestamp(renewalTxPromise);
+      const { timestamp: renewalTimestamp } = await parseTimestamp(
+        renewalTxPromise,
+      );
 
       await expect(renewalTxPromise)
         .to.emit(usageRecorder, 'MeterUsageSet')
