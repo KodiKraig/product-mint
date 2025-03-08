@@ -318,7 +318,7 @@ describe('ProductPassNFT', () => {
         ...EXPECTED_DEFAULT_ORGANIZATION_METADATA,
         attributes: [
           { trait_type: 'Whitelist Only', value: 'False' },
-          { trait_type: 'Max Mints', value: '0' },
+          { trait_type: 'Max Mints', value: 'No Limit' },
         ],
       });
 

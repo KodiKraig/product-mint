@@ -9,7 +9,7 @@ import {
 const DEFAULT_ATTRIBUTES = {
   attributes: [
     { trait_type: 'Whitelist Only', value: 'False' },
-    { trait_type: 'Max Mints', value: '0' },
+    { trait_type: 'Max Mints', value: 'No Limit' },
   ],
 };
 

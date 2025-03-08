@@ -35,7 +35,7 @@ contract OrganizationMetadataProvider is MetadataProvider {
                     "Whitelist Only"
                 ),
                 ",",
-                purchaseRegistry.maxMints(tokenId).attributeTraitType(
+                purchaseRegistry.maxMints(tokenId).noLimitAttributeTraitType(
                     "Max Mints"
                 )
             );

@@ -66,4 +66,15 @@ library AttributeUtils {
     ) internal pure returns (string memory) {
         return attributeTraitType(value.toString(), traitType);
     }
+
+    function noLimitAttributeTraitType(
+        uint256 value,
+        string memory traitType
+    ) internal pure returns (string memory) {
+        return
+            attributeTraitType(
+                value == 0 ? "No Limit" : value.toString(),
+                traitType
+            );
+    }
 }
