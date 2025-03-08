@@ -4,6 +4,12 @@ pragma solidity ^0.8.20;
 
 import {MetadataUtils} from "../libs/MetadataUtils.sol";
 
+/**
+ * @title IMetadataProvider
+ * @notice Interface for a metadata provider.
+ *
+ * Used to set custom metadata for an organization or default metadata for the contract.
+ */
 interface IMetadataProvider {
     /**
      * Custom Metadata

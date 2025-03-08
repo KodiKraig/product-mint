@@ -17,7 +17,9 @@ import {RegistryEnabled} from "./RegistryEnabled.sol";
  *
  * This contract takes care of ensuring the token Metadata URI is properly formed for OpenSea and other platforms.
  *
+ * An organization admin can set custom metadata for their organization.
  *
+ * Only the contract owner can set default metadata for all tokens.
  */
 abstract contract MetadataProvider is
     Ownable2Step,
