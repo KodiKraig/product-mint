@@ -37,6 +37,14 @@ contract OrganizationMetadataProvider is MetadataProvider {
                 ",",
                 purchaseRegistry.maxMints(tokenId).noLimitAttributeTraitType(
                     "Max Mints"
+                ),
+                ",",
+                purchaseRegistry.totalProductsSold(tokenId).attributeTraitType(
+                    "Products Sold"
+                ),
+                ",",
+                purchaseRegistry.totalPassMints(tokenId).attributeTraitType(
+                    "Product Pass Mints"
                 )
             );
     }

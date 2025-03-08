@@ -10,6 +10,8 @@ const DEFAULT_ATTRIBUTES = {
   attributes: [
     { trait_type: 'Whitelist Only', value: 'False' },
     { trait_type: 'Max Mints', value: 'No Limit' },
+    { trait_type: 'Products Sold', value: '1' },
+    { trait_type: 'Product Pass Mints', value: '1' },
   ],
 };
 
@@ -477,7 +479,12 @@ describe('Organization Metadata Provider', () => {
       // Confirm the second org is unchanged and using the default metadata
       assertMetadata(await organizationMetadataProvider.getTokenMetadata(2), {
         ...EXPECTED_DEFAULT_ORGANIZATION_METADATA,
-        ...DEFAULT_ATTRIBUTES,
+        attributes: [
+          { trait_type: 'Whitelist Only', value: 'False' },
+          { trait_type: 'Max Mints', value: 'No Limit' },
+          { trait_type: 'Products Sold', value: '0' },
+          { trait_type: 'Product Pass Mints', value: '0' },
+        ],
       });
     });
 

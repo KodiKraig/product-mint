@@ -219,6 +219,15 @@ describe('ProductPassNFT', () => {
         isTransferable: false,
       });
 
+      await productRegistry.connect(otherAccount).createProduct({
+        orgId: 2,
+        name: 'Name 3',
+        description: 'Product description 3',
+        imageUrl: 'Product image',
+        externalUrl: 'Product external URL',
+        isTransferable: false,
+      });
+
       await pricingRegistry.connect(otherAccount).createOneTimePricing({
         organizationId: 2,
         flatPrice: ethers.parseEther('1'),
@@ -227,6 +236,19 @@ describe('ProductPassNFT', () => {
       });
 
       await productRegistry.connect(otherAccount).linkPricing(2, [2]);
+      await productRegistry.connect(otherAccount).linkPricing(3, [2]);
+
+      // Create additional product for org 1
+      await productRegistry.connect(owner).createProduct({
+        orgId: 1,
+        name: 'Name 4',
+        description: 'Product description 4',
+        imageUrl: 'Product image',
+        externalUrl: 'Product external URL',
+        isTransferable: false,
+      });
+
+      await productRegistry.connect(owner).linkPricing(4, [1]);
 
       // Mint the passes
       await purchaseManager.connect(otherAccount).purchaseProducts({
@@ -243,14 +265,14 @@ describe('ProductPassNFT', () => {
         {
           to: otherAccount,
           organizationId: 2,
-          productIds: [2],
-          pricingIds: [2],
-          quantities: [0],
+          productIds: [2, 3],
+          pricingIds: [2, 2],
+          quantities: [0, 0],
           couponCode: '',
           airdrop: false,
           pause: false,
         },
-        { value: ethers.parseEther('1') },
+        { value: ethers.parseEther('2') },
       );
 
       await purchaseManager.connect(otherAccount2).purchaseProducts({
@@ -267,8 +289,22 @@ describe('ProductPassNFT', () => {
         {
           to: otherAccount2,
           organizationId: 2,
-          productIds: [2],
-          pricingIds: [2],
+          productIds: [2, 3],
+          pricingIds: [2, 2],
+          quantities: [0, 0],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        },
+        { value: ethers.parseEther('2') },
+      );
+
+      // Add additional product to the pass
+      await purchaseManager.connect(otherAccount).purchaseAdditionalProducts(
+        {
+          productPassId: 1,
+          productIds: [4],
+          pricingIds: [1],
           quantities: [0],
           couponCode: '',
           airdrop: false,
@@ -280,6 +316,8 @@ describe('ProductPassNFT', () => {
       // Supply checks
       expect(await purchaseManager.passSupply()).to.equal(5);
       expect(await organizationNFT.totalSupply()).to.equal(2);
+      expect(await purchaseRegistry.totalProductsSold(1)).to.equal(4);
+      expect(await purchaseRegistry.totalProductsSold(2)).to.equal(4);
 
       // Pass Token URIs
       const tokenUris = await productPassNFT.tokenURIBatch([1, 2, 3, 4, 5]);
@@ -290,6 +328,7 @@ describe('ProductPassNFT', () => {
         attributes: [
           { trait_type: 'Organization ID', value: '1' },
           { trait_type: 'Product 1', value: 'Product 1' },
+          { trait_type: 'Product 4', value: 'Name 4' },
         ],
       });
 
@@ -306,6 +345,7 @@ describe('ProductPassNFT', () => {
         attributes: [
           { trait_type: 'Organization ID', value: '2' },
           { trait_type: 'Product 2', value: 'Name 2' },
+          { trait_type: 'Product 3', value: 'Name 3' },
         ],
       });
 
@@ -322,6 +362,7 @@ describe('ProductPassNFT', () => {
         attributes: [
           { trait_type: 'Organization ID', value: '2' },
           { trait_type: 'Product 2', value: 'Name 2' },
+          { trait_type: 'Product 3', value: 'Name 3' },
         ],
       });
 
@@ -334,6 +375,8 @@ describe('ProductPassNFT', () => {
         attributes: [
           { trait_type: 'Whitelist Only', value: 'False' },
           { trait_type: 'Max Mints', value: 'No Limit' },
+          { trait_type: 'Products Sold', value: '4' },
+          { trait_type: 'Product Pass Mints', value: '3' },
         ],
       });
 
@@ -342,6 +385,8 @@ describe('ProductPassNFT', () => {
         attributes: [
           { trait_type: 'Whitelist Only', value: 'True' },
           { trait_type: 'Max Mints', value: '1' },
+          { trait_type: 'Products Sold', value: '4' },
+          { trait_type: 'Product Pass Mints', value: '2' },
         ],
       });
     });
