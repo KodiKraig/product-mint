@@ -7,6 +7,7 @@ import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
+import {IMetadataProvider} from "./IMetadataProvider.sol";
 import {ITokenMetadataProvider} from "../metadata/ITokenMetadataProvider.sol";
 import {MetadataUtils} from "../libs/MetadataUtils.sol";
 import {RegistryEnabled} from "./RegistryEnabled.sol";
@@ -25,16 +26,17 @@ abstract contract MetadataProvider is
     Ownable2Step,
     RegistryEnabled,
     ITokenMetadataProvider,
-    IERC165
+    IERC165,
+    IMetadataProvider
 {
     using MetadataUtils for MetadataUtils.Metadata;
     using Strings for string;
 
     // Organization ID => Metadata
-    mapping(uint256 => MetadataUtils.Metadata) public customMetadata;
+    mapping(uint256 => MetadataUtils.Metadata) private customMetadata;
 
     // Default metadata for all tokens when no custom metadata is set by the org admin
-    MetadataUtils.Metadata public defaultMetadata;
+    MetadataUtils.Metadata private defaultMetadata;
 
     uint256[50] private __gap;
 
@@ -42,12 +44,20 @@ abstract contract MetadataProvider is
      * Custom Metadata
      */
 
+    function getCustomMetadata(
+        uint256 organizationId
+    ) public view virtual returns (MetadataUtils.Metadata memory) {
+        return customMetadata[organizationId];
+    }
+
     function setCustomMetadataField(
         uint256 organizationId,
         MetadataUtils.Fields field,
         string memory value
     ) public virtual onlyOrgAdmin(organizationId) {
         _setMetadataByField(customMetadata[organizationId], field, value);
+
+        emit CustomMetadataUpdated(organizationId);
     }
 
     function setCustomMetadata(
@@ -55,23 +65,38 @@ abstract contract MetadataProvider is
         MetadataUtils.Metadata memory metadata
     ) public virtual onlyOrgAdmin(organizationId) {
         customMetadata[organizationId].setAll(metadata);
+
+        emit CustomMetadataUpdated(organizationId);
     }
 
     /**
      * Default Metadata
      */
 
+    function getDefaultMetadata()
+        public
+        view
+        virtual
+        returns (MetadataUtils.Metadata memory)
+    {
+        return defaultMetadata;
+    }
+
     function setDefaultMetadataField(
         MetadataUtils.Fields field,
         string memory value
     ) public virtual onlyOwner {
         _setMetadataByField(defaultMetadata, field, value);
+
+        emit DefaultMetadataUpdated();
     }
 
     function setDefaultMetadata(
         MetadataUtils.Metadata memory metadata
     ) public virtual onlyOwner {
         defaultMetadata.setAll(metadata);
+
+        emit DefaultMetadataUpdated();
     }
 
     /**

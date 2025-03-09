@@ -16,13 +16,19 @@ interface IMetadataProvider {
      */
 
     /**
+     * @notice Emitted when custom metadata is updated for an organization.
+     * @param organizationId The organization ID
+     */
+    event CustomMetadataUpdated(uint256 indexed organizationId);
+
+    /**
      * @notice Get the custom metadata that has been set by an organization admin.
      * Orgs do not have to set custom metadata, and if they do not, the default metadata will be used.
      * If you only want to override a certain field, you can use the `setCustomMetadataField` function.
      * @param organizationId The organization ID
      * @return The custom metadata
      */
-    function customMetadata(
+    function getCustomMetadata(
         uint256 organizationId
     ) external view returns (MetadataUtils.Metadata memory);
 
@@ -53,10 +59,15 @@ interface IMetadataProvider {
      */
 
     /**
+     * @notice Emitted when default metadata is updated for the contract.
+     */
+    event DefaultMetadataUpdated();
+
+    /**
      * @notice Get the default metadata that has been set by the contract owner.
      * @return The default metadata
      */
-    function defaultMetadata()
+    function getDefaultMetadata()
         external
         view
         returns (MetadataUtils.Metadata memory);

@@ -21,9 +21,11 @@ describe('Organization Metadata Provider', () => {
 
     const { organizationMetadataProvider } = results;
 
-    await organizationMetadataProvider.setDefaultMetadata(
-      DEFAULT_ORGANIZATION_METADATA,
-    );
+    await expect(
+      organizationMetadataProvider.setDefaultMetadata(
+        DEFAULT_ORGANIZATION_METADATA,
+      ),
+    ).to.emit(organizationMetadataProvider, 'DefaultMetadataUpdated');
 
     return results;
   }
@@ -103,7 +105,7 @@ describe('Organization Metadata Provider', () => {
       };
 
       expect(
-        await organizationMetadataProvider.defaultMetadata(),
+        await organizationMetadataProvider.getDefaultMetadata(),
       ).to.deep.equal([
         'Updated Name',
         'Updated Description',
@@ -142,13 +144,12 @@ describe('Organization Metadata Provider', () => {
 
         const updatedName = 'n'.repeat(64);
 
-        await organizationMetadataProvider.setDefaultMetadataField(
-          0,
-          updatedName,
-        );
+        await expect(
+          organizationMetadataProvider.setDefaultMetadataField(0, updatedName),
+        ).to.emit(organizationMetadataProvider, 'DefaultMetadataUpdated');
 
         expect(
-          await organizationMetadataProvider.defaultMetadata(),
+          await organizationMetadataProvider.getDefaultMetadata(),
         ).to.deep.equal([
           updatedName,
           DEFAULT_ORGANIZATION_METADATA.description,
@@ -194,7 +195,7 @@ describe('Organization Metadata Provider', () => {
         );
 
         expect(
-          await organizationMetadataProvider.defaultMetadata(),
+          await organizationMetadataProvider.getDefaultMetadata(),
         ).to.deep.equal([
           DEFAULT_ORGANIZATION_METADATA.name,
           updatedDescription,
@@ -240,7 +241,7 @@ describe('Organization Metadata Provider', () => {
         );
 
         expect(
-          await organizationMetadataProvider.defaultMetadata(),
+          await organizationMetadataProvider.getDefaultMetadata(),
         ).to.deep.equal([
           DEFAULT_ORGANIZATION_METADATA.name,
           DEFAULT_ORGANIZATION_METADATA.description,
@@ -258,7 +259,7 @@ describe('Organization Metadata Provider', () => {
         await organizationMetadataProvider.setDefaultMetadataField(2, '');
 
         expect(
-          await organizationMetadataProvider.defaultMetadata(),
+          await organizationMetadataProvider.getDefaultMetadata(),
         ).to.deep.equal([
           DEFAULT_ORGANIZATION_METADATA.name,
           DEFAULT_ORGANIZATION_METADATA.description,
@@ -295,7 +296,7 @@ describe('Organization Metadata Provider', () => {
         );
 
         expect(
-          await organizationMetadataProvider.defaultMetadata(),
+          await organizationMetadataProvider.getDefaultMetadata(),
         ).to.deep.equal([
           DEFAULT_ORGANIZATION_METADATA.name,
           DEFAULT_ORGANIZATION_METADATA.description,
@@ -313,7 +314,7 @@ describe('Organization Metadata Provider', () => {
         await organizationMetadataProvider.setDefaultMetadataField(3, '');
 
         expect(
-          await organizationMetadataProvider.defaultMetadata(),
+          await organizationMetadataProvider.getDefaultMetadata(),
         ).to.deep.equal([
           DEFAULT_ORGANIZATION_METADATA.name,
           DEFAULT_ORGANIZATION_METADATA.description,
@@ -350,7 +351,7 @@ describe('Organization Metadata Provider', () => {
         );
 
         expect(
-          await organizationMetadataProvider.defaultMetadata(),
+          await organizationMetadataProvider.getDefaultMetadata(),
         ).to.deep.equal([
           DEFAULT_ORGANIZATION_METADATA.name,
           DEFAULT_ORGANIZATION_METADATA.description,
@@ -368,7 +369,7 @@ describe('Organization Metadata Provider', () => {
         await organizationMetadataProvider.setDefaultMetadataField(4, '');
 
         expect(
-          await organizationMetadataProvider.defaultMetadata(),
+          await organizationMetadataProvider.getDefaultMetadata(),
         ).to.deep.equal([
           DEFAULT_ORGANIZATION_METADATA.name,
           DEFAULT_ORGANIZATION_METADATA.description,
@@ -404,7 +405,7 @@ describe('Organization Metadata Provider', () => {
         );
 
         expect(
-          await organizationMetadataProvider.defaultMetadata(),
+          await organizationMetadataProvider.getDefaultMetadata(),
         ).to.deep.equal([
           DEFAULT_ORGANIZATION_METADATA.name,
           DEFAULT_ORGANIZATION_METADATA.description,
@@ -422,7 +423,7 @@ describe('Organization Metadata Provider', () => {
         await organizationMetadataProvider.setDefaultMetadataField(5, '');
 
         expect(
-          await organizationMetadataProvider.defaultMetadata(),
+          await organizationMetadataProvider.getDefaultMetadata(),
         ).to.deep.equal([
           DEFAULT_ORGANIZATION_METADATA.name,
           DEFAULT_ORGANIZATION_METADATA.description,
@@ -464,7 +465,11 @@ describe('Organization Metadata Provider', () => {
       };
 
       // Update the first org
-      await organizationMetadataProvider.setCustomMetadata(1, updatedMetadata);
+      await expect(
+        organizationMetadataProvider.setCustomMetadata(1, updatedMetadata),
+      )
+        .to.emit(organizationMetadataProvider, 'CustomMetadataUpdated')
+        .withArgs(1);
 
       assertMetadata(await organizationMetadataProvider.getTokenMetadata(1), {
         name: updatedMetadata.name,
@@ -475,6 +480,18 @@ describe('Organization Metadata Provider', () => {
         animation_url: updatedMetadata.animationUrl,
         ...DEFAULT_ATTRIBUTES,
       });
+
+      const defaultMetadata =
+        await organizationMetadataProvider.getCustomMetadata(1);
+
+      expect(defaultMetadata).to.deep.equal([
+        updatedMetadata.name,
+        updatedMetadata.description,
+        updatedMetadata.externalUrl,
+        updatedMetadata.image,
+        updatedMetadata.backgroundColor,
+        updatedMetadata.animationUrl,
+      ]);
 
       // Confirm the second org is unchanged and using the default metadata
       assertMetadata(await organizationMetadataProvider.getTokenMetadata(2), {
@@ -515,11 +532,15 @@ describe('Organization Metadata Provider', () => {
     it('can update name', async () => {
       const { organizationMetadataProvider } = await loadWithDefaultMetadata();
 
-      await organizationMetadataProvider.setCustomMetadataField(
-        1,
-        0,
-        'Updated Name',
-      );
+      await expect(
+        organizationMetadataProvider.setCustomMetadataField(
+          1,
+          0,
+          'Updated Name',
+        ),
+      )
+        .to.emit(organizationMetadataProvider, 'CustomMetadataUpdated')
+        .withArgs(1);
 
       assertMetadata(await organizationMetadataProvider.getTokenMetadata(1), {
         ...EXPECTED_DEFAULT_ORGANIZATION_METADATA,
@@ -531,11 +552,15 @@ describe('Organization Metadata Provider', () => {
     it('can update description', async () => {
       const { organizationMetadataProvider } = await loadWithDefaultMetadata();
 
-      await organizationMetadataProvider.setCustomMetadataField(
-        1,
-        1,
-        'Updated Description',
-      );
+      await expect(
+        organizationMetadataProvider.setCustomMetadataField(
+          1,
+          1,
+          'Updated Description',
+        ),
+      )
+        .to.emit(organizationMetadataProvider, 'CustomMetadataUpdated')
+        .withArgs(1);
 
       assertMetadata(await organizationMetadataProvider.getTokenMetadata(1), {
         ...EXPECTED_DEFAULT_ORGANIZATION_METADATA,
@@ -547,11 +572,15 @@ describe('Organization Metadata Provider', () => {
     it('can update external url', async () => {
       const { organizationMetadataProvider } = await loadWithDefaultMetadata();
 
-      await organizationMetadataProvider.setCustomMetadataField(
-        1,
-        2,
-        'Updated External URL',
-      );
+      await expect(
+        organizationMetadataProvider.setCustomMetadataField(
+          1,
+          2,
+          'Updated External URL',
+        ),
+      )
+        .to.emit(organizationMetadataProvider, 'CustomMetadataUpdated')
+        .withArgs(1);
 
       assertMetadata(await organizationMetadataProvider.getTokenMetadata(1), {
         ...EXPECTED_DEFAULT_ORGANIZATION_METADATA,
@@ -563,11 +592,15 @@ describe('Organization Metadata Provider', () => {
     it('can update image', async () => {
       const { organizationMetadataProvider } = await loadWithDefaultMetadata();
 
-      await organizationMetadataProvider.setCustomMetadataField(
-        1,
-        3,
-        'Updated Image',
-      );
+      await expect(
+        organizationMetadataProvider.setCustomMetadataField(
+          1,
+          3,
+          'Updated Image',
+        ),
+      )
+        .to.emit(organizationMetadataProvider, 'CustomMetadataUpdated')
+        .withArgs(1);
 
       assertMetadata(await organizationMetadataProvider.getTokenMetadata(1), {
         ...EXPECTED_DEFAULT_ORGANIZATION_METADATA,
@@ -579,7 +612,11 @@ describe('Organization Metadata Provider', () => {
     it('can update background color', async () => {
       const { organizationMetadataProvider } = await loadWithDefaultMetadata();
 
-      await organizationMetadataProvider.setCustomMetadataField(1, 4, '999999');
+      await expect(
+        organizationMetadataProvider.setCustomMetadataField(1, 4, '999999'),
+      )
+        .to.emit(organizationMetadataProvider, 'CustomMetadataUpdated')
+        .withArgs(1);
 
       assertMetadata(await organizationMetadataProvider.getTokenMetadata(1), {
         ...EXPECTED_DEFAULT_ORGANIZATION_METADATA,
@@ -591,11 +628,15 @@ describe('Organization Metadata Provider', () => {
     it('can update animation url', async () => {
       const { organizationMetadataProvider } = await loadWithDefaultMetadata();
 
-      await organizationMetadataProvider.setCustomMetadataField(
-        1,
-        5,
-        'https://www.hysteaks.com/animation.mp4',
-      );
+      await expect(
+        organizationMetadataProvider.setCustomMetadataField(
+          1,
+          5,
+          'https://www.hysteaks.com/animation.mp4',
+        ),
+      )
+        .to.emit(organizationMetadataProvider, 'CustomMetadataUpdated')
+        .withArgs(1);
 
       assertMetadata(await organizationMetadataProvider.getTokenMetadata(1), {
         ...EXPECTED_DEFAULT_ORGANIZATION_METADATA,
