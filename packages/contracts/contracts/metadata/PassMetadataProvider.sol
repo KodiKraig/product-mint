@@ -46,20 +46,14 @@ contract PassMetadataProvider is MetadataProvider {
     function _getOwnedProductAttributes(
         uint256 tokenId
     ) internal view returns (string memory) {
-        IPurchaseRegistry purchaseRegistry = IPurchaseRegistry(
+        uint256[] memory productIds = IPurchaseRegistry(
             registry.purchaseRegistry()
-        );
+        ).getPassProductIds(tokenId);
 
-        IProductRegistry productRegistry = IProductRegistry(
+        string[] memory productNames = IProductRegistry(
             registry.productRegistry()
-        );
+        ).getProductNames(productIds);
 
-        uint256[] memory productIds = purchaseRegistry.getPassProductIds(
-            tokenId
-        );
-        string[] memory productNames = productRegistry.getProductNames(
-            productIds
-        );
         string memory productNamesString = "";
 
         for (uint256 i = 0; i < productNames.length; i++) {
