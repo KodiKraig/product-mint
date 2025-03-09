@@ -7,8 +7,9 @@ describe('SubscriptionEscrow', () => {
   async function deploySubscriptionEscrow() {
     const [owner, otherAccount] = await hre.ethers.getSigners();
 
-    const ContractRegistry =
-      await hre.ethers.getContractFactory('ContractRegistry');
+    const ContractRegistry = await hre.ethers.getContractFactory(
+      'ContractRegistry',
+    );
     const contractRegistry = await ContractRegistry.deploy();
 
     const OrganizationMetadataProvider = await hre.ethers.getContractFactory(
@@ -17,26 +18,31 @@ describe('SubscriptionEscrow', () => {
     const organizationMetadataProvider =
       await OrganizationMetadataProvider.deploy(contractRegistry);
 
-    const OrganizationNFT =
-      await hre.ethers.getContractFactory('OrganizationNFT');
+    const OrganizationNFT = await hre.ethers.getContractFactory(
+      'OrganizationNFT',
+    );
     const organizationNFT = await OrganizationNFT.deploy(
       organizationMetadataProvider,
     );
 
     await organizationNFT.connect(owner).setMintOpen(true);
 
-    const OrganizationAdmin =
-      await hre.ethers.getContractFactory('OrganizationAdmin');
+    const OrganizationAdmin = await hre.ethers.getContractFactory(
+      'OrganizationAdmin',
+    );
     const organizationAdmin = await OrganizationAdmin.deploy(contractRegistry);
 
-    const PurchaseManager =
-      await hre.ethers.getContractFactory('PurchaseManager');
+    const PurchaseManager = await hre.ethers.getContractFactory(
+      'PurchaseManager',
+    );
     const purchaseManager = await PurchaseManager.deploy(contractRegistry);
 
-    const SubscriptionEscrow =
-      await hre.ethers.getContractFactory('SubscriptionEscrow');
-    const subscriptionEscrow =
-      await SubscriptionEscrow.deploy(contractRegistry);
+    const SubscriptionEscrow = await hre.ethers.getContractFactory(
+      'SubscriptionEscrow',
+    );
+    const subscriptionEscrow = await SubscriptionEscrow.deploy(
+      contractRegistry,
+    );
 
     await contractRegistry.setPurchaseManager(purchaseManager);
     await contractRegistry.setSubscriptionEscrow(subscriptionEscrow);
@@ -231,6 +237,20 @@ describe('SubscriptionEscrow', () => {
         .withArgs(1, false);
 
       expect(await subscriptionEscrow.subscriptionsPauseable(1)).to.be.false;
+    });
+  });
+
+  describe('Change Subscription Unit Quantity', () => {
+    it('should revert if not purchase manager', async () => {
+      const { subscriptionEscrow, owner } = await loadFixture(
+        deploySubscriptionEscrow,
+      );
+
+      await expect(
+        subscriptionEscrow
+          .connect(owner)
+          .changeSubscriptionUnitQuantity(1, 1, 1),
+      ).to.be.revertedWith('Caller not authorized');
     });
   });
 });
