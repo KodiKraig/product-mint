@@ -73,6 +73,12 @@ contract PassMetadataProvider is MetadataProvider {
         return productNamesString;
     }
 
+    /**
+     * @dev Generate the attribute for a product.
+     *
+     * Format:
+     * { 'trait_type': 'Product <ID>', 'value': '<PRODUCT NAME>' },
+     */
     function _productNameAttribute(
         uint256 productId,
         string memory name
