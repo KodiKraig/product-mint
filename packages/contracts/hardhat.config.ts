@@ -7,7 +7,7 @@ import 'hardhat-contract-sizer';
 const PRIVATE_KEY = process.env.PRIVATE_KEY || '';
 
 const config: HardhatUserConfig = {
-  solidity: '0.8.20',
+  solidity: '0.8.24',
   contractSizer: {
     alphaSort: true,
     disambiguatePaths: false,

@@ -7,7 +7,7 @@ globs: *.sol
 ## Project Tech Stack
 When writing code, make sure to make best practice suggestions based on the main dependencies listed below and take their version into account.
 
-- Solidity - v0.8.20
+- Solidity - v0.8.24
 - Hardhat - v2.22.17
 - Chai - v5
 - Ethers.js - v6
