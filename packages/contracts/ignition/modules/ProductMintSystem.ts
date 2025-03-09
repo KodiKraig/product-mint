@@ -35,7 +35,7 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
     {
       name: 'Product Pass',
       description:
-        'A ProductMint Product Pass for tokenizing products and permissionless subscriptions. Organizations can sell product passes to their customers to grant them access to their products.',
+        'A ProductMint Product Pass is used for tokenizing products and creating permissionless subscriptions. Organizations can sell product passes to their customers to grant them access to their products.',
       externalUrl: 'https://productmint.io',
       image: 'https://productmint.io/image.png',
       backgroundColor: '',
@@ -58,7 +58,7 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
     {
       name: 'Organization',
       description:
-        'A ProductMint Organization is required to sell products and subscriptions onchain. Create products and pricing plans with the organization to start selling product passes for your products.',
+        'A ProductMint Organization is required to sell products and subscriptions. Create products and pricing models within the organization to start selling product passes for your products.',
       externalUrl: 'https://productmint.io',
       image: 'https://productmint.io/image.png',
       backgroundColor: '',

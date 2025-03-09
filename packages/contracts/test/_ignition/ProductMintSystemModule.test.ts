@@ -20,7 +20,7 @@ describe('ProductMintSystemModule', () => {
     const metadata = await passMetadataProvider.defaultMetadata();
     expect(metadata.name).to.equal('Product Pass');
     expect(metadata.description).to.equal(
-      'A ProductMint Product Pass for tokenizing products and permissionless subscriptions. Organizations can sell product passes to their customers to grant them access to their products.',
+      'A ProductMint Product Pass is used for tokenizing products and creating permissionless subscriptions. Organizations can sell product passes to their customers to grant them access to their products.',
     );
     expect(metadata.externalUrl).to.equal('https://productmint.io');
     expect(metadata.image).to.equal('https://productmint.io/image.png');
@@ -36,7 +36,7 @@ describe('ProductMintSystemModule', () => {
     const metadata = await organizationMetadataProvider.defaultMetadata();
     expect(metadata.name).to.equal('Organization');
     expect(metadata.description).to.equal(
-      'A ProductMint Organization is required to sell products and subscriptions onchain. Create products and pricing plans with the organization to start selling product passes for your products.',
+      'A ProductMint Organization is required to sell products and subscriptions. Create products and pricing models within the organization to start selling product passes for your products.',
     );
     expect(metadata.externalUrl).to.equal('https://productmint.io');
     expect(metadata.image).to.equal('https://productmint.io/image.png');
