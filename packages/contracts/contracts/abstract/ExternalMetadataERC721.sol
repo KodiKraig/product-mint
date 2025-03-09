@@ -9,7 +9,9 @@ import {ITokenMetadataProvider} from "../metadata/ITokenMetadataProvider.sol";
 
 /**
  * @title ExternalMetadataERC721
- * @notice A base contract for ERC721 tokens that use an external metadata provider
+ * @notice A base contract for ERC721 tokens that use an external metadata provider.
+ *
+ * Also included is a batch tokenURI function.
  */
 abstract contract ExternalMetadataERC721 is ERC721 {
     /**
@@ -50,12 +52,13 @@ abstract contract ExternalMetadataERC721 is ERC721 {
 
     /**
      * @notice Get the token metadata for a batch of tokens
+     * @dev Be careful when using this function as it can be expensive and return a large amount of data.
      * @param tokenIds The token IDs
      * @return The token metadata
      */
     function tokenURIBatch(
         uint256[] memory tokenIds
-    ) external view returns (string[] memory) {
+    ) public view virtual returns (string[] memory) {
         string[] memory uris = new string[](tokenIds.length);
         for (uint256 i = 0; i < tokenIds.length; i++) {
             uris[i] = tokenURI(tokenIds[i]);

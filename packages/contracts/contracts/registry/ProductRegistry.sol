@@ -98,6 +98,16 @@ contract ProductRegistry is
         }
     }
 
+    function getProductNames(
+        uint256[] memory _productIds
+    ) external view returns (string[] memory _productNames) {
+        _productNames = new string[](_productIds.length);
+
+        for (uint256 i = 0; i < _productIds.length; i++) {
+            _productNames[i] = products[_productIds[i]].name;
+        }
+    }
+
     function getOrgProductIds(
         uint256 _organizationId
     ) external view returns (uint256[] memory) {

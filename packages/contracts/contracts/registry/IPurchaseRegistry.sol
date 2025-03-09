@@ -27,6 +27,24 @@ interface IPurchaseRegistry {
     ) external view returns (uint256);
 
     /**
+     * @notice Get the total number of products sold for an organization.
+     * @param organizationId The organization ID to get the total products sold for.
+     * @return The total products sold across all passes for the organization.
+     */
+    function totalProductsSold(
+        uint256 organizationId
+    ) external view returns (uint256);
+
+    /**
+     * @notice Get the total number of product passes minted for an organization.
+     * @param organizationId The organization ID to get the total pass mints for.
+     * @return The total pass mints for the organization.
+     */
+    function totalPassMints(
+        uint256 organizationId
+    ) external view returns (uint256);
+
+    /**
      * @notice Get the product IDs that have been purchased for a pass.
      * @param tokenId The Product Pass Token ID to get the product IDs for.
      * @return The product IDs for the pass.
@@ -52,6 +70,13 @@ interface IPurchaseRegistry {
      * @return The max amount of product passes that can be minted by a single wallet for the organization.
      */
     function maxMints(uint256 organizationId) external view returns (uint256);
+
+    /**
+     * @notice Get the whitelist status for an organization.
+     * @param organizationId The organization ID to get the whitelist status for.
+     * @return True if the organization is whitelist only, false otherwise.
+     */
+    function isWhitelist(uint256 organizationId) external view returns (bool);
 
     /**
      * Record Purchase

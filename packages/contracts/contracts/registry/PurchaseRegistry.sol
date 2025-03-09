@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
+
 pragma solidity ^0.8.20;
 
 import {
@@ -24,6 +25,12 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
 
     // Product ID => Max Supply
     mapping(uint256 => uint256) public productMaxSupply;
+
+    // Organization ID => Total products sold
+    mapping(uint256 => uint256) public totalProductsSold;
+
+    // Organization ID => Total pass mints
+    mapping(uint256 => uint256) public totalPassMints;
 
     // Organization ID -> Product Pass Owner -> Number of total mints
     mapping(uint256 => mapping(address => uint256)) public passMintCount;
@@ -68,6 +75,7 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
         if (passOrganization[_passId] == 0) {
             // New pass
             passOrganization[_passId] = _organizationId;
+            totalPassMints[_organizationId] += 1;
         } else if (passOrganization[_passId] != _organizationId) {
             revert InvalidOrganization();
         }
@@ -103,6 +111,7 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
             }
 
             productSupply[_productIds[i]] += 1;
+            totalProductsSold[_organizationId] += 1;
             purchasedProducts[_passId].add(_productIds[i]);
         }
     }

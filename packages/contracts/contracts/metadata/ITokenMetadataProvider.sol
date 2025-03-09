@@ -4,13 +4,13 @@ pragma solidity ^0.8.20;
 
 /**
  * @title ITokenMetadataProvider
- * @notice An interface for token metadata providers
+ * @notice An interface for token metadata providers to provide metadata for ERC721 tokens.
  */
 interface ITokenMetadataProvider {
     /**
-     * @notice Get the token metadata
+     * @notice Get the token metadata for a given token ID.
      * @param tokenId The token ID
-     * @return The token metadata
+     * @return The token metadata as a JSON string
      */
     function getTokenMetadata(
         uint256 tokenId

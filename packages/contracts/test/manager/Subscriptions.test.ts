@@ -114,8 +114,9 @@ describe('Purchase Manager', () => {
           pause: false,
         });
 
-      const { timestamp: additionalProductsTimeStamp } =
-        await parseTimestamp(additionalProductsTx);
+      const { timestamp: additionalProductsTimeStamp } = await parseTimestamp(
+        additionalProductsTx,
+      );
 
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
         ethers.parseUnits('87.5', 6),
@@ -639,8 +640,9 @@ describe('Purchase Manager', () => {
           pause: false,
         });
 
-      const { timestamp: additionalProductsTimeStamp } =
-        await parseTimestamp(additionalProductsTx);
+      const { timestamp: additionalProductsTimeStamp } = await parseTimestamp(
+        additionalProductsTx,
+      );
 
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
         ethers.parseUnits('84.5', 6),
@@ -1339,8 +1341,9 @@ describe('Purchase Manager', () => {
           pause: false,
         });
 
-      const { timestamp: purchaseAdditionalTimeStamp } =
-        await parseTimestamp(purchaseAdditionalTx);
+      const { timestamp: purchaseAdditionalTimeStamp } = await parseTimestamp(
+        purchaseAdditionalTx,
+      );
 
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
         ethers.parseUnits('86', 6),
@@ -2918,6 +2921,20 @@ describe('Purchase Manager', () => {
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
         ethers.parseUnits('98', 6),
       );
+    });
+
+    it('cannot update unity quantity for a flat rate subscription', async () => {
+      const { purchaseManager } = await loadWithPurchasedFlatRateSubscription();
+
+      await expect(
+        purchaseManager.changeTieredSubscriptionUnitQuantity(
+          1,
+          1,
+          1,
+          20,
+          false,
+        ),
+      ).to.be.revertedWith('Unit quantity does not exist');
     });
   });
 });
