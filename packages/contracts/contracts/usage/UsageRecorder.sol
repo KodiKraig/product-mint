@@ -22,7 +22,6 @@ import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
  */
 contract UsageRecorder is RegistryEnabled, IUsageRecorder, IERC165 {
     using EnumerableSet for EnumerableSet.UintSet;
-    using EnumerableSet for EnumerableSet.AddressSet;
 
     // Organization token ID => Meter IDs
     // Meters owned by the organization based on the organization token ID.
@@ -36,10 +35,6 @@ contract UsageRecorder is RegistryEnabled, IUsageRecorder, IERC165 {
 
     // Total meters created
     uint256 public totalMeterCount;
-
-    // Organization ID => Addresses that can record usages for the organization.
-    // Useful for recording usages through an application without having to be the owner of the organization.
-    mapping(uint256 => EnumerableSet.AddressSet) private admins;
 
     constructor(address _contractRegistry) RegistryEnabled(_contractRegistry) {}
 
