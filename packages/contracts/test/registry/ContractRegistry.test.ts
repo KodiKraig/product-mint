@@ -81,6 +81,8 @@ describe('ContractRegistry', () => {
         'purchaseManager()',
         'paymentEscrow()',
         'usageRecorder()',
+        'PASS_LOCK()',
+        'ORG_LOCK()',
       ]);
 
       expect(await contractRegistry.supportsInterface(interfaceId)).to.be.true;

@@ -26,6 +26,15 @@ import {IOrganizationAdmin} from "../admin/IOrganizationAdmin.sol";
 import {ICouponRegistry} from "./ICouponRegistry.sol";
 import {OneTimeLock} from "../utils/OneTimeLock.sol";
 
+/**
+ * @title ContractRegistry
+ * @notice A contract that holds all the addresses of the contracts within the ProductMint system.
+ *
+ * All of the contracts within the system interface with one another to bring the system to life.
+ *
+ * __ProductMint__
+ * NFT based payment system to mint products onchain with one-time payments and recurring permissionless subscriptions.
+ */
 contract ContractRegistry is
     Ownable2Step,
     OneTimeLock,
