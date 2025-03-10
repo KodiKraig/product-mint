@@ -52,6 +52,24 @@ interface ISubscriptionEscrow {
     ) external view returns (Subscription memory, SubscriptionStatus);
 
     /**
+     * @notice Get multiple subscriptions with their statuses.
+     * @param productPassId The ID of the product pass.
+     * @param productIds The IDs of the products.
+     * @return _subs The subscription details.
+     * @return _statuses The statuses of the subscriptions.
+     */
+    function getSubscriptionBatch(
+        uint256 productPassId,
+        uint256[] calldata productIds
+    )
+        external
+        view
+        returns (
+            Subscription[] memory _subs,
+            SubscriptionStatus[] memory _statuses
+        );
+
+    /**
      * @notice Emitted when a subscription cycle is updated.
      * @param organizationId The ID of the organization.
      * @param productPassId The ID of the product pass.
@@ -314,6 +332,7 @@ interface ISubscriptionEscrow {
      * @param productPassId The ID of the product pass.
      * @param productId The ID of the product.
      * @param quantity The quantity of the unit.
+     * @return orgId The ID of the organization which the subscription belongs to.
      * @return token The token of the pricing model.
      * @return amount The amount to charge for the unit quantity change.
      */
@@ -321,7 +340,7 @@ interface ISubscriptionEscrow {
         uint256 productPassId,
         uint256 productId,
         uint256 quantity
-    ) external returns (address token, uint256 amount);
+    ) external returns (uint256 orgId, address token, uint256 amount);
 
     /**
      * Cancellation

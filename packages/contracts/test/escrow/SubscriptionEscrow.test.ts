@@ -91,6 +91,10 @@ describe('SubscriptionEscrow', () => {
       await expect(
         subscriptionEscrow.connect(owner).getSubscription(1, 1),
       ).to.be.revertedWith('Subscription does not exist');
+
+      await expect(
+        subscriptionEscrow.connect(owner).getSubscriptionBatch(1, [1, 2, 3]),
+      ).to.be.revertedWith('Subscription does not exist');
     });
   });
 

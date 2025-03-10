@@ -42,6 +42,22 @@ interface IPaymentEscrow {
      */
 
     /**
+     * @notice Emitted when a transfer is recorded that transfers funds to an org.
+     * @param orgId Organization ID
+     * @param from Payer (User wallet)
+     * @param token Token address. Address(0) for native tokens.
+     * @param totalAmount Total amount transferred to the escrow contract
+     * @param orgAmount Amount transferred to the org minus fees
+     */
+    event TransferAmount(
+        uint256 indexed orgId,
+        address indexed from,
+        address indexed token,
+        uint256 totalAmount,
+        uint256 orgAmount
+    );
+
+    /**
      * @notice Transfer directly from the user wallet to the contract and set the balance for the organization
      * @dev Only callable by the purchase manager
      * @param orgId Organization ID

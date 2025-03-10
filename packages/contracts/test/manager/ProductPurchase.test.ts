@@ -237,10 +237,26 @@ describe('Purchase Manager', () => {
           [1, 2],
           [1, 2],
           [0, 0],
+          await mintToken.getAddress(),
           ethers.parseUnits('30', 6),
         )
         .and.to.emit(productPassNFT, 'Transfer')
-        .withArgs(ethers.ZeroAddress, otherAccount, 1);
+        .withArgs(ethers.ZeroAddress, otherAccount, 1)
+        .and.to.emit(purchaseManager, 'PerformPurchase')
+        .withArgs(
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('27', 6),
+        )
+        .and.to.emit(paymentEscrow, 'TransferAmount')
+        .withArgs(
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('27', 6),
+          ethers.parseUnits('27', 6),
+        );
 
       await expect(
         purchaseManager.connect(otherAccount2).purchaseProducts({
@@ -262,10 +278,26 @@ describe('Purchase Manager', () => {
           [1],
           [1],
           [0],
+          await mintToken.getAddress(),
           ethers.parseUnits('10', 6),
         )
         .and.to.emit(productPassNFT, 'Transfer')
-        .withArgs(ethers.ZeroAddress, otherAccount2, 2);
+        .withArgs(ethers.ZeroAddress, otherAccount2, 2)
+        .and.to.emit(purchaseManager, 'PerformPurchase')
+        .withArgs(
+          1,
+          otherAccount2,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
+        )
+        .and.to.emit(paymentEscrow, 'TransferAmount')
+        .withArgs(
+          1,
+          otherAccount2,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
+          ethers.parseUnits('10', 6),
+        );
 
       // ASSERTIONS
 
@@ -563,9 +595,24 @@ describe('Purchase Manager', () => {
           [1],
           [1],
           [0],
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
+        )
+        .and.to.emit(purchaseManager, 'PerformPurchase')
+        .withArgs(
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
+        )
+        .and.to.emit(paymentEscrow, 'TransferAmount')
+        .withArgs(
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
           ethers.parseUnits('10', 6),
         );
-
       // INITIAL ASSERTIONS
       expect(await purchaseRegistry.getPassProductIds(1)).to.deep.equal([1]);
       expect(await purchaseRegistry.productSupply(1)).to.equal(1);
@@ -748,7 +795,6 @@ describe('Purchase Manager', () => {
       // LOWER QUANTITY
 
       await purchaseManager.changeTieredSubscriptionUnitQuantity(
-        1,
         1,
         1,
         90,
@@ -1085,6 +1131,22 @@ describe('Purchase Manager', () => {
           [1],
           [1],
           [0],
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
+        )
+        .and.to.emit(purchaseManager, 'PerformPurchase')
+        .withArgs(
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
+        )
+        .and.to.emit(paymentEscrow, 'TransferAmount')
+        .withArgs(
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
           ethers.parseUnits('10', 6),
         );
 
@@ -1801,7 +1863,7 @@ describe('Purchase Manager', () => {
       await expect(
         purchaseManager
           .connect(otherAccount2)
-          .changeTieredSubscriptionUnitQuantity(1, 1, 1, 10, false),
+          .changeTieredSubscriptionUnitQuantity(1, 1, 10, false),
       ).to.be.revertedWithCustomError(purchaseManager, 'NotAuthorized');
     });
   });

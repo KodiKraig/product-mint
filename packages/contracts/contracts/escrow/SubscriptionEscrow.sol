@@ -70,6 +70,29 @@ contract SubscriptionEscrow is
         );
     }
 
+    function getSubscriptionBatch(
+        uint256 productPassId,
+        uint256[] calldata productIds
+    )
+        external
+        view
+        returns (
+            Subscription[] memory _subs,
+            SubscriptionStatus[] memory _statuses
+        )
+    {
+        _subs = new Subscription[](productIds.length);
+        _statuses = new SubscriptionStatus[](productIds.length);
+
+        for (uint256 i = 0; i < productIds.length; i++) {
+            _checkSubExists(productPassId, productIds[i]);
+            _subs[i] = subs[productPassId][productIds[i]];
+            _statuses[i] = _getSubStatus(_subs[i]);
+        }
+
+        return (_subs, _statuses);
+    }
+
     function _getSubStatus(
         Subscription memory sub
     ) internal view returns (SubscriptionStatus) {
@@ -387,13 +410,15 @@ contract SubscriptionEscrow is
     )
         external
         onlyRegistry(registry.purchaseManager())
-        returns (address token, uint256 amount)
+        returns (uint256 orgId, address token, uint256 amount)
     {
         _checkSubExists(productPassId, productId);
         _checkSubNotCancelled(productPassId, productId);
         _checkSubNotPaused(productPassId, productId);
         _checkSubNotPastDue(productPassId, productId);
         _checkUnitQuantityExists(productPassId, productId);
+
+        orgId = subs[productPassId][productId].orgId;
 
         (token, amount) = IPricingCalculator(registry.pricingCalculator())
             .getChangeUnitQuantityCost(

@@ -125,6 +125,7 @@ describe('Purchase Manager', () => {
           [1, 2, 3],
           [1, 2, 3],
           [0, 0, 5],
+          await mintToken.getAddress(),
           ethers.parseUnits('31', 6),
         )
         .and.to.emit(subscriptionEscrow, 'SubscriptionCycleUpdated')
@@ -148,8 +149,9 @@ describe('Purchase Manager', () => {
         .connect(otherAccount)
         .pauseSubscription(1, 3, true);
 
-      const { timestamp: secondPauseTimestamp } =
-        await parseTimestamp(secondPauseTx);
+      const { timestamp: secondPauseTimestamp } = await parseTimestamp(
+        secondPauseTx,
+      );
 
       await expect(secondPauseTx)
         .to.emit(subscriptionEscrow, 'SubscriptionCycleUpdated')
@@ -255,6 +257,79 @@ describe('Purchase Manager', () => {
         productPassNFT,
         'SubscriptionsNotTransferable',
       );
+    });
+
+    it('can transfer a product pass with a single one time product', async () => {
+      const {
+        purchaseManager,
+        productRegistry,
+        pricingRegistry,
+        productPassNFT,
+        owner,
+        otherAccount,
+      } = await loadWithDefaultProduct();
+
+      await pricingRegistry.createOneTimePricing({
+        organizationId: 1,
+        flatPrice: ethers.parseEther('100'),
+        token: ethers.ZeroAddress,
+        isRestricted: false,
+      });
+
+      await productRegistry.linkPricing(1, [1]);
+
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseProducts(
+          {
+            to: otherAccount,
+            organizationId: 1,
+            productIds: [1],
+            pricingIds: [1],
+            quantities: [0],
+            couponCode: '',
+            airdrop: false,
+            pause: false,
+          },
+          { value: ethers.parseEther('100') },
+        ),
+      )
+        .to.emit(purchaseManager, 'ProductsPurchased')
+        .withArgs(
+          1,
+          1,
+          otherAccount,
+          [1],
+          [1],
+          [0],
+          ethers.ZeroAddress,
+          ethers.parseEther('100'),
+        );
+
+      expect(await productPassNFT.ownerOf(1)).to.equal(otherAccount);
+
+      // Not transferable by default
+      await expect(
+        productPassNFT
+          .connect(otherAccount)
+          .transferFrom(otherAccount, owner, 1),
+      ).to.be.revertedWithCustomError(
+        productPassNFT,
+        'ProductsNotTransferable',
+      );
+
+      // ENABLE transferable
+      await productRegistry.setProductTransferable(1, true);
+
+      // Transfer
+      await expect(
+        productPassNFT
+          .connect(otherAccount)
+          .transferFrom(otherAccount, owner, 1),
+      )
+        .to.emit(productPassNFT, 'Transfer')
+        .withArgs(otherAccount, owner, 1);
+
+      expect(await productPassNFT.ownerOf(1)).to.equal(owner);
     });
   });
 });

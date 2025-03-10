@@ -8,23 +8,27 @@ export async function deployPurchaseManager() {
 
   // Registry
 
-  const ContractRegistry =
-    await hre.ethers.getContractFactory('ContractRegistry');
+  const ContractRegistry = await hre.ethers.getContractFactory(
+    'ContractRegistry',
+  );
   const contractRegistry = await ContractRegistry.deploy();
 
-  const ProductRegistry =
-    await hre.ethers.getContractFactory('ProductRegistry');
+  const ProductRegistry = await hre.ethers.getContractFactory(
+    'ProductRegistry',
+  );
   const productRegistry = await ProductRegistry.deploy(contractRegistry);
   await contractRegistry.setProductRegistry(productRegistry);
   await contractRegistry.setProductTransferOracle(productRegistry);
 
-  const PricingRegistry =
-    await hre.ethers.getContractFactory('PricingRegistry');
+  const PricingRegistry = await hre.ethers.getContractFactory(
+    'PricingRegistry',
+  );
   const pricingRegistry = await PricingRegistry.deploy(contractRegistry);
   await contractRegistry.setPricingRegistry(pricingRegistry);
 
-  const PurchaseRegistry =
-    await hre.ethers.getContractFactory('PurchaseRegistry');
+  const PurchaseRegistry = await hre.ethers.getContractFactory(
+    'PurchaseRegistry',
+  );
   const purchaseRegistry = await PurchaseRegistry.deploy(contractRegistry);
   await contractRegistry.setPurchaseRegistry(purchaseRegistry);
 
@@ -34,15 +38,17 @@ export async function deployPurchaseManager() {
 
   // Admin
 
-  const OrganizationAdmin =
-    await hre.ethers.getContractFactory('OrganizationAdmin');
+  const OrganizationAdmin = await hre.ethers.getContractFactory(
+    'OrganizationAdmin',
+  );
   const organizationAdmin = await OrganizationAdmin.deploy(contractRegistry);
   await contractRegistry.setOrgAdmin(organizationAdmin);
 
   // Calculator
 
-  const PricingCalculator =
-    await hre.ethers.getContractFactory('PricingCalculator');
+  const PricingCalculator = await hre.ethers.getContractFactory(
+    'PricingCalculator',
+  );
   const pricingCalculator = await PricingCalculator.deploy(contractRegistry);
   await contractRegistry.setPricingCalculator(pricingCalculator);
 
@@ -51,8 +57,9 @@ export async function deployPurchaseManager() {
   const PassMetadataProvider = await hre.ethers.getContractFactory(
     'PassMetadataProvider',
   );
-  const passMetadataProvider =
-    await PassMetadataProvider.deploy(contractRegistry);
+  const passMetadataProvider = await PassMetadataProvider.deploy(
+    contractRegistry,
+  );
 
   const ProductPassNFT = await hre.ethers.getContractFactory('ProductPassNFT');
   const productPassNFT = await ProductPassNFT.deploy(
@@ -67,8 +74,9 @@ export async function deployPurchaseManager() {
   const organizationMetadataProvider =
     await OrganizationMetadataProvider.deploy(contractRegistry);
 
-  const OrganizationNFT =
-    await hre.ethers.getContractFactory('OrganizationNFT');
+  const OrganizationNFT = await hre.ethers.getContractFactory(
+    'OrganizationNFT',
+  );
   const organizationNFT = await OrganizationNFT.deploy(
     organizationMetadataProvider,
   );
@@ -89,8 +97,9 @@ export async function deployPurchaseManager() {
 
   // Escrow
 
-  const SubscriptionEscrow =
-    await hre.ethers.getContractFactory('SubscriptionEscrow');
+  const SubscriptionEscrow = await hre.ethers.getContractFactory(
+    'SubscriptionEscrow',
+  );
   const subscriptionEscrow = await SubscriptionEscrow.deploy(contractRegistry);
   await contractRegistry.setSubscriptionEscrow(subscriptionEscrow);
   await contractRegistry.setSubscriptionTransferOracle(subscriptionEscrow);
@@ -101,8 +110,9 @@ export async function deployPurchaseManager() {
 
   // Manager
 
-  const PurchaseManager =
-    await hre.ethers.getContractFactory('PurchaseManager');
+  const PurchaseManager = await hre.ethers.getContractFactory(
+    'PurchaseManager',
+  );
   const purchaseManager = await PurchaseManager.deploy(contractRegistry);
   await contractRegistry.setPurchaseManager(purchaseManager);
 
@@ -206,22 +216,24 @@ export async function parseTimestamp(contractResponse: any) {
   };
 }
 
+export interface ExpectedSubscription {
+  orgId: number;
+  pricingId: number;
+  startDate: number;
+  endDate: number;
+  timeRemaining: number;
+  isCancelled: boolean;
+  isPaused: boolean;
+  status: number;
+}
+
 export async function assertSubscription(
   subscriptionEscrow: SubscriptionEscrow,
   get: {
     productPassId: number;
     productId: number;
   },
-  expected: {
-    orgId: number;
-    pricingId: number;
-    startDate: number;
-    endDate: number;
-    timeRemaining: number;
-    isCancelled: boolean;
-    isPaused: boolean;
-    status: number;
-  },
+  expected: ExpectedSubscription,
 ) {
   const subscription = await subscriptionEscrow.getSubscription(
     get.productPassId,
@@ -240,4 +252,32 @@ export async function assertSubscription(
     ],
     expected.status,
   ]);
+}
+
+export async function assertSubscriptionBatch(
+  subscriptionEscrow: SubscriptionEscrow,
+  get: {
+    productPassId: number;
+    productIds: number[];
+  },
+  expected: ExpectedSubscription[],
+) {
+  const [subs, statuses] = await subscriptionEscrow.getSubscriptionBatch(
+    get.productPassId,
+    get.productIds,
+  );
+
+  for (let i = 0; i < subs.length; i++) {
+    expect(subs[i]).to.deep.equal([
+      expected[i].orgId,
+      expected[i].pricingId,
+      expected[i].startDate,
+      expected[i].endDate,
+      expected[i].timeRemaining,
+      expected[i].isCancelled,
+      expected[i].isPaused,
+    ]);
+
+    expect(statuses[i]).to.equal(expected[i].status);
+  }
 }

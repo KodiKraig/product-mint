@@ -357,16 +357,26 @@ describe('Purchase Manager', () => {
 
       await productRegistry.linkPricing(1, [1]);
 
-      await purchaseManager.connect(otherAccount).purchaseProducts({
-        to: otherAccount,
-        organizationId: 1,
-        productIds: [1],
-        pricingIds: [1],
-        quantities: [0],
-        couponCode: '',
-        airdrop: false,
-        pause: false,
-      });
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseProducts({
+          to: otherAccount,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      )
+        .to.emit(paymentEscrow, 'TransferAmount')
+        .withArgs(
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('100', 6),
+          ethers.parseUnits('90', 6),
+        );
 
       // BALANCE ASSERTIONS
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
