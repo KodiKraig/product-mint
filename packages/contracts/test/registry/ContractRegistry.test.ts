@@ -8,8 +8,9 @@ describe('ContractRegistry', () => {
   async function deployContractRegistry() {
     const [owner, otherAccount] = await hre.ethers.getSigners();
 
-    const ContractRegistry =
-      await hre.ethers.getContractFactory('ContractRegistry');
+    const ContractRegistry = await hre.ethers.getContractFactory(
+      'ContractRegistry',
+    );
     const contractRegistry = await ContractRegistry.deploy();
 
     const OrganizationMetadataProvider = await hre.ethers.getContractFactory(
@@ -18,8 +19,9 @@ describe('ContractRegistry', () => {
     const organizationMetadataProvider =
       await OrganizationMetadataProvider.deploy(contractRegistry);
 
-    const OrganizationNFT =
-      await hre.ethers.getContractFactory('OrganizationNFT');
+    const OrganizationNFT = await hre.ethers.getContractFactory(
+      'OrganizationNFT',
+    );
     const organizationNFT = await OrganizationNFT.deploy(
       organizationMetadataProvider,
     );
@@ -27,11 +29,13 @@ describe('ContractRegistry', () => {
     const PassMetadataProvider = await hre.ethers.getContractFactory(
       'PassMetadataProvider',
     );
-    const passMetadataProvider =
-      await PassMetadataProvider.deploy(contractRegistry);
+    const passMetadataProvider = await PassMetadataProvider.deploy(
+      contractRegistry,
+    );
 
-    const ProductPassNFT =
-      await hre.ethers.getContractFactory('ProductPassNFT');
+    const ProductPassNFT = await hre.ethers.getContractFactory(
+      'ProductPassNFT',
+    );
     const productPassNFT = await ProductPassNFT.deploy(
       contractRegistry,
       passMetadataProvider,
@@ -267,6 +271,36 @@ describe('ContractRegistry', () => {
       const interfaceId = calculateInterfaceId(['supportsInterface(bytes4)']);
 
       expect(await contractRegistry.supportsInterface(interfaceId)).to.be.true;
+    });
+  });
+
+  describe('Locking', () => {
+    it('should lock the ProductPassNFT so it can only be set once', async () => {
+      const { contractRegistry, productPassNFT } = await loadFixture(
+        deployContractRegistry,
+      );
+
+      await expect(contractRegistry.setProductPassNFT(productPassNFT))
+        .to.emit(contractRegistry, 'Locked')
+        .withArgs(productPassNFT);
+
+      await expect(
+        contractRegistry.setProductPassNFT(productPassNFT),
+      ).to.be.revertedWithCustomError(contractRegistry, 'AlreadyLocked');
+    });
+
+    it('should lock the OrganizationNFT so it can only be set once', async () => {
+      const { contractRegistry, organizationNFT } = await loadFixture(
+        deployContractRegistry,
+      );
+
+      await expect(contractRegistry.setOrganizationNFT(organizationNFT))
+        .to.emit(contractRegistry, 'Locked')
+        .withArgs(organizationNFT);
+
+      await expect(
+        contractRegistry.setOrganizationNFT(organizationNFT),
+      ).to.be.revertedWithCustomError(contractRegistry, 'AlreadyLocked');
     });
   });
 });
