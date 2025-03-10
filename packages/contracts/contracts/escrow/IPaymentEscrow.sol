@@ -42,7 +42,7 @@ interface IPaymentEscrow {
      */
 
     /**
-     * @notice Emitted when a transfer is recorded with funds to the org.
+     * @notice Emitted when a transfer is recorded that transfers funds to an org.
      * @param orgId Organization ID
      * @param from Payer (User wallet)
      * @param token Token address. Address(0) for native tokens.
