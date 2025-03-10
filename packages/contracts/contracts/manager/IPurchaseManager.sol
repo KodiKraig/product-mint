@@ -195,6 +195,21 @@ interface IPurchaseManager {
      */
 
     /**
+     * @notice Change the unit quantity for a tiered subscription.
+     * @dev Subscription must be active to change the unit quantity and a TIERED pricing model must be set.
+     * @param productPassId The ID of the product pass that the subscription is purchased for.
+     * @param productId The ID of the product to change the unit quantity for.
+     * @param quantity The new unit quantity for the subscription.
+     * @param airdrop Whether to airdrop the change to the user. Can only be used by an org admin.
+     */
+    function changeTieredSubscriptionUnitQuantity(
+        uint256 productPassId,
+        uint256 productId,
+        uint256 quantity,
+        bool airdrop
+    ) external;
+
+    /**
      * Pause subscription
      */
 

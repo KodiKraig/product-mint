@@ -2604,7 +2604,7 @@ describe('Purchase Manager', () => {
         // Reduce quantity
         await purchaseManager
           .connect(otherAccount)
-          .changeTieredSubscriptionUnitQuantity(1, 1, 1, 5, false);
+          .changeTieredSubscriptionUnitQuantity(1, 1, 5, false);
 
         expect(await mintToken.balanceOf(otherAccount)).to.equal(
           ethers.parseUnits('70', 6),
@@ -2626,7 +2626,7 @@ describe('Purchase Manager', () => {
         // Raise quantity
         await purchaseManager
           .connect(otherAccount)
-          .changeTieredSubscriptionUnitQuantity(1, 1, 1, 10, false);
+          .changeTieredSubscriptionUnitQuantity(1, 1, 10, false);
 
         expect(await mintToken.balanceOf(otherAccount)).to.equal(
           ethers.parseUnits('34.666701', 6),
@@ -2693,6 +2693,14 @@ describe('Purchase Manager', () => {
         ethers.parseUnits('98', 6),
       );
 
+      expect(await mintToken.balanceOf(paymentEscrow)).to.equal(
+        ethers.parseUnits('2', 6),
+      );
+
+      expect(
+        await paymentEscrow.orgBalances(1, await mintToken.getAddress()),
+      ).to.equal(ethers.parseUnits('2', 6));
+
       expect(await subscriptionEscrow.getUnitQuantityFull(1, 1)).to.deep.equal([
         1, 10, 10,
       ]);
@@ -2705,7 +2713,7 @@ describe('Purchase Manager', () => {
         await loadUnitQuantityUpdate();
 
       await expect(
-        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 1, 5, false),
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 5, false),
       )
         .to.emit(subscriptionEscrow, 'UnitQuantitySet')
         .withArgs(1, 1, 5, 10);
@@ -2727,13 +2735,7 @@ describe('Purchase Manager', () => {
 
       // RAISE QUANTITY TO MAX
       await expect(
-        purchaseManager.changeTieredSubscriptionUnitQuantity(
-          1,
-          1,
-          1,
-          20,
-          false,
-        ),
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 20, false),
       )
         .to.emit(subscriptionEscrow, 'UnitQuantitySet')
         .withArgs(1, 1, 20, 20);
@@ -2748,13 +2750,7 @@ describe('Purchase Manager', () => {
 
       // LOWER QUANTITY
       await expect(
-        purchaseManager.changeTieredSubscriptionUnitQuantity(
-          1,
-          1,
-          1,
-          15,
-          false,
-        ),
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 15, false),
       )
         .to.emit(subscriptionEscrow, 'UnitQuantitySet')
         .withArgs(1, 1, 15, 20);
@@ -2769,13 +2765,7 @@ describe('Purchase Manager', () => {
 
       // RAISE QUANTITY UNDER ORIGINAL MAX
       await expect(
-        purchaseManager.changeTieredSubscriptionUnitQuantity(
-          1,
-          1,
-          1,
-          18,
-          false,
-        ),
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 18, false),
       )
         .to.emit(subscriptionEscrow, 'UnitQuantitySet')
         .withArgs(1, 1, 18, 20);
@@ -2790,13 +2780,7 @@ describe('Purchase Manager', () => {
 
       // RAISE QUANTITY TO ORIGINAL MAX
       await expect(
-        purchaseManager.changeTieredSubscriptionUnitQuantity(
-          1,
-          1,
-          1,
-          20,
-          false,
-        ),
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 20, false),
       )
         .to.emit(subscriptionEscrow, 'UnitQuantitySet')
         .withArgs(1, 1, 20, 20);
@@ -2811,13 +2795,7 @@ describe('Purchase Manager', () => {
 
       // RAISE QUANTITY ABOVE ORIGINAL MAX
       await expect(
-        purchaseManager.changeTieredSubscriptionUnitQuantity(
-          1,
-          1,
-          1,
-          30,
-          false,
-        ),
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 30, false),
       )
         .to.emit(subscriptionEscrow, 'UnitQuantitySet')
         .withArgs(1, 1, 30, 30);
@@ -2835,7 +2813,7 @@ describe('Purchase Manager', () => {
       const { purchaseManager } = await loadUnitQuantityUpdate();
 
       await expect(
-        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 1, 0, false),
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 0, false),
       ).to.be.revertedWith('Unit quantity is 0');
     });
 
@@ -2844,13 +2822,7 @@ describe('Purchase Manager', () => {
         await loadUnitQuantityUpdate();
 
       await expect(
-        purchaseManager.changeTieredSubscriptionUnitQuantity(
-          1,
-          1,
-          1,
-          10,
-          false,
-        ),
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 10, false),
       ).to.be.revertedWithCustomError(
         pricingCalculator,
         'UnitQuantityIsTheSame',
@@ -2862,7 +2834,7 @@ describe('Purchase Manager', () => {
         await loadUnitQuantityUpdate();
 
       await expect(
-        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 1, 20, true),
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 20, true),
       )
         .to.emit(subscriptionEscrow, 'UnitQuantitySet')
         .withArgs(1, 1, 20, 20);
@@ -2876,13 +2848,7 @@ describe('Purchase Manager', () => {
       const { purchaseManager } = await loadWithPurchasedFlatRateSubscription();
 
       await expect(
-        purchaseManager.changeTieredSubscriptionUnitQuantity(
-          1,
-          1,
-          1,
-          20,
-          false,
-        ),
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 20, false),
       ).to.be.revertedWith('Unit quantity does not exist');
     });
   });

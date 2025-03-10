@@ -199,7 +199,7 @@ describe('Purchase Manager', () => {
       await expect(
         purchaseManager
           .connect(otherAccount)
-          .changeTieredSubscriptionUnitQuantity(1, 1, 1, 10, false),
+          .changeTieredSubscriptionUnitQuantity(1, 1, 10, false),
       ).to.be.revertedWithCustomError(purchaseManager, 'EnforcedPause');
     });
   });

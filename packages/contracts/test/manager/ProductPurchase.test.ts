@@ -797,7 +797,6 @@ describe('Purchase Manager', () => {
       await purchaseManager.changeTieredSubscriptionUnitQuantity(
         1,
         1,
-        1,
         90,
         false,
       );
@@ -1864,7 +1863,7 @@ describe('Purchase Manager', () => {
       await expect(
         purchaseManager
           .connect(otherAccount2)
-          .changeTieredSubscriptionUnitQuantity(1, 1, 1, 10, false),
+          .changeTieredSubscriptionUnitQuantity(1, 1, 10, false),
       ).to.be.revertedWithCustomError(purchaseManager, 'NotAuthorized');
     });
   });

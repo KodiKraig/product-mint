@@ -410,13 +410,15 @@ contract SubscriptionEscrow is
     )
         external
         onlyRegistry(registry.purchaseManager())
-        returns (address token, uint256 amount)
+        returns (uint256 orgId, address token, uint256 amount)
     {
         _checkSubExists(productPassId, productId);
         _checkSubNotCancelled(productPassId, productId);
         _checkSubNotPaused(productPassId, productId);
         _checkSubNotPastDue(productPassId, productId);
         _checkUnitQuantityExists(productPassId, productId);
+
+        orgId = subs[productPassId][productId].orgId;
 
         (token, amount) = IPricingCalculator(registry.pricingCalculator())
             .getChangeUnitQuantityCost(

@@ -292,13 +292,12 @@ contract PurchaseManager is
      */
 
     function changeTieredSubscriptionUnitQuantity(
-        uint256 orgId,
         uint256 productPassId,
         uint256 productId,
         uint256 quantity,
         bool airdrop
     ) external onlyPassOwnerOrAdmin(productPassId) nonReentrant {
-        (address token, uint256 amount) = ISubscriptionEscrow(
+        (uint256 orgId, address token, uint256 amount) = ISubscriptionEscrow(
             registry.subscriptionEscrow()
         ).changeSubscriptionUnitQuantity(productPassId, productId, quantity);
 
