@@ -25,7 +25,7 @@ contract OneTimeLock {
 
     /**
      * @notice Locks the caller based on a hash.
-     * @dev The function can only be called once with the same caller.
+     * @dev The function can only be called once with the same hash.
      * If the function is called more than once, the second and subsequent calls will revert.
      */
     function lock(bytes32 caller) internal {
