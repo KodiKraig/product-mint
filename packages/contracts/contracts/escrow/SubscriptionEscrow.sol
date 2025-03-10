@@ -16,6 +16,25 @@ import {
     ISubscriptionTransferOracle
 } from "../oracle/ISubscriptionTransferOracle.sol";
 
+/**
+ * @title SubscriptionEscrow
+ * @notice A contract that manages subscriptions for products on a product pass.
+ *
+ * Every product on a product pass can have its own subscription allowing for individual management of each subscription.
+ *
+ * This contract is used to manage the lifecycle of a subscription.
+ *
+ * There are 3 kinds of subscriptions:
+ * - Flat rate: A flat rate subscription is a subscription that has a flat rate price.
+ * - Tiered: A tiered subscription is a subscription that has a tiered price.
+ * - Usage based: A usage based subscription is a subscription that has a usage based price used in conjunction with a usage meter.
+ *
+ * There are 4 states that a subscription can be in:
+ * - Active: The subscription is active and the product should be accessible.
+ * - Paused: The subscription is paused and the product should not be accessible.
+ * - Past due: The subscription is past due and the product should not be accessible.
+ * - Cancelled: The subscription is cancelled and the product should be accessible until the end of the current cycle.
+ */
 contract SubscriptionEscrow is
     RegistryEnabled,
     ISubscriptionEscrow,
@@ -28,7 +47,7 @@ contract SubscriptionEscrow is
     mapping(uint256 => mapping(uint256 => Subscription)) private subs;
 
     // Product Pass Token ID => Product ID => Unit Quantity
-    mapping(uint256 => mapping(uint256 => UnitQuantity)) public unitQuantities;
+    mapping(uint256 => mapping(uint256 => UnitQuantity)) private unitQuantities;
 
     // Organization ID => Are subscriptions pausable for the organization?
     mapping(uint256 => bool) public subscriptionsPauseable;
@@ -351,6 +370,13 @@ contract SubscriptionEscrow is
         uint256 productId
     ) external view returns (uint256) {
         return unitQuantities[productPassId][productId].quantity;
+    }
+
+    function getUnitQuantityFull(
+        uint256 productPassId,
+        uint256 productId
+    ) external view returns (UnitQuantity memory) {
+        return unitQuantities[productPassId][productId];
     }
 
     function changeSubscriptionUnitQuantity(

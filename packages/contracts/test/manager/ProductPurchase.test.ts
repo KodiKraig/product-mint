@@ -315,13 +315,13 @@ describe('Purchase Manager', () => {
         'Subscription does not exist',
       );
 
-      expect(await subscriptionEscrow.unitQuantities(1, 1)).to.deep.equal([
+      expect(await subscriptionEscrow.getUnitQuantityFull(1, 1)).to.deep.equal([
         0, 0, 0,
       ]);
-      expect(await subscriptionEscrow.unitQuantities(1, 2)).to.deep.equal([
+      expect(await subscriptionEscrow.getUnitQuantityFull(1, 2)).to.deep.equal([
         0, 0, 0,
       ]);
-      expect(await subscriptionEscrow.unitQuantities(2, 1)).to.deep.equal([
+      expect(await subscriptionEscrow.getUnitQuantityFull(2, 1)).to.deep.equal([
         0, 0, 0,
       ]);
 
@@ -590,7 +590,7 @@ describe('Purchase Manager', () => {
         },
       );
 
-      expect(await subscriptionEscrow.unitQuantities(1, 1)).to.deep.equal([
+      expect(await subscriptionEscrow.getUnitQuantityFull(1, 1)).to.deep.equal([
         0, 0, 0,
       ]);
       expect(await usageRecorder.passUsages(1, 1)).to.equal(0);
@@ -733,7 +733,7 @@ describe('Purchase Manager', () => {
         },
       );
 
-      expect(await subscriptionEscrow.unitQuantities(1, 1)).to.deep.equal([
+      expect(await subscriptionEscrow.getUnitQuantityFull(1, 1)).to.deep.equal([
         1, 100, 100,
       ]);
       expect(await usageRecorder.passUsages(1, 1)).to.equal(0);
@@ -759,7 +759,7 @@ describe('Purchase Manager', () => {
         ethers.parseUnits('796', 6),
       );
 
-      expect(await subscriptionEscrow.unitQuantities(1, 1)).to.deep.equal([
+      expect(await subscriptionEscrow.getUnitQuantityFull(1, 1)).to.deep.equal([
         1, 90, 100,
       ]);
 
@@ -802,7 +802,7 @@ describe('Purchase Manager', () => {
         },
       );
 
-      expect(await subscriptionEscrow.unitQuantities(1, 1)).to.deep.equal([
+      expect(await subscriptionEscrow.getUnitQuantityFull(1, 1)).to.deep.equal([
         1, 90, 90,
       ]);
 
@@ -904,7 +904,7 @@ describe('Purchase Manager', () => {
         },
       );
 
-      expect(await subscriptionEscrow.unitQuantities(1, 1)).to.deep.equal([
+      expect(await subscriptionEscrow.getUnitQuantityFull(1, 1)).to.deep.equal([
         0, 0, 0,
       ]);
       expect(await usageRecorder.passUsages(1, 1)).to.equal(0);
