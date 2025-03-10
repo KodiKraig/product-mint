@@ -237,10 +237,18 @@ describe('Purchase Manager', () => {
           [1, 2],
           [1, 2],
           [0, 0],
+          await mintToken.getAddress(),
           ethers.parseUnits('30', 6),
         )
         .and.to.emit(productPassNFT, 'Transfer')
-        .withArgs(ethers.ZeroAddress, otherAccount, 1);
+        .withArgs(ethers.ZeroAddress, otherAccount, 1)
+        .and.to.emit(purchaseManager, 'PerformPurchase')
+        .withArgs(
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('27', 6),
+        );
 
       await expect(
         purchaseManager.connect(otherAccount2).purchaseProducts({
@@ -262,10 +270,18 @@ describe('Purchase Manager', () => {
           [1],
           [1],
           [0],
+          await mintToken.getAddress(),
           ethers.parseUnits('10', 6),
         )
         .and.to.emit(productPassNFT, 'Transfer')
-        .withArgs(ethers.ZeroAddress, otherAccount2, 2);
+        .withArgs(ethers.ZeroAddress, otherAccount2, 2)
+        .and.to.emit(purchaseManager, 'PerformPurchase')
+        .withArgs(
+          1,
+          otherAccount2,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
+        );
 
       // ASSERTIONS
 
@@ -563,6 +579,14 @@ describe('Purchase Manager', () => {
           [1],
           [1],
           [0],
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
+        )
+        .and.to.emit(purchaseManager, 'PerformPurchase')
+        .withArgs(
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
           ethers.parseUnits('10', 6),
         );
 
@@ -1085,9 +1109,16 @@ describe('Purchase Manager', () => {
           [1],
           [1],
           [0],
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
+        )
+        .and.to.emit(purchaseManager, 'PerformPurchase')
+        .withArgs(
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
           ethers.parseUnits('10', 6),
         );
-
       await assertSubscription(
         subscriptionEscrow,
         {

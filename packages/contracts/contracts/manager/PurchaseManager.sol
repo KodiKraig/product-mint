@@ -21,6 +21,16 @@ import {IPurchaseRegistry} from "../registry/IPurchaseRegistry.sol";
 import {IPricingCalculator} from "../calculator/IPricingCalculator.sol";
 import {ICouponRegistry} from "../registry/ICouponRegistry.sol";
 
+/**
+ * @title PurchaseManager
+ * @notice The PurchaseManager is responsible for purchasing products and managing subscriptions for a user.
+ * When a product is purchased, a Product Pass NFT is minted to the user.
+ *
+ * The PurchaseManager is also responsible for renewing subscriptions, pausing and cancelling subscriptions, and
+ * changing the pricing of a subscription.
+ *
+ * @author ProductMint
+ */
 contract PurchaseManager is
     Ownable2Step,
     RegistryEnabled,
@@ -31,6 +41,23 @@ contract PurchaseManager is
 {
     // Total number of product pass tokens minted
     uint256 public passSupply;
+
+    /**
+     * @dev Used internally by the PurchaseManager during the product purchase.
+     *  Refer to the IPurchaseManager interface for the public facing parameters and details.
+     */
+    struct PurchaseProductsParams {
+        address passOwner;
+        uint256 orgId;
+        uint256 productPassId;
+        uint256[] productIds;
+        uint256[] pricingIds;
+        uint256[] quantities;
+        string couponCode;
+        bool airdrop;
+        bool pause;
+        bool isInitialPurchase;
+    }
 
     constructor(
         address _contractRegistry
@@ -152,6 +179,7 @@ contract PurchaseManager is
             params.productIds,
             params.pricingIds,
             params.quantities,
+            token,
             totalAmount
         );
     }
@@ -397,6 +425,8 @@ contract PurchaseManager is
         IPaymentEscrow(registry.paymentEscrow()).transferDirect{
             value: msg.value
         }(orgId, payable(passOwner), token, totalAmount);
+
+        emit PerformPurchase(orgId, passOwner, token, totalAmount);
     }
 
     /**
