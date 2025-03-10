@@ -26,6 +26,15 @@ import {IOrganizationAdmin} from "../admin/IOrganizationAdmin.sol";
 import {ICouponRegistry} from "./ICouponRegistry.sol";
 import {OneTimeLock} from "../utils/OneTimeLock.sol";
 
+/**
+ * @title ContractRegistry
+ * @notice A contract that holds all the addresses of the contracts within the ProductMint system.
+ *
+ * All of the contracts within the system interface with one another to bring the system to life.
+ *
+ * __ProductMint__
+ * NFT based payment system to mint products onchain with one-time payments and recurring permissionless subscriptions.
+ */
 contract ContractRegistry is
     Ownable2Step,
     OneTimeLock,
@@ -61,6 +70,10 @@ contract ContractRegistry is
 
     // Usage recorder
     address public usageRecorder;
+
+    // Locks
+    bytes32 public constant PASS_LOCK = keccak256("IProductPassNFT");
+    bytes32 public constant ORG_LOCK = keccak256("IOrganizationNFT");
 
     constructor() Ownable(_msgSender()) {}
 
@@ -102,7 +115,7 @@ contract ContractRegistry is
             "IProductPassNFT"
         );
 
-        lock(_productPassNFT);
+        lock(PASS_LOCK);
 
         productPassNFT = _productPassNFT;
 
@@ -117,7 +130,7 @@ contract ContractRegistry is
             "IOrganizationNFT"
         );
 
-        lock(_organizationNFT);
+        lock(ORG_LOCK);
 
         organizationNFT = _organizationNFT;
 

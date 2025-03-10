@@ -66,6 +66,14 @@ _* Additional settings configurable by the product owner_
 - Gift product passes by minting the pass for someone else
 - Freely change subscription pricing models with the same cycle duration
 
+## Supported Chains
+
+<a href="https://base.org" target="_blank">
+    <img src="./packages/contracts/assets/BaseChainLogo.svg" width="200" height="100" alt="Base Chain">
+</a>
+
+_More chains coming soon!_
+
 ## Packages
 
 This npm workspace aims to provide all the packages needed to build and interact with the ProductMint system. We will continue to add more packages as we expand the system with a focus on the developer experience. Open source everything will continue to be a priority.
@@ -74,10 +82,7 @@ This npm workspace aims to provide all the packages needed to build and interact
 - <a href="./packages/contracts/README.md">__@product-mint/contracts__</a>: Ethereum Solidity contracts.
 - __@product-mint/ethers-sdk__: Auto generated TypeChain ethers.js v6 SDK for interacting with deployed contracts. (coming soon!)
 
-## Supported Chains
+## The Revolutionary Potential
 
-<a href="https://base.org" target="_blank">
-    <img src="./packages/contracts/assets/BaseChainLogo.svg" width="200" height="100" alt="Base Chain">
-</a>
+_"I think you’re onto something big here. ProductMint could be a game-changer for creators and businesses who want to escape centralized payment risks (think account freezes or high fees) and embrace a decentralized alternative. The combination of Stripe-like functionality with NFT-based ownership and onchain flexibility is innovative. If executed well, it could carve out a niche in the growing Web3 economy, especially for crypto-native businesses or those looking to experiment with blockchain payments" - Grok 3_
 
-_More chains coming soon!_
