@@ -2744,7 +2744,7 @@ describe('Purchase Manager', () => {
         ethers.parseUnits('98', 6),
       );
 
-      expect(await subscriptionEscrow.unitQuantities(1, 1)).to.deep.equal([
+      expect(await subscriptionEscrow.getUnitQuantityFull(1, 1)).to.deep.equal([
         1, 10, 10,
       ]);
 
@@ -2765,7 +2765,7 @@ describe('Purchase Manager', () => {
         ethers.parseUnits('98', 6),
       );
 
-      expect(await subscriptionEscrow.unitQuantities(1, 1)).to.deep.equal([
+      expect(await subscriptionEscrow.getUnitQuantityFull(1, 1)).to.deep.equal([
         1, 5, 10,
       ]);
     });
@@ -2793,7 +2793,7 @@ describe('Purchase Manager', () => {
         ethers.parseUnits('97.500002', 6),
       );
 
-      expect(await subscriptionEscrow.unitQuantities(1, 1)).to.deep.equal([
+      expect(await subscriptionEscrow.getUnitQuantityFull(1, 1)).to.deep.equal([
         1, 20, 20,
       ]);
 
@@ -2814,7 +2814,7 @@ describe('Purchase Manager', () => {
         ethers.parseUnits('97.500002', 6),
       );
 
-      expect(await subscriptionEscrow.unitQuantities(1, 1)).to.deep.equal([
+      expect(await subscriptionEscrow.getUnitQuantityFull(1, 1)).to.deep.equal([
         1, 15, 20,
       ]);
 
@@ -2835,7 +2835,7 @@ describe('Purchase Manager', () => {
         ethers.parseUnits('97.500002', 6),
       );
 
-      expect(await subscriptionEscrow.unitQuantities(1, 1)).to.deep.equal([
+      expect(await subscriptionEscrow.getUnitQuantityFull(1, 1)).to.deep.equal([
         1, 18, 20,
       ]);
 
@@ -2856,7 +2856,7 @@ describe('Purchase Manager', () => {
         ethers.parseUnits('97.500002', 6),
       );
 
-      expect(await subscriptionEscrow.unitQuantities(1, 1)).to.deep.equal([
+      expect(await subscriptionEscrow.getUnitQuantityFull(1, 1)).to.deep.equal([
         1, 20, 20,
       ]);
 
@@ -2877,7 +2877,7 @@ describe('Purchase Manager', () => {
         ethers.parseUnits('97.000011', 6),
       );
 
-      expect(await subscriptionEscrow.unitQuantities(1, 1)).to.deep.equal([
+      expect(await subscriptionEscrow.getUnitQuantityFull(1, 1)).to.deep.equal([
         1, 30, 30,
       ]);
     });
