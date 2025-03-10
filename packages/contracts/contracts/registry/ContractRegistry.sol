@@ -62,6 +62,10 @@ contract ContractRegistry is
     // Usage recorder
     address public usageRecorder;
 
+    // Locks
+    bytes32 public constant PASS_LOCK = keccak256("IProductPassNFT");
+    bytes32 public constant ORG_LOCK = keccak256("IOrganizationNFT");
+
     constructor() Ownable(_msgSender()) {}
 
     // Manager
@@ -102,7 +106,7 @@ contract ContractRegistry is
             "IProductPassNFT"
         );
 
-        lock(_productPassNFT);
+        lock(PASS_LOCK);
 
         productPassNFT = _productPassNFT;
 
@@ -117,7 +121,7 @@ contract ContractRegistry is
             "IOrganizationNFT"
         );
 
-        lock(_organizationNFT);
+        lock(ORG_LOCK);
 
         organizationNFT = _organizationNFT;
 

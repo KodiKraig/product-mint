@@ -43,6 +43,8 @@ describe('ContractRegistry', () => {
 
     return {
       contractRegistry,
+      organizationMetadataProvider,
+      passMetadataProvider,
       owner,
       otherAccount,
       organizationNFT,
@@ -276,31 +278,57 @@ describe('ContractRegistry', () => {
 
   describe('Locking', () => {
     it('should lock the ProductPassNFT so it can only be set once', async () => {
-      const { contractRegistry, productPassNFT } = await loadFixture(
-        deployContractRegistry,
-      );
+      const { contractRegistry, productPassNFT, passMetadataProvider } =
+        await loadFixture(deployContractRegistry);
 
+      const LOCK = await contractRegistry.PASS_LOCK();
+
+      // Initial set
       await expect(contractRegistry.setProductPassNFT(productPassNFT))
         .to.emit(contractRegistry, 'Locked')
-        .withArgs(productPassNFT);
+        .withArgs(LOCK);
 
-      await expect(
-        contractRegistry.setProductPassNFT(productPassNFT),
-      ).to.be.revertedWithCustomError(contractRegistry, 'AlreadyLocked');
+      // Create a new NFT
+      const ProductPassNFT2 = await hre.ethers.getContractFactory(
+        'ProductPassNFT',
+      );
+      const productPassNFT2 = await ProductPassNFT2.deploy(
+        contractRegistry,
+        passMetadataProvider,
+      );
+
+      // Subsequent set
+      await expect(contractRegistry.setProductPassNFT(productPassNFT2))
+        .to.be.revertedWithCustomError(contractRegistry, 'AlreadyLocked')
+        .withArgs(LOCK);
     });
 
     it('should lock the OrganizationNFT so it can only be set once', async () => {
-      const { contractRegistry, organizationNFT } = await loadFixture(
-        deployContractRegistry,
-      );
+      const {
+        contractRegistry,
+        organizationNFT,
+        organizationMetadataProvider,
+      } = await loadFixture(deployContractRegistry);
 
+      const LOCK = await contractRegistry.ORG_LOCK();
+
+      // Initial set
       await expect(contractRegistry.setOrganizationNFT(organizationNFT))
         .to.emit(contractRegistry, 'Locked')
-        .withArgs(organizationNFT);
+        .withArgs(LOCK);
 
-      await expect(
-        contractRegistry.setOrganizationNFT(organizationNFT),
-      ).to.be.revertedWithCustomError(contractRegistry, 'AlreadyLocked');
+      // Create a new NFT
+      const OrganizationNFT2 = await hre.ethers.getContractFactory(
+        'OrganizationNFT',
+      );
+      const organizationNFT2 = await OrganizationNFT2.deploy(
+        organizationMetadataProvider,
+      );
+
+      // Subsequent set
+      await expect(contractRegistry.setOrganizationNFT(organizationNFT2))
+        .to.be.revertedWithCustomError(contractRegistry, 'AlreadyLocked')
+        .withArgs(LOCK);
     });
   });
 });
