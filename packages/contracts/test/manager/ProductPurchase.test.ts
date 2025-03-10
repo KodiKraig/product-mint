@@ -248,6 +248,14 @@ describe('Purchase Manager', () => {
           otherAccount,
           await mintToken.getAddress(),
           ethers.parseUnits('27', 6),
+        )
+        .and.to.emit(paymentEscrow, 'TransferAmount')
+        .withArgs(
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('27', 6),
+          ethers.parseUnits('27', 6),
         );
 
       await expect(
@@ -280,6 +288,14 @@ describe('Purchase Manager', () => {
           1,
           otherAccount2,
           await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
+        )
+        .and.to.emit(paymentEscrow, 'TransferAmount')
+        .withArgs(
+          1,
+          otherAccount2,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
           ethers.parseUnits('10', 6),
         );
 
@@ -588,8 +604,15 @@ describe('Purchase Manager', () => {
           otherAccount,
           await mintToken.getAddress(),
           ethers.parseUnits('10', 6),
+        )
+        .and.to.emit(paymentEscrow, 'TransferAmount')
+        .withArgs(
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
+          ethers.parseUnits('10', 6),
         );
-
       // INITIAL ASSERTIONS
       expect(await purchaseRegistry.getPassProductIds(1)).to.deep.equal([1]);
       expect(await purchaseRegistry.productSupply(1)).to.equal(1);
@@ -1118,7 +1141,16 @@ describe('Purchase Manager', () => {
           otherAccount,
           await mintToken.getAddress(),
           ethers.parseUnits('10', 6),
+        )
+        .and.to.emit(paymentEscrow, 'TransferAmount')
+        .withArgs(
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
+          ethers.parseUnits('10', 6),
         );
+
       await assertSubscription(
         subscriptionEscrow,
         {

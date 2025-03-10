@@ -56,19 +56,29 @@ describe('PurchaseManager', () => {
 
       await productRegistry.linkPricing(1, [1]);
 
-      await purchaseManager.connect(otherAccount).purchaseProducts(
-        {
-          to: otherAccount,
-          organizationId: 1,
-          productIds: [1],
-          pricingIds: [1],
-          quantities: [0],
-          couponCode: '',
-          airdrop: false,
-          pause: false,
-        },
-        { value: ethers.parseEther('100') },
-      );
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseProducts(
+          {
+            to: otherAccount,
+            organizationId: 1,
+            productIds: [1],
+            pricingIds: [1],
+            quantities: [0],
+            couponCode: '',
+            airdrop: false,
+            pause: false,
+          },
+          { value: ethers.parseEther('100') },
+        ),
+      )
+        .to.emit(paymentEscrow, 'TransferAmount')
+        .withArgs(
+          1,
+          otherAccount,
+          ethers.ZeroAddress,
+          ethers.parseEther('100'),
+          ethers.parseEther('100'),
+        );
 
       expect(await paymentEscrow.orgBalances(1, ethers.ZeroAddress)).to.equal(
         ethers.parseEther('100'),

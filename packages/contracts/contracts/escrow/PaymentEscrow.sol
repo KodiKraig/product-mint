@@ -106,7 +106,7 @@ contract PaymentEscrow is
     ) external payable onlyRegistry(registry.purchaseManager()) nonReentrant {
         require(amount > 0, "Amount must be greater than 0");
 
-        uint256 finalAmount = !isFeeEnabled || feeExempt[orgId]
+        uint256 orgAmount = !isFeeEnabled || feeExempt[orgId]
             ? amount
             : amount - calculateFee(orgId, token, amount);
 
@@ -130,8 +130,10 @@ contract PaymentEscrow is
             );
         }
 
-        orgBalances[orgId][token] += finalAmount;
-        totalBalances[token] += finalAmount;
+        orgBalances[orgId][token] += orgAmount;
+        totalBalances[token] += orgAmount;
+
+        emit TransferAmount(orgId, from, token, amount, orgAmount);
     }
 
     /**
