@@ -129,6 +129,8 @@ The worlds first NFT based permissionless subscription payment system.
     function usageRecorder() external view returns (address);
 ```
 
+[View Contract Registry](./contracts/registry/ContractRegistry.sol)
+
 ## Deployed Contracts
 
 All of the Ethereum based chains where the system is currently deployed.
