@@ -22,7 +22,8 @@ import {
  *
  * Every product on a product pass can have its own subscription allowing for individual management of each subscription.
  *
- * This contract is used to manage the lifecycle of a subscription.
+ * This contract is used to manage the lifecycle of a subscription. Subscriptions are permissionless and can be renewed
+ * by anyone pending the subscription is past due, not paused, and not cancelled.
  *
  * There are 3 kinds of subscriptions:
  * - Flat rate: A flat rate subscription is a subscription that has a flat rate price.
