@@ -10,6 +10,13 @@ import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
 import {IPricingRegistry} from "../registry/IPricingRegistry.sol";
 import {IPricingCalculator} from "./IPricingCalculator.sol";
 
+/**
+ * @title PricingCalculator
+ * @notice A contract that calculates the total cost of a pricing.
+ *
+ * Used to calculate all costs for different pricing models.
+ *
+ */
 contract PricingCalculator is RegistryEnabled, IPricingCalculator, IERC165 {
     using PricingUtils for PricingUtils.Pricing;
 
