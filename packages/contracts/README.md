@@ -1,6 +1,6 @@
 # ProductMint - Contracts
 
-The worlds first NFT based permissionless subscription payment system. This package includes all of the Solidity contracts.
+The worlds first NFT based permissionless subscription payment system.
 
 ## System Architecture
 
