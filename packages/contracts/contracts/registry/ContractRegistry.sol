@@ -24,8 +24,14 @@ import {IPurchaseRegistry} from "./IPurchaseRegistry.sol";
 import {IPricingCalculator} from "../calculator/IPricingCalculator.sol";
 import {IOrganizationAdmin} from "../admin/IOrganizationAdmin.sol";
 import {ICouponRegistry} from "./ICouponRegistry.sol";
+import {OneTimeLock} from "../utils/OneTimeLock.sol";
 
-contract ContractRegistry is Ownable2Step, IContractRegistry, IERC165 {
+contract ContractRegistry is
+    Ownable2Step,
+    OneTimeLock,
+    IContractRegistry,
+    IERC165
+{
     // Manager
     address public purchaseManager;
 
@@ -96,6 +102,8 @@ contract ContractRegistry is Ownable2Step, IContractRegistry, IERC165 {
             "IProductPassNFT"
         );
 
+        lock(_productPassNFT);
+
         productPassNFT = _productPassNFT;
 
         emit ContractUpdated("ProductPassNFT", _productPassNFT);
@@ -108,6 +116,8 @@ contract ContractRegistry is Ownable2Step, IContractRegistry, IERC165 {
             type(IOrganizationNFT).interfaceId,
             "IOrganizationNFT"
         );
+
+        lock(_organizationNFT);
 
         organizationNFT = _organizationNFT;
 
