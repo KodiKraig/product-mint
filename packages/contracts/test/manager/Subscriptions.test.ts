@@ -2,6 +2,7 @@ import hre from 'hardhat';
 import { ethers } from 'hardhat';
 import {
   assertSubscription,
+  assertSubscriptionBatch,
   deployPurchaseManager,
   loadWithDefaultProduct,
   loadWithPurchasedFlatRateSubscription,
@@ -774,58 +775,44 @@ describe('Purchase Manager', () => {
       // INCREASE TIME TO END OF ALL SUBSCRIPTIONS
       await time.increase(getCycleDuration(3) + 1);
 
-      await assertSubscription(
+      await assertSubscriptionBatch(
         subscriptionEscrow,
         {
           productPassId: 1,
-          productId: 1,
+          productIds: [1, 2, 3],
         },
-        {
-          orgId: 1,
-          pricingId: 1,
-          startDate: purchaseTimeStamp,
-          endDate: purchaseTimeStamp + getCycleDuration(1),
-          timeRemaining: 0,
-          isCancelled: true,
-          isPaused: false,
-          status: 2,
-        },
-      );
-
-      await assertSubscription(
-        subscriptionEscrow,
-        {
-          productPassId: 1,
-          productId: 2,
-        },
-        {
-          orgId: 1,
-          pricingId: 2,
-          startDate: additionalProductsTimeStamp,
-          endDate: additionalProductsTimeStamp + getCycleDuration(2),
-          timeRemaining: 0,
-          isCancelled: true,
-          isPaused: false,
-          status: 2,
-        },
-      );
-
-      await assertSubscription(
-        subscriptionEscrow,
-        {
-          productPassId: 1,
-          productId: 3,
-        },
-        {
-          orgId: 1,
-          pricingId: 3,
-          startDate: additionalProductsTimeStamp,
-          endDate: additionalProductsTimeStamp + getCycleDuration(3),
-          timeRemaining: 0,
-          isCancelled: true,
-          isPaused: false,
-          status: 2,
-        },
+        [
+          {
+            orgId: 1,
+            pricingId: 1,
+            startDate: purchaseTimeStamp,
+            endDate: purchaseTimeStamp + getCycleDuration(1),
+            timeRemaining: 0,
+            isCancelled: true,
+            isPaused: false,
+            status: 2,
+          },
+          {
+            orgId: 1,
+            pricingId: 2,
+            startDate: additionalProductsTimeStamp,
+            endDate: additionalProductsTimeStamp + getCycleDuration(2),
+            timeRemaining: 0,
+            isCancelled: true,
+            isPaused: false,
+            status: 2,
+          },
+          {
+            orgId: 1,
+            pricingId: 3,
+            startDate: additionalProductsTimeStamp,
+            endDate: additionalProductsTimeStamp + getCycleDuration(3),
+            timeRemaining: 0,
+            isCancelled: true,
+            isPaused: false,
+            status: 2,
+          },
+        ],
       );
 
       // Adjust usage
@@ -875,58 +862,44 @@ describe('Purchase Manager', () => {
         ethers.parseUnits('61.5', 6),
       );
 
-      await assertSubscription(
+      await assertSubscriptionBatch(
         subscriptionEscrow,
         {
           productPassId: 1,
-          productId: 1,
+          productIds: [1, 2, 3],
         },
-        {
-          orgId: 1,
-          pricingId: 1,
-          startDate: unCancelTimeStamp,
-          endDate: unCancelTimeStamp + getCycleDuration(1),
-          timeRemaining: 0,
-          isCancelled: false,
-          isPaused: false,
-          status: 0,
-        },
-      );
-
-      await assertSubscription(
-        subscriptionEscrow,
-        {
-          productPassId: 1,
-          productId: 2,
-        },
-        {
-          orgId: 1,
-          pricingId: 2,
-          startDate: unCancelTimeStamp,
-          endDate: unCancelTimeStamp + getCycleDuration(2),
-          timeRemaining: 0,
-          isCancelled: false,
-          isPaused: false,
-          status: 0,
-        },
-      );
-
-      await assertSubscription(
-        subscriptionEscrow,
-        {
-          productPassId: 1,
-          productId: 3,
-        },
-        {
-          orgId: 1,
-          pricingId: 3,
-          startDate: unCancelTimeStamp,
-          endDate: unCancelTimeStamp + getCycleDuration(3),
-          timeRemaining: 0,
-          isCancelled: false,
-          isPaused: false,
-          status: 0,
-        },
+        [
+          {
+            orgId: 1,
+            pricingId: 1,
+            startDate: unCancelTimeStamp,
+            endDate: unCancelTimeStamp + getCycleDuration(1),
+            timeRemaining: 0,
+            isCancelled: false,
+            isPaused: false,
+            status: 0,
+          },
+          {
+            orgId: 1,
+            pricingId: 2,
+            startDate: unCancelTimeStamp,
+            endDate: unCancelTimeStamp + getCycleDuration(2),
+            timeRemaining: 0,
+            isCancelled: false,
+            isPaused: false,
+            status: 0,
+          },
+          {
+            orgId: 1,
+            pricingId: 3,
+            startDate: unCancelTimeStamp,
+            endDate: unCancelTimeStamp + getCycleDuration(3),
+            timeRemaining: 0,
+            isCancelled: false,
+            isPaused: false,
+            status: 0,
+          },
+        ],
       );
     });
   });
@@ -1402,59 +1375,48 @@ describe('Purchase Manager', () => {
         .withArgs(1, 1, 3, 3, 0, pauseTimeStamp);
 
       // Check subscription status
-      await assertSubscription(
-        subscriptionEscrow,
-        {
-          productPassId: 1,
-          productId: 1,
-        },
-        {
-          orgId: 1,
-          pricingId: 1,
-          startDate: 0,
-          endDate: purchaseTimeStamp + getCycleDuration(1),
-          timeRemaining: 0,
-          isCancelled: false,
-          isPaused: true,
-          status: 3,
-        },
-      );
 
-      await assertSubscription(
+      await assertSubscriptionBatch(
         subscriptionEscrow,
         {
           productPassId: 1,
-          productId: 2,
+          productIds: [1, 2, 3],
         },
-        {
-          orgId: 1,
-          pricingId: 2,
-          startDate: 0,
-          endDate: purchaseAdditionalTimeStamp + getCycleDuration(2),
-          timeRemaining: 0,
-          isCancelled: false,
-          isPaused: true,
-          status: 3,
-        },
-      );
-
-      await assertSubscription(
-        subscriptionEscrow,
-        {
-          productPassId: 1,
-          productId: 3,
-        },
-        {
-          orgId: 1,
-          pricingId: 3,
-          startDate: 0,
-          endDate: pauseTimeStamp,
-          timeRemaining:
-            purchaseAdditionalTimeStamp + getCycleDuration(3) - pauseTimeStamp,
-          isCancelled: false,
-          isPaused: true,
-          status: 3,
-        },
+        [
+          {
+            orgId: 1,
+            pricingId: 1,
+            startDate: 0,
+            endDate: purchaseTimeStamp + getCycleDuration(1),
+            timeRemaining: 0,
+            isCancelled: false,
+            isPaused: true,
+            status: 3,
+          },
+          {
+            orgId: 1,
+            pricingId: 2,
+            startDate: 0,
+            endDate: purchaseAdditionalTimeStamp + getCycleDuration(2),
+            timeRemaining: 0,
+            isCancelled: false,
+            isPaused: true,
+            status: 3,
+          },
+          {
+            orgId: 1,
+            pricingId: 3,
+            startDate: 0,
+            endDate: pauseTimeStamp,
+            timeRemaining:
+              purchaseAdditionalTimeStamp +
+              getCycleDuration(3) -
+              pauseTimeStamp,
+            isCancelled: false,
+            isPaused: true,
+            status: 3,
+          },
+        ],
       );
 
       // Advance time and unpause all subscriptions
@@ -1470,62 +1432,49 @@ describe('Purchase Manager', () => {
       const { timestamp: unpauseTimeStamp } = await parseTimestamp(unpauseTx);
 
       // Check subscription status
-      await assertSubscription(
-        subscriptionEscrow,
-        {
-          productPassId: 1,
-          productId: 1,
-        },
-        {
-          orgId: 1,
-          pricingId: 1,
-          startDate: unpauseTimeStamp,
-          endDate: unpauseTimeStamp + getCycleDuration(1),
-          timeRemaining: 0,
-          isCancelled: false,
-          isPaused: false,
-          status: 0,
-        },
-      );
 
-      await assertSubscription(
+      await assertSubscriptionBatch(
         subscriptionEscrow,
         {
           productPassId: 1,
-          productId: 2,
+          productIds: [1, 2, 3],
         },
-        {
-          orgId: 1,
-          pricingId: 2,
-          startDate: unpauseTimeStamp,
-          endDate: unpauseTimeStamp + getCycleDuration(2),
-          timeRemaining: 0,
-          isCancelled: false,
-          isPaused: false,
-          status: 0,
-        },
-      );
-
-      await assertSubscription(
-        subscriptionEscrow,
-        {
-          productPassId: 1,
-          productId: 3,
-        },
-        {
-          orgId: 1,
-          pricingId: 3,
-          startDate: unpauseTimeStamp,
-          endDate:
-            unpauseTimeStamp +
-            (purchaseAdditionalTimeStamp +
-              getCycleDuration(3) -
-              pauseTimeStamp),
-          timeRemaining: 0,
-          isCancelled: false,
-          isPaused: false,
-          status: 0,
-        },
+        [
+          {
+            orgId: 1,
+            pricingId: 1,
+            startDate: unpauseTimeStamp,
+            endDate: unpauseTimeStamp + getCycleDuration(1),
+            timeRemaining: 0,
+            isCancelled: false,
+            isPaused: false,
+            status: 0,
+          },
+          {
+            orgId: 1,
+            pricingId: 2,
+            startDate: unpauseTimeStamp,
+            endDate: unpauseTimeStamp + getCycleDuration(2),
+            timeRemaining: 0,
+            isCancelled: false,
+            isPaused: false,
+            status: 0,
+          },
+          {
+            orgId: 1,
+            pricingId: 3,
+            startDate: unpauseTimeStamp,
+            endDate:
+              unpauseTimeStamp +
+              (purchaseAdditionalTimeStamp +
+                getCycleDuration(3) -
+                pauseTimeStamp),
+            timeRemaining: 0,
+            isCancelled: false,
+            isPaused: false,
+            status: 0,
+          },
+        ],
       );
     });
 

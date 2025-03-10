@@ -70,6 +70,29 @@ contract SubscriptionEscrow is
         );
     }
 
+    function getSubscriptionBatch(
+        uint256 productPassId,
+        uint256[] calldata productIds
+    )
+        external
+        view
+        returns (
+            Subscription[] memory _subs,
+            SubscriptionStatus[] memory _statuses
+        )
+    {
+        _subs = new Subscription[](productIds.length);
+        _statuses = new SubscriptionStatus[](productIds.length);
+
+        for (uint256 i = 0; i < productIds.length; i++) {
+            _checkSubExists(productPassId, productIds[i]);
+            _subs[i] = subs[productPassId][productIds[i]];
+            _statuses[i] = _getSubStatus(_subs[i]);
+        }
+
+        return (_subs, _statuses);
+    }
+
     function _getSubStatus(
         Subscription memory sub
     ) internal view returns (SubscriptionStatus) {

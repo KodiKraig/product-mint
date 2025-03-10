@@ -52,6 +52,24 @@ interface ISubscriptionEscrow {
     ) external view returns (Subscription memory, SubscriptionStatus);
 
     /**
+     * @notice Get multiple subscriptions with their statuses.
+     * @param productPassId The ID of the product pass.
+     * @param productIds The IDs of the products.
+     * @return _subs The subscription details.
+     * @return _statuses The statuses of the subscriptions.
+     */
+    function getSubscriptionBatch(
+        uint256 productPassId,
+        uint256[] calldata productIds
+    )
+        external
+        view
+        returns (
+            Subscription[] memory _subs,
+            SubscriptionStatus[] memory _statuses
+        );
+
+    /**
      * @notice Emitted when a subscription cycle is updated.
      * @param organizationId The ID of the organization.
      * @param productPassId The ID of the product pass.
