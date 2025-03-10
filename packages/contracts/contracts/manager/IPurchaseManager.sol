@@ -26,6 +26,31 @@ interface IPurchaseManager {
     );
 
     /**
+     * @notice Revert when the provided products are not available for purchase within the organization.
+     */
+    error ProductsNotAvailable();
+
+    /**
+     * @notice Revert when the provided coupon code is invalid.
+     */
+    error InvalidCouponCode();
+
+    /**
+     * @notice Revert when no products are provided for a purchase or renewal during batch operations.
+     */
+    error NoProductsProvided();
+
+    /**
+     * @notice Revert when the number of product IDs and statuses do not match during batch operations.
+     */
+    error ProductIdsAndStatusesLengthMismatch();
+
+    /**
+     * @notice Revert when the caller is not authorized to perform the action.
+     */
+    error NotAuthorized();
+
+    /**
      * Purchase Products
      */
 
@@ -127,27 +152,43 @@ interface IPurchaseManager {
         bool airdrop;
     }
 
-    error ProductsNotAvailable();
-
-    error InvalidCouponCode();
-
-    error CouponDoesNotExist();
-
-    error NoProductsProvided();
-
-    error ProductIdsAndStatusesLengthMismatch();
-
-    error NotAuthorized();
-
-    event CouponSet(
-        uint256 indexed orgId,
-        address indexed passOwner,
-        string indexed couponCode
-    );
+    /**
+     * @notice Change the pricing for an existing subscription.
+     *  Can only change between pricing models that are the same charge style i.e. FLAT_RATE, TIERED, or USAGE
+     * @dev Only the pass owner or an org admin can change the pricing model for a subscription.
+     * @param params The parameters for the change.
+     */
+    function changeSubscriptionPricing(
+        ChangeSubscriptionPricingParams calldata params
+    ) external;
 
     /**
      * Renew subscription
      */
+
+    /**
+     * @notice Renew a subscription for a product.
+     * @param productPassId The ID of the product pass to renew.
+     * @param productId The ID of the product to renew.
+     * @param airdrop Whether to airdrop the renewed subscription to the user. Can only be used by an org admin.
+     */
+    function renewSubscription(
+        uint256 productPassId,
+        uint256 productId,
+        bool airdrop
+    ) external;
+
+    /**
+     * @notice Batch renew multiple subscriptions on a product pass in a single transaction.
+     * @param productPassId The ID of the product pass to renew.
+     * @param productIds The IDs of the products to renew.
+     * @param airdrop Whether to airdrop the products to the user. Can only be used by an org admin.
+     */
+    function renewSubscriptionBatch(
+        uint256 productPassId,
+        uint256[] calldata productIds,
+        bool airdrop
+    ) external;
 
     /**
      * Tiered Subscription Unit Quantity
