@@ -32,7 +32,7 @@ interface IPricingCalculator {
     ) external view returns (uint256 cost);
 
     /**
-     * @notice Get the total cost for a pricing id
+     * @notice Get the total cost for a pricing model
      * @param chargeStyle The charge style of the pricing
      * @param tiers The tiers of the pricing
      * @param flatPrice The flat price of the pricing
@@ -47,7 +47,7 @@ interface IPricingCalculator {
     ) external pure returns (uint256);
 
     /**
-     * @notice Get the total cost for a pricing id
+     * @notice Get the total cost for a pricing model
      * @param tiers The tiers of the pricing
      * @param quantity The quantity of the pricing.
      * @return The total cost of the pricing
@@ -58,7 +58,7 @@ interface IPricingCalculator {
     ) external pure returns (uint256);
 
     /**
-     * @notice Get the total cost for a pricing id
+     * @notice Get the total cost for a pricing model
      * @param tiers The tiers of the pricing
      * @param quantity The quantity of the pricing.
      * @return The total cost of the pricing

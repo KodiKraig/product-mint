@@ -10,11 +10,16 @@ import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
 import {IOrganizationAdmin} from "./IOrganizationAdmin.sol";
 
+/**
+ * @title OrganizationAdmin
+ * @notice A contract that allows an organization to manage its admins.
+ *
+ * Useful for delegating admins to avoid having to use the owner of the organization to interact with the ProductMint system.
+ */
 contract OrganizationAdmin is RegistryEnabled, IOrganizationAdmin {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     // Organization ID => Addresses that can record usages for the organization.
-    // Useful for recording usages through an application without having to be the owner of the organization.
     mapping(uint256 => EnumerableSet.AddressSet) private admins;
 
     constructor(address _contractRegistry) RegistryEnabled(_contractRegistry) {}

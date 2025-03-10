@@ -203,6 +203,13 @@ interface IPaymentEscrow {
     function setExoticFee(uint256 newFee) external;
 
     /**
+     * @notice Check if an organization is fee exempt
+     * @param orgId Organization token ID
+     * @return True if the organization token ID is fee exempt, false otherwise
+     */
+    function feeExempt(uint256 orgId) external view returns (bool);
+
+    /**
      * @notice Set if an organization is fee exempt
      * @param orgId Organization token ID
      * @param isExempt True if the organization token ID is fee exempt, false otherwise
@@ -239,6 +246,12 @@ interface IPaymentEscrow {
     /**
      * Fee Reducer
      */
+
+    /**
+     * @notice Get the fee reducer
+     * @return Fee reducer contract address
+     */
+    function feeReducer() external view returns (address);
 
     /**
      * @notice Emitted when the fee reducer contract is set

@@ -16,6 +16,8 @@ import {ITokenMetadataProvider} from "../metadata/ITokenMetadataProvider.sol";
 abstract contract ExternalMetadataERC721 is ERC721 {
     /**
      * @notice Emitted when the metadata provider contract is set
+     * @param previousProvider The previous metadata provider contract
+     * @param newProvider The new metadata provider contract
      */
     event MetadataProviderSet(
         address indexed previousProvider,
