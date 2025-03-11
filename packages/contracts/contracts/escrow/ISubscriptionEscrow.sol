@@ -155,21 +155,13 @@ interface ISubscriptionEscrow {
      * @param productPassId The ID of the product pass.
      * @param productId The ID of the product.
      * @return orgId The ID of the organization.
-     * @return passOwner The owner of the pass.
      * @return token The token of the pricing model.
      * @return price The price of the pricing model.
      */
     function renewSubscription(
         uint256 productPassId,
         uint256 productId
-    )
-        external
-        returns (
-            uint256 orgId,
-            address passOwner,
-            address token,
-            uint256 price
-        );
+    ) external returns (uint256 orgId, address token, uint256 price);
 
     /**
      * Change Pricing

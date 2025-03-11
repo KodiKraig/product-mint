@@ -175,7 +175,7 @@ contract SubscriptionEscrow is
     )
         external
         onlyRegistry(registry.purchaseManager())
-        returns (uint256 orgId, address passOwner, address token, uint256 price)
+        returns (uint256 orgId, address token, uint256 price)
     {
         _checkSubExists(productPassId, productId);
         _checkSubNotCancelled(productPassId, productId);
@@ -186,10 +186,7 @@ contract SubscriptionEscrow is
             registry.pricingRegistry()
         ).getPricing(subs[productPassId][productId].pricingId);
 
-        _advanceSub(subs[productPassId][productId]);
-
         orgId = pricing.orgId;
-        passOwner = _passOwner(productPassId);
         token = pricing.token;
 
         if (pricing.chargeStyle == PricingUtils.ChargeStyle.FLAT_RATE) {
@@ -202,6 +199,8 @@ contract SubscriptionEscrow is
         } else {
             revert InvalidChargeStyle(pricing.chargeStyle);
         }
+
+        _advanceSub(subs[productPassId][productId]);
 
         _emitCycleUpdated(productPassId, productId);
     }

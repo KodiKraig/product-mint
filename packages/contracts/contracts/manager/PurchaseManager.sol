@@ -266,18 +266,14 @@ contract PurchaseManager is
         uint256 productId,
         bool airdrop
     ) internal {
-        (
-            uint256 orgId,
-            address passOwner,
-            address token,
-            uint256 price
-        ) = ISubscriptionEscrow(registry.subscriptionEscrow())
-                .renewSubscription(productPassId, productId);
+        (uint256 orgId, address token, uint256 price) = ISubscriptionEscrow(
+            registry.subscriptionEscrow()
+        ).renewSubscription(productPassId, productId);
 
         if (price > 0) {
             _performPurchase(
                 orgId,
-                passOwner,
+                _passOwner(productPassId),
                 price,
                 token,
                 airdrop,
