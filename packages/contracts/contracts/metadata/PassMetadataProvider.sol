@@ -11,6 +11,27 @@ import {IPurchaseRegistry} from "../registry/IPurchaseRegistry.sol";
 import {IProductRegistry} from "../registry/IProductRegistry.sol";
 import {AttributeUtils} from "../libs/AttributeUtils.sol";
 
+/**
+ * @title PassMetadataProvider
+ * @notice A metadata provider for product passes.
+ *
+ * Organizations can update the metadata for the product passes that they sell.
+ *
+ * Attributes are dynamically derived from onchain data.
+ *
+ * We implement the following OpenSea Metadata standard primary metadata properties:
+ * - Name
+ * - Description
+ * - External URL
+ * - Image
+ * - Background Color
+ * - Animation URL
+ *
+ * Attributes include:
+ * - Organization ID
+ * - <Dynamic Product List>
+ *  EX: Product 1 -> Pro Plan, Product 2 -> Token Usage, etc.
+ */
 contract PassMetadataProvider is MetadataProvider {
     using Strings for uint256;
     using AttributeUtils for string;

@@ -9,7 +9,7 @@ import {IOrganizationAdmin} from "../admin/IOrganizationAdmin.sol";
 
 /**
  * @title RegistryEnabled
- * @notice A base contract for contracts that use the central registry to interact with other contracts within the system.
+ * @notice A base contract for contracts that use the central registry to interact with other contracts within the ProductMint system.
  */
 abstract contract RegistryEnabled is Context {
     /**
