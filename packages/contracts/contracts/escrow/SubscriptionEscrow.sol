@@ -175,21 +175,27 @@ contract SubscriptionEscrow is
     )
         external
         onlyRegistry(registry.purchaseManager())
-        returns (uint256 orgId, address passOwner, address token, uint256 price)
+        returns (uint256 orgId, address token, uint256 price)
     {
         _checkSubExists(productPassId, productId);
         _checkSubNotCancelled(productPassId, productId);
         _checkSubNotPaused(productPassId, productId);
         _checkSubPastDue(productPassId, productId);
 
+        (orgId, token, price) = _processRenewal(productPassId, productId);
+
+        _emitCycleUpdated(productPassId, productId);
+    }
+
+    function _processRenewal(
+        uint256 productPassId,
+        uint256 productId
+    ) internal returns (uint256 orgId, address token, uint256 price) {
         PricingUtils.Pricing memory pricing = IPricingRegistry(
             registry.pricingRegistry()
         ).getPricing(subs[productPassId][productId].pricingId);
 
-        _advanceSub(subs[productPassId][productId]);
-
         orgId = pricing.orgId;
-        passOwner = _passOwner(productPassId);
         token = pricing.token;
 
         if (pricing.chargeStyle == PricingUtils.ChargeStyle.FLAT_RATE) {
@@ -198,20 +204,63 @@ contract SubscriptionEscrow is
             price = _getTieredCost(productPassId, productId, pricing);
             _syncMaxQuantity(productPassId, productId);
         } else if (pricing.isUsage()) {
-            price = _getUsageBasedCost(productPassId, pricing);
+            price = _processUsageMeter(productPassId, pricing);
         } else {
+            // Should never happen since all charge styles are handled
             revert InvalidChargeStyle(pricing.chargeStyle);
         }
 
-        _emitCycleUpdated(productPassId, productId);
+        _advanceSub(subs[productPassId][productId]);
     }
 
-    function _advanceSub(Subscription storage sub) internal {
-        uint256 cycleDuration = IPricingRegistry(registry.pricingRegistry())
-            .getCycleDuration(sub.pricingId);
+    function getRenewalCost(
+        uint256 productPassId,
+        uint256 productId
+    ) public view returns (uint256 orgId, address token, uint256 price) {
+        _checkSubExists(productPassId, productId);
 
-        sub.startDate = block.timestamp;
-        sub.endDate = Math.max(sub.endDate, block.timestamp) + cycleDuration;
+        PricingUtils.Pricing memory pricing = IPricingRegistry(
+            registry.pricingRegistry()
+        ).getPricing(subs[productPassId][productId].pricingId);
+
+        orgId = pricing.orgId;
+        token = pricing.token;
+
+        if (pricing.chargeStyle == PricingUtils.ChargeStyle.FLAT_RATE) {
+            price = pricing.flatPrice;
+        } else if (pricing.isTiered()) {
+            price = _getTieredCost(productPassId, productId, pricing);
+        } else if (pricing.isUsage()) {
+            price = _getUsageBasedCost(productPassId, pricing);
+        } else {
+            // Should never happen since all charge styles are handled
+            revert InvalidChargeStyle(pricing.chargeStyle);
+        }
+    }
+
+    function getRenewalCostBatch(
+        uint256 productPassId,
+        uint256[] calldata productIds
+    )
+        external
+        view
+        returns (
+            uint256 orgId,
+            address[] memory tokens,
+            uint256[] memory prices
+        )
+    {
+        require(productIds.length > 0, "No products provided");
+
+        tokens = new address[](productIds.length);
+        prices = new uint256[](productIds.length);
+
+        for (uint256 i = 0; i < productIds.length; i++) {
+            (orgId, tokens[i], prices[i]) = getRenewalCost(
+                productPassId,
+                productIds[i]
+            );
+        }
     }
 
     function _getTieredCost(
@@ -239,6 +288,24 @@ contract SubscriptionEscrow is
     function _getUsageBasedCost(
         uint256 productPassId,
         PricingUtils.Pricing memory pricing
+    ) internal view returns (uint256) {
+        uint256 usage = IUsageRecorder(registry.usageRecorder()).passUsages(
+            pricing.usageMeterId,
+            productPassId
+        );
+
+        return
+            IPricingCalculator(registry.pricingCalculator()).getTotalCost(
+                pricing.chargeStyle,
+                pricing.tiers,
+                pricing.flatPrice,
+                usage
+            );
+    }
+
+    function _processUsageMeter(
+        uint256 productPassId,
+        PricingUtils.Pricing memory pricing
     ) internal returns (uint256) {
         uint256 usage = IUsageRecorder(registry.usageRecorder())
             .processMeterPayment(pricing.usageMeterId, productPassId);
@@ -250,6 +317,14 @@ contract SubscriptionEscrow is
                 pricing.flatPrice,
                 usage
             );
+    }
+
+    function _advanceSub(Subscription storage sub) internal {
+        uint256 cycleDuration = IPricingRegistry(registry.pricingRegistry())
+            .getCycleDuration(sub.pricingId);
+
+        sub.startDate = block.timestamp;
+        sub.endDate = Math.max(sub.endDate, block.timestamp) + cycleDuration;
     }
 
     /**

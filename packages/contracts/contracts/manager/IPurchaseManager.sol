@@ -214,10 +214,74 @@ interface IPurchaseManager {
      */
 
     /**
+     * @notice Pause a subscription for a product.
+     * @dev The org must have this feature enabled to pause subscriptions.
+     * @param productPassId The ID of the product pass that the subscription is purchased for.
+     * @param productId The ID of the product to pause the subscription for.
+     * @param _pause Whether to pause the subscription.
+     */
+    function pauseSubscription(
+        uint256 productPassId,
+        uint256 productId,
+        bool _pause
+    ) external;
+
+    /**
+     * @notice Batch pause multiple subscriptions on a product pass in a single transaction.
+     * @param productPassId The ID of the product pass that the subscriptions are purchased for.
+     * @param productIds The IDs of the products to pause the subscriptions for.
+     * @param pause Whether to pause the subscriptions.
+     */
+    function pauseSubscriptionBatch(
+        uint256 productPassId,
+        uint256[] calldata productIds,
+        bool[] calldata pause
+    ) external;
+
+    /**
      * Cancel subscription
      */
 
     /**
+     * @notice Cancel a subscription for a product.
+     *  When a subscription is cancelled it cannot be renewed.
+     *  The subscription will automatically be renewed when un-cancelled.
+     * @param productPassId The ID of the product pass that the subscription is purchased for.
+     * @param productId The ID of the product to cancel the subscription for.
+     * @param cancel Whether to cancel the subscription.
+     */
+    function cancelSubscription(
+        uint256 productPassId,
+        uint256 productId,
+        bool cancel
+    ) external;
+
+    /**
+     * @notice Batch cancel multiple subscriptions on a product pass in a single transaction.
+     * @param productPassId The ID of the product pass that the subscriptions are purchased for.
+     * @param productIds The IDs of the products to cancel the subscriptions for.
+     * @param cancel Whether to cancel the subscriptions.
+     */
+    function cancelSubscriptionBatch(
+        uint256 productPassId,
+        uint256[] calldata productIds,
+        bool[] calldata cancel
+    ) external;
+
+    /**
      * Purchase Pause
      */
+
+    /**
+     * @notice Pause all activity within the purchase manager.
+     * @dev This will prevent any purchases, renewals, cancellations, or pausing of subscriptions.
+     * Can be used by the owner when doing upgrades or maintenance.
+     */
+    function pausePurchases() external;
+
+    /**
+     * @notice Unpause activity within the purchase manager.
+     * @dev This will resume any paused activity within the purchase manager.
+     */
+    function unpausePurchases() external;
 }

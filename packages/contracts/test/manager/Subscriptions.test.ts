@@ -137,8 +137,40 @@ describe('Purchase Manager', () => {
         otherAccount,
       } = await loadBatchSubscriptionRenewal();
 
+      // Check initial renewal cost
+      let [orgId, tokens, prices] =
+        await subscriptionEscrow.getRenewalCostBatch(1, [1, 2, 3]);
+      expect(orgId).to.equal(1);
+      expect(tokens).to.deep.equal([
+        await mintToken.getAddress(),
+        await mintToken.getAddress(),
+        await mintToken.getAddress(),
+      ]);
+      expect(prices).to.deep.equal([
+        ethers.parseUnits('10', 6),
+        ethers.parseUnits('2.5', 6),
+        ethers.parseUnits('0', 6),
+      ]);
+
       // Record some usage
       await usageRecorder.connect(owner).increaseMeter(1, 1, 15);
+
+      // Check usage based updated renewal cost
+      [orgId, tokens, prices] = await subscriptionEscrow.getRenewalCostBatch(
+        1,
+        [1, 2, 3],
+      );
+      expect(orgId).to.equal(1);
+      expect(tokens).to.deep.equal([
+        await mintToken.getAddress(),
+        await mintToken.getAddress(),
+        await mintToken.getAddress(),
+      ]);
+      expect(prices).to.deep.equal([
+        ethers.parseUnits('10', 6),
+        ethers.parseUnits('2.5', 6),
+        ethers.parseUnits('14.5', 6),
+      ]);
 
       // ADVANCE TO ALL PAST DUE PRODUCTS
       await time.increase(getCycleDuration(3) + 1);
@@ -189,6 +221,23 @@ describe('Purchase Manager', () => {
       expect(
         await paymentEscrow.orgBalances(1, await mintToken.getAddress()),
       ).to.equal(ethers.parseUnits('39.5', 6));
+
+      // Check post renewal cost
+      [orgId, tokens, prices] = await subscriptionEscrow.getRenewalCostBatch(
+        1,
+        [1, 2, 3],
+      );
+      expect(orgId).to.equal(1);
+      expect(tokens).to.deep.equal([
+        await mintToken.getAddress(),
+        await mintToken.getAddress(),
+        await mintToken.getAddress(),
+      ]);
+      expect(prices).to.deep.equal([
+        ethers.parseUnits('10', 6),
+        ethers.parseUnits('2.5', 6),
+        ethers.parseUnits('0', 6),
+      ]);
     });
 
     it('cannot renew subscriptions if not past due', async () => {
@@ -250,6 +299,40 @@ describe('Purchase Manager', () => {
           .connect(otherAccount)
           .renewSubscriptionBatch(1, [1, 1], false),
       ).to.be.revertedWith('Subscription is not past due');
+    });
+  });
+
+  describe('Get Renewal Cost', () => {
+    it('can get the renewal cost for a single flat rate subscription', async () => {
+      const { subscriptionEscrow, mintToken } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      const [orgId, tokens, prices] = await subscriptionEscrow.getRenewalCost(
+        1,
+        1,
+      );
+
+      expect(orgId).to.equal(1);
+      expect(tokens).to.deep.equal(await mintToken.getAddress());
+      expect(prices).to.deep.equal(ethers.parseUnits('10', 6));
+    });
+
+    it('revert if sub does not exist', async () => {
+      const { subscriptionEscrow } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      await expect(
+        subscriptionEscrow.getRenewalCostBatch(1, [1, 2]),
+      ).to.be.revertedWith('Subscription does not exist');
+    });
+
+    it('revert if empty product ids provided', async () => {
+      const { subscriptionEscrow } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      await expect(
+        subscriptionEscrow.getRenewalCostBatch(1, []),
+      ).to.be.revertedWith('No products provided');
     });
   });
 

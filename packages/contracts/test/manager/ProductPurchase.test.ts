@@ -497,6 +497,15 @@ describe('Purchase Manager', () => {
       // Advance the time
       await time.increase(getCycleDuration(1) + 1);
 
+      // Check the renewal cost
+      let [orgId, tokens, prices] = await subscriptionEscrow.getRenewalCost(
+        1,
+        1,
+      );
+      expect(orgId).to.equal(1);
+      expect(tokens).to.deep.equal(await mintToken.getAddress());
+      expect(prices).to.equal(ethers.parseUnits('10', 6));
+
       // RENEWAL
       const tx = await purchaseManager
         .connect(otherAccount)
@@ -505,6 +514,12 @@ describe('Purchase Manager', () => {
       const { timestamp: renewalTimestamp } = await parseTimestamp(tx);
 
       // ASSERTIONS
+
+      // Check the renewal cost
+      [orgId, tokens, prices] = await subscriptionEscrow.getRenewalCost(1, 1);
+      expect(orgId).to.equal(1);
+      expect(tokens).to.deep.equal(await mintToken.getAddress());
+      expect(prices).to.equal(ethers.parseUnits('10', 6));
 
       expect(await couponRegistry.passOwnerCodes(1, otherAccount)).to.equal('');
 
