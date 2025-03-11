@@ -42,7 +42,7 @@ import {AttributeUtils} from "../libs/AttributeUtils.sol";
  *
  * Attributes include:
  * - Organization ID
- * - <Dynamic Product List>
+ * - <Product ID> -> <Product Name>
  *  EX: Product 1 -> Pro Plan, Product 2 -> Token Usage, etc.
  */
 contract PassMetadataProvider is MetadataProvider {
