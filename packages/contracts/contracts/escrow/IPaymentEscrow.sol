@@ -134,6 +134,7 @@ interface IPaymentEscrow {
 
     /**
      * @notice Withdraw an organization balance. Org balances are only available to the organization token owner.
+     * Organization balances can be withdrawn by the owner at any time. They can never be restricted. Your revenue is yours to keep.
      * @param orgId Organization ID
      * @param token Token address. Address(0) for native tokens.
      * @param amount Amount to withdraw

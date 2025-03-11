@@ -359,7 +359,7 @@ contract PurchaseManager is
         uint256 productPassId,
         uint256 productId,
         bool cancel
-    ) external payable onlyPassOwnerOrAdmin(productPassId) nonReentrant {
+    ) external onlyPassOwnerOrAdmin(productPassId) nonReentrant {
         _cancelSubscription(productPassId, productId, cancel);
     }
 
