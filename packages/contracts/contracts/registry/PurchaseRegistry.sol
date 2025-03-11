@@ -11,6 +11,17 @@ import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
 import {IPurchaseRegistry} from "./IPurchaseRegistry.sol";
 import {IProductRegistry} from "./IProductRegistry.sol";
 
+/**
+ * @title PurchaseRegistry
+ * @notice A contract used by the purchase manager to record purchases of products on a product pass.
+ *
+ * A product pass is a token that represents a collection of products that have been purchased.
+ *
+ * Organization admins can do the following:
+ * - Set whether mints are whitelist only and the addresses that are whitelisted.
+ * - Set the maximum number of product pass mints for an organization.
+ * - Set the maximum supply for a product creating market scarcity.
+ */
 contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
     using EnumerableSet for EnumerableSet.UintSet;
 
@@ -50,6 +61,18 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
         uint256 tokenId
     ) external view returns (uint256[] memory) {
         return purchasedProducts[tokenId].values();
+    }
+
+    function hasPassPurchasedProducts(
+        uint256 tokenId,
+        uint256[] calldata productIds
+    ) external view returns (bool) {
+        for (uint256 i = 0; i < productIds.length; i++) {
+            if (!purchasedProducts[tokenId].contains(productIds[i])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

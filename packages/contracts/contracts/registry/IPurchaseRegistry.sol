@@ -54,6 +54,17 @@ interface IPurchaseRegistry {
     ) external view returns (uint256[] memory);
 
     /**
+     * @notice Check if a pass has purchased a list of products.
+     * @param tokenId The Product Pass Token ID to check.
+     * @param productIds The product IDs to check.
+     * @return True if the pass has purchased all the products, false otherwise.
+     */
+    function hasPassPurchasedProducts(
+        uint256 tokenId,
+        uint256[] calldata productIds
+    ) external view returns (bool);
+
+    /**
      * @notice Get the number of mints for an organization by a single wallet.
      * @param organizationId The organization ID that the pass belongs to.
      * @param passOwner The owner of the passes.

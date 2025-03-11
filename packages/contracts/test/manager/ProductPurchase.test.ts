@@ -52,6 +52,9 @@ describe('Purchase Manager', () => {
 
       expect(await productPassNFT.ownerOf(1)).to.equal(otherAccount);
       expect(await purchaseRegistry.getPassProductIds(1)).to.deep.equal([1]);
+      expect(await purchaseRegistry.hasPassPurchasedProducts(1, [1])).to.equal(
+        true,
+      );
       expect(await purchaseRegistry.productSupply(1)).to.equal(1);
       expect(await purchaseRegistry.passOrganization(1)).to.equal(1);
       expect(await purchaseRegistry.passMintCount(1, otherAccount)).to.equal(1);
@@ -105,6 +108,9 @@ describe('Purchase Manager', () => {
 
       // Purchase registry
       expect(await purchaseRegistry.getPassProductIds(1)).to.deep.equal([1]);
+      expect(await purchaseRegistry.hasPassPurchasedProducts(1, [1])).to.equal(
+        true,
+      );
       expect(await purchaseRegistry.productSupply(1)).to.equal(1);
       expect(await purchaseRegistry.passOrganization(1)).to.equal(1);
       expect(await purchaseRegistry.passMintCount(1, otherAccount)).to.equal(1);
@@ -318,7 +324,13 @@ describe('Purchase Manager', () => {
 
       // Purchase registry
       expect(await purchaseRegistry.getPassProductIds(1)).to.deep.equal([1, 2]);
+      expect(
+        await purchaseRegistry.hasPassPurchasedProducts(1, [1, 2]),
+      ).to.equal(true);
       expect(await purchaseRegistry.getPassProductIds(2)).to.deep.equal([1]);
+      expect(await purchaseRegistry.hasPassPurchasedProducts(2, [1])).to.equal(
+        true,
+      );
       expect(await purchaseRegistry.productSupply(1)).to.equal(2);
       expect(await purchaseRegistry.productSupply(2)).to.equal(1);
       expect(await purchaseRegistry.passOrganization(1)).to.equal(1);
@@ -645,6 +657,9 @@ describe('Purchase Manager', () => {
         );
       // INITIAL ASSERTIONS
       expect(await purchaseRegistry.getPassProductIds(1)).to.deep.equal([1]);
+      expect(await purchaseRegistry.hasPassPurchasedProducts(1, [1])).to.equal(
+        true,
+      );
       expect(await purchaseRegistry.productSupply(1)).to.equal(1);
       expect(await purchaseRegistry.passOrganization(1)).to.equal(1);
       expect(await purchaseRegistry.passMintCount(1, otherAccount)).to.equal(1);
@@ -791,6 +806,9 @@ describe('Purchase Manager', () => {
 
       // INITIAL ASSERTIONS
       expect(await purchaseRegistry.getPassProductIds(1)).to.deep.equal([1]);
+      expect(await purchaseRegistry.hasPassPurchasedProducts(1, [1])).to.equal(
+        true,
+      );
       expect(await purchaseRegistry.productSupply(1)).to.equal(1);
       expect(await purchaseRegistry.passOrganization(1)).to.equal(1);
       expect(await purchaseRegistry.passMintCount(1, otherAccount)).to.equal(1);
@@ -964,6 +982,9 @@ describe('Purchase Manager', () => {
 
       // INITIAL ASSERTIONS
       expect(await purchaseRegistry.getPassProductIds(1)).to.deep.equal([1]);
+      expect(await purchaseRegistry.hasPassPurchasedProducts(1, [1])).to.equal(
+        true,
+      );
       expect(await purchaseRegistry.productSupply(1)).to.equal(1);
       expect(await purchaseRegistry.passOrganization(1)).to.equal(1);
       expect(await purchaseRegistry.passMintCount(1, otherAccount)).to.equal(1);
