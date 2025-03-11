@@ -27,6 +27,11 @@ import {IPaymentEscrow} from "../escrow/IPaymentEscrow.sol";
  *
  * Pricing models can be restricted to certain product pass owners.
  *
+ * Any changes to pricing models that are linked to active subscriptions will take effect during the next renewal.
+ * NOTE: If you change the token or price you should communicate this to the users of the product. You will also
+ * need them to possibly approve the new token if it is different than the previous token and possibly
+ * increase allowances or renewals could fail.
+ *
  * _Charge Style_
  * Products can have multiple linked pricing models but keep in mind that
  * once a product is purchased, the model can only be changed to a different pricing model
