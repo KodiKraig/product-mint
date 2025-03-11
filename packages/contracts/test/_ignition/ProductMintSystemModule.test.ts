@@ -14,6 +14,14 @@ describe('ProductMintSystemModule', () => {
     };
   }
 
+  it('should deploy the test ERC20 token', async () => {
+    const { mintToken } = await loadFixture(deployProductMintSystem);
+
+    expect(await mintToken.name()).to.equal('MintToken');
+    expect(await mintToken.symbol()).to.equal('MINT');
+    expect(await mintToken.getAddress()).to.not.be.undefined;
+  });
+
   it('should set the correct default metadata for the pass NFT', async () => {
     const { passMetadataProvider } = await loadFixture(deployProductMintSystem);
 
