@@ -22,6 +22,10 @@ import {
  *
  * Every product on a product pass can have its own subscription allowing for individual management of each subscription.
  *
+ * By default, subscriptions are not pausable and pass owners cannot change the pricing of a subscription. These settings
+ * can be changed by organization admins.
+ * NOTE: If a subscription is not paused, then the product pass cannot be transferred.
+ *
  * This contract is used to manage the lifecycle of a subscription. Subscriptions are permissionless and can be renewed
  * by anyone pending the subscription is past due, not paused, and not cancelled.
  *

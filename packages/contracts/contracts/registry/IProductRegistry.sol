@@ -284,6 +284,7 @@ interface IProductRegistry {
     /**
      * @notice Unlink a pricing from a product.
      * @dev Will revert if not an org admin, product does not exist, or pricing is not linked to the product.
+     * NOTE: Even if a pricing is unlinked from a product, subscription renewals using the product and pricing model will still continue to renew.
      * @param productId The product ID to unlink the pricing from.
      * @param pricingIds The pricing IDs to unlink from the product.
      */

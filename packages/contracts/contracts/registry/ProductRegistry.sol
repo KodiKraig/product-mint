@@ -13,6 +13,20 @@ import {IPricingRegistry} from "./IPricingRegistry.sol";
 import {IProductTransferOracle} from "../oracle/IProductTransferOracle.sol";
 import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
 
+/**
+ * @title ProductRegistry
+ * @notice A contract that allows organizations to create products and link them to pricing models.
+ *
+ * Products can only be created by organization admins.
+ *
+ * Products can be linked to pricing models that are owned by the organization to be allowed in checkouts.
+ *
+ * Products can only be transferred between wallets if the product is transferable. By default, products are not transferable.
+ *
+ * Products can be deactivated by organization admins. When a product is deactivated, it cannot be used in checkouts.
+ * NOTE: Even if a product is deactivated or the pricing model is unlinked, subscription renewals using the
+ * product and pricing model will still continue to renew.
+ */
 contract ProductRegistry is
     RegistryEnabled,
     IProductRegistry,

@@ -20,7 +20,7 @@ import {IPaymentEscrow} from "../escrow/IPaymentEscrow.sol";
  *
  * Once a new pricing model is created it can be linked to products to be used during checkouts and renewals.
  *
- * When pricing models are created they are active by default and ready for use.
+ * When pricing models are created they are set to active by default and ready for use.
  * You can deactivate pricing models that you don't want to be available for purchase but
  * keep in mind that if a pricing model is on a product that has an active subscription,
  * renewals will still continue to work.
