@@ -23,7 +23,7 @@ abstract contract RegistryEnabled is Context {
         registry = IContractRegistry(_registry);
     }
 
-    // Shared
+    // Registry
 
     modifier onlyRegistry(address expectedContract) {
         _checkRegistry(expectedContract);

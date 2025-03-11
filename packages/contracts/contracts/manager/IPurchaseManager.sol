@@ -144,6 +144,15 @@ interface IPurchaseManager {
      * Change subscription pricing
      */
 
+    /**
+     * @notice The parameters for changing the pricing for a subscription.
+     *
+     * @custom:field orgId The ID of the organization that the subscription is purchased for.
+     * @custom:field productPassId The ID of the product pass that the subscription is purchased for.
+     * @custom:field productId The ID of the product to change the pricing for.
+     * @custom:field newPricingId The ID of the new pricing option for the product.
+     * @custom:field airdrop Whether to airdrop the change to the user.
+     */
     struct ChangeSubscriptionPricingParams {
         uint256 orgId;
         uint256 productPassId;

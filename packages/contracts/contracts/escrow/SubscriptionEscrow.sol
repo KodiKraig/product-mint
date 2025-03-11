@@ -16,6 +16,19 @@ import {
     ISubscriptionTransferOracle
 } from "../oracle/ISubscriptionTransferOracle.sol";
 
+/*
+ ____                 _            _   __  __ _       _   
+|  _ \ _ __ ___   __| |_   _  ___| |_|  \/  (_)_ __ | |_ 
+| |_) | '__/ _ \ / _` | | | |/ __| __| |\/| | | '_ \| __|
+|  __/| | | (_) | (_| | |_| | (__| |_| |  | | | | | | |_ 
+|_|   |_|  \___/ \__,_|\__,_|\___|\__|_|  |_|_|_| |_|\__|
+ 
+ NFT based payment system to mint products onchain with one-time payments and 
+ recurring permissionless subscriptions.
+
+ https://productmint.io
+*/
+
 /**
  * @title SubscriptionEscrow
  * @notice A contract that manages subscriptions for products on a product pass.
@@ -31,7 +44,7 @@ import {
  *
  * There are 3 kinds of subscriptions:
  * - Flat rate: A flat rate subscription is a subscription that has a flat rate price.
- * - Tiered: A tiered subscription is a subscription that has a tiered price.
+ * - Tiered: A tiered subscription is a subscription that where the price is based on the quantity of a product.
  * - Usage based: A usage based subscription is a subscription that has a usage based price used in conjunction with a usage meter.
  *
  * There are 4 states that a subscription can be in:

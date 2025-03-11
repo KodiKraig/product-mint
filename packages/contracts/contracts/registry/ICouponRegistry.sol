@@ -54,6 +54,12 @@ interface ICouponRegistry {
     }
 
     /**
+     * @notice Get the total number of coupons that have been created
+     * @return The total number of coupons
+     */
+    function totalCoupons() external view returns (uint256);
+
+    /**
      * Redemption
      */
 

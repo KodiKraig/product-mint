@@ -27,7 +27,7 @@ import {IOrganizationAdmin} from "./IOrganizationAdmin.sol";
  * @title OrganizationAdmin
  * @notice A contract that allows an organization to manage its admins.
  *
- * Useful for delegating admins to avoid having to use the owner of the organization to interact with the ProductMint system.
+ * Delegate admins to avoid having to use the owner of the organization to interact with the ProductMint system.
  */
 contract OrganizationAdmin is RegistryEnabled, IOrganizationAdmin {
     using EnumerableSet for EnumerableSet.AddressSet;

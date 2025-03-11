@@ -55,11 +55,6 @@ interface IPricingRegistry {
     error InvalidTiers();
 
     /**
-     * @notice Thrown when a pricing configuration is not found.
-     */
-    error PricingNotFound();
-
-    /**
      * @notice Thrown during checkout validation when a pricing configuration has an invalid quantity for a non tiered pricing configuration.
      * @dev All pricing charge styles except TIERED_VOLUME and TIERED_GRADUATED must have a quantity of 0.
      */
@@ -117,6 +112,12 @@ interface IPricingRegistry {
      */
 
     /**
+     * @notice Get the total number of pricing configurations that have been created.
+     * @return The total number of pricing configurations.
+     */
+    function pricingSupply() external view returns (uint256);
+
+    /**
      * @notice Get the pricing details for a pricing configuration.
      * @dev Reverts if the pricing configuration does not exist.
      * @param pricingId The pricing ID to get the pricing details for.
@@ -170,10 +171,10 @@ interface IPricingRegistry {
     ) external view returns (bool);
 
     /**
-     * @notice Grant restricted access to a pricing configuration.
-     * @param pricingId The pricing ID to grant restricted access to.
-     * @param productPassOwners The product pass owners to grant restricted access to.
-     * @param isRestricted True if the address has restricted access, false otherwise.
+     * @notice Grant access to a pricing configuration.
+     * @param pricingId The pricing ID to grant access to.
+     * @param productPassOwners The product pass owners to grant access to.
+     * @param isRestricted True if the address has access, false otherwise.
      */
     function setRestrictedAccess(
         uint256 pricingId,

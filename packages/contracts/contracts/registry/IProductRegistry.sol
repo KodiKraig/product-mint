@@ -44,6 +44,12 @@ interface IProductRegistry {
     }
 
     /**
+     * @notice Get the total number of products that have been created.
+     * @return The total number of products.
+     */
+    function totalProductSupply() external view returns (uint256);
+
+    /**
      * @notice Check if a product can be purchased.
      * @param organizationId The organization ID that the product belongs to.
      * @param productId The product ID to check if it can be purchased.
@@ -83,15 +89,6 @@ interface IProductRegistry {
     ) external view returns (Product memory);
 
     /**
-     * @notice Get the names for a batch of products.
-     * @param _productIds The product IDs to get the names for.
-     * @return _productNames The names for the products.
-     */
-    function getProductNames(
-        uint256[] memory _productIds
-    ) external view returns (string[] memory _productNames);
-
-    /**
      * @notice Get the product info for a batch of products.
      * @param _productIds The product IDs to get the info for.
      * @return _products The info for the products.
@@ -99,6 +96,15 @@ interface IProductRegistry {
     function getProductsBatch(
         uint256[] memory _productIds
     ) external view returns (Product[] memory _products);
+
+    /**
+     * @notice Get the names for a batch of products.
+     * @param _productIds The product IDs to get the names for.
+     * @return _productNames The names for the products.
+     */
+    function getProductNames(
+        uint256[] memory _productIds
+    ) external view returns (string[] memory _productNames);
 
     /**
      * @notice Get the product IDs for an organization.

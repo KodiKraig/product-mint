@@ -13,6 +13,19 @@ import {IPricingRegistry} from "./IPricingRegistry.sol";
 import {IProductTransferOracle} from "../oracle/IProductTransferOracle.sol";
 import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
 
+/*
+ ____                 _            _   __  __ _       _   
+|  _ \ _ __ ___   __| |_   _  ___| |_|  \/  (_)_ __ | |_ 
+| |_) | '__/ _ \ / _` | | | |/ __| __| |\/| | | '_ \| __|
+|  __/| | | (_) | (_| | |_| | (__| |_| |  | | | | | | |_ 
+|_|   |_|  \___/ \__,_|\__,_|\___|\__|_|  |_|_|_| |_|\__|
+ 
+ NFT based payment system to mint products onchain with one-time payments and 
+ recurring permissionless subscriptions.
+
+ https://productmint.io
+*/
+
 /**
  * @title ProductRegistry
  * @notice A contract that allows organizations to create products and link them to pricing models.
