@@ -44,7 +44,7 @@ import {
  *
  * There are 3 kinds of subscriptions:
  * - Flat rate: A flat rate subscription is a subscription that has a flat rate price.
- * - Tiered: A tiered subscription is a subscription that where the price is based on the quantity of a product.
+ * - Tiered: A tiered subscription is a subscription where the price is based on the quantity of a product. i.e. Seats, Users, etc.
  * - Usage based: A usage based subscription is a subscription that has a usage based price used in conjunction with a usage meter.
  *
  * There are 4 states that a subscription can be in:
