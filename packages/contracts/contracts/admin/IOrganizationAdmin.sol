@@ -21,7 +21,7 @@ interface IOrganizationAdmin {
 
     /**
      * @notice Adds an admin to the organization.
-     * Admins are great for delegating the responsibility of setting unit quantities in your application.
+     * Admins are great for delegating the responsibilities of the organization.
      * @dev Only the owner of the organization can add admins.
      * @param organizationId The ID of the organization.
      * @param admin The address of the admin to add.
