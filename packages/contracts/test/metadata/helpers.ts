@@ -3,10 +3,10 @@ import { expect } from 'chai';
 export type Metadata = {
   name: string;
   description: string;
-  external_url: string;
-  image: string;
-  background_color: string;
-  animation_url: string;
+  external_url: string | null;
+  image: string | null;
+  background_color: string | null;
+  animation_url: string | null;
   attributes: {
     trait_type: string;
     value: string | number;
@@ -36,7 +36,7 @@ export const DEFAULT_ORGANIZATION_METADATA = {
   externalUrl: 'https://test-org.com',
   image: 'https://test-org.com/image.png',
   backgroundColor: '000000',
-  animationUrl: 'https://test-org.com/animation.mp4',
+  animationUrl: '',
 };
 
 export const EXPECTED_DEFAULT_ORGANIZATION_METADATA = {
@@ -45,14 +45,14 @@ export const EXPECTED_DEFAULT_ORGANIZATION_METADATA = {
   external_url: DEFAULT_ORGANIZATION_METADATA.externalUrl,
   image: DEFAULT_ORGANIZATION_METADATA.image,
   background_color: DEFAULT_ORGANIZATION_METADATA.backgroundColor,
-  animation_url: DEFAULT_ORGANIZATION_METADATA.animationUrl,
+  animation_url: null,
 };
 
 export const DEFAULT_PASS_METADATA = {
   name: 'Test Product Pass',
   description: 'Test Product Description',
   externalUrl: 'https://test-pass.com',
-  image: 'https://test-pass.com/image.png',
+  image: '',
   backgroundColor: '111111',
   animationUrl: 'https://test-pass.com/animation.mp4',
 };
@@ -61,7 +61,7 @@ export const EXPECTED_DEFAULT_PASS_METADATA = {
   name: DEFAULT_PASS_METADATA.name,
   description: DEFAULT_PASS_METADATA.description,
   external_url: DEFAULT_PASS_METADATA.externalUrl,
-  image: DEFAULT_PASS_METADATA.image,
+  image: null,
   background_color: DEFAULT_PASS_METADATA.backgroundColor,
   animation_url: DEFAULT_PASS_METADATA.animationUrl,
 };
