@@ -39,6 +39,30 @@ library AttributeUtils {
     }
 
     /**
+     * @notice Convert a string value to a key-value pair.
+     * @dev Will return "null" if the value is an empty string.
+     *
+     * Format:
+     * { '<KEY>': '<VALUE>' }
+     *
+     * @param value The string value to convert.
+     * @param key The key of the attribute.
+     * @return The attribute as a string.
+     */
+    function keyValue(
+        string memory value,
+        string memory key
+    ) internal pure returns (string memory) {
+        string memory initial = string.concat('"', key, '": ');
+
+        if (bytes(value).length == 0) {
+            return string.concat(initial, "null");
+        }
+
+        return string.concat(initial, '"', value, '"');
+    }
+
+    /**
      * Booleans
      */
 

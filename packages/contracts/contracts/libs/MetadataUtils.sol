@@ -3,12 +3,14 @@
 pragma solidity ^0.8.24;
 
 import {StringLengthUtils} from "./StringLengthUtils.sol";
+import {AttributeUtils} from "./AttributeUtils.sol";
 
 /**
  * @notice Utility library for managing Metadata that conforms to the ERC721 metadata standard set by OpenSea.
  */
 library MetadataUtils {
     using StringLengthUtils for string;
+    using AttributeUtils for string;
 
     /**
      * @notice Struct representing the metadata for an ERC721 token.
@@ -163,6 +165,18 @@ library MetadataUtils {
 
     /**
      * @notice Convert the metadata to a JSON string while filling in default values for empty fields.
+     *  If any fields are empty, they will be set to "null" in the JSON string.
+     *
+     * @dev The JSON string will be formatted as follows:
+     * {
+     *     "name": "<NAME>",
+     *     "description": "<DESCRIPTION>",
+     *     "external_url": "<EXTERNAL_URL>",
+     *     "image": "<IMAGE>",
+     *     "background_color": "<BACKGROUND_COLOR>",
+     *     "animation_url": "<ANIMATION_URL>"
+     * }
+     *
      * @param metadata The metadata to convert to a JSON string.
      * @param defaultMetadata The default metadata to use if a field is empty.
      * @return The metadata as a JSON string.
@@ -173,19 +187,26 @@ library MetadataUtils {
     ) internal pure returns (string memory) {
         return
             string.concat(
-                '"name": "',
-                metadata.name.or(defaultMetadata.name),
-                '", "description": "',
-                metadata.description.or(defaultMetadata.description),
-                '", "external_url": "',
-                metadata.externalUrl.or(defaultMetadata.externalUrl),
-                '", "image": "',
-                metadata.image.or(defaultMetadata.image),
-                '", "background_color": "',
-                metadata.backgroundColor.or(defaultMetadata.backgroundColor),
-                '", "animation_url": "',
-                metadata.animationUrl.or(defaultMetadata.animationUrl),
-                '"'
+                metadata.name.or(defaultMetadata.name).keyValue("name"),
+                ",",
+                metadata.description.or(defaultMetadata.description).keyValue(
+                    "description"
+                ),
+                ",",
+                metadata.externalUrl.or(defaultMetadata.externalUrl).keyValue(
+                    "external_url"
+                ),
+                ",",
+                metadata.image.or(defaultMetadata.image).keyValue("image"),
+                ",",
+                metadata
+                    .backgroundColor
+                    .or(defaultMetadata.backgroundColor)
+                    .keyValue("background_color"),
+                ",",
+                metadata.animationUrl.or(defaultMetadata.animationUrl).keyValue(
+                    "animation_url"
+                )
             );
     }
 }

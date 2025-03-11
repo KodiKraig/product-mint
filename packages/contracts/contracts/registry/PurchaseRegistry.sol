@@ -11,6 +11,31 @@ import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
 import {IPurchaseRegistry} from "./IPurchaseRegistry.sol";
 import {IProductRegistry} from "./IProductRegistry.sol";
 
+/*
+ ____                 _            _   __  __ _       _   
+|  _ \ _ __ ___   __| |_   _  ___| |_|  \/  (_)_ __ | |_ 
+| |_) | '__/ _ \ / _` | | | |/ __| __| |\/| | | '_ \| __|
+|  __/| | | (_) | (_| | |_| | (__| |_| |  | | | | | | |_ 
+|_|   |_|  \___/ \__,_|\__,_|\___|\__|_|  |_|_|_| |_|\__|
+ 
+ NFT based payment system to mint products onchain with one-time payments and 
+ recurring permissionless subscriptions.
+
+ https://productmint.io
+*/
+
+/**
+ * @title PurchaseRegistry
+ * @notice A contract used by the purchase manager to record purchases of products on a product pass.
+ *
+ * A product pass is a token that represents a collection of products that have been purchased.
+ *
+ * Organization admins can do the following:
+ * - Set whether mints are whitelist only and the addresses that are whitelisted. Default is false.
+ * - Set the maximum number of product pass mints for an organization. Default is 0 (unlimited).
+ * - Set the maximum supply for a product creating market scarcity. Default is 0 (unlimited).
+ * - Set whether mints are closed for an organization and no products can be purchased. Default is false.
+ */
 contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
     using EnumerableSet for EnumerableSet.UintSet;
 
@@ -44,12 +69,27 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
     // Organization ID => Product Pass Owner => Is whitelisted?
     mapping(uint256 => mapping(address => bool)) public whitelisted;
 
+    // Organization ID => Is mint closed?
+    mapping(uint256 => bool) public isMintClosed;
+
     constructor(address _contractRegistry) RegistryEnabled(_contractRegistry) {}
 
     function getPassProductIds(
         uint256 tokenId
     ) external view returns (uint256[] memory) {
         return purchasedProducts[tokenId].values();
+    }
+
+    function hasPassPurchasedProducts(
+        uint256 tokenId,
+        uint256[] calldata productIds
+    ) external view returns (bool) {
+        for (uint256 i = 0; i < productIds.length; i++) {
+            if (!purchasedProducts[tokenId].contains(productIds[i])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -71,6 +111,10 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
             _productIds.length == _pricingIds.length,
             "Product and pricing IDs must be the same length"
         );
+
+        if (isMintClosed[_organizationId]) {
+            revert MintClosed();
+        }
 
         if (passOrganization[_passId] == 0) {
             // New pass
@@ -187,6 +231,19 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
                 _isWhitelisted[i]
             );
         }
+    }
+
+    /**
+     * Mint Closed
+     */
+
+    function setMintClosed(
+        uint256 organizationId,
+        bool _isMintClosed
+    ) external onlyOrgAdmin(organizationId) {
+        isMintClosed[organizationId] = _isMintClosed;
+
+        emit MintClosedStatusChanged(organizationId, _isMintClosed);
     }
 
     /**

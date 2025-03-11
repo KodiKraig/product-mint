@@ -21,14 +21,27 @@ import {IPurchaseRegistry} from "../registry/IPurchaseRegistry.sol";
 | |_) | '__/ _ \ / _` | | | |/ __| __| |\/| | | '_ \| __|
 |  __/| | | (_) | (_| | |_| | (__| |_| |  | | | | | | |_ 
 |_|   |_|  \___/ \__,_|\__,_|\___|\__|_|  |_|_|_| |_|\__|
+ 
+ NFT based payment system to mint products onchain with one-time payments and 
+ recurring permissionless subscriptions.
+
+ https://productmint.io
 */
 
 /**
  * @title ProductPassNFT
  * @notice A contract for minting product passes.
- * A product pass is minted to a user when they purchase a product from an organization.
- * The organization can set the products that are allowed to be transferred. If a pass contains any products
- * that are not allowed to be transferred, the pass is not transferable.
+ *
+ * A product pass is minted to a user when they purchase product(s) from an organization using the ProductMint system.
+ *
+ * Additional products can be added to the pass after mint.
+ *
+ * Products cannot be duplicated in a pass.
+ *
+ * TRANSFERABILITY:
+ * The organization can set the products that are allowed to be transferred.
+ * If a pass contains any products that are not allowed to be transferred, the pass is not transferable.
+ * If the pass contains products with subscriptions, the subscriptions must be paused before the pass can be transferred.
  */
 contract ProductPassNFT is
     ExternalMetadataERC721,

@@ -26,14 +26,30 @@ import {IOrganizationAdmin} from "../admin/IOrganizationAdmin.sol";
 import {ICouponRegistry} from "./ICouponRegistry.sol";
 import {OneTimeLock} from "../utils/OneTimeLock.sol";
 
+/*
+ ____                 _            _   __  __ _       _   
+|  _ \ _ __ ___   __| |_   _  ___| |_|  \/  (_)_ __ | |_ 
+| |_) | '__/ _ \ / _` | | | |/ __| __| |\/| | | '_ \| __|
+|  __/| | | (_) | (_| | |_| | (__| |_| |  | | | | | | |_ 
+|_|   |_|  \___/ \__,_|\__,_|\___|\__|_|  |_|_|_| |_|\__|
+ 
+ NFT based payment system to mint products onchain with one-time payments and 
+ recurring permissionless subscriptions.
+
+ https://productmint.io
+*/
+
 /**
  * @title ContractRegistry
  * @notice A contract that holds all the addresses of the contracts within the ProductMint system.
  *
  * All of the contracts within the system interface with one another to bring the system to life.
  *
- * __ProductMint__
- * NFT based payment system to mint products onchain with one-time payments and recurring permissionless subscriptions.
+ * All contracts can be swapped out by the owner to upgrade the system except the OrganizationNFT and ProductPassNFT.
+ *
+ * The OrganizationNFT and ProductPassNFT are used to represent ownership of the organization and product passes.
+ * They cannot be changed or upgraded. This prevents the org owner from ever being locked out of the system and
+ * losing access to their funds.
  */
 contract ContractRegistry is
     Ownable2Step,

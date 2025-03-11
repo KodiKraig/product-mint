@@ -14,6 +14,76 @@ import {IPricingRegistry} from "./IPricingRegistry.sol";
 import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
 import {IPaymentEscrow} from "../escrow/IPaymentEscrow.sol";
 
+/*
+ ____                 _            _   __  __ _       _   
+|  _ \ _ __ ___   __| |_   _  ___| |_|  \/  (_)_ __ | |_ 
+| |_) | '__/ _ \ / _` | | | |/ __| __| |\/| | | '_ \| __|
+|  __/| | | (_) | (_| | |_| | (__| |_| |  | | | | | | |_ 
+|_|   |_|  \___/ \__,_|\__,_|\___|\__|_|  |_|_|_| |_|\__|
+ 
+ NFT based payment system to mint products onchain with one-time payments and 
+ recurring permissionless subscriptions.
+
+ https://productmint.io
+*/
+
+/**
+ * @title PricingRegistry
+ * @notice A contract that manages pricing models created by organizations.
+ *
+ * Once a new pricing model is created it can be linked to products to be used during checkouts and renewals.
+ *
+ * When pricing models are created they are set to active by default and ready for use.
+ * You can deactivate pricing models that you don't want to be available for purchase but
+ * keep in mind that if a pricing model is on a product that has an active subscription,
+ * renewals will still continue to work.
+ *
+ * Pricing models can be restricted to certain product pass owners.
+ *
+ * Any changes to pricing models that are linked to active subscriptions will take effect during the next renewal.
+ * NOTE: If you change the token or price you should communicate this to the users of the product. You will also
+ * need them to possibly approve the new token if it is different than the previous token and possibly
+ * increase allowances or renewals could fail.
+ *
+ * _Charge Style_
+ * Products can have multiple linked pricing models but keep in mind that
+ * once a product is purchased, the model can only be changed to a different pricing model
+ * if the new pricing model has the same charge style.
+ *
+ * Pricing models can be one time, recurring, or usage based charge styles.
+ * There are 6 different pricing models:
+ * - ONE_TIME
+ *  Only available for a single purchase with no recurring subscription.
+ * - FLAT_RATE
+ *  Fixed price for a recurring subscription.
+ * - TIERED_VOLUME
+ *  Tiers with different prices for different quantities of units.
+ *  Final tier reached is used for all units.
+ *  Billed at the start of the period.
+ * - TIERED_GRADUATED
+ *  Tiers with different prices for different quantities of units.
+ *  Tiers apply progressively.
+ *  Billed at the start of the period.
+ * - USAGE_BASED_VOLUME
+ *  Tiers based on usage recorded within the billing period.
+ *  Final tier reached is used for all units.
+ *  Billed at the end of the period.
+ * - USAGE_BASED_GRADUATED
+ *  Tiers based on usage recorded within the billing period.
+ *  Tiers apply progressively.
+ *  Billed at the end of the period.
+ *
+ * _Charge Frequency_
+ * The charge frequency is the frequency at which the subscription should be charged.
+ * If the charge frequency is changed, subscriptions will update to the new charge frequency during the
+ * next renewal.
+ * There are 5 different charge frequencies:
+ * - DAILY - Every day
+ * - WEEKLY - Every 7 days
+ * - MONTHLY - Every 30 days
+ * - QUARTERLY - Every 90 days
+ * - YEARLY - Every 365 days
+ */
 contract PricingRegistry is RegistryEnabled, IPricingRegistry, IERC165 {
     using EnumerableSet for EnumerableSet.UintSet;
     using PricingUtils for PricingUtils.Pricing;

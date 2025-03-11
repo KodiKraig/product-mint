@@ -11,6 +11,40 @@ import {IPurchaseRegistry} from "../registry/IPurchaseRegistry.sol";
 import {IProductRegistry} from "../registry/IProductRegistry.sol";
 import {AttributeUtils} from "../libs/AttributeUtils.sol";
 
+/*
+ ____                 _            _   __  __ _       _   
+|  _ \ _ __ ___   __| |_   _  ___| |_|  \/  (_)_ __ | |_ 
+| |_) | '__/ _ \ / _` | | | |/ __| __| |\/| | | '_ \| __|
+|  __/| | | (_) | (_| | |_| | (__| |_| |  | | | | | | |_ 
+|_|   |_|  \___/ \__,_|\__,_|\___|\__|_|  |_|_|_| |_|\__|
+ 
+ NFT based payment system to mint products onchain with one-time payments and 
+ recurring permissionless subscriptions.
+
+ https://productmint.io
+*/
+
+/**
+ * @title PassMetadataProvider
+ * @notice A metadata provider for product passes.
+ *
+ * Organizations can update the metadata for the product passes that they sell.
+ *
+ * Attributes are dynamically derived from onchain data.
+ *
+ * We implement the following OpenSea Metadata standard primary metadata properties:
+ * - Name
+ * - Description
+ * - External URL
+ * - Image
+ * - Background Color
+ * - Animation URL
+ *
+ * Attributes include:
+ * - Organization ID
+ * - <Product ID> -> <Product Name>
+ *  EX: Product 1 -> Pro Plan, Product 2 -> Token Usage, etc.
+ */
 contract PassMetadataProvider is MetadataProvider {
     using Strings for uint256;
     using AttributeUtils for string;

@@ -10,6 +10,38 @@ import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {ICouponRegistry} from "./ICouponRegistry.sol";
 import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
 
+/*
+ ____                 _            _   __  __ _       _   
+|  _ \ _ __ ___   __| |_   _  ___| |_|  \/  (_)_ __ | |_ 
+| |_) | '__/ _ \ / _` | | | |/ __| __| |\/| | | '_ \| __|
+|  __/| | | (_) | (_| | |_| | (__| |_| |  | | | | | | |_ 
+|_|   |_|  \___/ \__,_|\__,_|\___|\__|_|  |_|_|_| |_|\__|
+ 
+ NFT based payment system to mint products onchain with one-time payments and 
+ recurring permissionless subscriptions.
+
+ https://productmint.io
+*/
+
+/**
+ * @title CouponRegistry
+ * @notice A contract that manages coupons that can be applied during checkout or subscription renewals.
+ *
+ * Coupons can be created by the organization admin.
+ *
+ * Coupons can be redeemed by the pass owner.
+ *
+ * Coupons can be restricted to certain pass owners.
+ *
+ * Coupons can be one time use.
+ *
+ * Coupons can set to be initial purchase only.
+ *
+ * Coupons can be active or inactive.
+ *
+ * Coupons can have a maximum number of redemptions.
+ *
+ */
 contract CouponRegistry is RegistryEnabled, ICouponRegistry, IERC165 {
     using EnumerableSet for EnumerableSet.UintSet;
 
@@ -107,11 +139,27 @@ contract CouponRegistry is RegistryEnabled, ICouponRegistry, IERC165 {
         return restrictedAccess[orgId][passOwner].values();
     }
 
+    function hasRestrictedAccess(
+        uint256 orgId,
+        address passOwner,
+        uint256 couponId
+    ) external view returns (bool) {
+        return restrictedAccess[orgId][passOwner].contains(couponId);
+    }
+
     function getRedeemedCoupons(
         uint256 orgId,
         address passOwner
     ) external view returns (uint256[] memory) {
         return redeemedCoupons[orgId][passOwner].values();
+    }
+
+    function hasRedeemedCoupon(
+        uint256 orgId,
+        address passOwner,
+        uint256 couponId
+    ) external view returns (bool) {
+        return redeemedCoupons[orgId][passOwner].contains(couponId);
     }
 
     function isCodeRedeemable(

@@ -52,6 +52,9 @@ describe('Purchase Manager', () => {
 
       expect(await productPassNFT.ownerOf(1)).to.equal(otherAccount);
       expect(await purchaseRegistry.getPassProductIds(1)).to.deep.equal([1]);
+      expect(await purchaseRegistry.hasPassPurchasedProducts(1, [1])).to.equal(
+        true,
+      );
       expect(await purchaseRegistry.productSupply(1)).to.equal(1);
       expect(await purchaseRegistry.passOrganization(1)).to.equal(1);
       expect(await purchaseRegistry.passMintCount(1, otherAccount)).to.equal(1);
@@ -105,6 +108,9 @@ describe('Purchase Manager', () => {
 
       // Purchase registry
       expect(await purchaseRegistry.getPassProductIds(1)).to.deep.equal([1]);
+      expect(await purchaseRegistry.hasPassPurchasedProducts(1, [1])).to.equal(
+        true,
+      );
       expect(await purchaseRegistry.productSupply(1)).to.equal(1);
       expect(await purchaseRegistry.passOrganization(1)).to.equal(1);
       expect(await purchaseRegistry.passMintCount(1, otherAccount)).to.equal(1);
@@ -216,6 +222,14 @@ describe('Purchase Manager', () => {
       await productRegistry.linkPricing(1, [1]);
       await productRegistry.linkPricing(2, [1, 2]);
 
+      // Initial checks
+      expect(
+        await couponRegistry.hasRedeemedCoupon(1, otherAccount, 1),
+      ).to.equal(false);
+      expect(
+        await couponRegistry.hasRedeemedCoupon(1, otherAccount2, 1),
+      ).to.equal(false);
+
       // PURCHASE PRODUCT
       await expect(
         purchaseManager.connect(otherAccount).purchaseProducts({
@@ -310,7 +324,13 @@ describe('Purchase Manager', () => {
 
       // Purchase registry
       expect(await purchaseRegistry.getPassProductIds(1)).to.deep.equal([1, 2]);
+      expect(
+        await purchaseRegistry.hasPassPurchasedProducts(1, [1, 2]),
+      ).to.equal(true);
       expect(await purchaseRegistry.getPassProductIds(2)).to.deep.equal([1]);
+      expect(await purchaseRegistry.hasPassPurchasedProducts(2, [1])).to.equal(
+        true,
+      );
       expect(await purchaseRegistry.productSupply(1)).to.equal(2);
       expect(await purchaseRegistry.productSupply(2)).to.equal(1);
       expect(await purchaseRegistry.passOrganization(1)).to.equal(1);
@@ -369,6 +389,13 @@ describe('Purchase Manager', () => {
       expect(await couponRegistry.passOwnerCodes(1, otherAccount2)).to.equal(
         '',
       );
+
+      expect(
+        await couponRegistry.hasRedeemedCoupon(1, otherAccount, 1),
+      ).to.equal(true);
+      expect(
+        await couponRegistry.hasRedeemedCoupon(1, otherAccount2, 1),
+      ).to.equal(false);
 
       expect(
         await couponRegistry.getRedeemedCoupons(1, otherAccount),
@@ -551,7 +578,7 @@ describe('Purchase Manager', () => {
       );
     });
 
-    it('can purchase flat rate subscription product and renew it', async () => {
+    it('can purchase flat rate subscription product and renew it even with pricing set to inactive', async () => {
       const {
         purchaseManager,
         productRegistry,
@@ -630,6 +657,9 @@ describe('Purchase Manager', () => {
         );
       // INITIAL ASSERTIONS
       expect(await purchaseRegistry.getPassProductIds(1)).to.deep.equal([1]);
+      expect(await purchaseRegistry.hasPassPurchasedProducts(1, [1])).to.equal(
+        true,
+      );
       expect(await purchaseRegistry.productSupply(1)).to.equal(1);
       expect(await purchaseRegistry.passOrganization(1)).to.equal(1);
       expect(await purchaseRegistry.passMintCount(1, otherAccount)).to.equal(1);
@@ -663,6 +693,9 @@ describe('Purchase Manager', () => {
       expect(await mintToken.balanceOf(paymentEscrow)).to.equal(
         ethers.parseUnits('10', 6),
       );
+
+      // Set the pricing to inactive
+      await pricingRegistry.setPricingActive(1, false);
 
       // RENEWAL
       await time.increase(cycleDuration);
@@ -711,7 +744,7 @@ describe('Purchase Manager', () => {
       );
     });
 
-    it('can purchase tiered subscription product and renew it', async () => {
+    it('can purchase tiered subscription product and renew it with inactive pricing', async () => {
       const {
         purchaseManager,
         productRegistry,
@@ -773,6 +806,9 @@ describe('Purchase Manager', () => {
 
       // INITIAL ASSERTIONS
       expect(await purchaseRegistry.getPassProductIds(1)).to.deep.equal([1]);
+      expect(await purchaseRegistry.hasPassPurchasedProducts(1, [1])).to.equal(
+        true,
+      );
       expect(await purchaseRegistry.productSupply(1)).to.equal(1);
       expect(await purchaseRegistry.passOrganization(1)).to.equal(1);
       expect(await purchaseRegistry.passMintCount(1, otherAccount)).to.equal(1);
@@ -823,6 +859,9 @@ describe('Purchase Manager', () => {
       expect(await subscriptionEscrow.getUnitQuantityFull(1, 1)).to.deep.equal([
         1, 90, 100,
       ]);
+
+      // Set the pricing to inactive
+      await pricingRegistry.setPricingActive(1, false);
 
       // RENEWAL
       await time.increase(getCycleDuration(2));
@@ -943,6 +982,9 @@ describe('Purchase Manager', () => {
 
       // INITIAL ASSERTIONS
       expect(await purchaseRegistry.getPassProductIds(1)).to.deep.equal([1]);
+      expect(await purchaseRegistry.hasPassPurchasedProducts(1, [1])).to.equal(
+        true,
+      );
       expect(await purchaseRegistry.productSupply(1)).to.equal(1);
       expect(await purchaseRegistry.passOrganization(1)).to.equal(1);
       expect(await purchaseRegistry.passMintCount(1, otherAccount)).to.equal(1);
@@ -976,6 +1018,9 @@ describe('Purchase Manager', () => {
       expect(await mintToken.balanceOf(paymentEscrow)).to.equal(
         ethers.parseUnits('0', 6),
       );
+
+      // Set the pricing to inactive
+      await pricingRegistry.setPricingActive(1, false);
 
       // RECORD USAGE
       await usageRecorder.increaseMeter(1, 1, usage);
@@ -1869,6 +1914,110 @@ describe('Purchase Manager', () => {
           pause: false,
         }),
       ).to.be.revertedWith('Insufficient balance');
+    });
+
+    it('cannot purchase products if mint is closed', async () => {
+      const {
+        purchaseManager,
+        otherAccount,
+        mintToken,
+        paymentEscrow,
+        pricingRegistry,
+        productRegistry,
+        purchaseRegistry,
+      } = await loadWithDefaultProduct();
+
+      await mintToken.mint(otherAccount, ethers.parseUnits('100', 6));
+
+      await mintToken
+        .connect(otherAccount)
+        .approve(paymentEscrow, ethers.parseUnits('200', 6));
+
+      await pricingRegistry.createOneTimePricing({
+        organizationId: 1,
+        flatPrice: ethers.parseUnits('200', 6),
+        token: await mintToken.getAddress(),
+        isRestricted: false,
+      });
+
+      await productRegistry.linkPricing(1, [1]);
+
+      await purchaseRegistry.setMintClosed(1, true);
+
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseProducts({
+          to: otherAccount,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      ).to.be.revertedWithCustomError(purchaseRegistry, 'MintClosed');
+    });
+
+    it('cannot purchase additional products if mint is closed', async () => {
+      const {
+        purchaseManager,
+        otherAccount,
+        mintToken,
+        paymentEscrow,
+        pricingRegistry,
+        productRegistry,
+        purchaseRegistry,
+      } = await loadWithDefaultProduct();
+
+      await mintToken.mint(otherAccount, ethers.parseUnits('500', 6));
+      await mintToken
+        .connect(otherAccount)
+        .approve(paymentEscrow, ethers.parseUnits('200', 6));
+
+      await pricingRegistry.createOneTimePricing({
+        organizationId: 1,
+        flatPrice: ethers.parseUnits('200', 6),
+        token: await mintToken.getAddress(),
+        isRestricted: false,
+      });
+
+      await productRegistry.linkPricing(1, [1]);
+
+      await purchaseManager.connect(otherAccount).purchaseProducts({
+        to: otherAccount,
+        organizationId: 1,
+        productIds: [1],
+        pricingIds: [1],
+        quantities: [0],
+        couponCode: '',
+        airdrop: false,
+        pause: false,
+      });
+
+      await productRegistry.createProduct({
+        orgId: 1,
+        name: 'Product 2',
+        description: 'P2 Description',
+        imageUrl: 'https://example.com/product2',
+        externalUrl: 'https://example.com/product2-image',
+        isTransferable: false,
+      });
+
+      await productRegistry.linkPricing(2, [1]);
+
+      await purchaseRegistry.setMintClosed(1, true);
+
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseAdditionalProducts({
+          productPassId: 1,
+          productIds: [2],
+          pricingIds: [1],
+          quantities: [0],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      ).to.be.revertedWithCustomError(purchaseRegistry, 'MintClosed');
     });
 
     it('cannot change quantity if not admin or pass owner', async () => {

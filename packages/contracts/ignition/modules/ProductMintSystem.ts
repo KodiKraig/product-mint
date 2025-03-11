@@ -91,6 +91,9 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
   const usageRecorder = m.contract('UsageRecorder', [contractRegistry]);
   m.call(contractRegistry, 'setUsageRecorder', [usageRecorder]);
 
+  // ERC20 Testing Token
+  const mintToken = m.contract('MintToken');
+
   return {
     contractRegistry,
     pricingCalculator,
@@ -107,6 +110,7 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
     paymentEscrow,
     usageRecorder,
     orgAdmin,
+    mintToken,
   };
 });
 

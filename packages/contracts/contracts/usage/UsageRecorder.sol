@@ -10,15 +10,26 @@ import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {IUsageRecorder} from "./IUsageRecorder.sol";
 import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
 
+/*
+ ____                 _            _   __  __ _       _   
+|  _ \ _ __ ___   __| |_   _  ___| |_|  \/  (_)_ __ | |_ 
+| |_) | '__/ _ \ / _` | | | |/ __| __| |\/| | | '_ \| __|
+|  __/| | | (_) | (_| | |_| | (__| |_| |  | | | | | | |_ 
+|_|   |_|  \___/ \__,_|\__,_|\___|\__|_|  |_|_|_| |_|\__|
+ 
+ NFT based payment system to mint products onchain with one-time payments and 
+ recurring permissionless subscriptions.
+
+ https://productmint.io
+*/
+
 /**
  * @title UsageRecorder
  * @notice A contract for recording usage for product passes.
  * As an organization, you can create usage meters.
- * The usage meters can then be used to record usages for your products sold to your customers.
+ * The usage meters can then be used to record usages to charge with usage based pricing models.
  *
- * Admins can be added to the organization to allow them to record usages for the organization.
- *
- * The usages are processed and reset for you by our system.
+ * The usages are processed and reset for you by our system during the subscription renewal process.
  */
 contract UsageRecorder is RegistryEnabled, IUsageRecorder, IERC165 {
     using EnumerableSet for EnumerableSet.UintSet;

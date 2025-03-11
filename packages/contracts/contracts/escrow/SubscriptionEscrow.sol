@@ -16,18 +16,35 @@ import {
     ISubscriptionTransferOracle
 } from "../oracle/ISubscriptionTransferOracle.sol";
 
+/*
+ ____                 _            _   __  __ _       _   
+|  _ \ _ __ ___   __| |_   _  ___| |_|  \/  (_)_ __ | |_ 
+| |_) | '__/ _ \ / _` | | | |/ __| __| |\/| | | '_ \| __|
+|  __/| | | (_) | (_| | |_| | (__| |_| |  | | | | | | |_ 
+|_|   |_|  \___/ \__,_|\__,_|\___|\__|_|  |_|_|_| |_|\__|
+ 
+ NFT based payment system to mint products onchain with one-time payments and 
+ recurring permissionless subscriptions.
+
+ https://productmint.io
+*/
+
 /**
  * @title SubscriptionEscrow
  * @notice A contract that manages subscriptions for products on a product pass.
  *
  * Every product on a product pass can have its own subscription allowing for individual management of each subscription.
  *
+ * By default, subscriptions are not pausable and pass owners cannot change the pricing of a subscription. These settings
+ * can be changed by organization admins.
+ * NOTE: If a subscription is not paused, then the product pass cannot be transferred.
+ *
  * This contract is used to manage the lifecycle of a subscription. Subscriptions are permissionless and can be renewed
  * by anyone pending the subscription is past due, not paused, and not cancelled.
  *
  * There are 3 kinds of subscriptions:
  * - Flat rate: A flat rate subscription is a subscription that has a flat rate price.
- * - Tiered: A tiered subscription is a subscription that has a tiered price.
+ * - Tiered: A tiered subscription is a subscription where the price is based on the quantity of a product. i.e. Seats, Users, etc.
  * - Usage based: A usage based subscription is a subscription that has a usage based price used in conjunction with a usage meter.
  *
  * There are 4 states that a subscription can be in:

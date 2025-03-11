@@ -2,13 +2,15 @@ import { loadFixture } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import hre from 'hardhat';
 import calculateInterfaceId from '../../utils/calculate-interface-id';
+import { loadWithPurchasedFlatRateSubscription } from '../manager/helpers';
 
 describe('PurchaseRegistry', () => {
   async function deployPurchaseRegistry() {
     const [owner, otherAccount] = await hre.ethers.getSigners();
 
-    const ContractRegistry =
-      await hre.ethers.getContractFactory('ContractRegistry');
+    const ContractRegistry = await hre.ethers.getContractFactory(
+      'ContractRegistry',
+    );
     const contractRegistry = await ContractRegistry.deploy();
 
     const OrganizationMetadataProvider = await hre.ethers.getContractFactory(
@@ -17,28 +19,33 @@ describe('PurchaseRegistry', () => {
     const organizationMetadataProvider =
       await OrganizationMetadataProvider.deploy(contractRegistry);
 
-    const OrganizationNFT =
-      await hre.ethers.getContractFactory('OrganizationNFT');
+    const OrganizationNFT = await hre.ethers.getContractFactory(
+      'OrganizationNFT',
+    );
     const organizationNFT = await OrganizationNFT.deploy(
       organizationMetadataProvider,
     );
 
     await organizationNFT.connect(owner).setMintOpen(true);
 
-    const ProductRegistry =
-      await hre.ethers.getContractFactory('ProductRegistry');
+    const ProductRegistry = await hre.ethers.getContractFactory(
+      'ProductRegistry',
+    );
     const productRegistry = await ProductRegistry.deploy(contractRegistry);
 
-    const PricingRegistry =
-      await hre.ethers.getContractFactory('PricingRegistry');
+    const PricingRegistry = await hre.ethers.getContractFactory(
+      'PricingRegistry',
+    );
     const pricingRegistry = await PricingRegistry.deploy(contractRegistry);
 
-    const PurchaseRegistry =
-      await hre.ethers.getContractFactory('PurchaseRegistry');
+    const PurchaseRegistry = await hre.ethers.getContractFactory(
+      'PurchaseRegistry',
+    );
     const purchaseRegistry = await PurchaseRegistry.deploy(contractRegistry);
 
-    const OrganizationAdmin =
-      await hre.ethers.getContractFactory('OrganizationAdmin');
+    const OrganizationAdmin = await hre.ethers.getContractFactory(
+      'OrganizationAdmin',
+    );
     const organizationAdmin = await OrganizationAdmin.deploy(contractRegistry);
 
     await contractRegistry.setOrganizationNFT(organizationNFT);
@@ -301,6 +308,68 @@ describe('PurchaseRegistry', () => {
       const interfaceId = calculateInterfaceId(['supportsInterface(bytes4)']);
 
       expect(await purchaseRegistry.supportsInterface(interfaceId)).to.be.true;
+    });
+  });
+
+  describe('Has Pass Purchased Products', () => {
+    it('should return true if the pass has purchased the products', async () => {
+      const { purchaseRegistry } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      expect(await purchaseRegistry.hasPassPurchasedProducts(1, [1])).to.equal(
+        true,
+      );
+    });
+
+    it('should return false if the pass has not purchased any of the products', async () => {
+      const { purchaseRegistry } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      expect(
+        await purchaseRegistry.hasPassPurchasedProducts(1, [1, 2, 3]),
+      ).to.equal(false);
+    });
+
+    it('should return false if the pass has not purchased any of the products', async () => {
+      const { purchaseRegistry } = await loadWithDefaultProduct();
+
+      expect(
+        await purchaseRegistry.hasPassPurchasedProducts(2, [1, 2, 3]),
+      ).to.equal(false);
+    });
+
+    it('should return true if no products are provided', async () => {
+      const { purchaseRegistry } = await loadWithDefaultProduct();
+
+      expect(await purchaseRegistry.hasPassPurchasedProducts(0, [])).to.equal(
+        true,
+      );
+
+      expect(await purchaseRegistry.hasPassPurchasedProducts(1, [])).to.equal(
+        true,
+      );
+    });
+  });
+
+  describe('Mint Closed', () => {
+    it('should return true if the mint is closed', async () => {
+      const { purchaseRegistry, owner } = await loadWithDefaultProduct();
+
+      expect(await purchaseRegistry.isMintClosed(1)).to.be.false;
+
+      await expect(purchaseRegistry.connect(owner).setMintClosed(1, true))
+        .to.emit(purchaseRegistry, 'MintClosedStatusChanged')
+        .withArgs(1, true);
+
+      expect(await purchaseRegistry.isMintClosed(1)).to.be.true;
+    });
+
+    it('only org admins can set the mint closed status', async () => {
+      const { purchaseRegistry, otherAccount } = await loadWithDefaultProduct();
+
+      await expect(
+        purchaseRegistry.connect(otherAccount).setMintClosed(1, true),
+      ).to.be.revertedWith('Not an admin of the organization');
     });
   });
 });

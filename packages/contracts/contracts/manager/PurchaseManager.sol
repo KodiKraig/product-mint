@@ -21,6 +21,19 @@ import {IPurchaseRegistry} from "../registry/IPurchaseRegistry.sol";
 import {IPricingCalculator} from "../calculator/IPricingCalculator.sol";
 import {ICouponRegistry} from "../registry/ICouponRegistry.sol";
 
+/*
+ ____                 _            _   __  __ _       _   
+|  _ \ _ __ ___   __| |_   _  ___| |_|  \/  (_)_ __ | |_ 
+| |_) | '__/ _ \ / _` | | | |/ __| __| |\/| | | '_ \| __|
+|  __/| | | (_) | (_| | |_| | (__| |_| |  | | | | | | |_ 
+|_|   |_|  \___/ \__,_|\__,_|\___|\__|_|  |_|_|_| |_|\__|
+ 
+ NFT based payment system to mint products onchain with one-time payments and 
+ recurring permissionless subscriptions.
+
+ https://productmint.io
+*/
+
 /**
  * @title PurchaseManager
  * @notice The PurchaseManager is responsible for purchasing products and managing subscriptions for a user.
@@ -28,8 +41,6 @@ import {ICouponRegistry} from "../registry/ICouponRegistry.sol";
  *
  * The PurchaseManager is also responsible for renewing subscriptions, pausing and cancelling subscriptions, and
  * changing the pricing of a subscription.
- *
- * @author ProductMint
  */
 contract PurchaseManager is
     Ownable2Step,

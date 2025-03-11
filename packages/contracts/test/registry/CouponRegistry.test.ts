@@ -22,8 +22,9 @@ describe('CouponRegistry', () => {
   async function deployCouponRegistry() {
     const [owner, otherAccount, otherAccount2] = await hre.ethers.getSigners();
 
-    const ContractRegistry =
-      await hre.ethers.getContractFactory('ContractRegistry');
+    const ContractRegistry = await hre.ethers.getContractFactory(
+      'ContractRegistry',
+    );
     const contractRegistry = await ContractRegistry.deploy();
 
     const OrganizationMetadataProvider = await hre.ethers.getContractFactory(
@@ -32,20 +33,23 @@ describe('CouponRegistry', () => {
     const organizationMetadataProvider =
       await OrganizationMetadataProvider.deploy(contractRegistry);
 
-    const OrganizationNFT =
-      await hre.ethers.getContractFactory('OrganizationNFT');
+    const OrganizationNFT = await hre.ethers.getContractFactory(
+      'OrganizationNFT',
+    );
     const organizationNFT = await OrganizationNFT.deploy(
       organizationMetadataProvider,
     );
 
-    const OrganizationAdmin =
-      await hre.ethers.getContractFactory('OrganizationAdmin');
+    const OrganizationAdmin = await hre.ethers.getContractFactory(
+      'OrganizationAdmin',
+    );
     const orgAdmin = await OrganizationAdmin.deploy(contractRegistry);
 
     await organizationNFT.setMintOpen(true);
 
-    const CouponRegistry =
-      await hre.ethers.getContractFactory('CouponRegistry');
+    const CouponRegistry = await hre.ethers.getContractFactory(
+      'CouponRegistry',
+    );
     const couponRegistry = await CouponRegistry.deploy(contractRegistry);
 
     await contractRegistry.setCouponRegistry(couponRegistry);
@@ -65,8 +69,9 @@ describe('CouponRegistry', () => {
 
   describe('Deployment', () => {
     it('should the contract registry', async () => {
-      const { couponRegistry, contractRegistry } =
-        await loadFixture(deployCouponRegistry);
+      const { couponRegistry, contractRegistry } = await loadFixture(
+        deployCouponRegistry,
+      );
 
       expect(await couponRegistry.registry()).to.equal(contractRegistry);
     });
@@ -127,8 +132,9 @@ describe('CouponRegistry', () => {
 
   describe('Is Redeemable?', () => {
     it('should be true if coupon is redeemable and not restricted', async () => {
-      const { couponRegistry, organizationNFT, owner } =
-        await loadFixture(deployCouponRegistry);
+      const { couponRegistry, organizationNFT, owner } = await loadFixture(
+        deployCouponRegistry,
+      );
 
       await organizationNFT.connect(owner).mint(owner);
 
@@ -172,8 +178,9 @@ describe('CouponRegistry', () => {
     });
 
     it('should be false if coupon is not active', async () => {
-      const { organizationNFT, couponRegistry, owner } =
-        await loadFixture(deployCouponRegistry);
+      const { organizationNFT, couponRegistry, owner } = await loadFixture(
+        deployCouponRegistry,
+      );
 
       await organizationNFT.connect(owner).mint(owner);
 
@@ -190,8 +197,9 @@ describe('CouponRegistry', () => {
     });
 
     it('should be false if coupon is expired', async () => {
-      const { couponRegistry, organizationNFT, owner } =
-        await loadFixture(deployCouponRegistry);
+      const { couponRegistry, organizationNFT, owner } = await loadFixture(
+        deployCouponRegistry,
+      );
 
       await organizationNFT.connect(owner).mint(owner);
 
@@ -209,8 +217,9 @@ describe('CouponRegistry', () => {
     });
 
     it('should be false if new customer only and not initial purchase', async () => {
-      const { couponRegistry, organizationNFT, owner } =
-        await loadFixture(deployCouponRegistry);
+      const { couponRegistry, organizationNFT, owner } = await loadFixture(
+        deployCouponRegistry,
+      );
 
       await organizationNFT.connect(owner).mint(owner);
 
@@ -227,8 +236,9 @@ describe('CouponRegistry', () => {
     });
 
     it('should be false if coupon is restricted and not granted access', async () => {
-      const { couponRegistry, organizationNFT, owner } =
-        await loadFixture(deployCouponRegistry);
+      const { couponRegistry, organizationNFT, owner } = await loadFixture(
+        deployCouponRegistry,
+      );
 
       await organizationNFT.connect(owner).mint(owner);
 
@@ -263,8 +273,9 @@ describe('CouponRegistry', () => {
     });
 
     it('should return correct discounted amount for 10%', async () => {
-      const { couponRegistry, organizationNFT, owner } =
-        await loadFixture(deployCouponRegistry);
+      const { couponRegistry, organizationNFT, owner } = await loadFixture(
+        deployCouponRegistry,
+      );
 
       await organizationNFT.connect(owner).mint(owner);
 
@@ -278,8 +289,9 @@ describe('CouponRegistry', () => {
     });
 
     it('should return correct discounted amount for 0.01%', async () => {
-      const { couponRegistry, organizationNFT, owner } =
-        await loadFixture(deployCouponRegistry);
+      const { couponRegistry, organizationNFT, owner } = await loadFixture(
+        deployCouponRegistry,
+      );
 
       await organizationNFT.connect(owner).mint(owner);
 
@@ -457,8 +469,9 @@ describe('CouponRegistry', () => {
     });
 
     it('should create multiple coupons successfully for the same organization with different codes', async () => {
-      const { couponRegistry, organizationNFT, owner } =
-        await loadFixture(deployCouponRegistry);
+      const { couponRegistry, organizationNFT, owner } = await loadFixture(
+        deployCouponRegistry,
+      );
 
       await organizationNFT.connect(owner).mint(owner);
 
@@ -557,8 +570,9 @@ describe('CouponRegistry', () => {
     });
 
     it('revert if code does not meet requirements', async () => {
-      const { couponRegistry, organizationNFT, owner } =
-        await loadFixture(deployCouponRegistry);
+      const { couponRegistry, organizationNFT, owner } = await loadFixture(
+        deployCouponRegistry,
+      );
 
       await organizationNFT.connect(owner).mint(owner);
 
@@ -594,8 +608,9 @@ describe('CouponRegistry', () => {
     });
 
     it('revert if coupon code already exists', async () => {
-      const { couponRegistry, organizationNFT, owner } =
-        await loadFixture(deployCouponRegistry);
+      const { couponRegistry, organizationNFT, owner } = await loadFixture(
+        deployCouponRegistry,
+      );
 
       await organizationNFT.connect(owner).mint(owner);
 
@@ -652,8 +667,9 @@ describe('CouponRegistry', () => {
     });
 
     it('revert if discount is not in range', async () => {
-      const { couponRegistry, organizationNFT, owner } =
-        await loadFixture(deployCouponRegistry);
+      const { couponRegistry, organizationNFT, owner } = await loadFixture(
+        deployCouponRegistry,
+      );
 
       await organizationNFT.connect(owner).mint(owner);
 
@@ -680,8 +696,9 @@ describe('CouponRegistry', () => {
     });
 
     it('revert if expiration is not in the future', async () => {
-      const { couponRegistry, organizationNFT, owner } =
-        await loadFixture(deployCouponRegistry);
+      const { couponRegistry, organizationNFT, owner } = await loadFixture(
+        deployCouponRegistry,
+      );
 
       await organizationNFT.connect(owner).mint(owner);
 
@@ -712,8 +729,9 @@ describe('CouponRegistry', () => {
   describe('Management', () => {
     describe('Discount', () => {
       it('should update coupon discount successfully', async () => {
-        const { couponRegistry, organizationNFT, owner } =
-          await loadFixture(deployCouponRegistry);
+        const { couponRegistry, organizationNFT, owner } = await loadFixture(
+          deployCouponRegistry,
+        );
 
         await organizationNFT.connect(owner).mint(owner);
 
@@ -765,8 +783,9 @@ describe('CouponRegistry', () => {
 
     describe('Expiration', () => {
       it('should update coupon expiration successfully with a future expiration', async () => {
-        const { couponRegistry, organizationNFT, owner } =
-          await loadFixture(deployCouponRegistry);
+        const { couponRegistry, organizationNFT, owner } = await loadFixture(
+          deployCouponRegistry,
+        );
 
         await organizationNFT.connect(owner).mint(owner);
 
@@ -799,8 +818,9 @@ describe('CouponRegistry', () => {
       });
 
       it('should update coupon expiration successfully with a zero expiration', async () => {
-        const { couponRegistry, organizationNFT, owner } =
-          await loadFixture(deployCouponRegistry);
+        const { couponRegistry, organizationNFT, owner } = await loadFixture(
+          deployCouponRegistry,
+        );
 
         await organizationNFT.connect(owner).mint(owner);
 
@@ -865,8 +885,9 @@ describe('CouponRegistry', () => {
 
     describe('Max Redemptions', () => {
       it('should update coupon max redemptions successfully', async () => {
-        const { couponRegistry, organizationNFT, owner } =
-          await loadFixture(deployCouponRegistry);
+        const { couponRegistry, organizationNFT, owner } = await loadFixture(
+          deployCouponRegistry,
+        );
 
         const currentTimestamp = await time.latest();
 
@@ -897,8 +918,9 @@ describe('CouponRegistry', () => {
       });
 
       it('can set max redemptions to 0 for unlimited redemptions', async () => {
-        const { couponRegistry, organizationNFT, owner } =
-          await loadFixture(deployCouponRegistry);
+        const { couponRegistry, organizationNFT, owner } = await loadFixture(
+          deployCouponRegistry,
+        );
 
         await organizationNFT.connect(owner).mint(owner);
 
@@ -963,8 +985,9 @@ describe('CouponRegistry', () => {
 
     describe('New Customers Only', () => {
       it('should update coupon new customers only successfully', async () => {
-        const { couponRegistry, organizationNFT, owner } =
-          await loadFixture(deployCouponRegistry);
+        const { couponRegistry, organizationNFT, owner } = await loadFixture(
+          deployCouponRegistry,
+        );
 
         await organizationNFT.connect(owner).mint(owner);
 
@@ -1014,8 +1037,9 @@ describe('CouponRegistry', () => {
 
     describe('Active', () => {
       it('should update coupon active successfully', async () => {
-        const { couponRegistry, organizationNFT, owner } =
-          await loadFixture(deployCouponRegistry);
+        const { couponRegistry, organizationNFT, owner } = await loadFixture(
+          deployCouponRegistry,
+        );
 
         await organizationNFT.connect(owner).mint(owner);
 
@@ -1067,8 +1091,9 @@ describe('CouponRegistry', () => {
 
     describe('Restricted', () => {
       it('should update coupon restricted successfully', async () => {
-        const { couponRegistry, organizationNFT, owner } =
-          await loadFixture(deployCouponRegistry);
+        const { couponRegistry, organizationNFT, owner } = await loadFixture(
+          deployCouponRegistry,
+        );
 
         await organizationNFT.connect(owner).mint(owner);
 
@@ -1130,11 +1155,28 @@ describe('CouponRegistry', () => {
         expiration: (await time.latest()) + 1000,
       });
 
+      // Initial checks
+      expect(await couponRegistry.hasRestrictedAccess(1, owner, 1)).to.equal(
+        false,
+      );
+      expect(
+        await couponRegistry.hasRestrictedAccess(1, otherAccount, 1),
+      ).to.equal(false);
+
+      // SET ACCESS
       await couponRegistry.setRestrictedAccess(
         1,
         [owner, otherAccount],
         [true, true],
       );
+
+      // Checks
+      expect(await couponRegistry.hasRestrictedAccess(1, owner, 1)).to.equal(
+        true,
+      );
+      expect(
+        await couponRegistry.hasRestrictedAccess(1, otherAccount, 1),
+      ).to.equal(true);
 
       expect(await couponRegistry.getRestrictedAccess(1, owner)).to.deep.equal([
         1,
@@ -1143,11 +1185,20 @@ describe('CouponRegistry', () => {
         await couponRegistry.getRestrictedAccess(1, otherAccount),
       ).to.deep.equal([1]);
 
+      // SET ACCESS AGAIN
       await couponRegistry.setRestrictedAccess(
         1,
         [owner, otherAccount],
         [false, true],
       );
+
+      // Checks
+      expect(await couponRegistry.hasRestrictedAccess(1, owner, 1)).to.equal(
+        false,
+      );
+      expect(
+        await couponRegistry.hasRestrictedAccess(1, otherAccount, 1),
+      ).to.equal(true);
 
       expect(await couponRegistry.getRestrictedAccess(1, owner)).to.deep.equal(
         [],
@@ -1357,8 +1408,9 @@ describe('CouponRegistry', () => {
     });
 
     it('revert when setting a coupon for an org that does not exist', async () => {
-      const { couponRegistry, organizationNFT, owner } =
-        await loadFixture(deployCouponRegistry);
+      const { couponRegistry, organizationNFT, owner } = await loadFixture(
+        deployCouponRegistry,
+      );
 
       expect(await couponRegistry.orgCouponExists(1, 'COUPON1')).to.equal(
         false,
@@ -1373,8 +1425,9 @@ describe('CouponRegistry', () => {
     });
 
     it('revert when setting a coupon that does not exist', async () => {
-      const { couponRegistry, organizationNFT, owner } =
-        await loadFixture(deployCouponRegistry);
+      const { couponRegistry, organizationNFT, owner } = await loadFixture(
+        deployCouponRegistry,
+      );
 
       await organizationNFT.mint(owner);
 

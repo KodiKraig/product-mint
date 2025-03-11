@@ -6,6 +6,11 @@ import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 import {IFeeReducer} from "./IFeeReducer.sol";
 
+/**
+ * @notice A contract that reduces fees for organizations.
+ *
+ * This is just a placeholder that will not initially be deployed.
+ */
 contract FeeReducer is IFeeReducer, IERC165 {
     function reduceFee(
         uint256 orgId,

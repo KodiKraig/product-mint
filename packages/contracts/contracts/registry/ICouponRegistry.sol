@@ -54,6 +54,12 @@ interface ICouponRegistry {
     }
 
     /**
+     * @notice Get the total number of coupons that have been created
+     * @return The total number of coupons
+     */
+    function totalCoupons() external view returns (uint256);
+
+    /**
      * Redemption
      */
 
@@ -150,6 +156,19 @@ interface ICouponRegistry {
     ) external view returns (uint256[] memory);
 
     /**
+     * @notice Check if a pass owner has restricted access to a coupon
+     * @param orgId Organization ID
+     * @param passOwner Pass owner address
+     * @param couponId Coupon ID
+     * @return True if the pass owner has restricted access to the coupon, else false
+     */
+    function hasRestrictedAccess(
+        uint256 orgId,
+        address passOwner,
+        uint256 couponId
+    ) external view returns (bool);
+
+    /**
      * @notice Get the redeemed coupons for a pass owner
      * @param orgId Organization ID
      * @param passOwner Pass owner address
@@ -159,6 +178,19 @@ interface ICouponRegistry {
         uint256 orgId,
         address passOwner
     ) external view returns (uint256[] memory);
+
+    /**
+     * @notice Check if a pass owner has redeemed a coupon
+     * @param orgId Organization ID
+     * @param passOwner Pass owner address
+     * @param couponId Coupon ID
+     * @return True if the pass owner has redeemed the coupon, else false
+     */
+    function hasRedeemedCoupon(
+        uint256 orgId,
+        address passOwner,
+        uint256 couponId
+    ) external view returns (bool);
 
     /**
      * @notice Get the discounted amount for a coupon
