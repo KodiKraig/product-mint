@@ -32,8 +32,10 @@ import {OneTimeLock} from "../utils/OneTimeLock.sol";
  *
  * All of the contracts within the system interface with one another to bring the system to life.
  *
- * __ProductMint__
- * NFT based payment system to mint products onchain with one-time payments and recurring permissionless subscriptions.
+ * All contracts can be swapped out by the owner to upgrade the system except the OrganizationNFT and ProductPassNFT.
+ *
+ * The OrganizationNFT and ProductPassNFT are used to represent ownership of the organization and product passes.
+ * They are not upgradable. This prevents the owner from ever being locked out of the system and losing access to their funds.
  */
 contract ContractRegistry is
     Ownable2Step,
