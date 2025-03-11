@@ -19,7 +19,13 @@ import {ExternalMetadataERC721} from "../abstract/ExternalMetadataERC721.sol";
 /**
  * @title OrganizationNFT
  * @notice A contract for minting Organization NFTs.
- * An organization is required to create products to be minted by users.
+ * An organization is required to create products and pricing models in the ProductMint system.
+ *
+ * The organization NFT represents ownership of the organization and all the products and
+ * pricing models within the organization.
+ *
+ * Only the owner of the organization NFT can claim funds earned from selling Product Passes.
+ * All other functionality can be delegated by setting organization admins.
  */
 contract OrganizationNFT is
     ExternalMetadataERC721,
