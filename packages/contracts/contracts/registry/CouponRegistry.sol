@@ -10,6 +10,23 @@ import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {ICouponRegistry} from "./ICouponRegistry.sol";
 import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
 
+/**
+ * @title CouponRegistry
+ * @notice A contract that manages coupons that can be applied during checkout or subscription renewals.
+ *
+ * Coupons can be created by the organization admin.
+ *
+ * Coupons can be redeemed by the pass owner.
+ *
+ * Coupons can be restricted to certain pass owners.
+ *
+ * Coupons can be one time use.
+ *
+ * Coupons can be active or inactive.
+ *
+ * Coupons can have a maximum number of redemptions.
+ *
+ */
 contract CouponRegistry is RegistryEnabled, ICouponRegistry, IERC165 {
     using EnumerableSet for EnumerableSet.UintSet;
 
