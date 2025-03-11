@@ -107,11 +107,27 @@ contract CouponRegistry is RegistryEnabled, ICouponRegistry, IERC165 {
         return restrictedAccess[orgId][passOwner].values();
     }
 
+    function hasRestrictedAccess(
+        uint256 orgId,
+        address passOwner,
+        uint256 couponId
+    ) external view returns (bool) {
+        return restrictedAccess[orgId][passOwner].contains(couponId);
+    }
+
     function getRedeemedCoupons(
         uint256 orgId,
         address passOwner
     ) external view returns (uint256[] memory) {
         return redeemedCoupons[orgId][passOwner].values();
+    }
+
+    function hasRedeemedCoupon(
+        uint256 orgId,
+        address passOwner,
+        uint256 couponId
+    ) external view returns (bool) {
+        return redeemedCoupons[orgId][passOwner].contains(couponId);
     }
 
     function isCodeRedeemable(

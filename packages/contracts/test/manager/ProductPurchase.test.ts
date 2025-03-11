@@ -216,6 +216,14 @@ describe('Purchase Manager', () => {
       await productRegistry.linkPricing(1, [1]);
       await productRegistry.linkPricing(2, [1, 2]);
 
+      // Initial checks
+      expect(
+        await couponRegistry.hasRedeemedCoupon(1, otherAccount, 1),
+      ).to.equal(false);
+      expect(
+        await couponRegistry.hasRedeemedCoupon(1, otherAccount2, 1),
+      ).to.equal(false);
+
       // PURCHASE PRODUCT
       await expect(
         purchaseManager.connect(otherAccount).purchaseProducts({
@@ -369,6 +377,13 @@ describe('Purchase Manager', () => {
       expect(await couponRegistry.passOwnerCodes(1, otherAccount2)).to.equal(
         '',
       );
+
+      expect(
+        await couponRegistry.hasRedeemedCoupon(1, otherAccount, 1),
+      ).to.equal(true);
+      expect(
+        await couponRegistry.hasRedeemedCoupon(1, otherAccount2, 1),
+      ).to.equal(false);
 
       expect(
         await couponRegistry.getRedeemedCoupons(1, otherAccount),
