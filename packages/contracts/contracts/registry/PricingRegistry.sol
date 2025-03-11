@@ -56,9 +56,15 @@ import {IPaymentEscrow} from "../escrow/IPaymentEscrow.sol";
  *  Billed at the end of the period.
  *
  * _Charge Frequency_
- * The charge frequency is the frequency at which the pricing model is charged.
- * The charge frequency can be daily, weekly, monthly, quarterly, or yearly.
- *
+ * The charge frequency is the frequency at which the subscription should be charged.
+ * If the charge frequency is changed, subscriptions will update to the new charge frequency during the
+ * next renewal.
+ * There are 5 different charge frequencies:
+ * - DAILY - Every day
+ * - WEEKLY - Every 7 days
+ * - MONTHLY - Every 30 days
+ * - QUARTERLY - Every 90 days
+ * - YEARLY - Every 365 days
  */
 contract PricingRegistry is RegistryEnabled, IPricingRegistry, IERC165 {
     using EnumerableSet for EnumerableSet.UintSet;
