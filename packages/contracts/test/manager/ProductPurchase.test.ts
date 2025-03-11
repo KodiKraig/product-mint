@@ -566,7 +566,7 @@ describe('Purchase Manager', () => {
       );
     });
 
-    it('can purchase flat rate subscription product and renew it', async () => {
+    it('can purchase flat rate subscription product and renew it even with pricing set to inactive', async () => {
       const {
         purchaseManager,
         productRegistry,
@@ -679,6 +679,9 @@ describe('Purchase Manager', () => {
         ethers.parseUnits('10', 6),
       );
 
+      // Set the pricing to inactive
+      await pricingRegistry.setPricingActive(1, false);
+
       // RENEWAL
       await time.increase(cycleDuration);
 
@@ -726,7 +729,7 @@ describe('Purchase Manager', () => {
       );
     });
 
-    it('can purchase tiered subscription product and renew it', async () => {
+    it('can purchase tiered subscription product and renew it with inactive pricing', async () => {
       const {
         purchaseManager,
         productRegistry,
@@ -838,6 +841,9 @@ describe('Purchase Manager', () => {
       expect(await subscriptionEscrow.getUnitQuantityFull(1, 1)).to.deep.equal([
         1, 90, 100,
       ]);
+
+      // Set the pricing to inactive
+      await pricingRegistry.setPricingActive(1, false);
 
       // RENEWAL
       await time.increase(getCycleDuration(2));
@@ -991,6 +997,9 @@ describe('Purchase Manager', () => {
       expect(await mintToken.balanceOf(paymentEscrow)).to.equal(
         ethers.parseUnits('0', 6),
       );
+
+      // Set the pricing to inactive
+      await pricingRegistry.setPricingActive(1, false);
 
       // RECORD USAGE
       await usageRecorder.increaseMeter(1, 1, usage);
