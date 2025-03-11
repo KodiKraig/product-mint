@@ -31,9 +31,10 @@ import {IProductRegistry} from "./IProductRegistry.sol";
  * A product pass is a token that represents a collection of products that have been purchased.
  *
  * Organization admins can do the following:
- * - Set whether mints are whitelist only and the addresses that are whitelisted.
- * - Set the maximum number of product pass mints for an organization.
- * - Set the maximum supply for a product creating market scarcity.
+ * - Set whether mints are whitelist only and the addresses that are whitelisted. Default is false.
+ * - Set the maximum number of product pass mints for an organization. Default is 0 (unlimited).
+ * - Set the maximum supply for a product creating market scarcity. Default is 0 (unlimited).
+ * - Set whether mints are closed for an organization and no products can be purchased. Default is false.
  */
 contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
     using EnumerableSet for EnumerableSet.UintSet;
@@ -67,6 +68,9 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
 
     // Organization ID => Product Pass Owner => Is whitelisted?
     mapping(uint256 => mapping(address => bool)) public whitelisted;
+
+    // Organization ID => Is mint closed?
+    mapping(uint256 => bool) public isMintClosed;
 
     constructor(address _contractRegistry) RegistryEnabled(_contractRegistry) {}
 
@@ -107,6 +111,10 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
             _productIds.length == _pricingIds.length,
             "Product and pricing IDs must be the same length"
         );
+
+        if (isMintClosed[_organizationId]) {
+            revert MintClosed();
+        }
 
         if (passOrganization[_passId] == 0) {
             // New pass
@@ -223,6 +231,19 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
                 _isWhitelisted[i]
             );
         }
+    }
+
+    /**
+     * Mint Closed
+     */
+
+    function setMintClosed(
+        uint256 organizationId,
+        bool _isMintClosed
+    ) external onlyOrgAdmin(organizationId) {
+        isMintClosed[organizationId] = _isMintClosed;
+
+        emit MintClosedStatusChanged(organizationId, _isMintClosed);
     }
 
     /**

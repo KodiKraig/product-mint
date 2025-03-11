@@ -1916,6 +1916,110 @@ describe('Purchase Manager', () => {
       ).to.be.revertedWith('Insufficient balance');
     });
 
+    it('cannot purchase products if mint is closed', async () => {
+      const {
+        purchaseManager,
+        otherAccount,
+        mintToken,
+        paymentEscrow,
+        pricingRegistry,
+        productRegistry,
+        purchaseRegistry,
+      } = await loadWithDefaultProduct();
+
+      await mintToken.mint(otherAccount, ethers.parseUnits('100', 6));
+
+      await mintToken
+        .connect(otherAccount)
+        .approve(paymentEscrow, ethers.parseUnits('200', 6));
+
+      await pricingRegistry.createOneTimePricing({
+        organizationId: 1,
+        flatPrice: ethers.parseUnits('200', 6),
+        token: await mintToken.getAddress(),
+        isRestricted: false,
+      });
+
+      await productRegistry.linkPricing(1, [1]);
+
+      await purchaseRegistry.setMintClosed(1, true);
+
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseProducts({
+          to: otherAccount,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      ).to.be.revertedWithCustomError(purchaseRegistry, 'MintClosed');
+    });
+
+    it('cannot purchase additional products if mint is closed', async () => {
+      const {
+        purchaseManager,
+        otherAccount,
+        mintToken,
+        paymentEscrow,
+        pricingRegistry,
+        productRegistry,
+        purchaseRegistry,
+      } = await loadWithDefaultProduct();
+
+      await mintToken.mint(otherAccount, ethers.parseUnits('500', 6));
+      await mintToken
+        .connect(otherAccount)
+        .approve(paymentEscrow, ethers.parseUnits('200', 6));
+
+      await pricingRegistry.createOneTimePricing({
+        organizationId: 1,
+        flatPrice: ethers.parseUnits('200', 6),
+        token: await mintToken.getAddress(),
+        isRestricted: false,
+      });
+
+      await productRegistry.linkPricing(1, [1]);
+
+      await purchaseManager.connect(otherAccount).purchaseProducts({
+        to: otherAccount,
+        organizationId: 1,
+        productIds: [1],
+        pricingIds: [1],
+        quantities: [0],
+        couponCode: '',
+        airdrop: false,
+        pause: false,
+      });
+
+      await productRegistry.createProduct({
+        orgId: 1,
+        name: 'Product 2',
+        description: 'P2 Description',
+        imageUrl: 'https://example.com/product2',
+        externalUrl: 'https://example.com/product2-image',
+        isTransferable: false,
+      });
+
+      await productRegistry.linkPricing(2, [1]);
+
+      await purchaseRegistry.setMintClosed(1, true);
+
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseAdditionalProducts({
+          productPassId: 1,
+          productIds: [2],
+          pricingIds: [1],
+          quantities: [0],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      ).to.be.revertedWithCustomError(purchaseRegistry, 'MintClosed');
+    });
+
     it('cannot change quantity if not admin or pass owner', async () => {
       const { purchaseManager, otherAccount2 } =
         await loadWithPurchasedFlatRateSubscription();

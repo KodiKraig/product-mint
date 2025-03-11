@@ -90,6 +90,14 @@ interface IPurchaseRegistry {
     function isWhitelist(uint256 organizationId) external view returns (bool);
 
     /**
+     * @notice Get the mint closed status for an organization.
+     * @dev When the mint is closed, no passes can be purchased for the organization regardless of whitelist status.
+     * @param organizationId The organization ID to get the mint closed status for.
+     * @return True if the mint is closed, false otherwise.
+     */
+    function isMintClosed(uint256 organizationId) external view returns (bool);
+
+    /**
      * Record Purchase
      */
 
@@ -117,6 +125,11 @@ interface IPurchaseRegistry {
      * @notice Revert for when the address is not whitelisted when attempting to purchase a pass in a whitelist only organization.
      */
     error AddressNotWhitelisted();
+
+    /**
+     * @notice Revert for when the mint is closed and no passes can be minted or additional products can be added to the pass.
+     */
+    error MintClosed();
 
     /**
      * @notice Record a product purchase and link the products to the pass.
@@ -228,4 +241,25 @@ interface IPurchaseRegistry {
         address[] calldata _addresses,
         bool[] calldata _isWhitelisted
     ) external;
+
+    /**
+     * Mint Closed
+     */
+
+    /**
+     * @notice Emitted when the mint closed status for an organization is updated.
+     * @param organizationId The organization ID to update the mint closed status for.
+     * @param isMintClosed True if the mint is closed, false otherwise.
+     */
+    event MintClosedStatusChanged(
+        uint256 indexed organizationId,
+        bool isMintClosed
+    );
+
+    /**
+     * @notice Set a new mint closed status for an organization.
+     * @param organizationId The organization ID to set the mint closed status for.
+     * @param _isMintClosed True if the mint is closed, false otherwise.
+     */
+    function setMintClosed(uint256 organizationId, bool _isMintClosed) external;
 }

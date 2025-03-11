@@ -350,4 +350,26 @@ describe('PurchaseRegistry', () => {
       );
     });
   });
+
+  describe('Mint Closed', () => {
+    it('should return true if the mint is closed', async () => {
+      const { purchaseRegistry, owner } = await loadWithDefaultProduct();
+
+      expect(await purchaseRegistry.isMintClosed(1)).to.be.false;
+
+      await expect(purchaseRegistry.connect(owner).setMintClosed(1, true))
+        .to.emit(purchaseRegistry, 'MintClosedStatusChanged')
+        .withArgs(1, true);
+
+      expect(await purchaseRegistry.isMintClosed(1)).to.be.true;
+    });
+
+    it('only org admins can set the mint closed status', async () => {
+      const { purchaseRegistry, otherAccount } = await loadWithDefaultProduct();
+
+      await expect(
+        purchaseRegistry.connect(otherAccount).setMintClosed(1, true),
+      ).to.be.revertedWith('Not an admin of the organization');
+    });
+  });
 });
