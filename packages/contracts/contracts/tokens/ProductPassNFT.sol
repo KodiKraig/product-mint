@@ -21,6 +21,11 @@ import {IPurchaseRegistry} from "../registry/IPurchaseRegistry.sol";
 | |_) | '__/ _ \ / _` | | | |/ __| __| |\/| | | '_ \| __|
 |  __/| | | (_) | (_| | |_| | (__| |_| |  | | | | | | |_ 
 |_|   |_|  \___/ \__,_|\__,_|\___|\__|_|  |_|_|_| |_|\__|
+ 
+ NFT based payment system to mint products onchain with one-time payments and 
+ recurring permissionless subscriptions.
+
+ https://productmint.io
 */
 
 /**
