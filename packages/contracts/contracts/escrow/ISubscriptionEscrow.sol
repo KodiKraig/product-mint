@@ -155,13 +155,46 @@ interface ISubscriptionEscrow {
      * @param productPassId The ID of the product pass.
      * @param productId The ID of the product.
      * @return orgId The ID of the organization.
-     * @return token The token of the pricing model.
-     * @return price The price of the pricing model.
+     * @return token The token used to pay for the renewal.
+     * @return price The price of the renewal.
      */
     function renewSubscription(
         uint256 productPassId,
         uint256 productId
     ) external returns (uint256 orgId, address token, uint256 price);
+
+    /**
+     * @notice Returns the cost of renewing a specific subscription.
+     * @param productPassId The ID of the product pass.
+     * @param productId The ID of the product.
+     * @return orgId The ID of the organization.
+     * @return token The token used to pay for the renewal.
+     * @return price The price of the renewal.
+     */
+    function getRenewalCost(
+        uint256 productPassId,
+        uint256 productId
+    ) external view returns (uint256 orgId, address token, uint256 price);
+
+    /**
+     * @notice Returns the cost of renewing multiple subscriptions on a product pass.
+     * @param productPassId The ID of the product pass.
+     * @param productIds The IDs of the products.
+     * @return orgId The ID of the organization that the subscriptions belong to.
+     * @return tokens The tokens used to pay for the renewals.
+     * @return prices The prices of the renewals.
+     */
+    function getRenewalCostBatch(
+        uint256 productPassId,
+        uint256[] calldata productIds
+    )
+        external
+        view
+        returns (
+            uint256 orgId,
+            address[] memory tokens,
+            uint256[] memory prices
+        );
 
     /**
      * Change Pricing
