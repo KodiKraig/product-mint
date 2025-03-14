@@ -1241,7 +1241,10 @@ describe('CouponRegistry', () => {
 
       await expect(
         couponRegistry.setRestrictedAccess(1, [], [true]),
-      ).to.be.revertedWith('Invalid input length');
+      ).to.be.revertedWithCustomError(
+        couponRegistry,
+        'InvalidRestrictedAccessInput',
+      );
     });
 
     it('revert if pass owners and restricted length mismatch', async () => {
@@ -1258,7 +1261,10 @@ describe('CouponRegistry', () => {
 
       await expect(
         couponRegistry.setRestrictedAccess(1, [owner, otherAccount], [true]),
-      ).to.be.revertedWith('Invalid input length');
+      ).to.be.revertedWithCustomError(
+        couponRegistry,
+        'InvalidRestrictedAccessInput',
+      );
     });
   });
 

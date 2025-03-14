@@ -20,6 +20,7 @@ import {ISubscriptionEscrow} from "../escrow/ISubscriptionEscrow.sol";
 import {IPurchaseRegistry} from "../registry/IPurchaseRegistry.sol";
 import {IPricingCalculator} from "../calculator/IPricingCalculator.sol";
 import {ICouponRegistry} from "../registry/ICouponRegistry.sol";
+import {IDiscountRegistry} from "../registry/IDiscountRegistry.sol";
 
 /*
  ____                 _            _   __  __ _       _   
@@ -174,6 +175,7 @@ contract PurchaseManager is
         if (totalAmount > 0) {
             _performPurchase(
                 params.orgId,
+                params.productPassId,
                 params.passOwner,
                 totalAmount,
                 token,
@@ -236,6 +238,7 @@ contract PurchaseManager is
         if (amount > 0) {
             _performPurchase(
                 params.orgId,
+                params.productPassId,
                 passOwner,
                 amount,
                 token,
@@ -284,6 +287,7 @@ contract PurchaseManager is
         if (price > 0) {
             _performPurchase(
                 orgId,
+                productPassId,
                 _passOwner(productPassId),
                 price,
                 token,
@@ -311,6 +315,7 @@ contract PurchaseManager is
         if (amount > 0) {
             _performPurchase(
                 orgId,
+                productPassId,
                 _passOwner(productPassId),
                 amount,
                 token,
@@ -401,6 +406,7 @@ contract PurchaseManager is
 
     function _performPurchase(
         uint256 orgId,
+        uint256 productPassId,
         address passOwner,
         uint256 totalAmount,
         address token,
@@ -428,12 +434,19 @@ contract PurchaseManager is
             );
         }
 
-        IPaymentEscrow(registry.paymentEscrow()).transferDirect{
-            value: msg.value
-        }(orgId, payable(passOwner), token, totalAmount);
+        totalAmount = IDiscountRegistry(registry.discountRegistry())
+            .calculateTotalPassDiscountAmount(productPassId, totalAmount);
+
+        if (totalAmount > 0) {
+            IPaymentEscrow(registry.paymentEscrow()).transferDirect{
+                value: msg.value
+            }(orgId, payable(passOwner), token, totalAmount);
+        }
 
         emit PerformPurchase(orgId, passOwner, token, totalAmount);
     }
+
+    receive() external payable {}
 
     /**
      * Coupons

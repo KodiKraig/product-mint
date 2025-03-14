@@ -23,6 +23,9 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
   const couponRegistry = m.contract('CouponRegistry', [contractRegistry]);
   m.call(contractRegistry, 'setCouponRegistry', [couponRegistry]);
 
+  const discountRegistry = m.contract('DiscountRegistry', [contractRegistry]);
+  m.call(contractRegistry, 'setDiscountRegistry', [discountRegistry]);
+
   // Calculator
   const pricingCalculator = m.contract('PricingCalculator', [contractRegistry]);
   m.call(contractRegistry, 'setPricingCalculator', [pricingCalculator]);
@@ -100,6 +103,7 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
     productRegistry,
     pricingRegistry,
     purchaseRegistry,
+    discountRegistry,
     couponRegistry,
     productPassNFT,
     organizationNFT,
