@@ -97,6 +97,22 @@ describe('DiscountRegistry', () => {
   });
 
   describe('Create Discount', () => {
+    it('only org admin can create a discount', async () => {
+      const { discountRegistry, otherAccount } =
+        await loadWithDefaultDiscount();
+
+      await expect(
+        discountRegistry.connect(otherAccount).createDiscount({
+          orgId: 1,
+          name: 'TEST',
+          discount: 1000,
+          maxMints: 2000,
+          isActive: true,
+          isRestricted: true,
+        }),
+      ).to.be.revertedWith('Not an admin of the organization');
+    });
+
     it('should create multiple discounts with valid params in different organizations', async () => {
       const { discountRegistry, organizationNFT, otherAccount } =
         await loadWithDefaultDiscount();
