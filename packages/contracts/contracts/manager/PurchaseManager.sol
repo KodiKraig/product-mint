@@ -54,23 +54,6 @@ contract PurchaseManager is
     // Total number of product pass tokens minted
     uint256 public passSupply;
 
-    /**
-     * @dev Used internally by the PurchaseManager during the product purchase.
-     *  Refer to the IPurchaseManager interface for the public facing parameters and details.
-     */
-    struct PurchaseProductsParams {
-        address passOwner;
-        uint256 orgId;
-        uint256 productPassId;
-        uint256[] productIds;
-        uint256[] pricingIds;
-        uint256[] quantities;
-        string couponCode;
-        bool airdrop;
-        bool pause;
-        bool isInitialPurchase;
-    }
-
     constructor(
         address _contractRegistry
     )
