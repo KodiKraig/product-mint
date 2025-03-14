@@ -19,6 +19,8 @@ interface IDiscountRegistry {
      * Get Discounts
      */
 
+    error DiscountDoesNotExist(uint256 discountId);
+
     function getDiscount(
         uint256 discountId
     ) external view returns (Discount memory);
@@ -64,7 +66,7 @@ interface IDiscountRegistry {
 
     error CannotMintDiscount(uint256 passId, uint256 discountId);
 
-    error PassNotOrgMember(uint256 passId, uint256 orgId);
+    error PassNotOrgMember(uint256 orgId, uint256 passId);
 
     function canMintDiscount(
         uint256 orgId,
@@ -80,13 +82,12 @@ interface IDiscountRegistry {
         uint256[] calldata discountIds
     ) external;
 
-    function mintDiscountsToPassOrg(
-        uint256 orgId,
+    function mintDiscountsToPassByOwner(
         uint256 passId,
         uint256[] calldata discountIds
     ) external;
 
-    function mintDiscountsToPassOrgBatch(
+    function mintDiscountsToPassByOrg(
         uint256 orgId,
         uint256[] calldata passIds,
         uint256[] calldata discountIds
@@ -96,12 +97,12 @@ interface IDiscountRegistry {
      * Calculations
      */
 
-    function calculateTotalDiscountAmount(
+    function calculateTotalDiscountedAmount(
         uint256[] memory discountIds,
         uint256 amount
     ) external view returns (uint256);
 
-    function calculateTotalPassDiscountAmount(
+    function calculateTotalPassDiscountedAmount(
         uint256 passId,
         uint256 amount
     ) external view returns (uint256);

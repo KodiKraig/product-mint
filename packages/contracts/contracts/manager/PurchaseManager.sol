@@ -435,7 +435,7 @@ contract PurchaseManager is
         }
 
         totalAmount = IDiscountRegistry(registry.discountRegistry())
-            .calculateTotalPassDiscountAmount(productPassId, totalAmount);
+            .calculateTotalPassDiscountedAmount(productPassId, totalAmount);
 
         if (totalAmount > 0) {
             IPaymentEscrow(registry.paymentEscrow()).transferDirect{

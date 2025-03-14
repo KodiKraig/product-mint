@@ -93,6 +93,7 @@ contract DiscountRegistry is
         uint256 totalDiscount = 0;
 
         for (uint256 i = 0; i < discountIds.length; i++) {
+            _checkDiscountExists(discountIds[i]);
             totalDiscount += discounts[discountIds[i]].discount;
         }
 
@@ -116,6 +117,10 @@ contract DiscountRegistry is
         uint256 discountId
     ) public view returns (bool) {
         Discount memory _discount = discounts[discountId];
+
+        if (_discount.orgId != orgId) {
+            return false;
+        }
 
         if (!_discount.isActive) {
             return false;
@@ -148,15 +153,21 @@ contract DiscountRegistry is
         _mintDiscountsToPass(orgId, passId, passOwner, discountIds);
     }
 
-    function mintDiscountsToPassOrg(
-        uint256 orgId,
+    function mintDiscountsToPassByOwner(
         uint256 passId,
         uint256[] calldata discountIds
-    ) external onlyOrgAdmin(orgId) {
-        _mintDiscountsToPassOrg(orgId, passId, discountIds);
+    ) external onlyPassOwner(passId) {
+        _mintDiscountsToPass(
+            IPurchaseRegistry(registry.purchaseRegistry()).passOrganization(
+                passId
+            ),
+            passId,
+            _passOwner(passId),
+            discountIds
+        );
     }
 
-    function mintDiscountsToPassOrgBatch(
+    function mintDiscountsToPassByOrg(
         uint256 orgId,
         uint256[] calldata passIds,
         uint256[] calldata discountIds
@@ -164,11 +175,11 @@ contract DiscountRegistry is
         require(passIds.length > 0, "No passes provided");
 
         for (uint256 i = 0; i < passIds.length; i++) {
-            _mintDiscountsToPassOrg(orgId, passIds[i], discountIds);
+            _mintDiscountsToPassById(orgId, passIds[i], discountIds);
         }
     }
 
-    function _mintDiscountsToPassOrg(
+    function _mintDiscountsToPassById(
         uint256 orgId,
         uint256 passId,
         uint256[] calldata discountIds
@@ -177,7 +188,7 @@ contract DiscountRegistry is
             .passOrganization(passId);
 
         if (passOrgId != orgId) {
-            revert PassNotOrgMember(passId, orgId);
+            revert PassNotOrgMember(orgId, passId);
         }
 
         _mintDiscountsToPass(orgId, passId, _passOwner(passId), discountIds);
@@ -208,7 +219,7 @@ contract DiscountRegistry is
      * Calculations
      */
 
-    function calculateTotalDiscountAmount(
+    function calculateTotalDiscountedAmount(
         uint256[] memory discountIds,
         uint256 amount
     ) public view returns (uint256) {
@@ -221,7 +232,7 @@ contract DiscountRegistry is
         return _calculateDiscountAmount(totalDiscount, amount);
     }
 
-    function calculateTotalPassDiscountAmount(
+    function calculateTotalPassDiscountedAmount(
         uint256 passId,
         uint256 amount
     ) external view returns (uint256) {
@@ -231,7 +242,7 @@ contract DiscountRegistry is
             return amount;
         }
 
-        return calculateTotalDiscountAmount(_discountIds, amount);
+        return calculateTotalDiscountedAmount(_discountIds, amount);
     }
 
     /**
@@ -360,6 +371,16 @@ contract DiscountRegistry is
             passOwners,
             restricted
         );
+    }
+
+    /**
+     * Checks
+     */
+
+    function _checkDiscountExists(uint256 discountId) internal view {
+        if (discounts[discountId].orgId == 0) {
+            revert DiscountDoesNotExist(discountId);
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { loadWithDefaultProduct } from '../manager/helpers';
 import { DiscountRegistry } from '../../typechain-types';
+import { ethers } from 'hardhat';
 
 interface CreateDiscountParams {
   orgId?: number;
@@ -27,7 +28,7 @@ const DEFAULT_DISCOUNT_PARAMS = {
   discount: 1000,
   maxMints: 2000,
   isActive: true,
-  isRestricted: true,
+  isRestricted: false,
 };
 
 export async function createDiscount(
@@ -96,6 +97,187 @@ describe('DiscountRegistry', () => {
     expect(await discountRegistry.supportsInterface('0x01ffc9a7')).to.be.true;
   });
 
+  describe('Mint Discounts', () => {
+    describe('Can Mint Discount', () => {
+      it('should be true for an active discount', async () => {
+        const { discountRegistry, owner } = await loadWithDefaultDiscount();
+
+        expect(await discountRegistry.canMintDiscount(1, 1, owner, 1)).to.be
+          .true;
+      });
+
+      it('should be true for a restricted discount if the user is in the restricted list', async () => {
+        const { discountRegistry, owner } = await loadWithDefaultDiscount();
+
+        await discountRegistry.setDiscountRestricted(1, true);
+
+        await discountRegistry.setRestrictedAccess(1, [owner], [true]);
+
+        expect(await discountRegistry.canMintDiscount(1, 1, owner, 1)).to.be
+          .true;
+      });
+
+      it('should be false for a restricted discount', async () => {
+        const { discountRegistry, owner } = await loadWithDefaultDiscount();
+
+        await discountRegistry.setDiscountRestricted(1, true);
+
+        expect(await discountRegistry.canMintDiscount(1, 1, owner, 1)).to.be
+          .false;
+      });
+
+      it('should be false for a different organization', async () => {
+        const { discountRegistry, owner } = await loadWithDefaultDiscount();
+
+        expect(await discountRegistry.canMintDiscount(2, 1, owner, 1)).to.be
+          .false;
+      });
+
+      it('should be false for an inactive discount', async () => {
+        const { discountRegistry, owner } = await loadWithDefaultDiscount();
+
+        await discountRegistry.setDiscountActive(1, false);
+
+        expect(await discountRegistry.canMintDiscount(1, 1, owner, 1));
+      });
+    });
+
+    describe('Purchase Manager', () => {
+      it('only the purchase manager can mint discounts', async () => {
+        const { discountRegistry, owner } = await loadWithDefaultDiscount();
+
+        await expect(
+          discountRegistry.connect(owner).mintDiscountsToPass(1, 5, owner, [1]),
+        ).to.be.revertedWith('Caller not authorized');
+      });
+    });
+
+    describe('Pass Owner', () => {
+      it('pass must exist', async () => {
+        const { discountRegistry, productPassNFT } =
+          await loadWithDefaultDiscount();
+
+        await expect(discountRegistry.mintDiscountsToPassByOwner(5, [1]))
+          .to.be.revertedWithCustomError(
+            productPassNFT,
+            'ERC721NonexistentToken',
+          )
+          .withArgs(5);
+      });
+    });
+
+    describe('Org', () => {
+      it('must be an org admin', async () => {
+        const { discountRegistry, otherAccount } =
+          await loadWithDefaultDiscount();
+
+        await expect(
+          discountRegistry
+            .connect(otherAccount)
+            .mintDiscountsToPassByOrg(1, [5], [1]),
+        ).to.be.revertedWith('Not an admin of the organization');
+      });
+
+      it('must provide at least one pass id', async () => {
+        const { discountRegistry } = await loadWithDefaultDiscount();
+
+        await expect(
+          discountRegistry.mintDiscountsToPassByOrg(1, [], [1]),
+        ).to.be.revertedWith('No passes provided');
+      });
+
+      it('cannot mint discounts to a non-existent pass', async () => {
+        const { discountRegistry } = await loadWithDefaultDiscount();
+
+        await expect(discountRegistry.mintDiscountsToPassByOrg(1, [5], [1]))
+          .to.be.revertedWithCustomError(discountRegistry, 'PassNotOrgMember')
+          .withArgs(1, 5);
+      });
+    });
+  });
+
+  describe('Calculations', () => {
+    it('should return input amount if no discounts are provided', async () => {
+      const { discountRegistry } = await loadWithDefaultDiscount();
+
+      expect(
+        await discountRegistry.calculateTotalDiscountedAmount(
+          [],
+          ethers.parseUnits('100', 6),
+        ),
+      ).to.equal(ethers.parseUnits('100', 6));
+    });
+
+    it('should revert if discount does not exist', async () => {
+      const { discountRegistry } = await loadWithDefaultDiscount();
+
+      await expect(
+        discountRegistry.calculateTotalDiscountedAmount(
+          [1, 5],
+          ethers.parseUnits('100', 6),
+        ),
+      )
+        .to.be.revertedWithCustomError(discountRegistry, 'DiscountDoesNotExist')
+        .withArgs(5);
+    });
+
+    it('should return proper discounted amount with stacked discounts', async () => {
+      const { discountRegistry } = await loadWithDefaultDiscount();
+
+      await createDiscount(discountRegistry, {
+        name: 'TEST2',
+        discount: 500,
+      });
+
+      await createDiscount(discountRegistry, {
+        name: 'TEST3',
+        discount: 250,
+      });
+
+      await createDiscount(discountRegistry, {
+        name: 'TEST4',
+        discount: 100,
+      });
+
+      await createDiscount(discountRegistry, { name: 'TEST5', discount: 50 });
+
+      expect(
+        await discountRegistry.calculateTotalDiscountedAmount(
+          [1, 2, 3, 4, 5],
+          ethers.parseUnits('100', 6),
+        ),
+      ).to.equal(ethers.parseUnits('81', 6));
+    });
+
+    it('should return 0 if max discount is reached', async () => {
+      const { discountRegistry } = await loadWithDefaultDiscount();
+
+      await createDiscount(discountRegistry, {
+        name: 'TEST2',
+        discount: 500,
+      });
+
+      await createDiscount(discountRegistry, {
+        name: 'TEST3',
+        discount: 250,
+      });
+
+      await createDiscount(discountRegistry, {
+        name: 'TEST4',
+        discount: 10000,
+      });
+
+      await createDiscount(discountRegistry, { name: 'TEST5', discount: 50 });
+
+      expect(
+        await discountRegistry.calculateTotalDiscountedAmount(
+          [1, 2, 3, 4, 5],
+          ethers.parseUnits('100', 6),
+        ),
+      ).to.equal(0);
+    });
+  });
+
   describe('Create Discount', () => {
     it('only org admin can create a discount', async () => {
       const { discountRegistry, otherAccount } =
@@ -157,6 +339,7 @@ describe('DiscountRegistry', () => {
       await assertDiscount(discountRegistry, 4, {
         orgId: 2,
         name: 'TEST4',
+        isRestricted: true,
       });
 
       expect(await discountRegistry.getOrgDiscountIds(2)).to.deep.equal([4]);
@@ -165,9 +348,9 @@ describe('DiscountRegistry', () => {
       const discounts = await discountRegistry.getDiscountBatch([1, 2, 3, 4]);
 
       expect(discounts).to.deep.equal([
-        [1, 'TEST', 1000, 0, 2000, true, true],
-        [1, 'TEST2', 1000, 0, 2000, true, true],
-        [1, 'TEST3', 1000, 0, 2000, true, true],
+        [1, 'TEST', 1000, 0, 2000, true, false],
+        [1, 'TEST2', 1000, 0, 2000, true, false],
+        [1, 'TEST3', 1000, 0, 2000, true, false],
         [2, 'TEST4', 1000, 0, 2000, true, true],
       ]);
 
