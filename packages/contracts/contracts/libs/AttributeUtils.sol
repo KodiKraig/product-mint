@@ -140,4 +140,30 @@ library AttributeUtils {
                 traitType
             );
     }
+
+    /**
+     * @notice Convert a uint256 value to a percentage string.
+     * @param value The uint256 value to convert.
+     * @param denominator The denominator of the percentage.
+     * @return The percentage as a string.
+     */
+    function percentage(
+        uint256 value,
+        uint256 denominator
+    ) internal pure returns (string memory) {
+        uint256 significantDigits = value / denominator;
+        uint256 decimals = value % denominator;
+
+        return
+            string.concat(
+                decimals == 0
+                    ? significantDigits.toString()
+                    : string.concat(
+                        significantDigits.toString(),
+                        ".",
+                        decimals.toString()
+                    ),
+                "%"
+            );
+    }
 }
