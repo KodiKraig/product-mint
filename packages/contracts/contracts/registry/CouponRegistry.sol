@@ -158,38 +158,36 @@ contract CouponRegistry is
             return false;
         }
 
-        if (!coupons[couponId].isActive) {
+        Coupon memory coupon = coupons[couponId];
+
+        if (!coupon.isActive) {
+            return false;
+        }
+
+        if (coupon.expiration <= block.timestamp && coupon.expiration != 0) {
             return false;
         }
 
         if (
-            coupons[couponId].expiration <= block.timestamp &&
-            coupons[couponId].expiration != 0
+            coupon.maxTotalRedemptions != 0 &&
+            coupon.totalRedemptions >= coupon.maxTotalRedemptions
         ) {
             return false;
         }
 
-        if (
-            coupons[couponId].maxTotalRedemptions != 0 &&
-            coupons[couponId].totalRedemptions >=
-            coupons[couponId].maxTotalRedemptions
-        ) {
-            return false;
-        }
-
-        if (coupons[couponId].isInitialPurchaseOnly && !isInitialPurchase) {
+        if (coupon.isInitialPurchaseOnly && !isInitialPurchase) {
             return false;
         }
 
         if (
-            coupons[couponId].isOneTimeUse &&
+            coupon.isOneTimeUse &&
             redeemedCoupons[orgId][passOwner].contains(couponId)
         ) {
             return false;
         }
 
         if (
-            coupons[couponId].isRestricted &&
+            coupon.isRestricted &&
             !restrictedAccess[orgId][passOwner].contains(couponId)
         ) {
             return false;
@@ -223,17 +221,18 @@ contract CouponRegistry is
 
         totalCoupons++;
 
-        coupons[totalCoupons].orgId = params.orgId;
-        coupons[totalCoupons].code = params.code;
-        coupons[totalCoupons].isInitialPurchaseOnly = params
-            .isInitialPurchaseOnly;
-        coupons[totalCoupons].isActive = params.isActive;
-        coupons[totalCoupons].isRestricted = params.isRestricted;
-        coupons[totalCoupons].isOneTimeUse = params.isOneTimeUse;
+        Coupon storage coupon = coupons[totalCoupons];
 
-        _setCouponDiscount(totalCoupons, params.discount);
-        _setCouponExpiration(totalCoupons, params.expiration);
-        _setCouponMaxRedemptions(totalCoupons, params.maxTotalRedemptions);
+        coupon.orgId = params.orgId;
+        coupon.code = params.code;
+        coupon.isInitialPurchaseOnly = params.isInitialPurchaseOnly;
+        coupon.isActive = params.isActive;
+        coupon.isRestricted = params.isRestricted;
+        coupon.isOneTimeUse = params.isOneTimeUse;
+
+        _setCouponDiscount(coupon, params.discount);
+        _setCouponExpiration(coupon, params.expiration);
+        _setCouponMaxRedemptions(coupon, params.maxTotalRedemptions);
 
         orgCouponCodes[params.orgId][params.code] = totalCoupons;
         orgCoupons[params.orgId].add(totalCoupons);
@@ -249,28 +248,35 @@ contract CouponRegistry is
         uint256 couponId,
         uint256 discount
     ) external onlyOrgAdmin(coupons[couponId].orgId) {
-        _setCouponDiscount(couponId, discount);
+        Coupon storage coupon = coupons[couponId];
 
-        emit CouponUpdated(coupons[couponId].orgId, couponId);
+        _setCouponDiscount(coupon, discount);
+
+        emit CouponUpdated(coupon.orgId, couponId);
     }
 
-    function _setCouponDiscount(uint256 couponId, uint256 discount) internal {
+    function _setCouponDiscount(
+        Coupon storage coupon,
+        uint256 discount
+    ) internal {
         require(_isDiscountValid(discount), "Invalid discount");
 
-        coupons[couponId].discount = discount;
+        coupon.discount = discount;
     }
 
     function setCouponExpiration(
         uint256 couponId,
         uint256 expiration
     ) external onlyOrgAdmin(coupons[couponId].orgId) {
-        _setCouponExpiration(couponId, expiration);
+        Coupon storage coupon = coupons[couponId];
 
-        emit CouponUpdated(coupons[couponId].orgId, couponId);
+        _setCouponExpiration(coupon, expiration);
+
+        emit CouponUpdated(coupon.orgId, couponId);
     }
 
     function _setCouponExpiration(
-        uint256 couponId,
+        Coupon storage coupon,
         uint256 expiration
     ) internal {
         require(
@@ -278,57 +284,65 @@ contract CouponRegistry is
             "Invalid expiration"
         );
 
-        coupons[couponId].expiration = expiration;
+        coupon.expiration = expiration;
     }
 
     function setCouponMaxRedemptions(
         uint256 couponId,
         uint256 maxTotalRedemptions
     ) external onlyOrgAdmin(coupons[couponId].orgId) {
-        _setCouponMaxRedemptions(couponId, maxTotalRedemptions);
+        Coupon storage coupon = coupons[couponId];
 
-        emit CouponUpdated(coupons[couponId].orgId, couponId);
+        _setCouponMaxRedemptions(coupon, maxTotalRedemptions);
+
+        emit CouponUpdated(coupon.orgId, couponId);
     }
 
     function _setCouponMaxRedemptions(
-        uint256 couponId,
+        Coupon storage coupon,
         uint256 maxTotalRedemptions
     ) internal {
         require(
             maxTotalRedemptions == 0 ||
-                maxTotalRedemptions >= coupons[couponId].totalRedemptions,
+                maxTotalRedemptions >= coupon.totalRedemptions,
             "Invalid max total redemptions"
         );
 
-        coupons[couponId].maxTotalRedemptions = maxTotalRedemptions;
+        coupon.maxTotalRedemptions = maxTotalRedemptions;
     }
 
     function setCouponNewCustomers(
         uint256 couponId,
         bool isInitialPurchaseOnly
     ) external onlyOrgAdmin(coupons[couponId].orgId) {
-        coupons[couponId].isInitialPurchaseOnly = isInitialPurchaseOnly;
+        Coupon storage coupon = coupons[couponId];
 
-        emit CouponUpdated(coupons[couponId].orgId, couponId);
+        coupon.isInitialPurchaseOnly = isInitialPurchaseOnly;
+
+        emit CouponUpdated(coupon.orgId, couponId);
     }
 
     function setCouponActive(
         uint256 couponId,
         bool active
     ) external onlyOrgAdmin(coupons[couponId].orgId) {
-        coupons[couponId].isActive = active;
+        Coupon storage coupon = coupons[couponId];
 
-        emit CouponStatusUpdated(coupons[couponId].orgId, couponId, active);
-        emit CouponUpdated(coupons[couponId].orgId, couponId);
+        coupon.isActive = active;
+
+        emit CouponStatusUpdated(coupon.orgId, couponId, active);
+        emit CouponUpdated(coupon.orgId, couponId);
     }
 
     function setCouponRestricted(
         uint256 couponId,
         bool restricted
     ) external onlyOrgAdmin(coupons[couponId].orgId) {
-        coupons[couponId].isRestricted = restricted;
+        Coupon storage coupon = coupons[couponId];
 
-        emit CouponUpdated(coupons[couponId].orgId, couponId);
+        coupon.isRestricted = restricted;
+
+        emit CouponUpdated(coupon.orgId, couponId);
     }
 
     /**
