@@ -1,5 +1,8 @@
 import { expect } from 'chai';
-import { loadWithDefaultProduct } from '../manager/helpers';
+import {
+  loadWithDefaultProduct,
+  loadWithPurchasedFlatRateSubscription,
+} from '../manager/helpers';
 import { DiscountRegistry } from '../../typechain-types';
 import { ethers } from 'hardhat';
 
@@ -75,6 +78,14 @@ export async function assertDiscount(
 
 async function loadWithDefaultDiscount() {
   const results = await loadWithDefaultProduct();
+
+  await createDiscount(results.discountRegistry, {});
+
+  return results;
+}
+
+async function loadWithDefaultDiscountAndPass() {
+  const results = await loadWithPurchasedFlatRateSubscription();
 
   await createDiscount(results.discountRegistry, {});
 
@@ -587,6 +598,50 @@ describe('DiscountRegistry', () => {
         .withArgs(1, 1, owner, false)
         .and.to.emit(discountRegistry, 'RestrictedAccessUpdated')
         .withArgs(1, 1, otherAccount, false);
+    });
+  });
+
+  describe('Mint Discounts', () => {
+    it('cannot mint a discount if max mints is reached', async () => {
+      const { discountRegistry, otherAccount, otherAccount2, purchaseManager } =
+        await loadWithDefaultDiscountAndPass();
+
+      await discountRegistry.setDiscountMaxMints(1, 1);
+
+      await discountRegistry
+        .connect(otherAccount)
+        .mintDiscountsToPassByOwner(1, [1]);
+
+      expect(await discountRegistry.hasPassDiscount(1, 1)).to.be.true;
+
+      await expect(
+        purchaseManager.connect(otherAccount2).purchaseProducts({
+          to: otherAccount2,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [1],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      ).to.be.revertedWithCustomError(discountRegistry, 'CannotMintDiscount');
+    });
+
+    it('cannot mint a discount if the pass already has the discount', async () => {
+      const { discountRegistry, otherAccount } =
+        await loadWithDefaultDiscountAndPass();
+
+      await discountRegistry
+        .connect(otherAccount)
+        .mintDiscountsToPassByOwner(1, [1]);
+
+      await expect(
+        discountRegistry
+          .connect(otherAccount)
+          .mintDiscountsToPassByOwner(1, [1]),
+      ).to.be.revertedWithCustomError(discountRegistry, 'CannotMintDiscount');
     });
   });
 });
