@@ -115,35 +115,33 @@ contract DiscountRegistry is
         uint256 passId,
         address passOwner,
         uint256 discountId
-    ) public view returns (bool) {
+    ) public view {
         Discount memory _discount = discounts[discountId];
 
         if (_discount.orgId != orgId) {
-            return false;
+            revert DiscountNotForOrg(orgId, discountId);
         }
 
         if (!_discount.isActive) {
-            return false;
+            revert DiscountNotActive(discountId);
         }
 
         if (
             _discount.isRestricted &&
             !restrictedAccess[orgId][passOwner].contains(discountId)
         ) {
-            return false;
+            revert DiscountAccessRestricted(discountId, passOwner);
         }
 
         if (
             _discount.maxMints > 0 && _discount.totalMints >= _discount.maxMints
         ) {
-            return false;
+            revert DiscountMaxMintsReached(discountId, _discount.maxMints);
         }
 
         if (passDiscounts[passId].contains(discountId)) {
-            return false;
+            revert DiscountAlreadyMinted(discountId, passId);
         }
-
-        return true;
     }
 
     function mintDiscountsToPass(
@@ -205,9 +203,7 @@ contract DiscountRegistry is
         require(discountIds.length > 0, "Invalid discount ids");
 
         for (uint256 i = 0; i < discountIds.length; i++) {
-            if (!canMintDiscount(orgId, passId, passOwner, discountIds[i])) {
-                revert CannotMintDiscount(passId, discountIds[i]);
-            }
+            canMintDiscount(orgId, passId, passOwner, discountIds[i]);
 
             discounts[discountIds[i]].totalMints++;
             passDiscounts[passId].add(discountIds[i]);

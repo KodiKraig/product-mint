@@ -110,55 +110,59 @@ describe('DiscountRegistry', () => {
 
   describe('Mint Discounts', () => {
     describe('Can Mint Discount', () => {
-      it('should be true for an active discount', async () => {
+      it('should not revert for an active discount', async () => {
         const { discountRegistry, owner } = await loadWithDefaultDiscount();
 
-        expect(await discountRegistry.canMintDiscount(1, 1, owner, 1)).to.be
-          .true;
+        await discountRegistry.canMintDiscount(1, 1, owner, 1);
       });
 
-      it('should be true for a restricted discount if the user is in the restricted list', async () => {
+      it('should not revert for a restricted discount if the user is in the restricted list', async () => {
         const { discountRegistry, owner } = await loadWithDefaultDiscount();
 
         await discountRegistry.setDiscountRestricted(1, true);
 
         await discountRegistry.setRestrictedAccess(1, [owner], [true]);
 
-        expect(await discountRegistry.canMintDiscount(1, 1, owner, 1)).to.be
-          .true;
+        await discountRegistry.canMintDiscount(1, 1, owner, 1);
       });
 
-      it('should be true when max mints is 0', async () => {
+      it('should not revert when max mints is 0', async () => {
         const { discountRegistry, owner } = await loadWithDefaultDiscount();
 
         await discountRegistry.setDiscountMaxMints(1, 0);
 
-        expect(await discountRegistry.canMintDiscount(1, 1, owner, 1)).to.be
-          .true;
+        await discountRegistry.canMintDiscount(1, 1, owner, 1);
       });
 
-      it('should be false for a restricted discount', async () => {
+      it('should be reverted for a restricted discount', async () => {
         const { discountRegistry, owner } = await loadWithDefaultDiscount();
 
         await discountRegistry.setDiscountRestricted(1, true);
 
-        expect(await discountRegistry.canMintDiscount(1, 1, owner, 1)).to.be
-          .false;
+        await expect(discountRegistry.canMintDiscount(1, 1, owner, 1))
+          .to.be.revertedWithCustomError(
+            discountRegistry,
+            'DiscountAccessRestricted',
+          )
+          .withArgs(1, owner);
       });
 
-      it('should be false for a different organization', async () => {
+      it('should be reverted for a different organization', async () => {
         const { discountRegistry, owner } = await loadWithDefaultDiscount();
 
-        expect(await discountRegistry.canMintDiscount(2, 1, owner, 1)).to.be
-          .false;
+        await expect(discountRegistry.canMintDiscount(2, 1, owner, 1))
+          .to.be.revertedWithCustomError(discountRegistry, 'DiscountNotForOrg')
+          .withArgs(2, 1);
       });
 
-      it('should be false for an inactive discount', async () => {
+      it('should be reverted for an inactive discount', async () => {
         const { discountRegistry, owner } = await loadWithDefaultDiscount();
 
         await discountRegistry.setDiscountActive(1, false);
 
-        expect(await discountRegistry.canMintDiscount(1, 1, owner, 1));
+        await expect(
+          discountRegistry.canMintDiscount(1, 1, owner, 1),
+        ).to.be.revertedWithCustomError(discountRegistry, 'DiscountNotActive');
       });
     });
 
@@ -626,7 +630,12 @@ describe('DiscountRegistry', () => {
           airdrop: false,
           pause: false,
         }),
-      ).to.be.revertedWithCustomError(discountRegistry, 'CannotMintDiscount');
+      )
+        .to.be.revertedWithCustomError(
+          discountRegistry,
+          'DiscountMaxMintsReached',
+        )
+        .withArgs(1, 1);
     });
 
     it('cannot mint a discount if the pass already has the discount', async () => {
@@ -641,7 +650,12 @@ describe('DiscountRegistry', () => {
         discountRegistry
           .connect(otherAccount)
           .mintDiscountsToPassByOwner(1, [1]),
-      ).to.be.revertedWithCustomError(discountRegistry, 'CannotMintDiscount');
+      )
+        .to.be.revertedWithCustomError(
+          discountRegistry,
+          'DiscountAlreadyMinted',
+        )
+        .withArgs(1, 1);
     });
   });
 });

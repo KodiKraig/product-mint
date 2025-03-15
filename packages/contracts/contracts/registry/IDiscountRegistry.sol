@@ -64,7 +64,11 @@ interface IDiscountRegistry {
         uint256 indexed discountId
     );
 
-    error CannotMintDiscount(uint256 passId, uint256 discountId);
+    error DiscountNotForOrg(uint256 orgId, uint256 discountId);
+    error DiscountNotActive(uint256 discountId);
+    error DiscountAccessRestricted(uint256 discountId, address passOwner);
+    error DiscountMaxMintsReached(uint256 discountId, uint256 maxMints);
+    error DiscountAlreadyMinted(uint256 discountId, uint256 passId);
 
     error PassNotOrgMember(uint256 orgId, uint256 passId);
 
@@ -73,7 +77,7 @@ interface IDiscountRegistry {
         uint256 passId,
         address passOwner,
         uint256 discountId
-    ) external view returns (bool);
+    ) external view;
 
     function mintDiscountsToPass(
         uint256 orgId,
