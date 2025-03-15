@@ -117,6 +117,15 @@ describe('DiscountRegistry', () => {
           .true;
       });
 
+      it('should be true when max mints is 0', async () => {
+        const { discountRegistry, owner } = await loadWithDefaultDiscount();
+
+        await discountRegistry.setDiscountMaxMints(1, 0);
+
+        expect(await discountRegistry.canMintDiscount(1, 1, owner, 1)).to.be
+          .true;
+      });
+
       it('should be false for a restricted discount', async () => {
         const { discountRegistry, owner } = await loadWithDefaultDiscount();
 

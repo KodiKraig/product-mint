@@ -41,7 +41,7 @@ import {IDiscountRegistry} from "../registry/IDiscountRegistry.sol";
  * When a product is purchased, a Product Pass NFT is minted to the user.
  *
  * The PurchaseManager is also responsible for renewing subscriptions, pausing and cancelling subscriptions, and
- * changing the pricing of a subscription.
+ * changing the pricing model for an existing subscription.
  */
 contract PurchaseManager is
     Ownable2Step,
@@ -71,6 +71,15 @@ contract PurchaseManager is
         InitialPurchaseParams calldata params
     ) external payable nonReentrant whenNotPaused {
         passSupply++;
+
+        if (params.discountIds.length > 0) {
+            IDiscountRegistry(registry.discountRegistry()).mintDiscountsToPass(
+                params.organizationId,
+                passSupply,
+                params.to,
+                params.discountIds
+            );
+        }
 
         _purchaseProducts(
             PurchaseProductsParams({
@@ -402,6 +411,7 @@ contract PurchaseManager is
             return;
         }
 
+        // Apply coupon discount first
         if (
             ICouponRegistry(registry.couponRegistry()).hasPassCouponCode(
                 orgId,
@@ -417,9 +427,11 @@ contract PurchaseManager is
             );
         }
 
+        // Apply permanent pass discounts
         totalAmount = IDiscountRegistry(registry.discountRegistry())
             .calculateTotalPassDiscountedAmount(productPassId, totalAmount);
 
+        // Transfer funds
         if (totalAmount > 0) {
             IPaymentEscrow(registry.paymentEscrow()).transferDirect{
                 value: msg.value

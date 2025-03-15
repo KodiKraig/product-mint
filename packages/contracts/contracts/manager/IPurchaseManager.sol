@@ -85,6 +85,7 @@ interface IPurchaseManager {
      * @param pricingIds The IDs of the pricing options for the products.
      * @param quantities The quantities of the products to purchase.
      *  Only relevant for products for tiered pricing. 0 must be provided for all other pricing models.
+     * @param discountIds The IDs of the discounts to be minted onto the product pass.
      * @param couponCode The coupon code to apply to the purchase.
      * @param airdrop Whether to airdrop the products to the user.
      *  Can only be called by the org admin.
@@ -97,6 +98,7 @@ interface IPurchaseManager {
         uint256[] productIds;
         uint256[] pricingIds;
         uint256[] quantities;
+        uint256[] discountIds;
         string couponCode;
         bool airdrop;
         bool pause;

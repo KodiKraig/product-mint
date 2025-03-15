@@ -133,7 +133,9 @@ contract DiscountRegistry is
             return false;
         }
 
-        if (_discount.totalMints >= _discount.maxMints) {
+        if (
+            _discount.maxMints > 0 && _discount.totalMints >= _discount.maxMints
+        ) {
             return false;
         }
 
