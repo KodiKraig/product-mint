@@ -49,6 +49,7 @@ import {IDiscountRegistry} from "../registry/IDiscountRegistry.sol";
 contract PassMetadataProvider is MetadataProvider {
     using Strings for uint256;
     using AttributeUtils for string;
+    using AttributeUtils for string[];
     using AttributeUtils for uint256;
 
     constructor(
@@ -105,17 +106,16 @@ contract PassMetadataProvider is MetadataProvider {
             registry.productRegistry()
         ).getProductNames(productIds);
 
-        string memory productNamesString = "";
+        string[] memory productAttributes = new string[](productIds.length);
 
-        for (uint256 i = 0; i < productNames.length; i++) {
-            productNamesString = string.concat(
-                productNamesString,
-                i == 0 ? "" : ", ",
-                _productNameAttribute(productIds[i], productNames[i])
+        for (uint256 i = 0; i < productIds.length; i++) {
+            productAttributes[i] = _productNameAttribute(
+                productIds[i],
+                productNames[i]
             );
         }
 
-        return productNamesString;
+        return productAttributes.joinWithCommas();
     }
 
     /**
@@ -143,23 +143,19 @@ contract PassMetadataProvider is MetadataProvider {
     function _getDiscountNameAttributes(
         uint256[] memory discountIds
     ) internal view returns (string memory) {
-        string memory discountAttributes = "";
-
         string[] memory discountNames = IDiscountRegistry(
             registry.discountRegistry()
         ).getDiscountNames(discountIds);
 
+        string[] memory discountAttributes = new string[](discountIds.length);
+
         for (uint256 i = 0; i < discountIds.length; i++) {
-            discountAttributes = string.concat(
-                discountAttributes,
-                i == 0 ? "" : ", ",
-                discountNames[i].attributeTraitType(
-                    string.concat("Discount ", discountIds[i].toString())
-                )
+            discountAttributes[i] = discountNames[i].attributeTraitType(
+                string.concat("Discount ", discountIds[i].toString())
             );
         }
 
-        return discountAttributes;
+        return discountAttributes.joinWithCommas();
     }
 
     /**

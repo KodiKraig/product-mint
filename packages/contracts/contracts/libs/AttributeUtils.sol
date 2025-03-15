@@ -63,6 +63,22 @@ library AttributeUtils {
     }
 
     /**
+     * @dev Joins array of strings with commas
+     */
+    function joinWithCommas(
+        string[] memory parts
+    ) internal pure returns (string memory) {
+        if (parts.length == 0) return "";
+        if (parts.length == 1) return parts[0];
+
+        string memory result = parts[0];
+        for (uint256 i = 1; i < parts.length; i++) {
+            result = string.concat(result, ",", parts[i]);
+        }
+        return result;
+    }
+
+    /**
      * Booleans
      */
 
