@@ -74,6 +74,7 @@ describe('ContractRegistry', () => {
         'orgAdmin()',
         'couponRegistry()',
         'purchaseRegistry()',
+        'discountRegistry()',
         'productTransferOracle()',
         'subscriptionTransferOracle()',
         'pricingCalculator()',
@@ -147,6 +148,10 @@ describe('ContractRegistry', () => {
 
       await assertOnlyOwner((registry, account) =>
         registry.connect(account).setCouponRegistry(registry),
+      );
+
+      await assertOnlyOwner((registry, account) =>
+        registry.connect(account).setDiscountRegistry(registry),
       );
 
       // Calculator
@@ -233,6 +238,10 @@ describe('ContractRegistry', () => {
       await expect(
         contractRegistry.setCouponRegistry(contractRegistry),
       ).to.be.revertedWith('Must implement ICouponRegistry');
+
+      await expect(
+        contractRegistry.setDiscountRegistry(contractRegistry),
+      ).to.be.revertedWith('Must implement IDiscountRegistry');
 
       // Calculator
 

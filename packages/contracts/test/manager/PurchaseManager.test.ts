@@ -64,6 +64,7 @@ describe('PurchaseManager', () => {
             productIds: [1],
             pricingIds: [1],
             quantities: [0],
+            discountIds: [],
             couponCode: '',
             airdrop: false,
             pause: false,

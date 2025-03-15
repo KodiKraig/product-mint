@@ -325,13 +325,15 @@ contract PricingRegistry is RegistryEnabled, IPricingRegistry, IERC165 {
     ) internal {
         pricingSupply++;
 
-        pricing[pricingSupply].orgId = organizationId;
-        pricing[pricingSupply].chargeStyle = chargeStyle;
-        pricing[pricingSupply].chargeFrequency = chargeFrequency;
-        pricing[pricingSupply].isRestricted = isRestricted;
-        pricing[pricingSupply].isActive = true;
+        PricingUtils.Pricing storage _pricing = pricing[pricingSupply];
 
-        _setPricingToken(pricingSupply, token);
+        _pricing.orgId = organizationId;
+        _pricing.chargeStyle = chargeStyle;
+        _pricing.chargeFrequency = chargeFrequency;
+        _pricing.isRestricted = isRestricted;
+        _pricing.isActive = true;
+
+        _setPricingToken(_pricing, token);
 
         pricingIds[organizationId].add(pricingSupply);
     }
@@ -415,15 +417,20 @@ contract PricingRegistry is RegistryEnabled, IPricingRegistry, IERC165 {
         uint256 pricingId,
         address token
     ) external onlyOrgAdmin(pricing[pricingId].orgId) {
-        _setPricingToken(pricingId, token);
+        PricingUtils.Pricing storage _pricing = pricing[pricingId];
 
-        emit PricingUpdated(pricing[pricingId].orgId, pricingId);
+        _setPricingToken(_pricing, token);
+
+        emit PricingUpdated(_pricing.orgId, pricingId);
     }
 
-    function _setPricingToken(uint256 pricingId, address token) internal {
+    function _setPricingToken(
+        PricingUtils.Pricing storage _pricing,
+        address token
+    ) internal {
         if (
             token == address(0) &&
-            pricing[pricingId].chargeStyle != PricingUtils.ChargeStyle.ONE_TIME
+            _pricing.chargeStyle != PricingUtils.ChargeStyle.ONE_TIME
         ) {
             // We cannot do recurring charges with a native token
             // If you want to use a native token, consider using a wrapped ERC20 token
@@ -444,7 +451,7 @@ contract PricingRegistry is RegistryEnabled, IPricingRegistry, IERC165 {
             }
         }
 
-        pricing[pricingId].token = token;
+        _pricing.token = token;
     }
 
     function setPricingFlatPrice(

@@ -5,10 +5,11 @@ pragma solidity ^0.8.24;
 import {
     EnumerableSet
 } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 import {ICouponRegistry} from "./ICouponRegistry.sol";
 import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
+import {DiscountCalculator} from "../abstract/DiscountCalculator.sol";
+import {RestrictedAccess} from "../abstract/RestrictedAccess.sol";
 
 /*
  ____                 _            _   __  __ _       _   
@@ -42,7 +43,12 @@ import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
  * Coupons can have a maximum number of redemptions.
  *
  */
-contract CouponRegistry is RegistryEnabled, ICouponRegistry, IERC165 {
+contract CouponRegistry is
+    RegistryEnabled,
+    DiscountCalculator,
+    RestrictedAccess,
+    ICouponRegistry
+{
     using EnumerableSet for EnumerableSet.UintSet;
 
     // Coupon ID => Coupon
@@ -56,10 +62,6 @@ contract CouponRegistry is RegistryEnabled, ICouponRegistry, IERC165 {
 
     // Organization ID => Pass Owner => Coupon IDs
     mapping(uint256 => mapping(address => EnumerableSet.UintSet))
-        private restrictedAccess;
-
-    // Organization ID => Pass Owner => Coupon IDs
-    mapping(uint256 => mapping(address => EnumerableSet.UintSet))
         private redeemedCoupons;
 
     // Organization ID => Pass Owner => Coupon Code
@@ -67,9 +69,6 @@ contract CouponRegistry is RegistryEnabled, ICouponRegistry, IERC165 {
 
     // Total coupons created
     uint256 public totalCoupons;
-
-    // The denominator for the discount calculation
-    uint256 public constant DISCOUNT_DENOMINATOR = 10000;
 
     constructor(address _contractRegistry) RegistryEnabled(_contractRegistry) {}
 
@@ -132,21 +131,6 @@ contract CouponRegistry is RegistryEnabled, ICouponRegistry, IERC165 {
         return orgCouponCodes[orgId][code] != 0;
     }
 
-    function getRestrictedAccess(
-        uint256 orgId,
-        address passOwner
-    ) external view returns (uint256[] memory) {
-        return restrictedAccess[orgId][passOwner].values();
-    }
-
-    function hasRestrictedAccess(
-        uint256 orgId,
-        address passOwner,
-        uint256 couponId
-    ) external view returns (bool) {
-        return restrictedAccess[orgId][passOwner].contains(couponId);
-    }
-
     function getRedeemedCoupons(
         uint256 orgId,
         address passOwner
@@ -174,38 +158,36 @@ contract CouponRegistry is RegistryEnabled, ICouponRegistry, IERC165 {
             return false;
         }
 
-        if (!coupons[couponId].isActive) {
+        Coupon memory coupon = coupons[couponId];
+
+        if (!coupon.isActive) {
+            return false;
+        }
+
+        if (coupon.expiration <= block.timestamp && coupon.expiration != 0) {
             return false;
         }
 
         if (
-            coupons[couponId].expiration <= block.timestamp &&
-            coupons[couponId].expiration != 0
+            coupon.maxTotalRedemptions != 0 &&
+            coupon.totalRedemptions >= coupon.maxTotalRedemptions
         ) {
             return false;
         }
 
-        if (
-            coupons[couponId].maxTotalRedemptions != 0 &&
-            coupons[couponId].totalRedemptions >=
-            coupons[couponId].maxTotalRedemptions
-        ) {
-            return false;
-        }
-
-        if (coupons[couponId].isInitialPurchaseOnly && !isInitialPurchase) {
+        if (coupon.isInitialPurchaseOnly && !isInitialPurchase) {
             return false;
         }
 
         if (
-            coupons[couponId].isOneTimeUse &&
+            coupon.isOneTimeUse &&
             redeemedCoupons[orgId][passOwner].contains(couponId)
         ) {
             return false;
         }
 
         if (
-            coupons[couponId].isRestricted &&
+            coupon.isRestricted &&
             !restrictedAccess[orgId][passOwner].contains(couponId)
         ) {
             return false;
@@ -218,10 +200,7 @@ contract CouponRegistry is RegistryEnabled, ICouponRegistry, IERC165 {
         uint256 couponId,
         uint256 amount
     ) public view returns (uint256) {
-        return
-            amount -
-            (amount * coupons[couponId].discount) /
-            DISCOUNT_DENOMINATOR;
+        return _calculateDiscountAmount(coupons[couponId].discount, amount);
     }
 
     /**
@@ -242,17 +221,18 @@ contract CouponRegistry is RegistryEnabled, ICouponRegistry, IERC165 {
 
         totalCoupons++;
 
-        coupons[totalCoupons].orgId = params.orgId;
-        coupons[totalCoupons].code = params.code;
-        coupons[totalCoupons].isInitialPurchaseOnly = params
-            .isInitialPurchaseOnly;
-        coupons[totalCoupons].isActive = params.isActive;
-        coupons[totalCoupons].isRestricted = params.isRestricted;
-        coupons[totalCoupons].isOneTimeUse = params.isOneTimeUse;
+        Coupon storage coupon = coupons[totalCoupons];
 
-        _setCouponDiscount(totalCoupons, params.discount);
-        _setCouponExpiration(totalCoupons, params.expiration);
-        _setCouponMaxRedemptions(totalCoupons, params.maxTotalRedemptions);
+        coupon.orgId = params.orgId;
+        coupon.code = params.code;
+        coupon.isInitialPurchaseOnly = params.isInitialPurchaseOnly;
+        coupon.isActive = params.isActive;
+        coupon.isRestricted = params.isRestricted;
+        coupon.isOneTimeUse = params.isOneTimeUse;
+
+        _setCouponDiscount(coupon, params.discount);
+        _setCouponExpiration(coupon, params.expiration);
+        _setCouponMaxRedemptions(coupon, params.maxTotalRedemptions);
 
         orgCouponCodes[params.orgId][params.code] = totalCoupons;
         orgCoupons[params.orgId].add(totalCoupons);
@@ -268,31 +248,35 @@ contract CouponRegistry is RegistryEnabled, ICouponRegistry, IERC165 {
         uint256 couponId,
         uint256 discount
     ) external onlyOrgAdmin(coupons[couponId].orgId) {
-        _setCouponDiscount(couponId, discount);
+        Coupon storage coupon = coupons[couponId];
 
-        emit CouponUpdated(coupons[couponId].orgId, couponId);
+        _setCouponDiscount(coupon, discount);
+
+        emit CouponUpdated(coupon.orgId, couponId);
     }
 
-    function _setCouponDiscount(uint256 couponId, uint256 discount) internal {
-        require(
-            discount > 0 && discount <= DISCOUNT_DENOMINATOR,
-            "Invalid discount"
-        );
+    function _setCouponDiscount(
+        Coupon storage coupon,
+        uint256 discount
+    ) internal {
+        require(_isDiscountValid(discount), "Invalid discount");
 
-        coupons[couponId].discount = discount;
+        coupon.discount = discount;
     }
 
     function setCouponExpiration(
         uint256 couponId,
         uint256 expiration
     ) external onlyOrgAdmin(coupons[couponId].orgId) {
-        _setCouponExpiration(couponId, expiration);
+        Coupon storage coupon = coupons[couponId];
 
-        emit CouponUpdated(coupons[couponId].orgId, couponId);
+        _setCouponExpiration(coupon, expiration);
+
+        emit CouponUpdated(coupon.orgId, couponId);
     }
 
     function _setCouponExpiration(
-        uint256 couponId,
+        Coupon storage coupon,
         uint256 expiration
     ) internal {
         require(
@@ -300,57 +284,65 @@ contract CouponRegistry is RegistryEnabled, ICouponRegistry, IERC165 {
             "Invalid expiration"
         );
 
-        coupons[couponId].expiration = expiration;
+        coupon.expiration = expiration;
     }
 
     function setCouponMaxRedemptions(
         uint256 couponId,
         uint256 maxTotalRedemptions
     ) external onlyOrgAdmin(coupons[couponId].orgId) {
-        _setCouponMaxRedemptions(couponId, maxTotalRedemptions);
+        Coupon storage coupon = coupons[couponId];
 
-        emit CouponUpdated(coupons[couponId].orgId, couponId);
+        _setCouponMaxRedemptions(coupon, maxTotalRedemptions);
+
+        emit CouponUpdated(coupon.orgId, couponId);
     }
 
     function _setCouponMaxRedemptions(
-        uint256 couponId,
+        Coupon storage coupon,
         uint256 maxTotalRedemptions
     ) internal {
         require(
             maxTotalRedemptions == 0 ||
-                maxTotalRedemptions >= coupons[couponId].totalRedemptions,
+                maxTotalRedemptions >= coupon.totalRedemptions,
             "Invalid max total redemptions"
         );
 
-        coupons[couponId].maxTotalRedemptions = maxTotalRedemptions;
+        coupon.maxTotalRedemptions = maxTotalRedemptions;
     }
 
     function setCouponNewCustomers(
         uint256 couponId,
         bool isInitialPurchaseOnly
     ) external onlyOrgAdmin(coupons[couponId].orgId) {
-        coupons[couponId].isInitialPurchaseOnly = isInitialPurchaseOnly;
+        Coupon storage coupon = coupons[couponId];
 
-        emit CouponUpdated(coupons[couponId].orgId, couponId);
+        coupon.isInitialPurchaseOnly = isInitialPurchaseOnly;
+
+        emit CouponUpdated(coupon.orgId, couponId);
     }
 
     function setCouponActive(
         uint256 couponId,
         bool active
     ) external onlyOrgAdmin(coupons[couponId].orgId) {
-        coupons[couponId].isActive = active;
+        Coupon storage coupon = coupons[couponId];
 
-        emit CouponStatusUpdated(coupons[couponId].orgId, couponId, active);
-        emit CouponUpdated(coupons[couponId].orgId, couponId);
+        coupon.isActive = active;
+
+        emit CouponStatusUpdated(coupon.orgId, couponId, active);
+        emit CouponUpdated(coupon.orgId, couponId);
     }
 
     function setCouponRestricted(
         uint256 couponId,
         bool restricted
     ) external onlyOrgAdmin(coupons[couponId].orgId) {
-        coupons[couponId].isRestricted = restricted;
+        Coupon storage coupon = coupons[couponId];
 
-        emit CouponUpdated(coupons[couponId].orgId, couponId);
+        coupon.isRestricted = restricted;
+
+        emit CouponUpdated(coupon.orgId, couponId);
     }
 
     /**
@@ -362,29 +354,12 @@ contract CouponRegistry is RegistryEnabled, ICouponRegistry, IERC165 {
         address[] calldata passOwners,
         bool[] calldata restricted
     ) external onlyOrgAdmin(coupons[couponId].orgId) {
-        require(
-            passOwners.length > 0 && passOwners.length == restricted.length,
-            "Invalid input length"
+        _setRestrictedAccess(
+            coupons[couponId].orgId,
+            couponId,
+            passOwners,
+            restricted
         );
-
-        for (uint256 i = 0; i < passOwners.length; i++) {
-            if (restricted[i]) {
-                restrictedAccess[coupons[couponId].orgId][passOwners[i]].add(
-                    couponId
-                );
-            } else {
-                restrictedAccess[coupons[couponId].orgId][passOwners[i]].remove(
-                        couponId
-                    );
-            }
-
-            emit RestrictedAccessUpdated(
-                coupons[couponId].orgId,
-                couponId,
-                passOwners[i],
-                restricted[i]
-            );
-        }
     }
 
     /**
@@ -455,9 +430,9 @@ contract CouponRegistry is RegistryEnabled, ICouponRegistry, IERC165 {
 
     function supportsInterface(
         bytes4 interfaceId
-    ) external pure returns (bool) {
+    ) public view override returns (bool) {
         return
-            interfaceId == type(IERC165).interfaceId ||
-            interfaceId == type(ICouponRegistry).interfaceId;
+            interfaceId == type(ICouponRegistry).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 }

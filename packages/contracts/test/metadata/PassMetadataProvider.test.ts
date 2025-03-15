@@ -60,5 +60,107 @@ describe('Pass Metadata Provider', () => {
         ],
       });
     });
+
+    it('should return the correct metadata for discounts that have decimals', async () => {
+      const { passMetadataProvider, discountRegistry } =
+        await loadWithDefaultMetadata();
+
+      await discountRegistry.createDiscount({
+        orgId: 1,
+        name: 'OG',
+        discount: 1202,
+        maxMints: 2000,
+        isActive: true,
+        isRestricted: false,
+      });
+
+      await discountRegistry.createDiscount({
+        orgId: 1,
+        name: 'TESTER',
+        discount: 2133,
+        maxMints: 2000,
+        isActive: true,
+        isRestricted: false,
+      });
+
+      await discountRegistry.mintDiscountsToPassByOrg(1, [1], [1, 2]);
+
+      assertMetadata(await passMetadataProvider.getTokenMetadata(1), {
+        ...EXPECTED_DEFAULT_PASS_METADATA,
+        attributes: [
+          {
+            trait_type: 'Organization ID',
+            value: 1,
+          },
+          {
+            trait_type: 'Product 1',
+            value: 'Product 1',
+          },
+          {
+            trait_type: 'Discount 1',
+            value: 'OG',
+          },
+          {
+            trait_type: 'Discount 2',
+            value: 'TESTER',
+          },
+          {
+            trait_type: 'Total Discount Amount',
+            value: '33.35%',
+          },
+        ],
+      });
+    });
+
+    it('should return the correct metadata for discounts that do NOT have decimals', async () => {
+      const { passMetadataProvider, discountRegistry } =
+        await loadWithDefaultMetadata();
+
+      await discountRegistry.createDiscount({
+        orgId: 1,
+        name: 'OG',
+        discount: 1000,
+        maxMints: 2000,
+        isActive: true,
+        isRestricted: false,
+      });
+
+      await discountRegistry.createDiscount({
+        orgId: 1,
+        name: 'TESTER',
+        discount: 3000,
+        maxMints: 2000,
+        isActive: true,
+        isRestricted: false,
+      });
+
+      await discountRegistry.mintDiscountsToPassByOrg(1, [1], [1, 2]);
+
+      assertMetadata(await passMetadataProvider.getTokenMetadata(1), {
+        ...EXPECTED_DEFAULT_PASS_METADATA,
+        attributes: [
+          {
+            trait_type: 'Organization ID',
+            value: 1,
+          },
+          {
+            trait_type: 'Product 1',
+            value: 'Product 1',
+          },
+          {
+            trait_type: 'Discount 1',
+            value: 'OG',
+          },
+          {
+            trait_type: 'Discount 2',
+            value: 'TESTER',
+          },
+          {
+            trait_type: 'Total Discount Amount',
+            value: '40%',
+          },
+        ],
+      });
+    });
   });
 });

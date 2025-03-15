@@ -10,6 +10,7 @@ import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
 import {IPurchaseRegistry} from "../registry/IPurchaseRegistry.sol";
 import {IProductRegistry} from "../registry/IProductRegistry.sol";
 import {AttributeUtils} from "../libs/AttributeUtils.sol";
+import {IDiscountRegistry} from "../registry/IDiscountRegistry.sol";
 
 /*
  ____                 _            _   __  __ _       _   
@@ -48,6 +49,8 @@ import {AttributeUtils} from "../libs/AttributeUtils.sol";
 contract PassMetadataProvider is MetadataProvider {
     using Strings for uint256;
     using AttributeUtils for string;
+    using AttributeUtils for string[];
+    using AttributeUtils for uint256;
 
     constructor(
         address _registry
@@ -60,15 +63,30 @@ contract PassMetadataProvider is MetadataProvider {
             registry.purchaseRegistry()
         );
 
-        return
-            string.concat(
-                purchaseRegistry
-                    .passOrganization(tokenId)
-                    .toString()
-                    .attributeTraitType("Organization ID"),
+        string memory attributes = string.concat(
+            purchaseRegistry
+                .passOrganization(tokenId)
+                .toString()
+                .attributeTraitType("Organization ID"),
+            ",",
+            _getOwnedProductAttributes(tokenId)
+        );
+
+        uint256[] memory discountIds = IDiscountRegistry(
+            registry.discountRegistry()
+        ).getPassDiscountIds(tokenId);
+
+        if (discountIds.length > 0) {
+            attributes = string.concat(
+                attributes,
                 ",",
-                _getOwnedProductAttributes(tokenId)
+                _getDiscountNameAttributes(discountIds),
+                ",",
+                _getTotalDiscountedAmount(tokenId)
             );
+        }
+
+        return attributes;
     }
 
     /**
@@ -88,17 +106,16 @@ contract PassMetadataProvider is MetadataProvider {
             registry.productRegistry()
         ).getProductNames(productIds);
 
-        string memory productNamesString = "";
+        string[] memory productAttributes = new string[](productIds.length);
 
-        for (uint256 i = 0; i < productNames.length; i++) {
-            productNamesString = string.concat(
-                productNamesString,
-                i == 0 ? "" : ", ",
-                _productNameAttribute(productIds[i], productNames[i])
+        for (uint256 i = 0; i < productIds.length; i++) {
+            productAttributes[i] = _productNameAttribute(
+                productIds[i],
+                productNames[i]
             );
         }
 
-        return productNamesString;
+        return productAttributes.joinWithCommas();
     }
 
     /**
@@ -114,6 +131,49 @@ contract PassMetadataProvider is MetadataProvider {
         return
             name.attributeTraitType(
                 string.concat("Product ", productId.toString())
+            );
+    }
+
+    /**
+     * @dev Go through all the discount ids and generate the attributes for each discount.
+     *
+     * Format:
+     * { 'trait_type': 'Discount <ID>', 'value': '<DISCOUNT NAME>' },
+     */
+    function _getDiscountNameAttributes(
+        uint256[] memory discountIds
+    ) internal view returns (string memory) {
+        string[] memory discountNames = IDiscountRegistry(
+            registry.discountRegistry()
+        ).getDiscountNames(discountIds);
+
+        string[] memory discountAttributes = new string[](discountIds.length);
+
+        for (uint256 i = 0; i < discountIds.length; i++) {
+            discountAttributes[i] = discountNames[i].attributeTraitType(
+                string.concat("Discount ", discountIds[i].toString())
+            );
+        }
+
+        return discountAttributes.joinWithCommas();
+    }
+
+    /**
+     * @dev Get the total discounted amount for the pass.
+     *
+     * Format:
+     * { 'trait_type': 'Total Discount Amount', 'value': '<DISCOUNT AMOUNT>' },
+     */
+    function _getTotalDiscountedAmount(
+        uint256 tokenId
+    ) internal view returns (string memory) {
+        uint256 totalDiscountedAmount = IDiscountRegistry(
+            registry.discountRegistry()
+        ).getTotalPassDiscount(tokenId);
+
+        return
+            totalDiscountedAmount.percentage(100).attributeTraitType(
+                "Total Discount Amount"
             );
     }
 }

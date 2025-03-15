@@ -55,7 +55,7 @@ abstract contract MetadataProvider is
         MetadataUtils.Fields field,
         string memory value
     ) public virtual onlyOrgAdmin(organizationId) {
-        _setMetadataByField(customMetadata[organizationId], field, value);
+        customMetadata[organizationId].setByField(field, value);
 
         emit CustomMetadataUpdated(organizationId);
     }
@@ -86,7 +86,7 @@ abstract contract MetadataProvider is
         MetadataUtils.Fields field,
         string memory value
     ) public virtual onlyOwner {
-        _setMetadataByField(defaultMetadata, field, value);
+        defaultMetadata.setByField(field, value);
 
         emit DefaultMetadataUpdated();
     }
@@ -97,31 +97,6 @@ abstract contract MetadataProvider is
         defaultMetadata.setAll(metadata);
 
         emit DefaultMetadataUpdated();
-    }
-
-    /**
-     * @dev Set the metadata by field while performing basic validation.
-     */
-    function _setMetadataByField(
-        MetadataUtils.Metadata storage metadata,
-        MetadataUtils.Fields field,
-        string memory value
-    ) internal {
-        if (field == MetadataUtils.Fields.NAME) {
-            metadata.setName(value);
-        } else if (field == MetadataUtils.Fields.DESCRIPTION) {
-            metadata.setDescription(value);
-        } else if (field == MetadataUtils.Fields.EXTERNAL_URL) {
-            metadata.setExternalUrl(value);
-        } else if (field == MetadataUtils.Fields.IMAGE) {
-            metadata.setImage(value);
-        } else if (field == MetadataUtils.Fields.BACKGROUND_COLOR) {
-            metadata.setBackgroundColor(value);
-        } else if (field == MetadataUtils.Fields.ANIMATION_URL) {
-            metadata.setAnimationUrl(value);
-        } else {
-            revert("Invalid field");
-        }
     }
 
     /**
