@@ -642,12 +642,38 @@ describe('DiscountRegistry', () => {
   });
 
   describe('Mint Discounts', () => {
-    it('can mint discounts to a pass as an org admin', async () => {
-      const { discountRegistry } = await loadWithDefaultDiscountAndPass();
+    it('can mint multiple discounts to a pass as an org admin', async () => {
+      const {
+        discountRegistry,
+        otherAccount2,
+        mintToken,
+        paymentEscrow,
+        purchaseManager,
+      } = await loadWithDefaultDiscountAndPass();
 
-      await discountRegistry.mintDiscountsToPassByOrg(1, [1], [1]);
+      await mintToken
+        .connect(otherAccount2)
+        .mint(otherAccount2, ethers.parseUnits('100', 6));
+      await mintToken
+        .connect(otherAccount2)
+        .approve(paymentEscrow, ethers.parseUnits('100', 6));
+
+      await purchaseManager.connect(otherAccount2).purchaseProducts({
+        to: otherAccount2,
+        organizationId: 1,
+        productIds: [1],
+        pricingIds: [1],
+        quantities: [0],
+        discountIds: [],
+        couponCode: '',
+        airdrop: false,
+        pause: false,
+      });
+
+      await discountRegistry.mintDiscountsToPassByOrg(1, [1, 2], [1]);
 
       expect(await discountRegistry.hasPassDiscount(1, 1)).to.be.true;
+      expect(await discountRegistry.hasPassDiscount(2, 1)).to.be.true;
     });
 
     it('cannot mint if no discount ids are provided', async () => {

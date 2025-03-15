@@ -3,6 +3,10 @@
 pragma solidity ^0.8.24;
 
 interface IDiscountRegistry {
+    /**
+     * Discount
+     */
+
     struct Discount {
         uint256 orgId;
         string name;
