@@ -488,6 +488,42 @@ describe('DiscountRegistry', () => {
 
         await assertDiscount(discountRegistry, 1, { maxMints: 0 });
       });
+
+      it('cannot set max mints lower than total mints', async () => {
+        const {
+          discountRegistry,
+          purchaseManager,
+          otherAccount2,
+          mintToken,
+          paymentEscrow,
+        } = await loadWithDefaultDiscountAndPass();
+
+        await discountRegistry.mintDiscountsToPassByOrg(1, [1], [1]);
+
+        await mintToken
+          .connect(otherAccount2)
+          .mint(otherAccount2, ethers.parseUnits('100', 6));
+        await mintToken
+          .connect(otherAccount2)
+          .approve(paymentEscrow, ethers.parseUnits('100', 6));
+
+        // Purchase second pass
+        await purchaseManager.connect(otherAccount2).purchaseProducts({
+          to: otherAccount2,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [1],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        });
+
+        await expect(
+          discountRegistry.setDiscountMaxMints(1, 1),
+        ).to.be.revertedWith('Max mints reached');
+      });
     });
 
     describe('Active', () => {
@@ -606,6 +642,25 @@ describe('DiscountRegistry', () => {
   });
 
   describe('Mint Discounts', () => {
+    it('can mint discounts to a pass as an org admin', async () => {
+      const { discountRegistry } = await loadWithDefaultDiscountAndPass();
+
+      await discountRegistry.mintDiscountsToPassByOrg(1, [1], [1]);
+
+      expect(await discountRegistry.hasPassDiscount(1, 1)).to.be.true;
+    });
+
+    it('cannot mint if no discount ids are provided', async () => {
+      const { discountRegistry, otherAccount } =
+        await loadWithDefaultDiscountAndPass();
+
+      await expect(
+        discountRegistry
+          .connect(otherAccount)
+          .mintDiscountsToPassByOwner(1, []),
+      ).to.be.revertedWith('Invalid discount ids');
+    });
+
     it('cannot mint a discount if max mints is reached', async () => {
       const { discountRegistry, otherAccount, otherAccount2, purchaseManager } =
         await loadWithDefaultDiscountAndPass();

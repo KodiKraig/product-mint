@@ -330,7 +330,7 @@ contract DiscountRegistry is
     ) internal {
         require(
             _maxMints == 0 || _maxMints >= discount.totalMints,
-            "Invalid max mints"
+            "Max mints reached"
         );
 
         discount.maxMints = _maxMints;
