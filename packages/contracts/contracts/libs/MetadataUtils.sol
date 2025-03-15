@@ -164,6 +164,34 @@ library MetadataUtils {
     }
 
     /**
+     * @notice Set the metadata by field while performing basic validation.
+     * @param metadata The metadata to set the field of.
+     * @param field The field to set.
+     * @param value The value to set the field to.
+     */
+    function setByField(
+        MetadataUtils.Metadata storage metadata,
+        MetadataUtils.Fields field,
+        string memory value
+    ) internal {
+        if (field == MetadataUtils.Fields.NAME) {
+            setName(metadata, value);
+        } else if (field == MetadataUtils.Fields.DESCRIPTION) {
+            setDescription(metadata, value);
+        } else if (field == MetadataUtils.Fields.EXTERNAL_URL) {
+            setExternalUrl(metadata, value);
+        } else if (field == MetadataUtils.Fields.IMAGE) {
+            setImage(metadata, value);
+        } else if (field == MetadataUtils.Fields.BACKGROUND_COLOR) {
+            setBackgroundColor(metadata, value);
+        } else if (field == MetadataUtils.Fields.ANIMATION_URL) {
+            setAnimationUrl(metadata, value);
+        } else {
+            revert("Invalid field");
+        }
+    }
+
+    /**
      * @notice Convert the metadata to a JSON string while filling in default values for empty fields.
      *  If any fields are empty, they will be set to "null" in the JSON string.
      *
