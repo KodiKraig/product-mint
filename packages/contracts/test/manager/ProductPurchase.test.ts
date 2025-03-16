@@ -422,17 +422,12 @@ describe('Purchase Manager', () => {
         await couponRegistry.getRedeemedCoupons(1, otherAccount2),
       ).to.deep.equal([]);
 
-      expect(
-        await couponRegistry.isCodeRedeemable(1, otherAccount, 'COUPON1', true),
-      ).to.be.false;
-      expect(
-        await couponRegistry.isCodeRedeemable(
-          1,
-          otherAccount2,
-          'COUPON1',
-          true,
-        ),
-      ).to.be.true;
+      await expect(
+        couponRegistry.isCodeRedeemable(1, otherAccount, 'COUPON1', true),
+      )
+        .to.be.revertedWithCustomError(couponRegistry, 'CouponAlreadyRedeemed')
+        .withArgs(1, otherAccount);
+      await couponRegistry.isCodeRedeemable(1, otherAccount2, 'COUPON1', true);
 
       expect(await couponRegistry.getCoupon(1)).to.deep.equal([
         1,
