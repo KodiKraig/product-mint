@@ -24,6 +24,7 @@ We guarantee you will love the simplicity and flexibility of ProductMint. You wi
 - ✅ **No staking or escrow funding from users required**
 - ✅ **Fully onchain metadata**
 - ✅ **Apply coupons during initial purchase or with subscription renewals**
+- ✅ **Mint permanent discounts onto passes***
 - ✅ **Create limited time and lifetime coupons***
 - ✅ **Upgrade/downgrade subscriptions***
 - ✅ **Airdrop passes, upgrades, renewals, and tier changes to users***
