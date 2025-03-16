@@ -66,6 +66,26 @@ contract ProductPassNFT is
         _safeMint(to, tokenId);
     }
 
+    function canTransfer(uint256 tokenId) public view {
+        uint256[] memory productIds = IPurchaseRegistry(
+            registry.purchaseRegistry()
+        ).getPassProductIds(tokenId);
+
+        if (
+            !IProductTransferOracle(registry.productTransferOracle())
+                .isTransferable(productIds)
+        ) {
+            revert ProductsNotTransferable();
+        }
+
+        if (
+            !ISubscriptionTransferOracle(registry.subscriptionTransferOracle())
+                .isTransferable(tokenId, productIds)
+        ) {
+            revert SubscriptionsNotTransferable();
+        }
+    }
+
     /**
      * Overrides
      */
@@ -77,24 +97,7 @@ contract ProductPassNFT is
     ) internal override returns (address) {
         // Always allow transfers for minting
         if (_ownerOf(tokenId) != address(0)) {
-            uint256[] memory productIds = IPurchaseRegistry(
-                registry.purchaseRegistry()
-            ).getPassProductIds(tokenId);
-
-            if (
-                !IProductTransferOracle(registry.productTransferOracle())
-                    .isTransferable(productIds)
-            ) {
-                revert ProductsNotTransferable();
-            }
-
-            if (
-                !ISubscriptionTransferOracle(
-                    registry.subscriptionTransferOracle()
-                ).isTransferable(tokenId, productIds)
-            ) {
-                revert SubscriptionsNotTransferable();
-            }
+            canTransfer(tokenId);
         }
 
         return super._update(to, tokenId, auth);
