@@ -1045,7 +1045,7 @@ describe('PricingRegistry', () => {
               priceFlatRate: 10,
             },
           ],
-          'InvalidVolumeLowerBound',
+          'VolumeLowerBoundMustBeOne',
         );
 
         await assertInvalidTierVolumeTiers(
@@ -1063,7 +1063,7 @@ describe('PricingRegistry', () => {
               priceFlatRate: 20,
             },
           ],
-          'InvalidVolumeLowerBound',
+          'VolumeLowerBoundMustBeOne',
         );
       });
 
@@ -1357,7 +1357,7 @@ describe('PricingRegistry', () => {
               priceFlatRate: 10,
             },
           ],
-          'InvalidGraduatedLowerBound',
+          'GraduatedLowerBoundMustBeZero',
         );
       });
 
@@ -1535,7 +1535,7 @@ describe('PricingRegistry', () => {
               priceFlatRate: 10,
             },
           ],
-          'InvalidVolumeLowerBound',
+          'VolumeLowerBoundMustBeOne',
         );
       });
 
@@ -1729,7 +1729,7 @@ describe('PricingRegistry', () => {
               priceFlatRate: 10,
             },
           ],
-          'InvalidGraduatedLowerBound',
+          'GraduatedLowerBoundMustBeZero',
         );
       });
 

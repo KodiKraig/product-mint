@@ -377,14 +377,14 @@ contract PricingRegistry is RegistryEnabled, IPricingRegistry, IERC165 {
             chargeStyle == PricingUtils.ChargeStyle.USAGE_BASED_VOLUME
         ) {
             if (tiers[0].lowerBound != 1) {
-                revert InvalidVolumeLowerBound();
+                revert VolumeLowerBoundMustBeOne();
             }
         } else if (
             chargeStyle == PricingUtils.ChargeStyle.TIERED_GRADUATED ||
             chargeStyle == PricingUtils.ChargeStyle.USAGE_BASED_GRADUATED
         ) {
             if (tiers[0].lowerBound != 0) {
-                revert InvalidGraduatedLowerBound();
+                revert GraduatedLowerBoundMustBeZero();
             }
         } else {
             revert InvalidChargeStyle();
@@ -397,7 +397,6 @@ contract PricingRegistry is RegistryEnabled, IPricingRegistry, IERC165 {
 
             if (i == tiers.length - 1) {
                 if (tiers[i].upperBound != 0) {
-                    // Last tier should be 0 and represent infinity
                     revert LastTierUpperBoundMustBeZeroToRepresentInfinity();
                 }
                 break;

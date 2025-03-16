@@ -349,12 +349,12 @@ interface IPricingRegistry {
     /**
      * @notice Reverts when the lower bound is not 1 for a volume tier.
      */
-    error InvalidVolumeLowerBound();
+    error VolumeLowerBoundMustBeOne();
 
     /**
      * @notice Reverts when the lower bound is not 0 for a graduated tier.
      */
-    error InvalidGraduatedLowerBound();
+    error GraduatedLowerBoundMustBeZero();
 
     /**
      * @notice Reverts when the lower bound is not one greater than the previous upper bound.
