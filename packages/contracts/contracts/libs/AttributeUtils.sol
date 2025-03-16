@@ -159,6 +159,7 @@ library AttributeUtils {
 
     /**
      * @notice Convert a uint256 value to a percentage string.
+     * @dev If the value is 0, it will return "0%". 3000 = 30%, 3512 = 35.12%, etc.
      * @param value The uint256 value to convert.
      * @param denominator The denominator of the percentage.
      * @return The percentage as a string.
