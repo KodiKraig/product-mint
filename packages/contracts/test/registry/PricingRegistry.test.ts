@@ -957,7 +957,7 @@ describe('PricingRegistry', () => {
             priceFlatRate: 10,
           },
         ]),
-      ).to.be.revertedWithCustomError(pricingRegistry, 'InvalidTiers');
+      ).to.be.revertedWithCustomError(pricingRegistry, 'InvalidChargeStyle');
     });
 
     it('cannot set tiers if charge style is FLAT_RATE', async () => {
@@ -983,7 +983,7 @@ describe('PricingRegistry', () => {
             priceFlatRate: 10,
           },
         ]),
-      ).to.be.revertedWithCustomError(pricingRegistry, 'InvalidTiers');
+      ).to.be.revertedWithCustomError(pricingRegistry, 'InvalidChargeStyle');
     });
 
     it('cannot set empty tiers', async () => {
@@ -1010,12 +1010,13 @@ describe('PricingRegistry', () => {
 
       await expect(
         pricingRegistry.connect(owner).setPricingTiers(1, []),
-      ).to.be.revertedWithCustomError(pricingRegistry, 'InvalidTiers');
+      ).to.be.revertedWithCustomError(pricingRegistry, 'NoTiersFound');
     });
 
     describe('TIERED_VOLUME', () => {
       async function assertInvalidTierVolumeTiers(
         tiers: PricingUtils.PricingTierStruct[],
+        error: string,
       ) {
         const { pricingRegistry, organizationNFT, mintToken, owner } =
           await loadFixture(deployPricingRegistry);
@@ -1031,113 +1032,134 @@ describe('PricingRegistry', () => {
             isVolume: true,
             isRestricted: false,
           }),
-        ).to.be.revertedWithCustomError(pricingRegistry, 'InvalidTiers');
+        ).to.be.revertedWithCustomError(pricingRegistry, error);
       }
 
       it('cannot set if lower bound is not 1', async () => {
-        await assertInvalidTierVolumeTiers([
-          {
-            lowerBound: 0,
-            upperBound: 0,
-            pricePerUnit: 100,
-            priceFlatRate: 10,
-          },
-        ]);
+        await assertInvalidTierVolumeTiers(
+          [
+            {
+              lowerBound: 0,
+              upperBound: 0,
+              pricePerUnit: 100,
+              priceFlatRate: 10,
+            },
+          ],
+          'InvalidVolumeLowerBound',
+        );
 
-        await assertInvalidTierVolumeTiers([
-          {
-            lowerBound: 0,
-            upperBound: 100,
-            pricePerUnit: 100,
-            priceFlatRate: 10,
-          },
-          {
-            lowerBound: 101,
-            upperBound: 0,
-            pricePerUnit: 200,
-            priceFlatRate: 20,
-          },
-        ]);
+        await assertInvalidTierVolumeTiers(
+          [
+            {
+              lowerBound: 0,
+              upperBound: 100,
+              pricePerUnit: 100,
+              priceFlatRate: 10,
+            },
+            {
+              lowerBound: 101,
+              upperBound: 0,
+              pricePerUnit: 200,
+              priceFlatRate: 20,
+            },
+          ],
+          'InvalidVolumeLowerBound',
+        );
       });
 
       it('cannot set if lower bound is greater than upper bound', async () => {
-        await assertInvalidTierVolumeTiers([
-          {
-            lowerBound: 1,
-            upperBound: 0,
-            pricePerUnit: 100,
-            priceFlatRate: 10,
-          },
+        await assertInvalidTierVolumeTiers(
+          [
+            {
+              lowerBound: 1,
+              upperBound: 0,
+              pricePerUnit: 100,
+              priceFlatRate: 10,
+            },
 
-          {
-            lowerBound: 0,
-            upperBound: 100,
-            pricePerUnit: 100,
-            priceFlatRate: 10,
-          },
-        ]);
+            {
+              lowerBound: 0,
+              upperBound: 100,
+              pricePerUnit: 100,
+              priceFlatRate: 10,
+            },
+          ],
+          'LowerBoundGreaterThanUpperBound',
+        );
 
-        await assertInvalidTierVolumeTiers([
-          {
-            lowerBound: 1,
-            upperBound: 3,
-            pricePerUnit: 100,
-            priceFlatRate: 10,
-          },
-          {
-            lowerBound: 4,
-            upperBound: 3,
-            pricePerUnit: 200,
-            priceFlatRate: 20,
-          },
-        ]);
+        await assertInvalidTierVolumeTiers(
+          [
+            {
+              lowerBound: 1,
+              upperBound: 3,
+              pricePerUnit: 100,
+              priceFlatRate: 10,
+            },
+            {
+              lowerBound: 4,
+              upperBound: 3,
+              pricePerUnit: 200,
+              priceFlatRate: 20,
+            },
+          ],
+          'LastTierUpperBoundMustBeZeroToRepresentInfinity',
+        );
       });
 
       it('cannot set tiers if tier upper and next lower bound are not contiguous', async () => {
-        await assertInvalidTierVolumeTiers([
-          {
-            lowerBound: 1,
-            upperBound: 100,
-            pricePerUnit: 100,
-            priceFlatRate: 10,
-          },
-          {
-            lowerBound: 102,
-            upperBound: 0,
-            pricePerUnit: 200,
-            priceFlatRate: 20,
-          },
-        ]);
+        await assertInvalidTierVolumeTiers(
+          [
+            {
+              lowerBound: 1,
+              upperBound: 100,
+              pricePerUnit: 100,
+              priceFlatRate: 10,
+            },
+            {
+              lowerBound: 102,
+              upperBound: 0,
+              pricePerUnit: 200,
+              priceFlatRate: 20,
+            },
+          ],
+          'LowerBoundMustBeOneGreaterThanPreviousUpperBound',
+        );
 
-        await assertInvalidTierVolumeTiers([
-          {
-            lowerBound: 1,
-            upperBound: 100,
-            pricePerUnit: 100,
-            priceFlatRate: 10,
-          },
-          {
-            lowerBound: 100,
-            upperBound: 0,
-            pricePerUnit: 200,
-            priceFlatRate: 20,
-          },
-        ]);
+        await assertInvalidTierVolumeTiers(
+          [
+            {
+              lowerBound: 1,
+              upperBound: 100,
+              pricePerUnit: 100,
+              priceFlatRate: 10,
+            },
+            {
+              lowerBound: 100,
+              upperBound: 0,
+              pricePerUnit: 200,
+              priceFlatRate: 20,
+            },
+          ],
+          'LowerBoundMustBeOneGreaterThanPreviousUpperBound',
+        );
 
-        await assertInvalidTierVolumeTiers([
-          {
-            lowerBound: 1,
-            upperBound: 100,
-            pricePerUnit: 100,
-            priceFlatRate: 10,
-          },
-          {
-            lowerBound: 98,
-            upperBound: 0,
-            pricePerUnit: 200,
-            priceFlatRate: 20,
-          },
-        ]);
+        await assertInvalidTierVolumeTiers(
+          [
+            {
+              lowerBound: 1,
+              upperBound: 100,
+              pricePerUnit: 100,
+              priceFlatRate: 10,
+            },
+            {
+              lowerBound: 98,
+              upperBound: 0,
+              pricePerUnit: 200,
+              priceFlatRate: 20,
+            },
+          ],
+          'LowerBoundMustBeOneGreaterThanPreviousUpperBound',
+        );
       });
 
       it('can set single tier', async () => {
@@ -1304,6 +1326,7 @@ describe('PricingRegistry', () => {
     describe('TIERED_GRADUATED', () => {
       async function assertInvalidTierGraduatedTiers(
         tiers: PricingUtils.PricingTierStruct[],
+        error: string,
       ) {
         const { pricingRegistry, organizationNFT, mintToken, owner } =
           await loadFixture(deployPricingRegistry);
@@ -1321,18 +1344,21 @@ describe('PricingRegistry', () => {
             isVolume: false,
             isRestricted: false,
           }),
-        ).to.be.revertedWithCustomError(pricingRegistry, 'InvalidTiers');
+        ).to.be.revertedWithCustomError(pricingRegistry, error);
       }
 
       it('cannot set tiers if lower bound is not 0', async () => {
-        await assertInvalidTierGraduatedTiers([
-          {
-            lowerBound: 1,
-            upperBound: 0,
-            pricePerUnit: 100,
-            priceFlatRate: 10,
-          },
-        ]);
+        await assertInvalidTierGraduatedTiers(
+          [
+            {
+              lowerBound: 1,
+              upperBound: 0,
+              pricePerUnit: 100,
+              priceFlatRate: 10,
+            },
+          ],
+          'InvalidGraduatedLowerBound',
+        );
       });
 
       it('can set single tier', async () => {
@@ -1470,6 +1496,7 @@ describe('PricingRegistry', () => {
     describe('USAGE_BASED_VOLUME', () => {
       async function assertInvalidUsageVolumeTiers(
         tiers: PricingUtils.PricingTierStruct[],
+        error: string,
       ) {
         const {
           pricingRegistry,
@@ -1495,18 +1522,21 @@ describe('PricingRegistry', () => {
             isVolume: true,
             isRestricted: false,
           }),
-        ).to.be.revertedWithCustomError(pricingRegistry, 'InvalidTiers');
+        ).to.be.revertedWithCustomError(pricingRegistry, error);
       }
 
       it('cannot set tiers if lower bound is not 1', async () => {
-        await assertInvalidUsageVolumeTiers([
-          {
-            lowerBound: 0,
-            upperBound: 0,
-            pricePerUnit: 100,
-            priceFlatRate: 10,
-          },
-        ]);
+        await assertInvalidUsageVolumeTiers(
+          [
+            {
+              lowerBound: 0,
+              upperBound: 0,
+              pricePerUnit: 100,
+              priceFlatRate: 10,
+            },
+          ],
+          'InvalidVolumeLowerBound',
+        );
       });
 
       it('can set single tier', async () => {
@@ -1660,6 +1690,7 @@ describe('PricingRegistry', () => {
     describe('USAGE_BASED_GRADUATED', () => {
       async function assertInvalidUsageGraduatedTiers(
         tiers: PricingUtils.PricingTierStruct[],
+        error: string,
       ) {
         const {
           pricingRegistry,
@@ -1685,18 +1716,21 @@ describe('PricingRegistry', () => {
             isVolume: false,
             isRestricted: false,
           }),
-        ).to.be.revertedWithCustomError(pricingRegistry, 'InvalidTiers');
+        ).to.be.revertedWithCustomError(pricingRegistry, error);
       }
 
       it('cannot set tiers if lower bound is not 0', async () => {
-        await assertInvalidUsageGraduatedTiers([
-          {
-            lowerBound: 1,
-            upperBound: 0,
-            pricePerUnit: 100,
-            priceFlatRate: 10,
-          },
-        ]);
+        await assertInvalidUsageGraduatedTiers(
+          [
+            {
+              lowerBound: 1,
+              upperBound: 0,
+              pricePerUnit: 100,
+              priceFlatRate: 10,
+            },
+          ],
+          'InvalidGraduatedLowerBound',
+        );
       });
 
       it('can set single tier', async () => {

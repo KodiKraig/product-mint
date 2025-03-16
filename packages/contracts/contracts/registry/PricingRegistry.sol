@@ -355,9 +355,7 @@ contract PricingRegistry is RegistryEnabled, IPricingRegistry, IERC165 {
         uint256 pricingId,
         PricingUtils.PricingTier[] calldata tiers
     ) internal {
-        if (!validateTiers(tiers, pricing[pricingId].chargeStyle)) {
-            revert InvalidTiers();
-        }
+        validateTiers(tiers, pricing[pricingId].chargeStyle);
 
         delete pricing[pricingId].tiers;
 
@@ -369,9 +367,9 @@ contract PricingRegistry is RegistryEnabled, IPricingRegistry, IERC165 {
     function validateTiers(
         PricingUtils.PricingTier[] calldata tiers,
         PricingUtils.ChargeStyle chargeStyle
-    ) public pure returns (bool) {
+    ) public pure {
         if (tiers.length == 0) {
-            return false;
+            revert NoTiersFound();
         }
 
         if (
@@ -379,38 +377,36 @@ contract PricingRegistry is RegistryEnabled, IPricingRegistry, IERC165 {
             chargeStyle == PricingUtils.ChargeStyle.USAGE_BASED_VOLUME
         ) {
             if (tiers[0].lowerBound != 1) {
-                return false;
+                revert InvalidVolumeLowerBound();
             }
         } else if (
             chargeStyle == PricingUtils.ChargeStyle.TIERED_GRADUATED ||
             chargeStyle == PricingUtils.ChargeStyle.USAGE_BASED_GRADUATED
         ) {
             if (tiers[0].lowerBound != 0) {
-                return false;
+                revert InvalidGraduatedLowerBound();
             }
         } else {
-            return false;
+            revert InvalidChargeStyle();
         }
 
         for (uint256 i = 0; i < tiers.length; i++) {
             if (i > 0 && tiers[i].lowerBound != tiers[i - 1].upperBound + 1) {
-                return false;
+                revert LowerBoundMustBeOneGreaterThanPreviousUpperBound();
             }
 
             if (i == tiers.length - 1) {
                 if (tiers[i].upperBound != 0) {
                     // Last tier should be 0 and represent infinity
-                    return false;
+                    revert LastTierUpperBoundMustBeZeroToRepresentInfinity();
                 }
                 break;
             }
 
             if (tiers[i].lowerBound > tiers[i].upperBound) {
-                return false;
+                revert LowerBoundGreaterThanUpperBound();
             }
         }
-
-        return true;
     }
 
     function setPricingToken(
