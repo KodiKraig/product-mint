@@ -12,6 +12,33 @@ import {DiscountCalculator} from "../abstract/DiscountCalculator.sol";
 import {RestrictedAccess} from "../abstract/RestrictedAccess.sol";
 import {IPurchaseRegistry} from "./IPurchaseRegistry.sol";
 
+/*
+ ____                 _            _   __  __ _       _   
+|  _ \ _ __ ___   __| |_   _  ___| |_|  \/  (_)_ __ | |_ 
+| |_) | '__/ _ \ / _` | | | |/ __| __| |\/| | | '_ \| __|
+|  __/| | | (_) | (_| | |_| | (__| |_| |  | | | | | | |_ 
+|_|   |_|  \___/ \__,_|\__,_|\___|\__|_|  |_|_|_| |_|\__|
+ 
+ NFT based payment system to mint products onchain with one-time payments and 
+ recurring permissionless subscriptions.
+
+ https://productmint.io
+*/
+
+/**
+ * @title Discount Registry
+ * @notice Manages permanent discounts for product passes. Discounts can be minted onto passes.
+ * Discounts minted onto passes are forever and cannot be removed.
+ * Even when a pass is transferred to a new owner, the discount is still on the pass.
+ * Discounts can be restricted to specific pass owners.
+ * Discounts can be active or inactive.
+ * Discounts can have a maximum number of mints.
+ * Discounts can have a discount amount.
+ * Discounts can have a name.
+ *
+ * NOTE: Once a discount is minted onto a pass, it will be used in all future purchases and renewals on the pass.
+ * Even if the discount is updated or made inactive, it will still be used in future purchases.
+ */
 contract DiscountRegistry is
     RegistryEnabled,
     DiscountCalculator,
