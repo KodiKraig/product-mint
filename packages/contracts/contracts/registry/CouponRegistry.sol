@@ -84,9 +84,7 @@ contract CouponRegistry is
     ) external onlyRegistry(registry.purchaseManager()) returns (uint256) {
         string memory code = passOwnerCodes[orgId][passOwner];
 
-        if (!isCodeRedeemable(orgId, passOwner, code, isInitialPurchase)) {
-            revert InvalidCouponCode();
-        }
+        isCodeRedeemable(orgId, passOwner, code, isInitialPurchase);
 
         uint256 couponId = orgCouponCodes[orgId][code];
 
@@ -151,49 +149,50 @@ contract CouponRegistry is
         address passOwner,
         string memory code,
         bool isInitialPurchase
-    ) public view returns (bool) {
+    ) public view {
         uint256 couponId = orgCouponCodes[orgId][code];
 
         if (couponId == 0) {
-            return false;
+            revert CouponCodeNotFound(code);
         }
 
         Coupon memory coupon = coupons[couponId];
 
         if (!coupon.isActive) {
-            return false;
+            revert CouponNotActive(couponId);
         }
 
         if (coupon.expiration <= block.timestamp && coupon.expiration != 0) {
-            return false;
+            revert CouponExpired(couponId);
         }
 
         if (
             coupon.maxTotalRedemptions != 0 &&
             coupon.totalRedemptions >= coupon.maxTotalRedemptions
         ) {
-            return false;
+            revert CouponMaxRedemptionsReached(
+                couponId,
+                coupon.maxTotalRedemptions
+            );
         }
 
         if (coupon.isInitialPurchaseOnly && !isInitialPurchase) {
-            return false;
+            revert CouponInitialPurchaseOnly(couponId);
         }
 
         if (
             coupon.isOneTimeUse &&
             redeemedCoupons[orgId][passOwner].contains(couponId)
         ) {
-            return false;
+            revert CouponAlreadyRedeemed(couponId, passOwner);
         }
 
         if (
             coupon.isRestricted &&
             !restrictedAccess[orgId][passOwner].contains(couponId)
         ) {
-            return false;
+            revert CouponRestricted(couponId, passOwner);
         }
-
-        return true;
     }
 
     function discountedAmount(

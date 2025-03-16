@@ -167,9 +167,7 @@ describe('CouponRegistry', () => {
         expiration: (await time.latest()) + 1000,
       });
 
-      expect(
-        await couponRegistry.isCodeRedeemable(1, owner, 'TEST', false),
-      ).to.equal(true);
+      await couponRegistry.isCodeRedeemable(1, owner, 'TEST', false);
     });
 
     it('should be true if coupon is restricted and granted access', async () => {
@@ -187,17 +185,15 @@ describe('CouponRegistry', () => {
 
       await couponRegistry.setRestrictedAccess(1, [otherAccount], [true]);
 
-      expect(
-        await couponRegistry.isCodeRedeemable(1, otherAccount, 'TEST', false),
-      ).to.equal(true);
+      await couponRegistry.isCodeRedeemable(1, otherAccount, 'TEST', false);
     });
 
     it('should be false if coupon does not exist', async () => {
       const { couponRegistry, owner } = await loadFixture(deployCouponRegistry);
 
-      expect(
-        await couponRegistry.isCodeRedeemable(1, owner, 'TEST', false),
-      ).to.equal(false);
+      await expect(couponRegistry.isCodeRedeemable(1, owner, 'TEST', false))
+        .to.be.revertedWithCustomError(couponRegistry, 'CouponCodeNotFound')
+        .withArgs('TEST');
     });
 
     it('should be false if coupon is not active', async () => {
@@ -214,9 +210,9 @@ describe('CouponRegistry', () => {
         isActive: false,
       });
 
-      expect(
-        await couponRegistry.isCodeRedeemable(1, owner, 'TEST', false),
-      ).to.equal(false);
+      await expect(couponRegistry.isCodeRedeemable(1, owner, 'TEST', false))
+        .to.be.revertedWithCustomError(couponRegistry, 'CouponNotActive')
+        .withArgs(1);
     });
 
     it('should be false if coupon is expired', async () => {
@@ -234,9 +230,9 @@ describe('CouponRegistry', () => {
 
       await time.increase(1000);
 
-      expect(
-        await couponRegistry.isCodeRedeemable(1, owner, 'TEST', false),
-      ).to.equal(false);
+      await expect(couponRegistry.isCodeRedeemable(1, owner, 'TEST', false))
+        .to.be.revertedWithCustomError(couponRegistry, 'CouponExpired')
+        .withArgs(1);
     });
 
     it('should be false if new customer only and not initial purchase', async () => {
@@ -253,9 +249,12 @@ describe('CouponRegistry', () => {
         isInitialPurchaseOnly: true,
       });
 
-      expect(
-        await couponRegistry.isCodeRedeemable(1, owner, 'TEST', false),
-      ).to.equal(false);
+      await expect(couponRegistry.isCodeRedeemable(1, owner, 'TEST', false))
+        .to.be.revertedWithCustomError(
+          couponRegistry,
+          'CouponInitialPurchaseOnly',
+        )
+        .withArgs(1);
     });
 
     it('should be false if coupon is restricted and not granted access', async () => {
@@ -272,9 +271,9 @@ describe('CouponRegistry', () => {
         isRestricted: true,
       });
 
-      expect(
-        await couponRegistry.isCodeRedeemable(1, owner, 'TEST', false),
-      ).to.equal(false);
+      await expect(couponRegistry.isCodeRedeemable(1, owner, 'TEST', false))
+        .to.be.revertedWithCustomError(couponRegistry, 'CouponRestricted')
+        .withArgs(1, owner);
     });
   });
 
@@ -870,18 +869,14 @@ describe('CouponRegistry', () => {
           isOneTimeUse: false,
         });
 
-        expect(
-          await couponRegistry.isCodeRedeemable(1, owner, 'TEST', false),
-        ).to.equal(true);
+        await couponRegistry.isCodeRedeemable(1, owner, 'TEST', false);
 
         await couponRegistry.setCouponExpiration(
           1,
           (await time.latest()) + 1000,
         );
 
-        expect(
-          await couponRegistry.isCodeRedeemable(1, owner, 'TEST', false),
-        ).to.equal(true);
+        await couponRegistry.isCodeRedeemable(1, owner, 'TEST', false);
       });
 
       it('revert if not the org admin', async () => {

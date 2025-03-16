@@ -50,11 +50,6 @@ interface IPricingRegistry {
     error TokenNotWhitelisted();
 
     /**
-     * @notice InvalidTiers is an error that is thrown when the tiers are found to be invalid during validation.
-     */
-    error InvalidTiers();
-
-    /**
      * @notice Thrown during checkout validation when a pricing configuration has an invalid quantity for a non tiered pricing configuration.
      * @dev All pricing charge styles except TIERED_VOLUME and TIERED_GRADUATED must have a quantity of 0.
      */
@@ -347,15 +342,50 @@ interface IPricingRegistry {
     ) external;
 
     /**
+     * @notice Reverts when no tiers are found during validation.
+     */
+    error NoTiersFound();
+
+    /**
+     * @notice Reverts when the lower bound is not 1 for a volume tier.
+     */
+    error VolumeLowerBoundMustBeOne();
+
+    /**
+     * @notice Reverts when the lower bound is not 0 for a graduated tier.
+     */
+    error GraduatedLowerBoundMustBeZero();
+
+    /**
+     * @notice Reverts when the lower bound is not one greater than the previous upper bound.
+     */
+    error LowerBoundMustBeOneGreaterThanPreviousUpperBound();
+
+    /**
+     * @notice Reverts when the last tier upper bound is not 0 to represent infinity.
+     */
+    error LastTierUpperBoundMustBeZeroToRepresentInfinity();
+
+    /**
+     * @notice Reverts when the lower bound is greater than the upper bound.
+     */
+    error LowerBoundGreaterThanUpperBound();
+
+    /**
+     * @notice Reverts when the charge style is not valid.
+     */
+    error InvalidChargeStyle();
+
+    /**
      * @notice Validate the tiers for a pricing configuration.
+     * @dev Reverts if the tiers are not valid.
      * @param tiers The tiers to validate.
      * @param chargeStyle The charge style of the pricing configuration.
-     * @return isValid True if the tiers are valid, false otherwise.
      */
     function validateTiers(
         PricingUtils.PricingTier[] calldata tiers,
         PricingUtils.ChargeStyle chargeStyle
-    ) external pure returns (bool);
+    ) external pure;
 
     /**
      * @notice Set the token for a pricing configuration.

@@ -134,9 +134,7 @@ describe('Purchase Manager', () => {
       await productRegistry.linkPricing(1, [1]);
 
       // Check if coupon is redeemable
-      expect(
-        await couponRegistry.isCodeRedeemable(1, otherAccount, 'COUPON1', true),
-      ).to.equal(true);
+      await couponRegistry.isCodeRedeemable(1, otherAccount, 'COUPON1', true);
 
       // PURCHASE
       await purchaseManager.connect(otherAccount).purchaseProducts({
@@ -152,9 +150,14 @@ describe('Purchase Manager', () => {
       });
 
       // Check that coupon is no longer redeemable
-      expect(
-        await couponRegistry.isCodeRedeemable(1, otherAccount, 'COUPON1', true),
-      ).to.equal(false);
+      await expect(
+        couponRegistry.isCodeRedeemable(1, otherAccount, 'COUPON1', true),
+      )
+        .to.be.revertedWithCustomError(
+          couponRegistry,
+          'CouponMaxRedemptionsReached',
+        )
+        .withArgs(1, 1);
 
       // Check that pass discount is attached to pass
       expect(await discountRegistry.getTotalPassDiscount(1)).to.equal(1250);

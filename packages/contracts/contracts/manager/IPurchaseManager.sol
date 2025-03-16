@@ -26,11 +26,6 @@ interface IPurchaseManager {
     );
 
     /**
-     * @notice Revert when the provided products are not available for purchase within the organization.
-     */
-    error ProductsNotAvailable();
-
-    /**
      * @notice Revert when the provided coupon code is invalid.
      */
     error InvalidCouponCode();

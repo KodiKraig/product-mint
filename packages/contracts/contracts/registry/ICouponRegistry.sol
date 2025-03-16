@@ -69,6 +69,51 @@ interface ICouponRegistry {
     error InvalidCouponCode();
 
     /**
+     * @notice Coupon code not found error when redeeming a coupon
+     * @param code Coupon code
+     */
+    error CouponCodeNotFound(string code);
+
+    /**
+     * @notice Coupon not active error when redeeming a coupon
+     * @param couponId Coupon ID
+     */
+    error CouponNotActive(uint256 couponId);
+
+    /**
+     * @notice Coupon expired error when redeeming a coupon
+     * @param couponId Coupon ID
+     */
+    error CouponExpired(uint256 couponId);
+
+    /**
+     * @notice Coupon max redemptions reached error when redeeming a coupon
+     * @param couponId Coupon ID
+     * @param maxRedemptions Maximum redemptions
+     */
+    error CouponMaxRedemptionsReached(uint256 couponId, uint256 maxRedemptions);
+
+    /**
+     * @notice Coupon initial purchase only error when redeeming a coupon
+     * @param couponId Coupon ID
+     */
+    error CouponInitialPurchaseOnly(uint256 couponId);
+
+    /**
+     * @notice Coupon already redeemed error when redeeming a coupon
+     * @param couponId Coupon ID
+     * @param passOwner Pass owner address
+     */
+    error CouponAlreadyRedeemed(uint256 couponId, address passOwner);
+
+    /**
+     * @notice Coupon restricted error when redeeming a coupon
+     * @param couponId Coupon ID
+     * @param passOwner Pass owner address
+     */
+    error CouponRestricted(uint256 couponId, address passOwner);
+
+    /**
      * @notice Emitted when a coupon is redeemed
      */
     event CouponRedeemed(
@@ -181,18 +226,18 @@ interface ICouponRegistry {
 
     /**
      * @notice Check if a coupon code is redeemable
+     * @dev Will revert if the coupon is not redeemable
      * @param orgId Organization ID
      * @param passOwner Pass owner address
      * @param code Coupon code
      * @param isInitialPurchase True then the coupon is for an initial product pass mint purchase
-     * @return True if the coupon is redeemable, else false
      */
     function isCodeRedeemable(
         uint256 orgId,
         address passOwner,
         string memory code,
         bool isInitialPurchase
-    ) external view returns (bool);
+    ) external view;
 
     /**
      * Creation
