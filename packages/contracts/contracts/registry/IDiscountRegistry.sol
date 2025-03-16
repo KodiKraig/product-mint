@@ -7,6 +7,16 @@ interface IDiscountRegistry {
      * Discount
      */
 
+    /**
+     * @notice Discount struct
+     * @param orgId The organization ID
+     * @param name The name of the discount
+     * @param discount The discount amount
+     * @param totalMints The total number of mints for the discount
+     * @param maxMints The maximum number of times the discount can be minted
+     * @param isActive Whether the discount is active
+     * @param isRestricted Whether the discount is restricted
+     */
     struct Discount {
         uint256 orgId;
         string name;
@@ -17,6 +27,10 @@ interface IDiscountRegistry {
         bool isRestricted;
     }
 
+    /**
+     * @notice Total number of discounts created
+     * @return The total number of discounts created
+     */
     function totalDiscounts() external view returns (uint256);
 
     /**

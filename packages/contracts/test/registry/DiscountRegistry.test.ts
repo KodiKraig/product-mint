@@ -676,6 +676,70 @@ describe('DiscountRegistry', () => {
       expect(await discountRegistry.hasPassDiscount(2, 1)).to.be.true;
     });
 
+    it('minting a restricted discount removes restricted access for pass owner once minted', async () => {
+      const {
+        discountRegistry,
+        paymentEscrow,
+        mintToken,
+        purchaseManager,
+        otherAccount2,
+      } = await loadWithDefaultDiscountAndPass();
+
+      // Set discount as restricted
+      await discountRegistry.setDiscountRestricted(1, true);
+
+      // Set restricted access for pass owner
+      await discountRegistry.setRestrictedAccess(1, [otherAccount2], [true]);
+      expect(await discountRegistry.hasPassDiscount(2, 1)).to.be.false;
+      expect(await discountRegistry.hasRestrictedAccess(1, otherAccount2, 1)).to
+        .be.true;
+
+      // Mint discount to pass
+      await mintToken
+        .connect(otherAccount2)
+        .mint(otherAccount2, ethers.parseUnits('100', 6));
+      await mintToken
+        .connect(otherAccount2)
+        .approve(paymentEscrow, ethers.parseUnits('100', 6));
+
+      await purchaseManager.connect(otherAccount2).purchaseProducts({
+        to: otherAccount2,
+        organizationId: 1,
+        productIds: [1],
+        pricingIds: [1],
+        quantities: [0],
+        discountIds: [1],
+        couponCode: '',
+        airdrop: false,
+        pause: false,
+      });
+
+      // Confirm discount was minted to pass and restricted access was removed
+      expect(await discountRegistry.hasPassDiscount(2, 1)).to.be.true;
+      expect(await discountRegistry.hasRestrictedAccess(1, otherAccount2, 1)).to
+        .be.false;
+
+      // Attempt to purchase again without restricted discount
+      await expect(
+        purchaseManager.connect(otherAccount2).purchaseProducts({
+          to: otherAccount2,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [1],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      )
+        .to.be.revertedWithCustomError(
+          discountRegistry,
+          'DiscountAccessRestricted',
+        )
+        .withArgs(1, otherAccount2);
+    });
+
     it('cannot mint if no discount ids are provided', async () => {
       const { discountRegistry, otherAccount } =
         await loadWithDefaultDiscountAndPass();
