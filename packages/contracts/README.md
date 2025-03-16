@@ -73,6 +73,13 @@ The worlds first NFT based permissionless subscription payment system.
     function couponRegistry() external view returns (address);
 
     /**
+     * @notice Permanent discount registry that allows for the creation of permanent discounts that are minted onto product passes.
+     * Discounts minted onto product passes are permanent and used in all future purchases including any subscription renewals.
+     * @return The address of the discount registry.
+     */
+    function discountRegistry() external view returns (address);
+    
+    /**
      * Calculator
      */
 

@@ -66,6 +66,7 @@ describe('ProductMintSystemModule', () => {
       pricingCalculator,
       couponRegistry,
       purchaseRegistry,
+      discountRegistry,
       orgAdmin,
     } = await loadFixture(deployProductMintSystem);
 
@@ -79,6 +80,9 @@ describe('ProductMintSystemModule', () => {
       purchaseRegistry,
     );
     expect(await contractRegistry.couponRegistry()).to.equal(couponRegistry);
+    expect(await contractRegistry.discountRegistry()).to.equal(
+      discountRegistry,
+    );
 
     // Calculator
     expect(await contractRegistry.pricingCalculator()).to.equal(

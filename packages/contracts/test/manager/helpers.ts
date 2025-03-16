@@ -36,6 +36,12 @@ export async function deployPurchaseManager() {
   const couponRegistry = await CouponRegistry.deploy(contractRegistry);
   await contractRegistry.setCouponRegistry(couponRegistry);
 
+  const DiscountRegistry = await hre.ethers.getContractFactory(
+    'DiscountRegistry',
+  );
+  const discountRegistry = await DiscountRegistry.deploy(contractRegistry);
+  await contractRegistry.setDiscountRegistry(discountRegistry);
+
   // Admin
 
   const OrganizationAdmin = await hre.ethers.getContractFactory(
@@ -121,6 +127,7 @@ export async function deployPurchaseManager() {
     productRegistry,
     pricingRegistry,
     purchaseRegistry,
+    discountRegistry,
     couponRegistry,
     productPassNFT,
     organizationNFT,
@@ -195,6 +202,7 @@ export async function loadWithPurchasedFlatRateSubscription() {
     productIds: [1],
     pricingIds: [1],
     quantities: [0],
+    discountIds: [],
     couponCode: '',
     airdrop: false,
     pause: false,

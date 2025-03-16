@@ -63,6 +63,22 @@ library AttributeUtils {
     }
 
     /**
+     * @dev Joins array of strings with commas
+     */
+    function joinWithCommas(
+        string[] memory parts
+    ) internal pure returns (string memory) {
+        if (parts.length == 0) return "";
+        if (parts.length == 1) return parts[0];
+
+        string memory result = parts[0];
+        for (uint256 i = 1; i < parts.length; i++) {
+            result = string.concat(result, ",", parts[i]);
+        }
+        return result;
+    }
+
+    /**
      * Booleans
      */
 
@@ -138,6 +154,33 @@ library AttributeUtils {
             attributeTraitType(
                 value == 0 ? "No Limit" : value.toString(),
                 traitType
+            );
+    }
+
+    /**
+     * @notice Convert a uint256 value to a percentage string.
+     * @dev If the value is 0, it will return "0%". 3000 = 30%, 3512 = 35.12%, etc.
+     * @param value The uint256 value to convert.
+     * @param denominator The denominator of the percentage.
+     * @return The percentage as a string.
+     */
+    function percentage(
+        uint256 value,
+        uint256 denominator
+    ) internal pure returns (string memory) {
+        uint256 significantDigits = value / denominator;
+        uint256 decimals = value % denominator;
+
+        return
+            string.concat(
+                decimals == 0
+                    ? significantDigits.toString()
+                    : string.concat(
+                        significantDigits.toString(),
+                        ".",
+                        decimals.toString()
+                    ),
+                "%"
             );
     }
 }

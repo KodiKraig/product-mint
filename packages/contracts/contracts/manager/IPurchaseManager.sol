@@ -79,16 +79,17 @@ interface IPurchaseManager {
     /**
      * @notice The parameters for an initial purchase.
      *
-     * @custom:field to The address of the user to purchase the products for and mint the product pass to.
-     * @custom:field organizationId The ID of the organization to purchase the products for.
-     * @custom:field productIds The IDs of the products to purchase.
-     * @custom:field pricingIds The IDs of the pricing options for the products.
-     * @custom:field quantities The quantities of the products to purchase.
+     * @param to The address of the user to purchase the products for and mint the product pass to.
+     * @param organizationId The ID of the organization to purchase the products for.
+     * @param productIds The IDs of the products to purchase.
+     * @param pricingIds The IDs of the pricing options for the products.
+     * @param quantities The quantities of the products to purchase.
      *  Only relevant for products for tiered pricing. 0 must be provided for all other pricing models.
-     * @custom:field couponCode The coupon code to apply to the purchase.
-     * @custom:field airdrop Whether to airdrop the products to the user.
+     * @param discountIds The IDs of the discounts to be minted onto the product pass.
+     * @param couponCode The coupon code to apply to the purchase.
+     * @param airdrop Whether to airdrop the products to the user.
      *  Can only be called by the org admin.
-     * @custom:field pause Whether to pause any subscriptions that are purchased during the purchase.
+     * @param pause Whether to pause any subscriptions that are purchased during the purchase.
      *  The org must have this feature enabled to pause subscriptions.
      */
     struct InitialPurchaseParams {
@@ -97,6 +98,7 @@ interface IPurchaseManager {
         uint256[] productIds;
         uint256[] pricingIds;
         uint256[] quantities;
+        uint256[] discountIds;
         string couponCode;
         bool airdrop;
         bool pause;
@@ -113,14 +115,16 @@ interface IPurchaseManager {
     /**
      * @notice The parameters needed for an additional purchase to add products to an existing product pass.
      *
-     * @custom:field productPassId The ID of the product pass to add the products to.
-     * @custom:field productIds The IDs of the products to purchase.
-     * @custom:field pricingIds The IDs of the pricing options for the products.
-     * @custom:field quantities The quantities of the products to purchase.
+     * @param productPassId The ID of the product pass to add the products to.
+     * @param productIds The IDs of the products to purchase.
+     * @param pricingIds The IDs of the pricing options for the products.
+     * @param quantities The quantities of the products to purchase.
      *  Only relevant for products for tiered pricing. 0 must be provided for all other pricing models.
-     * @custom:field couponCode The coupon code to apply to the purchase.
-     * @custom:field airdrop Whether to airdrop the products to the user.
+     * @param couponCode The coupon code to apply to the purchase.
+     * @param airdrop Whether to airdrop the products to the user.
      *  Can only be called by the pass owner.
+     * @param pause Whether to pause any subscriptions that are purchased during the purchase.
+     *  The org must have this feature enabled to pause subscriptions.
      */
     struct AdditionalPurchaseParams {
         uint256 productPassId;
@@ -139,6 +143,22 @@ interface IPurchaseManager {
     function purchaseAdditionalProducts(
         AdditionalPurchaseParams calldata params
     ) external payable;
+
+    /**
+     * @dev Used internally by the PurchaseManager during the product purchase.
+     */
+    struct PurchaseProductsParams {
+        address passOwner;
+        uint256 orgId;
+        uint256 productPassId;
+        uint256[] productIds;
+        uint256[] pricingIds;
+        uint256[] quantities;
+        string couponCode;
+        bool airdrop;
+        bool pause;
+        bool isInitialPurchase;
+    }
 
     /**
      * Change subscription pricing
