@@ -50,30 +50,48 @@ interface IProductRegistry {
     function totalProductSupply() external view returns (uint256);
 
     /**
+     * @notice ProductNotFoundForOrganization is an error that is reverted when a product is not found for an organization.
+     */
+    error ProductNotFoundForOrganization(
+        uint256 organizationId,
+        uint256 productId
+    );
+
+    /**
+     * @notice PricingNotLinkedToProduct is an error that is reverted when a pricing is not linked to a product.
+     */
+    error PricingNotLinkedToProduct(uint256 productId, uint256 pricingId);
+
+    /**
+     * @notice ProductIsNotActive is an error that is reverted when a product is not active.
+     */
+    error ProductIsNotActive(uint256 productId);
+
+    /**
      * @notice Check if a product can be purchased.
+     * @dev Will revert if the product cannot be purchased.
      * @param organizationId The organization ID that the product belongs to.
      * @param productId The product ID to check if it can be purchased.
      * @param pricingId The pricing ID to check if it can be used with the product purchase.
-     * @return canPurchase True if the product can be purchased, else False.
      */
     function canPurchaseProduct(
         uint256 organizationId,
         uint256 productId,
         uint256 pricingId
-    ) external view returns (bool);
+    ) external view;
 
     /**
      * @notice Batch check if multiple products can be purchased.
+     * @dev Will revert if any of the products cannot be purchased.
      * @param _organizationId The organization ID that the products belong to.
      * @param _productIds The product IDs to check if they can be purchased.
      * @param _pricingIds The pricing IDs to check if they can be used with the product purchases.
-     * @return _canPurchase True if the products can be purchased, else False.
      */
     function canPurchaseProducts(
         uint256 _organizationId,
         uint256[] calldata _productIds,
         uint256[] calldata _pricingIds
-    ) external view returns (bool);
+    ) external view;
 
     /**
      * Get Product Details
@@ -256,11 +274,6 @@ interface IProductRegistry {
     /**
      * Link Products with Pricing
      */
-
-    /**
-     * @notice PricingNotLinkedToProduct is an error that is reverted when a pricing is not linked to a product.
-     */
-    error PricingNotLinkedToProduct();
 
     /**
      * @notice ProductPricingLinkUpdate is an event that is emitted when a product's pricing is linked or unlinked.

@@ -1746,8 +1746,13 @@ describe('Purchase Manager', () => {
     });
 
     it('cannot change pricing if not linked to product', async () => {
-      const { purchaseManager, subscriptionEscrow, owner, otherAccount } =
-        await loadWithPurchasedFlatRateSubscription();
+      const {
+        purchaseManager,
+        subscriptionEscrow,
+        owner,
+        otherAccount,
+        productRegistry,
+      } = await loadWithPurchasedFlatRateSubscription();
 
       await subscriptionEscrow.connect(owner).setOwnerChangePricing(1, true);
 
@@ -1755,11 +1760,16 @@ describe('Purchase Manager', () => {
         purchaseManager.connect(otherAccount).changeSubscriptionPricing({
           orgId: 1,
           productPassId: 1,
-          productId: 2,
+          productId: 1,
           newPricingId: 2,
           airdrop: false,
         }),
-      ).to.be.revertedWithCustomError(purchaseManager, 'ProductsNotAvailable');
+      )
+        .to.be.revertedWithCustomError(
+          productRegistry,
+          'PricingNotLinkedToProduct',
+        )
+        .withArgs(1, 2);
     });
 
     it('cannot change subscription to a one time pricing model', async () => {

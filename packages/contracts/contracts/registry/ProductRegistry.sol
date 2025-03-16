@@ -70,17 +70,25 @@ contract ProductRegistry is
         uint256 organizationId,
         uint256 productId,
         uint256 pricingId
-    ) public view returns (bool) {
-        return (productIds[organizationId].contains(productId) &&
-            linkedPrices[productId].contains(pricingId) &&
-            products[productId].isActive);
+    ) public view {
+        if (!productIds[organizationId].contains(productId)) {
+            revert ProductNotFoundForOrganization(organizationId, productId);
+        }
+
+        if (!linkedPrices[productId].contains(pricingId)) {
+            revert PricingNotLinkedToProduct(productId, pricingId);
+        }
+
+        if (!products[productId].isActive) {
+            revert ProductIsNotActive(productId);
+        }
     }
 
     function canPurchaseProducts(
         uint256 _organizationId,
         uint256[] calldata _productIds,
         uint256[] calldata _pricingIds
-    ) external view returns (bool) {
+    ) external view {
         require(_productIds.length > 0, "No products provided");
         require(
             _productIds.length == _pricingIds.length,
@@ -88,17 +96,8 @@ contract ProductRegistry is
         );
 
         for (uint256 i = 0; i < _productIds.length; i++) {
-            if (
-                !canPurchaseProduct(
-                    _organizationId,
-                    _productIds[i],
-                    _pricingIds[i]
-                )
-            ) {
-                return false;
-            }
+            canPurchaseProduct(_organizationId, _productIds[i], _pricingIds[i]);
         }
-        return true;
     }
 
     /**
@@ -333,7 +332,7 @@ contract ProductRegistry is
     ) external onlyOrgAdmin(products[productId].orgId) {
         for (uint256 i = 0; i < pricingIds.length; i++) {
             if (!linkedPrices[productId].contains(pricingIds[i])) {
-                revert PricingNotLinkedToProduct();
+                revert PricingNotLinkedToProduct(productId, pricingIds[i]);
             }
 
             linkedPrices[productId].remove(pricingIds[i]);

@@ -1607,7 +1607,9 @@ describe('Purchase Manager', () => {
           airdrop: false,
           pause: false,
         }),
-      ).to.be.revertedWithCustomError(purchaseManager, 'ProductsNotAvailable');
+      )
+        .to.be.revertedWithCustomError(productRegistry, 'ProductIsNotActive')
+        .withArgs(1);
     });
 
     it('cannot airdrop passes unless org admin', async () => {

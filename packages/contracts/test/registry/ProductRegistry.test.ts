@@ -123,7 +123,7 @@ describe('ProductRegistry', () => {
 
       await productRegistry.linkPricing(1, [1]);
 
-      expect(await productRegistry.canPurchaseProduct(1, 1, 1)).to.equal(true);
+      await productRegistry.canPurchaseProduct(1, 1, 1);
     });
 
     it('multiple products can be purchased', async () => {
@@ -149,9 +149,7 @@ describe('ProductRegistry', () => {
       await productRegistry.linkPricing(1, [1]);
       await productRegistry.linkPricing(2, [1]);
 
-      expect(
-        await productRegistry.canPurchaseProducts(1, [1, 2], [1, 1]),
-      ).to.equal(true);
+      await productRegistry.canPurchaseProducts(1, [1, 2], [1, 1]);
     });
 
     it('reverts if no products are provided', async () => {
@@ -192,28 +190,53 @@ describe('ProductRegistry', () => {
 
       await productRegistry.linkPricing(1, [1]);
 
-      expect(
-        await productRegistry.canPurchaseProducts(1, [1, 2], [1, 1]),
-      ).to.equal(false);
+      await expect(productRegistry.canPurchaseProducts(1, [1, 2], [1, 1]))
+        .to.be.revertedWithCustomError(
+          productRegistry,
+          'PricingNotLinkedToProduct',
+        )
+        .withArgs(2, 1);
     });
 
     it('should return false if the product does not exist', async () => {
       const { productRegistry } = await loadFixture(deployProductRegistry);
-      expect(await productRegistry.canPurchaseProduct(1, 1, 1)).to.equal(false);
+      await expect(productRegistry.canPurchaseProduct(1, 1, 1))
+        .to.be.revertedWithCustomError(
+          productRegistry,
+          'ProductNotFoundForOrganization',
+        )
+        .withArgs(1, 1);
     });
 
     it('should return false if the product does not belong to the org', async () => {
       const { productRegistry } = await loadWithDefaultProduct();
 
-      expect(await productRegistry.canPurchaseProduct(2, 1, 1)).to.equal(false);
+      await expect(productRegistry.canPurchaseProduct(2, 1, 1))
+        .to.be.revertedWithCustomError(
+          productRegistry,
+          'ProductNotFoundForOrganization',
+        )
+        .withArgs(2, 1);
     });
 
     it('should return false if the product is not active', async () => {
-      const { productRegistry } = await loadWithDefaultProduct();
+      const { productRegistry, pricingRegistry } =
+        await loadWithDefaultProduct();
 
       await productRegistry.setProductActive(1, false);
 
-      expect(await productRegistry.canPurchaseProduct(1, 1, 1)).to.equal(false);
+      await pricingRegistry.createOneTimePricing({
+        organizationId: 1,
+        token: ethers.ZeroAddress,
+        flatPrice: 10,
+        isRestricted: false,
+      });
+
+      await productRegistry.linkPricing(1, [1]);
+
+      await expect(productRegistry.canPurchaseProduct(1, 1, 1))
+        .to.be.revertedWithCustomError(productRegistry, 'ProductIsNotActive')
+        .withArgs(1);
     });
 
     it('should return false if the product pricing is not linked', async () => {
@@ -227,7 +250,12 @@ describe('ProductRegistry', () => {
         isRestricted: false,
       });
 
-      expect(await productRegistry.canPurchaseProduct(1, 1, 1)).to.equal(false);
+      await expect(productRegistry.canPurchaseProduct(1, 1, 1))
+        .to.be.revertedWithCustomError(
+          productRegistry,
+          'PricingNotLinkedToProduct',
+        )
+        .withArgs(1, 1);
     });
   });
 
@@ -965,12 +993,12 @@ describe('ProductRegistry', () => {
     it('cannot unlink a pricing that is not linked to a product', async () => {
       const { productRegistry, owner } = await loadWithDefaultProduct();
 
-      await expect(
-        productRegistry.connect(owner).unlinkPricing(1, [1]),
-      ).to.be.revertedWithCustomError(
-        productRegistry,
-        'PricingNotLinkedToProduct',
-      );
+      await expect(productRegistry.connect(owner).unlinkPricing(1, [1]))
+        .to.be.revertedWithCustomError(
+          productRegistry,
+          'PricingNotLinkedToProduct',
+        )
+        .withArgs(1, 1);
     });
 
     it('cannot link a pricing to a product that does not exist', async () => {

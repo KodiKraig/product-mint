@@ -120,15 +120,11 @@ contract PurchaseManager is
     }
 
     function _purchaseProducts(PurchaseProductsParams memory params) internal {
-        if (
-            !IProductRegistry(registry.productRegistry()).canPurchaseProducts(
-                params.orgId,
-                params.productIds,
-                params.pricingIds
-            )
-        ) {
-            revert ProductsNotAvailable();
-        }
+        IProductRegistry(registry.productRegistry()).canPurchaseProducts(
+            params.orgId,
+            params.productIds,
+            params.pricingIds
+        );
 
         (address token, uint256[] memory cycleDurations) = IPricingRegistry(
             registry.pricingRegistry()
@@ -196,15 +192,11 @@ contract PurchaseManager is
     function changeSubscriptionPricing(
         ChangeSubscriptionPricingParams calldata params
     ) external onlyPassOwnerOrAdmin(params.productPassId) nonReentrant {
-        if (
-            !IProductRegistry(registry.productRegistry()).canPurchaseProduct(
-                params.orgId,
-                params.productId,
-                params.newPricingId
-            )
-        ) {
-            revert ProductsNotAvailable();
-        }
+        IProductRegistry(registry.productRegistry()).canPurchaseProduct(
+            params.orgId,
+            params.productId,
+            params.newPricingId
+        );
 
         address passOwner = _passOwner(params.productPassId);
 
