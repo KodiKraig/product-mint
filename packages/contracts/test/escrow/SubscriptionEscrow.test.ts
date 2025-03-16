@@ -12,11 +12,20 @@ describe('SubscriptionEscrow', () => {
     );
     const contractRegistry = await ContractRegistry.deploy();
 
+    const OrganizationAttributeProvider = await hre.ethers.getContractFactory(
+      'OrganizationAttributeProvider',
+    );
+    const organizationAttributeProvider =
+      await OrganizationAttributeProvider.deploy(contractRegistry);
+
     const OrganizationMetadataProvider = await hre.ethers.getContractFactory(
       'OrganizationMetadataProvider',
     );
     const organizationMetadataProvider =
-      await OrganizationMetadataProvider.deploy(contractRegistry);
+      await OrganizationMetadataProvider.deploy(
+        contractRegistry,
+        organizationAttributeProvider,
+      );
 
     const OrganizationNFT = await hre.ethers.getContractFactory(
       'OrganizationNFT',

@@ -91,4 +91,20 @@ interface IMetadataProvider {
         MetadataUtils.Fields field,
         string memory value
     ) external;
+
+    /**
+     * Attribute Provider
+     */
+
+    /**
+     * @notice Emitted when the attribute provider is updated.
+     * @param attributeProvider The attribute provider
+     */
+    event AttributeProviderUpdated(address indexed attributeProvider);
+
+    /**
+     * @notice Set the attribute provider for the contract.
+     * @param attributeProvider The attribute provider
+     */
+    function setAttributeProvider(address attributeProvider) external;
 }

@@ -12,18 +12,29 @@ describe('PricingCalculator', () => {
   async function deployPricingCalculator() {
     const [owner] = await hre.ethers.getSigners();
 
-    const ContractRegistry =
-      await hre.ethers.getContractFactory('ContractRegistry');
+    const ContractRegistry = await hre.ethers.getContractFactory(
+      'ContractRegistry',
+    );
     const contractRegistry = await ContractRegistry.deploy();
+
+    const OrganizationAttributeProvider = await hre.ethers.getContractFactory(
+      'OrganizationAttributeProvider',
+    );
+    const organizationAttributeProvider =
+      await OrganizationAttributeProvider.deploy(contractRegistry);
 
     const OrganizationMetadataProvider = await hre.ethers.getContractFactory(
       'OrganizationMetadataProvider',
     );
     const organizationMetadataProvider =
-      await OrganizationMetadataProvider.deploy(contractRegistry);
+      await OrganizationMetadataProvider.deploy(
+        contractRegistry,
+        organizationAttributeProvider,
+      );
 
-    const OrganizationNFT =
-      await hre.ethers.getContractFactory('OrganizationNFT');
+    const OrganizationNFT = await hre.ethers.getContractFactory(
+      'OrganizationNFT',
+    );
     const organizationNFT = await OrganizationNFT.deploy(
       organizationMetadataProvider,
     );
@@ -33,8 +44,9 @@ describe('PricingCalculator', () => {
     const PaymentEscrow = await hre.ethers.getContractFactory('PaymentEscrow');
     const paymentEscrow = await PaymentEscrow.deploy(contractRegistry);
 
-    const PricingRegistry =
-      await hre.ethers.getContractFactory('PricingRegistry');
+    const PricingRegistry = await hre.ethers.getContractFactory(
+      'PricingRegistry',
+    );
     const pricingRegistry = await PricingRegistry.deploy(contractRegistry);
 
     const MintToken = await hre.ethers.getContractFactory('MintToken');
@@ -42,8 +54,9 @@ describe('PricingCalculator', () => {
 
     await paymentEscrow.setWhitelistedToken(await mintToken.getAddress(), true);
 
-    const PricingCalculator =
-      await hre.ethers.getContractFactory('PricingCalculator');
+    const PricingCalculator = await hre.ethers.getContractFactory(
+      'PricingCalculator',
+    );
     const pricingCalculator = await PricingCalculator.deploy(contractRegistry);
 
     const UsageRecorder = await hre.ethers.getContractFactory('UsageRecorder');

@@ -7,28 +7,41 @@ describe('UsageRecorder', () => {
   async function deployUsageRecorder() {
     const [owner, otherAccount, account3] = await hre.ethers.getSigners();
 
-    const ContractRegistry =
-      await hre.ethers.getContractFactory('ContractRegistry');
+    const ContractRegistry = await hre.ethers.getContractFactory(
+      'ContractRegistry',
+    );
     const contractRegistry = await ContractRegistry.deploy();
 
-    const PurchaseManager =
-      await hre.ethers.getContractFactory('PurchaseManager');
+    const PurchaseManager = await hre.ethers.getContractFactory(
+      'PurchaseManager',
+    );
     const purchaseManager = await PurchaseManager.deploy(contractRegistry);
+
+    const OrganizationAttributeProvider = await hre.ethers.getContractFactory(
+      'OrganizationAttributeProvider',
+    );
+    const organizationAttributeProvider =
+      await OrganizationAttributeProvider.deploy(contractRegistry);
 
     const OrganizationMetadataProvider = await hre.ethers.getContractFactory(
       'OrganizationMetadataProvider',
     );
     const organizationMetadataProvider =
-      await OrganizationMetadataProvider.deploy(contractRegistry);
+      await OrganizationMetadataProvider.deploy(
+        contractRegistry,
+        organizationAttributeProvider,
+      );
 
-    const OrganizationNFT =
-      await hre.ethers.getContractFactory('OrganizationNFT');
+    const OrganizationNFT = await hre.ethers.getContractFactory(
+      'OrganizationNFT',
+    );
     const organizationNFT = await OrganizationNFT.deploy(
       organizationMetadataProvider,
     );
 
-    const OrganizationAdmin =
-      await hre.ethers.getContractFactory('OrganizationAdmin');
+    const OrganizationAdmin = await hre.ethers.getContractFactory(
+      'OrganizationAdmin',
+    );
     const organizationAdmin = await OrganizationAdmin.deploy(contractRegistry);
 
     await organizationNFT.setMintOpen(true);
@@ -55,8 +68,9 @@ describe('UsageRecorder', () => {
 
   describe('Deployment', () => {
     it('should set the correct organization contract', async () => {
-      const { usageRecorder, contractRegistry } =
-        await loadFixture(deployUsageRecorder);
+      const { usageRecorder, contractRegistry } = await loadFixture(
+        deployUsageRecorder,
+      );
 
       expect(await usageRecorder.registry()).to.equal(contractRegistry);
     });
@@ -108,8 +122,9 @@ describe('UsageRecorder', () => {
 
     describe('Create new meters', () => {
       it('should create multiple meters for an organization', async () => {
-        const { usageRecorder, organizationNFT, owner } =
-          await loadFixture(deployUsageRecorder);
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
 
         await organizationNFT.connect(owner).mint(owner.address);
 
@@ -130,8 +145,9 @@ describe('UsageRecorder', () => {
       });
 
       it('cannot create a new meter if the organization does not exist', async () => {
-        const { usageRecorder, organizationNFT, owner } =
-          await loadFixture(deployUsageRecorder);
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
 
         await expect(
           usageRecorder.connect(owner).createMeter(1, 0),
@@ -155,8 +171,9 @@ describe('UsageRecorder', () => {
 
     describe('Meter Active', () => {
       it('can toggle meter active as an owner', async () => {
-        const { usageRecorder, organizationNFT, owner } =
-          await loadFixture(deployUsageRecorder);
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
 
         await organizationNFT.connect(owner).mint(owner.address);
 
@@ -235,8 +252,9 @@ describe('UsageRecorder', () => {
 
     describe('Increment Count Meter', () => {
       it('can increment an active meter as the owner', async () => {
-        const { usageRecorder, organizationNFT, owner } =
-          await loadFixture(deployUsageRecorder);
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
 
         await organizationNFT.connect(owner).mint(owner.address);
 
@@ -276,8 +294,9 @@ describe('UsageRecorder', () => {
       });
 
       it('cannot increment a meter if the meter is not active', async () => {
-        const { usageRecorder, organizationNFT, owner } =
-          await loadFixture(deployUsageRecorder);
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
 
         await organizationNFT.connect(owner).mint(owner.address);
 
@@ -291,8 +310,9 @@ describe('UsageRecorder', () => {
       });
 
       it('cannot increment a meter if the meter is not the correct type', async () => {
-        const { usageRecorder, organizationNFT, owner } =
-          await loadFixture(deployUsageRecorder);
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
 
         await organizationNFT.connect(owner).mint(owner.address);
 
@@ -319,8 +339,9 @@ describe('UsageRecorder', () => {
 
     describe('Increase Sum Meter', () => {
       it('can increase a sum meter as the owner', async () => {
-        const { usageRecorder, organizationNFT, owner } =
-          await loadFixture(deployUsageRecorder);
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
 
         await organizationNFT.connect(owner).mint(owner.address);
 
@@ -364,8 +385,9 @@ describe('UsageRecorder', () => {
       });
 
       it('cannot increase a sum meter if the meter is not a sum meter', async () => {
-        const { usageRecorder, organizationNFT, owner } =
-          await loadFixture(deployUsageRecorder);
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
 
         await organizationNFT.connect(owner).mint(owner.address);
 
@@ -390,8 +412,9 @@ describe('UsageRecorder', () => {
       });
 
       it('cannot increase a sum meter if the meter is not active', async () => {
-        const { usageRecorder, organizationNFT, owner } =
-          await loadFixture(deployUsageRecorder);
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
 
         await organizationNFT.connect(owner).mint(owner.address);
 
@@ -407,8 +430,9 @@ describe('UsageRecorder', () => {
 
     describe('Adjust Meter', () => {
       it('can adjust a SUM meter as the owner', async () => {
-        const { usageRecorder, organizationNFT, owner } =
-          await loadFixture(deployUsageRecorder);
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
 
         await organizationNFT.connect(owner).mint(owner.address);
 
@@ -426,8 +450,9 @@ describe('UsageRecorder', () => {
       });
 
       it('can adjust a COUNT meter as the owner', async () => {
-        const { usageRecorder, organizationNFT, owner } =
-          await loadFixture(deployUsageRecorder);
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
 
         await organizationNFT.connect(owner).mint(owner.address);
 
@@ -489,8 +514,9 @@ describe('UsageRecorder', () => {
       });
 
       it('cannot adjust a meter if the meter is not active', async () => {
-        const { usageRecorder, organizationNFT, owner } =
-          await loadFixture(deployUsageRecorder);
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
 
         await organizationNFT.connect(owner).mint(owner.address);
 
@@ -554,8 +580,9 @@ describe('UsageRecorder', () => {
       });
 
       it('returns an empty array if the org has no meters', async () => {
-        const { usageRecorder, organizationNFT, owner } =
-          await loadFixture(deployUsageRecorder);
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
 
         await organizationNFT.connect(owner).mint(owner.address);
 
@@ -565,8 +592,9 @@ describe('UsageRecorder', () => {
 
     describe('Is Active Org Meter', () => {
       it('returns true if the meter is active for the org', async () => {
-        const { usageRecorder, organizationNFT, owner } =
-          await loadFixture(deployUsageRecorder);
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
 
         await organizationNFT.connect(owner).mint(owner.address);
 
@@ -576,8 +604,9 @@ describe('UsageRecorder', () => {
       });
 
       it('returns false if the meter is not active for the org', async () => {
-        const { usageRecorder, organizationNFT, owner } =
-          await loadFixture(deployUsageRecorder);
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
 
         await organizationNFT.connect(owner).mint(owner.address);
 
@@ -587,8 +616,9 @@ describe('UsageRecorder', () => {
       });
 
       it('returns false if the meter is not active', async () => {
-        const { usageRecorder, organizationNFT, owner } =
-          await loadFixture(deployUsageRecorder);
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
 
         await organizationNFT.connect(owner).mint(owner.address);
 
@@ -600,8 +630,9 @@ describe('UsageRecorder', () => {
       });
 
       it('returns false if the meter does not exist for the org', async () => {
-        const { usageRecorder, organizationNFT, owner } =
-          await loadFixture(deployUsageRecorder);
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
 
         await organizationNFT.connect(owner).mint(owner.address);
 

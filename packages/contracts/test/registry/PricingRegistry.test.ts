@@ -10,18 +10,29 @@ describe('PricingRegistry', () => {
   async function deployPricingRegistry() {
     const [owner, otherAccount] = await hre.ethers.getSigners();
 
-    const ContractRegistry =
-      await hre.ethers.getContractFactory('ContractRegistry');
+    const ContractRegistry = await hre.ethers.getContractFactory(
+      'ContractRegistry',
+    );
     const contractRegistry = await ContractRegistry.deploy();
+
+    const OrganizationAttributeProvider = await hre.ethers.getContractFactory(
+      'OrganizationAttributeProvider',
+    );
+    const organizationAttributeProvider =
+      await OrganizationAttributeProvider.deploy(contractRegistry);
 
     const OrganizationMetadataProvider = await hre.ethers.getContractFactory(
       'OrganizationMetadataProvider',
     );
     const organizationMetadataProvider =
-      await OrganizationMetadataProvider.deploy(contractRegistry);
+      await OrganizationMetadataProvider.deploy(
+        contractRegistry,
+        organizationAttributeProvider,
+      );
 
-    const OrganizationNFT =
-      await hre.ethers.getContractFactory('OrganizationNFT');
+    const OrganizationNFT = await hre.ethers.getContractFactory(
+      'OrganizationNFT',
+    );
     const organizationNFT = await OrganizationNFT.deploy(
       organizationMetadataProvider,
     );
@@ -39,12 +50,14 @@ describe('PricingRegistry', () => {
     const UsageRecorder = await hre.ethers.getContractFactory('UsageRecorder');
     const usageRecorder = await UsageRecorder.deploy(contractRegistry);
 
-    const PricingRegistry =
-      await hre.ethers.getContractFactory('PricingRegistry');
+    const PricingRegistry = await hre.ethers.getContractFactory(
+      'PricingRegistry',
+    );
     const pricingRegistry = await PricingRegistry.deploy(contractRegistry);
 
-    const OrganizationAdmin =
-      await hre.ethers.getContractFactory('OrganizationAdmin');
+    const OrganizationAdmin = await hre.ethers.getContractFactory(
+      'OrganizationAdmin',
+    );
     const organizationAdmin = await OrganizationAdmin.deploy(contractRegistry);
 
     await contractRegistry.setOrganizationNFT(organizationNFT);

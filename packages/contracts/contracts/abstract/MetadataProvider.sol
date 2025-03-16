@@ -11,6 +11,7 @@ import {IMetadataProvider} from "./IMetadataProvider.sol";
 import {ITokenMetadataProvider} from "../metadata/ITokenMetadataProvider.sol";
 import {MetadataUtils} from "../libs/MetadataUtils.sol";
 import {RegistryEnabled} from "./RegistryEnabled.sol";
+import {IAttributeProvider} from "../metadata/IAttributeProvider.sol";
 
 /**
  * @title MetadataProvider
@@ -38,7 +39,14 @@ abstract contract MetadataProvider is
     // Default metadata for all tokens when no custom metadata is set by the org admin
     MetadataUtils.Metadata private defaultMetadata;
 
+    // Attribute Provider
+    IAttributeProvider public attributeProvider;
+
     uint256[50] private __gap;
+
+    constructor(address _attributeProvider) {
+        setAttributeProvider(_attributeProvider);
+    }
 
     /**
      * Custom Metadata
@@ -112,13 +120,6 @@ abstract contract MetadataProvider is
         return customMetadata[tokenId].toJSON(defaultMetadata);
     }
 
-    /**
-     * @dev These are the attributes in the metadata JSON that are specific to the token.
-     */
-    function attributesForToken(
-        uint256 tokenId
-    ) internal view virtual returns (string memory);
-
     function getTokenMetadata(
         uint256 tokenId
     ) external view virtual returns (string memory) {
@@ -127,7 +128,7 @@ abstract contract MetadataProvider is
             metadataForToken(tokenId),
             ",",
             '"attributes": [',
-            attributesForToken(tokenId),
+            attributeProvider.attributesForToken(tokenId),
             "]",
             "}"
         );
@@ -139,6 +140,25 @@ abstract contract MetadataProvider is
                     Base64.encode(dataURI)
                 )
             );
+    }
+
+    /**
+     * Attribute Provider
+     */
+
+    function setAttributeProvider(
+        address _attributeProvider
+    ) public virtual onlyOwner {
+        require(
+            IERC165(_attributeProvider).supportsInterface(
+                type(IAttributeProvider).interfaceId
+            ),
+            "Attribute provider must implement IAttributeProvider"
+        );
+
+        attributeProvider = IAttributeProvider(_attributeProvider);
+
+        emit AttributeProviderUpdated(_attributeProvider);
     }
 
     /**

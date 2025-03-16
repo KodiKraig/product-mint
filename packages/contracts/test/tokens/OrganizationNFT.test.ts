@@ -8,18 +8,29 @@ describe('OrganizationNFT', () => {
   async function deployOrganizationNFT() {
     const [owner, otherAccount] = await hre.ethers.getSigners();
 
-    const ContractRegistry =
-      await hre.ethers.getContractFactory('ContractRegistry');
+    const ContractRegistry = await hre.ethers.getContractFactory(
+      'ContractRegistry',
+    );
     const contractRegistry = await ContractRegistry.deploy();
+
+    const OrganizationAttributeProvider = await hre.ethers.getContractFactory(
+      'OrganizationAttributeProvider',
+    );
+    const organizationAttributeProvider =
+      await OrganizationAttributeProvider.deploy(contractRegistry);
 
     const OrganizationMetadataProvider = await hre.ethers.getContractFactory(
       'OrganizationMetadataProvider',
     );
     const organizationMetadataProvider =
-      await OrganizationMetadataProvider.deploy(contractRegistry);
+      await OrganizationMetadataProvider.deploy(
+        contractRegistry,
+        organizationAttributeProvider,
+      );
 
-    const OrganizationNFT =
-      await hre.ethers.getContractFactory('OrganizationNFT');
+    const OrganizationNFT = await hre.ethers.getContractFactory(
+      'OrganizationNFT',
+    );
     const organizationNFT = await OrganizationNFT.deploy(
       organizationMetadataProvider,
     );
@@ -30,6 +41,7 @@ describe('OrganizationNFT', () => {
       contractRegistry,
       organizationNFT,
       organizationMetadataProvider,
+      organizationAttributeProvider,
       owner,
       otherAccount,
     };
@@ -97,13 +109,16 @@ describe('OrganizationNFT', () => {
         contractRegistry,
         organizationNFT,
         organizationMetadataProvider,
+        organizationAttributeProvider,
       } = await loadFixture(deployOrganizationNFT);
 
       const newMetadataProvider = await hre.ethers.getContractFactory(
         'OrganizationMetadataProvider',
       );
-      const newMetadataProviderInstance =
-        await newMetadataProvider.deploy(contractRegistry);
+      const newMetadataProviderInstance = await newMetadataProvider.deploy(
+        contractRegistry,
+        organizationAttributeProvider,
+      );
 
       await expect(
         organizationNFT.setMetadataProvider(newMetadataProviderInstance),

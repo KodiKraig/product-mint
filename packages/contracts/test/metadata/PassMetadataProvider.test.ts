@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import hre from 'hardhat';
 import { loadWithPurchasedFlatRateSubscription } from '../manager/helpers';
 import {
   assertMetadata,
@@ -30,6 +31,64 @@ describe('Pass Metadata Provider', () => {
         await loadWithPurchasedFlatRateSubscription();
 
       expect(await passMetadataProvider.owner()).to.equal(owner);
+    });
+
+    it('should set the correct attribute provider', async () => {
+      const { passMetadataProvider, passAttributeProvider } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      expect(await passMetadataProvider.attributeProvider()).to.equal(
+        passAttributeProvider,
+      );
+    });
+  });
+
+  describe('Update Attribute Provider', () => {
+    it('can update the attribute provider', async () => {
+      const { passMetadataProvider, contractRegistry } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      const NewAttributeProvider = await hre.ethers.getContractFactory(
+        'PassAttributeProvider',
+      );
+      const newAttributeProvider = await NewAttributeProvider.deploy(
+        contractRegistry,
+      );
+
+      await expect(
+        passMetadataProvider.setAttributeProvider(newAttributeProvider),
+      )
+        .to.emit(passMetadataProvider, 'AttributeProviderUpdated')
+        .withArgs(await newAttributeProvider.getAddress());
+
+      expect(await passMetadataProvider.attributeProvider()).to.equal(
+        newAttributeProvider,
+      );
+    });
+
+    it('only the owner can update the attribute provider', async () => {
+      const { passMetadataProvider, otherAccount } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      await expect(
+        passMetadataProvider
+          .connect(otherAccount)
+          .setAttributeProvider(otherAccount),
+      ).to.be.revertedWithCustomError(
+        passMetadataProvider,
+        'OwnableUnauthorizedAccount',
+      );
+    });
+
+    it('must implement IAttributeProvider', async () => {
+      const { passMetadataProvider, owner, paymentEscrow } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      await expect(
+        passMetadataProvider.connect(owner).setAttributeProvider(paymentEscrow),
+      ).to.be.revertedWith(
+        'Attribute provider must implement IAttributeProvider',
+      );
     });
   });
 
@@ -105,7 +164,7 @@ describe('Pass Metadata Provider', () => {
             value: 'TESTER',
           },
           {
-            trait_type: 'Total Discount Amount',
+            trait_type: 'Total Discount',
             value: '33.35%',
           },
         ],
@@ -156,7 +215,7 @@ describe('Pass Metadata Provider', () => {
             value: 'TESTER',
           },
           {
-            trait_type: 'Total Discount Amount',
+            trait_type: 'Total Discount',
             value: '40%',
           },
         ],

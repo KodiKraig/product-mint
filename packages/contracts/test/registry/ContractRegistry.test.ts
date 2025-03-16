@@ -13,11 +13,20 @@ describe('ContractRegistry', () => {
     );
     const contractRegistry = await ContractRegistry.deploy();
 
+    const OrganizationAttributeProvider = await hre.ethers.getContractFactory(
+      'OrganizationAttributeProvider',
+    );
+    const organizationAttributeProvider =
+      await OrganizationAttributeProvider.deploy(contractRegistry);
+
     const OrganizationMetadataProvider = await hre.ethers.getContractFactory(
       'OrganizationMetadataProvider',
     );
     const organizationMetadataProvider =
-      await OrganizationMetadataProvider.deploy(contractRegistry);
+      await OrganizationMetadataProvider.deploy(
+        contractRegistry,
+        organizationAttributeProvider,
+      );
 
     const OrganizationNFT = await hre.ethers.getContractFactory(
       'OrganizationNFT',
@@ -26,11 +35,19 @@ describe('ContractRegistry', () => {
       organizationMetadataProvider,
     );
 
+    const PassAttributeProvider = await hre.ethers.getContractFactory(
+      'PassAttributeProvider',
+    );
+    const passAttributeProvider = await PassAttributeProvider.deploy(
+      contractRegistry,
+    );
+
     const PassMetadataProvider = await hre.ethers.getContractFactory(
       'PassMetadataProvider',
     );
     const passMetadataProvider = await PassMetadataProvider.deploy(
       contractRegistry,
+      passAttributeProvider,
     );
 
     const ProductPassNFT = await hre.ethers.getContractFactory(

@@ -7,18 +7,29 @@ describe('PaymentEscrow', () => {
   async function deployPaymentEscrow() {
     const [owner, otherAccount] = await hre.ethers.getSigners();
 
-    const ContractRegistry =
-      await hre.ethers.getContractFactory('ContractRegistry');
+    const ContractRegistry = await hre.ethers.getContractFactory(
+      'ContractRegistry',
+    );
     const contractRegistry = await ContractRegistry.deploy();
+
+    const OrganizationAttributeProvider = await hre.ethers.getContractFactory(
+      'OrganizationAttributeProvider',
+    );
+    const organizationAttributeProvider =
+      await OrganizationAttributeProvider.deploy(contractRegistry);
 
     const OrganizationMetadataProvider = await hre.ethers.getContractFactory(
       'OrganizationMetadataProvider',
     );
     const organizationMetadataProvider =
-      await OrganizationMetadataProvider.deploy(contractRegistry);
+      await OrganizationMetadataProvider.deploy(
+        contractRegistry,
+        organizationAttributeProvider,
+      );
 
-    const OrganizationNFT =
-      await hre.ethers.getContractFactory('OrganizationNFT');
+    const OrganizationNFT = await hre.ethers.getContractFactory(
+      'OrganizationNFT',
+    );
     const organizationNFT = await OrganizationNFT.deploy(
       organizationMetadataProvider,
     );
@@ -52,8 +63,9 @@ describe('PaymentEscrow', () => {
   }
 
   it('should not allow non-registry callers to call transferDirect', async () => {
-    const { paymentEscrow, otherAccount } =
-      await loadFixture(deployPaymentEscrow);
+    const { paymentEscrow, otherAccount } = await loadFixture(
+      deployPaymentEscrow,
+    );
 
     await expect(
       paymentEscrow
@@ -105,8 +117,9 @@ describe('PaymentEscrow', () => {
     });
 
     it('should set the contract registry', async () => {
-      const { paymentEscrow, contractRegistry } =
-        await loadFixture(deployPaymentEscrow);
+      const { paymentEscrow, contractRegistry } = await loadFixture(
+        deployPaymentEscrow,
+      );
 
       expect(await paymentEscrow.registry()).to.equal(contractRegistry);
     });
@@ -158,8 +171,9 @@ describe('PaymentEscrow', () => {
 
   describe('Token Whitelisting', () => {
     it('can whitelist a token', async () => {
-      const { paymentEscrow, mintToken } =
-        await loadFixture(deployPaymentEscrow);
+      const { paymentEscrow, mintToken } = await loadFixture(
+        deployPaymentEscrow,
+      );
 
       expect(
         await paymentEscrow.whitelistedTokens(await mintToken.getAddress()),
@@ -177,8 +191,9 @@ describe('PaymentEscrow', () => {
     });
 
     it('can remove a whitelisted token', async () => {
-      const { paymentEscrow, mintToken } =
-        await loadFixture(deployPaymentEscrow);
+      const { paymentEscrow, mintToken } = await loadFixture(
+        deployPaymentEscrow,
+      );
 
       await expect(
         paymentEscrow.setWhitelistedToken(await mintToken.getAddress(), true),
@@ -202,8 +217,9 @@ describe('PaymentEscrow', () => {
     });
 
     it('only the whitelist role can whitelist a token', async () => {
-      const { paymentEscrow, mintToken, otherAccount } =
-        await loadFixture(deployPaymentEscrow);
+      const { paymentEscrow, mintToken, otherAccount } = await loadFixture(
+        deployPaymentEscrow,
+      );
 
       await expect(
         paymentEscrow
@@ -273,8 +289,9 @@ describe('PaymentEscrow', () => {
     });
 
     it('cannot set fee exemptions for non-existent orgs', async () => {
-      const { paymentEscrow, organizationNFT } =
-        await loadFixture(deployPaymentEscrow);
+      const { paymentEscrow, organizationNFT } = await loadFixture(
+        deployPaymentEscrow,
+      );
 
       await expect(paymentEscrow.setFeeExempt(1, true))
         .to.be.revertedWithCustomError(
@@ -293,8 +310,9 @@ describe('PaymentEscrow', () => {
     });
 
     it('only the correct roles can manage fees', async () => {
-      const { paymentEscrow, otherAccount } =
-        await loadFixture(deployPaymentEscrow);
+      const { paymentEscrow, otherAccount } = await loadFixture(
+        deployPaymentEscrow,
+      );
 
       await expect(paymentEscrow.connect(otherAccount).setFeeEnabled(true))
         .to.be.revertedWithCustomError(
@@ -373,8 +391,9 @@ describe('PaymentEscrow', () => {
 
     describe('Calculate Fee', () => {
       it('should return 0 when fees are not set for the token or the exotic fee', async () => {
-        const { paymentEscrow, mintToken } =
-          await loadFixture(deployPaymentEscrow);
+        const { paymentEscrow, mintToken } = await loadFixture(
+          deployPaymentEscrow,
+        );
 
         expect(
           await paymentEscrow.calculateFee(1, ethers.ZeroAddress, 100),
@@ -433,8 +452,9 @@ describe('PaymentEscrow', () => {
       });
 
       it('should return the correct fee amount for an ERC20 token with a specific fee', async () => {
-        const { paymentEscrow, mintToken } =
-          await loadFixture(deployPaymentEscrow);
+        const { paymentEscrow, mintToken } = await loadFixture(
+          deployPaymentEscrow,
+        );
 
         await paymentEscrow.setFee(await mintToken.getAddress(), 250);
 
@@ -456,8 +476,9 @@ describe('PaymentEscrow', () => {
       });
 
       it('should return the correct fee for an exotic ERC20token', async () => {
-        const { paymentEscrow, mintToken, mintToken2 } =
-          await loadFixture(deployPaymentEscrow);
+        const { paymentEscrow, mintToken, mintToken2 } = await loadFixture(
+          deployPaymentEscrow,
+        );
 
         await paymentEscrow.setFee(await mintToken.getAddress(), 250);
         await paymentEscrow.setExoticFee(1000);
@@ -472,8 +493,9 @@ describe('PaymentEscrow', () => {
       });
 
       it('should return a reduced fee for org 1', async () => {
-        const { paymentEscrow, mintToken, feeReducer } =
-          await loadFixture(deployPaymentEscrow);
+        const { paymentEscrow, mintToken, feeReducer } = await loadFixture(
+          deployPaymentEscrow,
+        );
 
         await paymentEscrow.setFeeReducer(feeReducer);
 
@@ -489,8 +511,9 @@ describe('PaymentEscrow', () => {
       });
 
       it('should return the original if not org 1', async () => {
-        const { paymentEscrow, mintToken, feeReducer } =
-          await loadFixture(deployPaymentEscrow);
+        const { paymentEscrow, mintToken, feeReducer } = await loadFixture(
+          deployPaymentEscrow,
+        );
 
         await paymentEscrow.setFeeReducer(feeReducer);
 
@@ -508,8 +531,9 @@ describe('PaymentEscrow', () => {
 
     describe('Withdraw Fee', () => {
       it('only the fee withdraw role can withdraw fees', async () => {
-        const { paymentEscrow, otherAccount } =
-          await loadFixture(deployPaymentEscrow);
+        const { paymentEscrow, otherAccount } = await loadFixture(
+          deployPaymentEscrow,
+        );
 
         await expect(
           paymentEscrow.connect(otherAccount).withdrawFee(ethers.ZeroAddress),
@@ -522,8 +546,9 @@ describe('PaymentEscrow', () => {
       });
 
       it('should revert if the fee balance is 0', async () => {
-        const { paymentEscrow, mintToken, mintToken2 } =
-          await loadFixture(deployPaymentEscrow);
+        const { paymentEscrow, mintToken, mintToken2 } = await loadFixture(
+          deployPaymentEscrow,
+        );
 
         await expect(
           paymentEscrow.withdrawFee(ethers.ZeroAddress),
@@ -542,8 +567,9 @@ describe('PaymentEscrow', () => {
 
   describe('Fee Reducer', () => {
     it('should set the fee reducer', async () => {
-      const { paymentEscrow, feeReducer, owner } =
-        await loadFixture(deployPaymentEscrow);
+      const { paymentEscrow, feeReducer, owner } = await loadFixture(
+        deployPaymentEscrow,
+      );
 
       await expect(paymentEscrow.connect(owner).setFeeReducer(feeReducer))
         .to.emit(paymentEscrow, 'FeeReducerSet')
@@ -559,8 +585,9 @@ describe('PaymentEscrow', () => {
     });
 
     it('only the admin role can set the fee reducer', async () => {
-      const { paymentEscrow, feeReducer, otherAccount } =
-        await loadFixture(deployPaymentEscrow);
+      const { paymentEscrow, feeReducer, otherAccount } = await loadFixture(
+        deployPaymentEscrow,
+      );
 
       await expect(
         paymentEscrow.connect(otherAccount).setFeeReducer(feeReducer),
