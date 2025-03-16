@@ -5,6 +5,7 @@ import {
 import { expect } from 'chai';
 import hre from 'hardhat';
 import { ICouponRegistry } from '../../typechain-types';
+import calculateInterfaceId from '../../utils/calculate-interface-id';
 
 type CreateCouponParams = {
   orgId: number;
@@ -77,11 +78,24 @@ describe('CouponRegistry', () => {
     });
   });
 
-  describe('Implements ERC165', () => {
+  describe('Implements interface', () => {
     it('should return true for supportsInterface', async () => {
       const { couponRegistry } = await loadFixture(deployCouponRegistry);
 
       expect(await couponRegistry.supportsInterface('0x01ffc9a7')).to.equal(
+        true,
+      );
+    });
+
+    it('implements restricted access', async () => {
+      const { couponRegistry } = await loadFixture(deployCouponRegistry);
+
+      const interfaceId = calculateInterfaceId([
+        'getRestrictedAccess(uint256,address)',
+        'hasRestrictedAccess(uint256,address,uint256)',
+      ]);
+
+      expect(await couponRegistry.supportsInterface(interfaceId)).to.equal(
         true,
       );
     });
