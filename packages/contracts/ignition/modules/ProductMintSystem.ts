@@ -31,8 +31,12 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
   m.call(contractRegistry, 'setPricingCalculator', [pricingCalculator]);
 
   // Product Pass NFT
+  const passAttributeProvider = m.contract('PassAttributeProvider', [
+    contractRegistry,
+  ]);
   const passMetadataProvider = m.contract('PassMetadataProvider', [
     contractRegistry,
+    passAttributeProvider,
   ]);
   m.call(passMetadataProvider, 'setDefaultMetadata', [
     {
@@ -53,9 +57,13 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
   m.call(contractRegistry, 'setProductPassNFT', [productPassNFT]);
 
   // Organization NFT
+  const organizationAttributeProvider = m.contract(
+    'OrganizationAttributeProvider',
+    [contractRegistry],
+  );
   const organizationMetadataProvider = m.contract(
     'OrganizationMetadataProvider',
-    [contractRegistry],
+    [contractRegistry, organizationAttributeProvider],
   );
   m.call(organizationMetadataProvider, 'setDefaultMetadata', [
     {

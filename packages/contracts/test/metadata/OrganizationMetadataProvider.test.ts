@@ -46,6 +46,15 @@ describe('Organization Metadata Provider', () => {
 
       expect(await organizationMetadataProvider.owner()).to.equal(owner);
     });
+
+    it('should set the correct attribute provider', async () => {
+      const { organizationMetadataProvider, organizationAttributeProvider } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      expect(await organizationMetadataProvider.attributeProvider()).to.equal(
+        organizationAttributeProvider,
+      );
+    });
   });
 
   describe('Get Token Metadata', () => {

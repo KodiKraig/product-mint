@@ -60,11 +60,19 @@ export async function deployPurchaseManager() {
 
   // NFTs
 
+  const PassAttributeProvider = await hre.ethers.getContractFactory(
+    'PassAttributeProvider',
+  );
+  const passAttributeProvider = await PassAttributeProvider.deploy(
+    contractRegistry,
+  );
+
   const PassMetadataProvider = await hre.ethers.getContractFactory(
     'PassMetadataProvider',
   );
   const passMetadataProvider = await PassMetadataProvider.deploy(
     contractRegistry,
+    passAttributeProvider,
   );
 
   const ProductPassNFT = await hre.ethers.getContractFactory('ProductPassNFT');
@@ -74,11 +82,20 @@ export async function deployPurchaseManager() {
   );
   await contractRegistry.setProductPassNFT(productPassNFT);
 
+  const OrganizationAttributeProvider = await hre.ethers.getContractFactory(
+    'OrganizationAttributeProvider',
+  );
+  const organizationAttributeProvider =
+    await OrganizationAttributeProvider.deploy(contractRegistry);
+
   const OrganizationMetadataProvider = await hre.ethers.getContractFactory(
     'OrganizationMetadataProvider',
   );
   const organizationMetadataProvider =
-    await OrganizationMetadataProvider.deploy(contractRegistry);
+    await OrganizationMetadataProvider.deploy(
+      contractRegistry,
+      organizationAttributeProvider,
+    );
 
   const OrganizationNFT = await hre.ethers.getContractFactory(
     'OrganizationNFT',
@@ -132,7 +149,9 @@ export async function deployPurchaseManager() {
     productPassNFT,
     organizationNFT,
     organizationMetadataProvider,
+    organizationAttributeProvider,
     passMetadataProvider,
+    passAttributeProvider,
     usageRecorder,
     subscriptionEscrow,
     pricingCalculator,

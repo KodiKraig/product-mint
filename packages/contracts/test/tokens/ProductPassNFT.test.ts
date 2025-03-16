@@ -19,11 +19,20 @@ describe('ProductPassNFT', () => {
     );
     const contractRegistry = await ContractRegistry.deploy();
 
+    const OrganizationAttributeProvider = await hre.ethers.getContractFactory(
+      'OrganizationAttributeProvider',
+    );
+    const organizationAttributeProvider =
+      await OrganizationAttributeProvider.deploy(contractRegistry);
+
     const OrganizationMetadataProvider = await hre.ethers.getContractFactory(
       'OrganizationMetadataProvider',
     );
     const organizationMetadataProvider =
-      await OrganizationMetadataProvider.deploy(contractRegistry);
+      await OrganizationMetadataProvider.deploy(
+        contractRegistry,
+        organizationAttributeProvider,
+      );
 
     const OrganizationNFT = await hre.ethers.getContractFactory(
       'OrganizationNFT',
@@ -37,11 +46,19 @@ describe('ProductPassNFT', () => {
     );
     const productRegistry = await ProductRegistry.deploy(organizationNFT);
 
+    const PassAttributeProvider = await hre.ethers.getContractFactory(
+      'PassAttributeProvider',
+    );
+    const passAttributeProvider = await PassAttributeProvider.deploy(
+      contractRegistry,
+    );
+
     const PassMetadataProvider = await hre.ethers.getContractFactory(
       'PassMetadataProvider',
     );
     const passMetadataProvider = await PassMetadataProvider.deploy(
       contractRegistry,
+      passAttributeProvider,
     );
 
     const ProductPassNFT = await hre.ethers.getContractFactory(
@@ -59,6 +76,7 @@ describe('ProductPassNFT', () => {
     return {
       organizationNFT,
       productRegistry,
+      passAttributeProvider,
       productPassNFT,
       passMetadataProvider,
       contractRegistry,
@@ -124,14 +142,19 @@ describe('ProductPassNFT', () => {
     });
 
     it('can set another metadata provider', async () => {
-      const { productPassNFT, contractRegistry, passMetadataProvider } =
-        await loadFixture(deployProductPassNFT);
+      const {
+        productPassNFT,
+        contractRegistry,
+        passMetadataProvider,
+        passAttributeProvider,
+      } = await loadFixture(deployProductPassNFT);
 
       const newMetadataProvider = await hre.ethers.getContractFactory(
         'PassMetadataProvider',
       );
       const newMetadataProviderInstance = await newMetadataProvider.deploy(
         contractRegistry,
+        passAttributeProvider,
       );
 
       await expect(

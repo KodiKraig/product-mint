@@ -6,26 +6,38 @@ describe('OrganizationAdmin', () => {
   async function deployOrganizationAdmin() {
     const [owner, otherAccount, account3] = await hre.ethers.getSigners();
 
-    const ContractRegistry =
-      await hre.ethers.getContractFactory('ContractRegistry');
+    const ContractRegistry = await hre.ethers.getContractFactory(
+      'ContractRegistry',
+    );
     const contractRegistry = await ContractRegistry.deploy();
+
+    const OrganizationAttributeProvider = await hre.ethers.getContractFactory(
+      'OrganizationAttributeProvider',
+    );
+    const organizationAttributeProvider =
+      await OrganizationAttributeProvider.deploy(contractRegistry);
 
     const OrganizationMetadataProvider = await hre.ethers.getContractFactory(
       'OrganizationMetadataProvider',
     );
     const organizationMetadataProvider =
-      await OrganizationMetadataProvider.deploy(contractRegistry);
+      await OrganizationMetadataProvider.deploy(
+        contractRegistry,
+        organizationAttributeProvider,
+      );
 
-    const OrganizationNFT =
-      await hre.ethers.getContractFactory('OrganizationNFT');
+    const OrganizationNFT = await hre.ethers.getContractFactory(
+      'OrganizationNFT',
+    );
     const organizationNFT = await OrganizationNFT.deploy(
       organizationMetadataProvider,
     );
 
     await organizationNFT.setMintOpen(true);
 
-    const OrganizationAdmin =
-      await hre.ethers.getContractFactory('OrganizationAdmin');
+    const OrganizationAdmin = await hre.ethers.getContractFactory(
+      'OrganizationAdmin',
+    );
     const organizationAdmin = await OrganizationAdmin.deploy(contractRegistry);
 
     await contractRegistry.setOrgAdmin(organizationAdmin);

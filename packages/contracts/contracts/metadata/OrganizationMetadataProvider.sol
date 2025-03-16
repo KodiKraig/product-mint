@@ -6,8 +6,6 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 import {MetadataProvider} from "../abstract/MetadataProvider.sol";
 import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
-import {IPurchaseRegistry} from "../registry/IPurchaseRegistry.sol";
-import {AttributeUtils} from "../libs/AttributeUtils.sol";
 
 /*
  ____                 _            _   __  __ _       _   
@@ -37,45 +35,14 @@ import {AttributeUtils} from "../libs/AttributeUtils.sol";
  * - Image
  * - Background Color
  * - Animation URL
- *
- * Attributes include:
- * - Whitelist Only
- * - Max Mints
- * - Products Sold
- * - Product Pass Mints
  */
 contract OrganizationMetadataProvider is MetadataProvider {
-    using AttributeUtils for bool;
-    using AttributeUtils for uint256;
-
     constructor(
-        address _registry
-    ) Ownable(_msgSender()) RegistryEnabled(_registry) {}
-
-    function attributesForToken(
-        uint256 tokenId
-    ) internal view override returns (string memory) {
-        IPurchaseRegistry purchaseRegistry = IPurchaseRegistry(
-            registry.purchaseRegistry()
-        );
-
-        return
-            string.concat(
-                purchaseRegistry.isWhitelist(tokenId).attributeTraitType(
-                    "Whitelist Only"
-                ),
-                ",",
-                purchaseRegistry.maxMints(tokenId).noLimitAttributeTraitType(
-                    "Max Mints"
-                ),
-                ",",
-                purchaseRegistry.totalProductsSold(tokenId).attributeTraitType(
-                    "Products Sold"
-                ),
-                ",",
-                purchaseRegistry.totalPassMints(tokenId).attributeTraitType(
-                    "Product Pass Mints"
-                )
-            );
-    }
+        address _registry,
+        address _attributeProvider
+    )
+        Ownable(_msgSender())
+        RegistryEnabled(_registry)
+        MetadataProvider(_attributeProvider)
+    {}
 }
