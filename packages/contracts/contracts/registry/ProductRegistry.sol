@@ -164,14 +164,16 @@ contract ProductRegistry is
     ) external onlyOrgAdmin(params.orgId) {
         totalProductSupply++;
 
-        products[totalProductSupply].orgId = params.orgId;
-        _setProductName(totalProductSupply, params.name);
-        _setProductDescription(totalProductSupply, params.description);
-        _setProductImageUrl(totalProductSupply, params.imageUrl);
-        _setProductExternalUrl(totalProductSupply, params.externalUrl);
+        Product storage product = products[totalProductSupply];
 
-        products[totalProductSupply].isTransferable = params.isTransferable;
-        products[totalProductSupply].isActive = true;
+        product.orgId = params.orgId;
+        _setProductName(product, params.name);
+        _setProductDescription(product, params.description);
+        _setProductImageUrl(product, params.imageUrl);
+        _setProductExternalUrl(product, params.externalUrl);
+
+        product.isTransferable = params.isTransferable;
+        product.isActive = true;
 
         productIds[params.orgId].add(totalProductSupply);
 
@@ -186,12 +188,17 @@ contract ProductRegistry is
         uint256 productId,
         string calldata name
     ) external onlyOrgAdmin(products[productId].orgId) {
-        _setProductName(productId, name);
+        Product storage product = products[productId];
 
-        emit ProductUpdated(products[productId].orgId, productId);
+        _setProductName(product, name);
+
+        emit ProductUpdated(product.orgId, productId);
     }
 
-    function _setProductName(uint256 productId, string calldata name) internal {
+    function _setProductName(
+        Product storage product,
+        string calldata name
+    ) internal {
         if (bytes(name).length == 0) {
             revert ValueCannotBeEmpty();
         }
@@ -200,20 +207,22 @@ contract ProductRegistry is
             revert ValueTooLong();
         }
 
-        products[productId].name = name;
+        product.name = name;
     }
 
     function setProductDescription(
         uint256 productId,
         string calldata description
     ) external onlyOrgAdmin(products[productId].orgId) {
-        _setProductDescription(productId, description);
+        Product storage product = products[productId];
+
+        _setProductDescription(product, description);
 
         emit ProductUpdated(products[productId].orgId, productId);
     }
 
     function _setProductDescription(
-        uint256 productId,
+        Product storage product,
         string calldata description
     ) internal {
         if (bytes(description).length == 0) {
@@ -224,54 +233,60 @@ contract ProductRegistry is
             revert ValueTooLong();
         }
 
-        products[productId].description = description;
+        product.description = description;
     }
 
     function setProductImageUrl(
         uint256 productId,
         string calldata imageUrl
     ) external onlyOrgAdmin(products[productId].orgId) {
-        _setProductImageUrl(productId, imageUrl);
+        Product storage product = products[productId];
+
+        _setProductImageUrl(product, imageUrl);
 
         emit ProductUpdated(products[productId].orgId, productId);
     }
 
     function _setProductImageUrl(
-        uint256 productId,
+        Product storage product,
         string calldata imageUrl
     ) internal {
         if (bytes(imageUrl).length > 128) {
             revert ValueTooLong();
         }
 
-        products[productId].imageUrl = imageUrl;
+        product.imageUrl = imageUrl;
     }
 
     function setProductExternalUrl(
         uint256 productId,
         string calldata externalUrl
     ) external onlyOrgAdmin(products[productId].orgId) {
-        _setProductExternalUrl(productId, externalUrl);
+        Product storage product = products[productId];
+
+        _setProductExternalUrl(product, externalUrl);
 
         emit ProductUpdated(products[productId].orgId, productId);
     }
 
     function _setProductExternalUrl(
-        uint256 productId,
+        Product storage product,
         string calldata externalUrl
     ) internal {
         if (bytes(externalUrl).length > 128) {
             revert ValueTooLong();
         }
 
-        products[productId].externalUrl = externalUrl;
+        product.externalUrl = externalUrl;
     }
 
     function setProductTransferable(
         uint256 productId,
         bool _isTransferable
     ) external onlyOrgAdmin(products[productId].orgId) {
-        products[productId].isTransferable = _isTransferable;
+        Product storage product = products[productId];
+
+        product.isTransferable = _isTransferable;
 
         emit ProductUpdated(products[productId].orgId, productId);
     }
@@ -280,13 +295,11 @@ contract ProductRegistry is
         uint256 productId,
         bool _isActive
     ) external onlyOrgAdmin(products[productId].orgId) {
-        products[productId].isActive = _isActive;
+        Product storage product = products[productId];
 
-        emit ProductStatusChanged(
-            products[productId].orgId,
-            productId,
-            _isActive
-        );
+        product.isActive = _isActive;
+
+        emit ProductStatusChanged(product.orgId, productId, _isActive);
     }
 
     /**

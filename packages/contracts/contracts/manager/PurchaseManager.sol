@@ -20,6 +20,7 @@ import {ISubscriptionEscrow} from "../escrow/ISubscriptionEscrow.sol";
 import {IPurchaseRegistry} from "../registry/IPurchaseRegistry.sol";
 import {IPricingCalculator} from "../calculator/IPricingCalculator.sol";
 import {ICouponRegistry} from "../registry/ICouponRegistry.sol";
+import {IDiscountRegistry} from "../registry/IDiscountRegistry.sol";
 
 /*
  ____                 _            _   __  __ _       _   
@@ -40,7 +41,7 @@ import {ICouponRegistry} from "../registry/ICouponRegistry.sol";
  * When a product is purchased, a Product Pass NFT is minted to the user.
  *
  * The PurchaseManager is also responsible for renewing subscriptions, pausing and cancelling subscriptions, and
- * changing the pricing of a subscription.
+ * changing the pricing model for an existing subscription.
  */
 contract PurchaseManager is
     Ownable2Step,
@@ -52,23 +53,6 @@ contract PurchaseManager is
 {
     // Total number of product pass tokens minted
     uint256 public passSupply;
-
-    /**
-     * @dev Used internally by the PurchaseManager during the product purchase.
-     *  Refer to the IPurchaseManager interface for the public facing parameters and details.
-     */
-    struct PurchaseProductsParams {
-        address passOwner;
-        uint256 orgId;
-        uint256 productPassId;
-        uint256[] productIds;
-        uint256[] pricingIds;
-        uint256[] quantities;
-        string couponCode;
-        bool airdrop;
-        bool pause;
-        bool isInitialPurchase;
-    }
 
     constructor(
         address _contractRegistry
@@ -87,6 +71,15 @@ contract PurchaseManager is
         InitialPurchaseParams calldata params
     ) external payable nonReentrant whenNotPaused {
         passSupply++;
+
+        if (params.discountIds.length > 0) {
+            IDiscountRegistry(registry.discountRegistry()).mintDiscountsToPass(
+                params.organizationId,
+                passSupply,
+                params.to,
+                params.discountIds
+            );
+        }
 
         _purchaseProducts(
             PurchaseProductsParams({
@@ -174,6 +167,7 @@ contract PurchaseManager is
         if (totalAmount > 0) {
             _performPurchase(
                 params.orgId,
+                params.productPassId,
                 params.passOwner,
                 totalAmount,
                 token,
@@ -236,6 +230,7 @@ contract PurchaseManager is
         if (amount > 0) {
             _performPurchase(
                 params.orgId,
+                params.productPassId,
                 passOwner,
                 amount,
                 token,
@@ -284,6 +279,7 @@ contract PurchaseManager is
         if (price > 0) {
             _performPurchase(
                 orgId,
+                productPassId,
                 _passOwner(productPassId),
                 price,
                 token,
@@ -311,6 +307,7 @@ contract PurchaseManager is
         if (amount > 0) {
             _performPurchase(
                 orgId,
+                productPassId,
                 _passOwner(productPassId),
                 amount,
                 token,
@@ -401,6 +398,7 @@ contract PurchaseManager is
 
     function _performPurchase(
         uint256 orgId,
+        uint256 productPassId,
         address passOwner,
         uint256 totalAmount,
         address token,
@@ -413,6 +411,7 @@ contract PurchaseManager is
             return;
         }
 
+        // Apply coupon discount first
         if (
             ICouponRegistry(registry.couponRegistry()).hasPassCouponCode(
                 orgId,
@@ -428,12 +427,21 @@ contract PurchaseManager is
             );
         }
 
-        IPaymentEscrow(registry.paymentEscrow()).transferDirect{
-            value: msg.value
-        }(orgId, payable(passOwner), token, totalAmount);
+        // Apply permanent pass discounts
+        totalAmount = IDiscountRegistry(registry.discountRegistry())
+            .calculateTotalPassDiscountedAmount(productPassId, totalAmount);
+
+        // Transfer funds
+        if (totalAmount > 0) {
+            IPaymentEscrow(registry.paymentEscrow()).transferDirect{
+                value: msg.value
+            }(orgId, payable(passOwner), token, totalAmount);
+        }
 
         emit PerformPurchase(orgId, passOwner, token, totalAmount);
     }
+
+    receive() external payable {}
 
     /**
      * Coupons

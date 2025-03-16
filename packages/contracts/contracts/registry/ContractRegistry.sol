@@ -24,6 +24,7 @@ import {IPurchaseRegistry} from "./IPurchaseRegistry.sol";
 import {IPricingCalculator} from "../calculator/IPricingCalculator.sol";
 import {IOrganizationAdmin} from "../admin/IOrganizationAdmin.sol";
 import {ICouponRegistry} from "./ICouponRegistry.sol";
+import {IDiscountRegistry} from "./IDiscountRegistry.sol";
 import {OneTimeLock} from "../utils/OneTimeLock.sol";
 
 /*
@@ -72,6 +73,7 @@ contract ContractRegistry is
     address public pricingRegistry;
     address public purchaseRegistry;
     address public couponRegistry;
+    address public discountRegistry;
 
     // Calculator
     address public pricingCalculator;
@@ -201,6 +203,18 @@ contract ContractRegistry is
         couponRegistry = _couponRegistry;
 
         emit ContractUpdated("CouponRegistry", _couponRegistry);
+    }
+
+    function setDiscountRegistry(address _discountRegistry) external onlyOwner {
+        _checkInterface(
+            _discountRegistry,
+            type(IDiscountRegistry).interfaceId,
+            "IDiscountRegistry"
+        );
+
+        discountRegistry = _discountRegistry;
+
+        emit ContractUpdated("DiscountRegistry", _discountRegistry);
     }
 
     // Calculator

@@ -59,6 +59,18 @@ abstract contract RegistryEnabled is Context {
 
     // Product Pass NFT
 
+    modifier onlyPassOwner(uint256 _productPassId) {
+        _checkPassOwner(_productPassId);
+        _;
+    }
+
+    function _checkPassOwner(uint256 _productPassId) internal view {
+        require(
+            _isPassOwner(_productPassId),
+            "Not the owner of the ProductPassNFT"
+        );
+    }
+
     function _isPassOwner(uint256 _productPassId) internal view returns (bool) {
         return _passOwner(_productPassId) == _msgSender();
     }
