@@ -79,7 +79,7 @@ _More chains coming soon!_
 
 This npm workspace aims to provide all the packages needed to build and interact with the ProductMint system. We will continue to add more packages as we expand the system with a focus on the developer experience. Open source everything will continue to be a priority.
 
-- __@product-mint/cli__: CLI tool for interacting with deployed contracts from the command line. (coming soon!)
+- <a href="./packages/cli/README.md">__@product-mint/cli__</a>: CLI tool for interacting with deployed contracts from the command line. (coming soon!)
 - <a href="./packages/contracts/README.md">__@product-mint/contracts__</a>: Ethereum Solidity contracts.
 - <a href="./packages/ethers-sdk/README.md">__@product-mint/ethers-sdk__</a>: Auto generated TypeChain ethers.js v6 SDK for interacting with deployed contracts.
 
