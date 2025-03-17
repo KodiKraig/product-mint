@@ -2,6 +2,7 @@ import { time } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { loadWithDefaultProduct } from './helpers';
+import { assertCheckoutTotalCost } from '../calculator/helpers';
 
 describe('Purchase Manager', () => {
   describe('Coupon Purchases', () => {
@@ -81,6 +82,7 @@ describe('Purchase Manager', () => {
         productRegistry,
         mintToken,
         paymentEscrow,
+        pricingCalculator,
       } = await loadWithDefaultProduct();
 
       // Mint tokens
@@ -135,6 +137,33 @@ describe('Purchase Manager', () => {
 
       // Check if coupon is redeemable
       await couponRegistry.isCodeRedeemable(1, otherAccount, 'COUPON1', true);
+
+      // Assert the checkout total costs
+      await assertCheckoutTotalCost(
+        pricingCalculator,
+        {
+          organizationId: 1,
+          productPassOwner: otherAccount,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [1, 2],
+          couponId: 1,
+        },
+        {
+          pricingIds: [1],
+          token: await mintToken.getAddress(),
+          costs: [ethers.parseUnits('100', 6)],
+          couponCost: ethers.parseUnits('90', 6),
+          couponDiscount: 1000,
+          couponSavings: ethers.parseUnits('10', 6),
+          permanentCost: ethers.parseUnits('78.75', 6),
+          permanentDiscount: 1250,
+          permanentSavings: ethers.parseUnits('11.25', 6),
+          subTotalCost: ethers.parseUnits('100', 6),
+          checkoutTotalCost: ethers.parseUnits('78.75', 6),
+        },
+      );
 
       // PURCHASE
       await purchaseManager.connect(otherAccount).purchaseProducts({

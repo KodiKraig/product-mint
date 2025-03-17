@@ -9,6 +9,9 @@ import {PricingUtils} from "../libs/PricingUtils.sol";
 import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
 import {IPricingRegistry} from "../registry/IPricingRegistry.sol";
 import {IPricingCalculator} from "./IPricingCalculator.sol";
+import {ICouponRegistry} from "../registry/ICouponRegistry.sol";
+import {IDiscountRegistry} from "../registry/IDiscountRegistry.sol";
+import {IProductRegistry} from "../registry/IProductRegistry.sol";
 
 /*
  ____                 _            _   __  __ _       _   
@@ -37,7 +40,107 @@ contract PricingCalculator is RegistryEnabled, IPricingCalculator, IERC165 {
     constructor(address _contractRegistry) RegistryEnabled(_contractRegistry) {}
 
     /**
-     * Total Cost
+     * Checkout Cost
+     */
+
+    function getCheckoutTotalCost(
+        CheckoutTotalCostParams memory params
+    ) external view returns (CheckoutTotalCost memory checkout) {
+        IProductRegistry(registry.productRegistry()).canPurchaseProducts(
+            params.organizationId,
+            params.productIds,
+            params.pricingIds
+        );
+
+        IPricingRegistry(registry.pricingRegistry()).validateCheckoutBatch(
+            params.organizationId,
+            params.productPassOwner,
+            params.pricingIds,
+            params.quantities
+        );
+
+        checkout = CheckoutTotalCost({
+            pricingIds: params.pricingIds,
+            token: address(0),
+            costs: new uint256[](params.pricingIds.length),
+            couponCost: 0,
+            couponDiscount: 0,
+            couponSavings: 0,
+            permanentCost: 0,
+            permanentDiscount: 0,
+            permanentSavings: 0,
+            subTotalCost: 0,
+            checkoutTotalCost: 0
+        });
+
+        _setCheckoutPricingCosts(params, checkout);
+
+        // Coupons are applied before discounts
+        if (params.couponId != 0) {
+            _applyCheckoutCoupon(params, checkout);
+        }
+
+        // Apply any permanent discounts
+        if (params.discountIds.length > 0) {
+            _applyCheckoutDiscounts(params, checkout);
+        }
+    }
+
+    function _setCheckoutPricingCosts(
+        CheckoutTotalCostParams memory params,
+        CheckoutTotalCost memory checkout
+    ) internal view {
+        PricingUtils.Pricing[] memory pricing = IPricingRegistry(
+            registry.pricingRegistry()
+        ).getPricingBatch(params.pricingIds);
+
+        checkout.token = pricing[0].token;
+
+        for (uint256 i = 0; i < pricing.length; i++) {
+            checkout.costs[i] = getTotalCost(
+                pricing[i].chargeStyle,
+                pricing[i].tiers,
+                pricing[i].flatPrice,
+                params.quantities[i]
+            );
+
+            checkout.subTotalCost += checkout.costs[i];
+        }
+
+        checkout.checkoutTotalCost = checkout.subTotalCost;
+    }
+
+    function _applyCheckoutCoupon(
+        CheckoutTotalCostParams memory params,
+        CheckoutTotalCost memory checkout
+    ) internal view {
+        checkout.couponCost = ICouponRegistry(registry.couponRegistry())
+            .discountedAmount(params.couponId, checkout.subTotalCost);
+        checkout.couponDiscount = ICouponRegistry(registry.couponRegistry())
+            .getCoupon(params.couponId)
+            .discount;
+        checkout.checkoutTotalCost = checkout.couponCost;
+        checkout.couponSavings = checkout.subTotalCost - checkout.couponCost;
+    }
+
+    function _applyCheckoutDiscounts(
+        CheckoutTotalCostParams memory params,
+        CheckoutTotalCost memory checkout
+    ) internal view {
+        uint256 currentCost = checkout.couponCost > 0
+            ? checkout.couponCost
+            : checkout.subTotalCost;
+        checkout.permanentCost = IDiscountRegistry(registry.discountRegistry())
+            .calculateTotalDiscountedAmount(params.discountIds, currentCost);
+        checkout.permanentDiscount = IDiscountRegistry(
+            registry.discountRegistry()
+        ).getTotalDiscount(params.discountIds);
+        checkout.checkoutTotalCost = checkout.permanentCost;
+        checkout.permanentSavings = currentCost - checkout.permanentCost;
+    }
+
+    /**
+     * Pricing Total Cost
      */
 
     function getPricingTotalCost(

@@ -6,7 +6,69 @@ import {PricingUtils} from "../libs/PricingUtils.sol";
 
 interface IPricingCalculator {
     /**
-     * Total Cost
+     * Checkout Cost
+     */
+
+    /**
+     * @notice The parameters to calculate the checkout total cost
+     * @dev Uses the same validation as the purchase manager so it will revert if the parameters are not valid
+     * @param organizationId The id of the organization
+     * @param productPassOwner The address of the product pass owner
+     * @param productIds The ids of the products
+     * @param pricingIds The ids of the pricing
+     * @param quantities The quantities of the pricing
+     * @param discountIds The ids of the discounts
+     * @param couponId The id of the coupon
+     */
+    struct CheckoutTotalCostParams {
+        uint256 organizationId;
+        address productPassOwner;
+        uint256[] productIds;
+        uint256[] pricingIds;
+        uint256[] quantities;
+        uint256[] discountIds;
+        uint256 couponId;
+    }
+
+    /**
+     * @notice The result of the checkout total cost calculation
+     * @param pricingIds The ids of the pricing
+     * @param token The token of the pricing
+     * @param costs The costs for each pricing id
+     * @param couponCost The cost after applying the coupon
+     * @param couponDiscount The discount percentage applied by the coupon in basis points
+     * @param couponSavings The savings from the coupon
+     * @param permanentCost The cost after applying the permanent discounts
+     * @param permanentDiscount The discount percentage applied by the permanent discounts in basis points
+     * @param permanentSavings The savings from the permanent discounts
+     * @param subTotalCost The sub total cost of the checkout before applying the coupon and permanent discounts
+     * @param checkoutTotalCost The total cost of the checkout after applying the coupon and permanent discounts
+     */
+    struct CheckoutTotalCost {
+        uint256[] pricingIds;
+        address token;
+        uint256[] costs;
+        uint256 couponCost;
+        uint256 couponDiscount;
+        uint256 couponSavings;
+        uint256 permanentCost;
+        uint256 permanentDiscount;
+        uint256 permanentSavings;
+        uint256 subTotalCost;
+        uint256 checkoutTotalCost;
+    }
+
+    /**
+     * @notice Get the checkout total cost
+     * @param params The parameters for the checkout total cost calculation
+     * @return checkout The result of the checkout total cost calculation
+     */
+    function getCheckoutTotalCost(
+        CheckoutTotalCostParams memory params
+    ) external view returns (CheckoutTotalCost memory checkout);
+
+    /**
+     * Pricing Total Cost
      */
 
     /**
