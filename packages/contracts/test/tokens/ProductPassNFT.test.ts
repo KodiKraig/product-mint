@@ -356,6 +356,8 @@ describe('ProductPassNFT', () => {
           { trait_type: 'Organization ID', value: '1' },
           { trait_type: 'Product 1', value: 'Product 1' },
           { trait_type: 'Product 4', value: 'Name 4' },
+          { trait_type: 'Subscription 1', value: 'Active' },
+          { trait_type: 'Subscription 4', value: 'Active' },
         ],
       });
 
@@ -364,6 +366,7 @@ describe('ProductPassNFT', () => {
         attributes: [
           { trait_type: 'Organization ID', value: '1' },
           { trait_type: 'Product 1', value: 'Product 1' },
+          { trait_type: 'Subscription 1', value: 'Active' },
         ],
       });
 
@@ -381,6 +384,7 @@ describe('ProductPassNFT', () => {
         attributes: [
           { trait_type: 'Organization ID', value: '1' },
           { trait_type: 'Product 1', value: 'Product 1' },
+          { trait_type: 'Subscription 1', value: 'Active' },
         ],
       });
 

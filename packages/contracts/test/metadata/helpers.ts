@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 
 export type Metadata = {
-  name: string;
-  description: string;
+  name: string | null;
+  description: string | null;
   external_url: string | null;
   image: string | null;
   background_color: string | null;
@@ -55,6 +55,15 @@ export const DEFAULT_PASS_METADATA = {
   image: '',
   backgroundColor: '111111',
   animationUrl: 'https://test-pass.com/animation.mp4',
+};
+
+export const EMPTY_METADATA = {
+  name: null,
+  description: null,
+  external_url: null,
+  image: null,
+  background_color: null,
+  animation_url: null,
 };
 
 export const EXPECTED_DEFAULT_PASS_METADATA = {

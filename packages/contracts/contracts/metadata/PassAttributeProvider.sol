@@ -10,6 +10,7 @@ import {IDiscountRegistry} from "../registry/IDiscountRegistry.sol";
 import {IProductRegistry} from "../registry/IProductRegistry.sol";
 import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
 import {AttributeUtils} from "../libs/AttributeUtils.sol";
+import {ISubscriptionEscrow} from "../escrow/ISubscriptionEscrow.sol";
 
 /*
  ____                 _            _   __  __ _       _   
@@ -30,12 +31,20 @@ import {AttributeUtils} from "../libs/AttributeUtils.sol";
  *
  * Attributes include:
  * - Organization ID
- * - <Product ID> -> <Product Name>
- *  EX: Product 1 -> Pro Plan, Product 2 -> Token Usage, etc.
- * - <Discount ID> -> <Discount Name>
- *  EX: Discount 1 -> OG, Discount 2 -> FOUNDER, etc.
+ * - Product <Product ID> -> <Product Name>
+ * - Subscription <Product ID> -> <Subscription Status>
+ * - Discount <Discount ID> -> <Discount Name>
  * - Total Discount
- * EX: 10%
+ *
+ * Example:
+ * Organization ID: 1
+ * Product 1: Pro Plan
+ * Product 2: Token Usage
+ * Subscription 1: Active
+ * Subscription 2: Active
+ * Discount 1: OG
+ * Discount 2: FOUNDER
+ * Total Discount: 8%
  */
 contract PassAttributeProvider is AttributeProvider, RegistryEnabled {
     using Strings for uint256;
@@ -52,6 +61,7 @@ contract PassAttributeProvider is AttributeProvider, RegistryEnabled {
             registry.purchaseRegistry()
         );
 
+        // Organization ID and Product IDs
         string memory attributes = string.concat(
             purchaseRegistry
                 .passOrganization(tokenId)
@@ -61,10 +71,16 @@ contract PassAttributeProvider is AttributeProvider, RegistryEnabled {
             _getOwnedProductAttributes(tokenId)
         );
 
+        // Subscriptions
+        string memory subscriptions = _getPassSubAttributes(tokenId);
+        if (bytes(subscriptions).length > 0) {
+            attributes = string.concat(attributes, ",", subscriptions);
+        }
+
+        // Discount IDs and Total Discounted Amount
         uint256[] memory discountIds = IDiscountRegistry(
             registry.discountRegistry()
         ).getPassDiscountIds(tokenId);
-
         if (discountIds.length > 0) {
             attributes = string.concat(
                 attributes,
@@ -163,6 +179,66 @@ contract PassAttributeProvider is AttributeProvider, RegistryEnabled {
         return
             totalDiscountedAmount.percentage(100).attributeTraitType(
                 "Total Discount"
+            );
+    }
+
+    /**
+     * @dev Get the attributes for the subscriptions for the pass.
+     *
+     * Format:
+     * { 'trait_type': 'Subscription <Product ID>', 'value': '<SUBSCRIPTION STATUS>' },
+     */
+    function _getPassSubAttributes(
+        uint256 tokenId
+    ) internal view returns (string memory) {
+        uint256[] memory productIds = ISubscriptionEscrow(
+            registry.subscriptionEscrow()
+        ).getPassSubs(tokenId);
+
+        if (productIds.length == 0) {
+            return "";
+        }
+
+        (
+            ISubscriptionEscrow.Subscription[] memory _subs,
+            ISubscriptionEscrow.SubscriptionStatus[] memory _statuses
+        ) = ISubscriptionEscrow(registry.subscriptionEscrow())
+                .getSubscriptionBatch(tokenId, productIds);
+
+        string[] memory subAttributes = new string[](_subs.length);
+
+        for (uint256 i = 0; i < _subs.length; i++) {
+            subAttributes[i] = _getSubStatusAttribute(
+                _statuses[i],
+                productIds[i]
+            );
+        }
+
+        return subAttributes.joinWithCommas();
+    }
+
+    /**
+     * @dev Get the attribute for the status of a subscription.
+     *
+     * Active, Cancelled, Past Due, Paused
+     */
+    function _getSubStatusAttribute(
+        ISubscriptionEscrow.SubscriptionStatus status,
+        uint256 productId
+    ) internal pure returns (string memory) {
+        string memory statusString = "Active";
+
+        if (status == ISubscriptionEscrow.SubscriptionStatus.CANCELLED) {
+            statusString = "Cancelled";
+        } else if (status == ISubscriptionEscrow.SubscriptionStatus.PAST_DUE) {
+            statusString = "Past Due";
+        } else if (status == ISubscriptionEscrow.SubscriptionStatus.PAUSED) {
+            statusString = "Paused";
+        }
+
+        return
+            statusString.attributeTraitType(
+                string.concat("Subscription ", productId.toString())
             );
     }
 }

@@ -4,6 +4,9 @@ pragma solidity ^0.8.24;
 
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
+import {
+    EnumerableSet
+} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
 import {ISubscriptionEscrow} from "./ISubscriptionEscrow.sol";
@@ -60,9 +63,13 @@ contract SubscriptionEscrow is
     IERC165
 {
     using PricingUtils for PricingUtils.Pricing;
+    using EnumerableSet for EnumerableSet.UintSet;
 
     // Product Pass Token ID => Product ID => Subscription
     mapping(uint256 => mapping(uint256 => Subscription)) private subs;
+
+    // Product Pass Token ID => Product IDs
+    mapping(uint256 => EnumerableSet.UintSet) private passSubs;
 
     // Product Pass Token ID => Product ID => Unit Quantity
     mapping(uint256 => mapping(uint256 => UnitQuantity)) private unitQuantities;
@@ -124,6 +131,12 @@ contract SubscriptionEscrow is
         return SubscriptionStatus.ACTIVE;
     }
 
+    function getPassSubs(
+        uint256 productPassId
+    ) external view returns (uint256[] memory) {
+        return passSubs[productPassId].values();
+    }
+
     /**
      * Creation
      */
@@ -160,6 +173,8 @@ contract SubscriptionEscrow is
                     isCancelled: false,
                     isPaused: _pause
                 });
+
+                passSubs[_productPassId].add(_productIds[i]);
 
                 if (_unitQuantities[i] > 0) {
                     _createUnitQuantity(

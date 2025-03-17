@@ -86,6 +86,7 @@ describe('Purchase Manager', () => {
         pricingCalculator,
         purchaseRegistry,
         paymentEscrow,
+        subscriptionEscrow,
         otherAccount,
       } = await loadWithDefaultProduct();
 
@@ -140,6 +141,9 @@ describe('Purchase Manager', () => {
       );
 
       // ASSERTIONS
+
+      // Subscription escrow
+      expect(await subscriptionEscrow.getPassSubs(1)).to.deep.equal([]);
 
       // Manager
       expect(await purchaseManager.passSupply()).to.equal(1);
@@ -457,6 +461,7 @@ describe('Purchase Manager', () => {
       );
 
       // Subscription escrow
+      expect(await subscriptionEscrow.getPassSubs(1)).to.deep.equal([]);
       await expect(subscriptionEscrow.getSubscription(1, 1)).to.be.revertedWith(
         'Subscription does not exist',
       );
@@ -672,6 +677,8 @@ describe('Purchase Manager', () => {
           status: 0,
         },
       );
+
+      expect(await subscriptionEscrow.getPassSubs(1)).to.deep.equal([1]);
     });
 
     it('can purchase flat rate subscription product and renew it even with pricing set to inactive', async () => {

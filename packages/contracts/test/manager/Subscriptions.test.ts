@@ -14,6 +14,7 @@ import {
   time,
 } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { getCycleDuration } from '../../utils/cycle-duration';
+import { assertMetadata, EMPTY_METADATA } from '../metadata/helpers';
 
 describe('Purchase Manager', () => {
   describe('Batch Subscription Renewal', () => {
@@ -27,6 +28,7 @@ describe('Purchase Manager', () => {
         usageRecorder,
         mintToken,
         otherAccount,
+        subscriptionEscrow,
       } = contracts;
 
       // Create additional products
@@ -119,6 +121,8 @@ describe('Purchase Manager', () => {
         additionalProductsTx,
       );
 
+      expect(await subscriptionEscrow.getPassSubs(1)).to.deep.equal([1, 2, 3]);
+
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
         ethers.parseUnits('87.5', 6),
       );
@@ -132,6 +136,7 @@ describe('Purchase Manager', () => {
         usageRecorder,
         subscriptionEscrow,
         paymentEscrow,
+        productPassNFT,
         mintToken,
         owner,
         otherAccount,
@@ -174,6 +179,20 @@ describe('Purchase Manager', () => {
 
       // ADVANCE TO ALL PAST DUE PRODUCTS
       await time.increase(getCycleDuration(3) + 1);
+
+      // Check metadata
+      assertMetadata(await productPassNFT.tokenURI(1), {
+        ...EMPTY_METADATA,
+        attributes: [
+          { trait_type: 'Organization ID', value: '1' },
+          { trait_type: 'Product 1', value: 'Product 1' },
+          { trait_type: 'Product 2', value: 'Product 2' },
+          { trait_type: 'Product 3', value: 'Product 3' },
+          { trait_type: 'Subscription 1', value: 'Past Due' },
+          { trait_type: 'Subscription 2', value: 'Past Due' },
+          { trait_type: 'Subscription 3', value: 'Past Due' },
+        ],
+      });
 
       // BATCH RENEW SUBSCRIPTIONS
       const tx = await purchaseManager
@@ -384,6 +403,7 @@ describe('Purchase Manager', () => {
         subscriptionEscrow,
         mintToken,
         purchaseTimeStamp,
+        productPassNFT,
       } = await loadWithPurchasedFlatRateSubscription();
 
       await assertSubscription(
@@ -407,6 +427,15 @@ describe('Purchase Manager', () => {
       await purchaseManager
         .connect(otherAccount)
         .cancelSubscription(1, 1, true);
+
+      assertMetadata(await productPassNFT.tokenURI(1), {
+        ...EMPTY_METADATA,
+        attributes: [
+          { trait_type: 'Organization ID', value: '1' },
+          { trait_type: 'Product 1', value: 'Product 1' },
+          { trait_type: 'Subscription 1', value: 'Cancelled' },
+        ],
+      });
 
       await assertSubscription(
         subscriptionEscrow,
@@ -1171,6 +1200,7 @@ describe('Purchase Manager', () => {
         otherAccount,
         paymentEscrow,
         purchaseTimeStamp,
+        productPassNFT,
       } = await loadWithPurchasedFlatRateSubscription();
 
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
@@ -1186,6 +1216,15 @@ describe('Purchase Manager', () => {
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
         ethers.parseUnits('90', 6),
       );
+
+      assertMetadata(await productPassNFT.tokenURI(1), {
+        ...EMPTY_METADATA,
+        attributes: [
+          { trait_type: 'Organization ID', value: '1' },
+          { trait_type: 'Product 1', value: 'Product 1' },
+          { trait_type: 'Subscription 1', value: 'Paused' },
+        ],
+      });
 
       await assertSubscription(
         subscriptionEscrow,
