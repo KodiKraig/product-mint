@@ -11,7 +11,13 @@
     "clean": "hardhat clean",
     "visualize": "hardhat ignition visualize ./ignition/modules/ProductMintSystem.ts"
   },
-  "keywords": [],
+  "keywords": [
+    "productmint",
+    "ethereum",
+    "payments",
+    "web3",
+    "onchain"
+  ],
   "author": "@kodikraig",
   "license": "BUSL-1.1",
   "devDependencies": {

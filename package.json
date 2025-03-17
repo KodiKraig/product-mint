@@ -4,15 +4,16 @@
   "description": "NFT based payment system to mint products onchain with one-time payments and recurring permissionless subscriptions.",
   "main": "index.js",
   "scripts": {
+    "build:ethers-sdk": "npm run build -w @product-mint/ethers-sdk",
     "test": "npm run test -w @product-mint/contracts",
     "test:contracts": "npm run test -w @product-mint/contracts",
     "test:contracts:coverage": "npm run test:coverage -w @product-mint/contracts"
   },
   "keywords": [
-    "Ethereum",
-    "Payments",
-    "Onchain",
-    "Web3"
+    "ethereum",
+    "payments",
+    "onchain",
+    "web3"
   ],
   "workspaces": [
     "packages/*"

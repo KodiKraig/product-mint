@@ -1,0 +1,64 @@
+{
+  "name": "@product-mint/ethers-sdk",
+  "version": "1.0.0",
+  "description": "Typechain ethers-v6 SDK for ProductMint contracts.",
+  "main": "./dist/cjs/index.js",
+  "types": "./dist/cjs/index.d.ts",
+  "module": "./dist/esm/index.js",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    },
+    "./common": {
+      "import": {
+        "types": "./dist/esm/typechain-types/common.d.ts",
+        "default": "./dist/esm/typechain-types/common.js"
+      },
+      "require": {
+        "types": "./dist/cjs/typechain-types/common.d.ts",
+        "default": "./dist/cjs/typechain-types/common.js"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KodiKraig/product-mint.git"
+  },
+  "homepage": "https://www.productmint.io",
+  "sideEffects": false,
+  "author": "@kodikraig",
+  "license": "BUSL-1.1",
+  "private": false,
+  "keywords": [
+    "productmint",
+    "ethereum",
+    "payments",
+    "web3",
+    "onchain"
+  ],
+  "scripts": {
+    "build": "npm run compile -w @product-mint/contracts && npm run typechain -w @product-mint/ethers-sdk && tsc && tsc -p tsconfig.esm.json",
+    "typechain": "rm -rf src/typechain-types && typechain --target ethers-v6 --out-dir src/typechain-types '../contracts/artifacts/contracts/**/!(*.dbg).json'"
+  },
+  "dependencies": {
+    "ethers": "^6.0.0"
+  },
+  "devDependencies": {
+    "@typechain/ethers-v6": "^0.5.0",
+    "typechain": "^8.3.0",
+    "typescript": "^5.0.0"
+  }
+}
