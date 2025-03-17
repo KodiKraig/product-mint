@@ -9,7 +9,9 @@
     "test:coverage:watch": "nodemon -e js,ts,sol --watch contracts --watch test --watch ignition/modules --exec 'hardhat coverage'",
     "compile": "hardhat compile",
     "clean": "hardhat clean",
-    "visualize": "hardhat ignition visualize ./ignition/modules/ProductMintSystem.ts"
+    "visualize": "hardhat ignition visualize ./ignition/modules/ProductMintSystem.ts",
+    "node:local": "hardhat node",
+    "deploy:local": "hardhat node & hardhat ignition deploy ./ignition/modules/ProductMintSystem.ts --network localhost"
   },
   "keywords": [
     "productmint",
