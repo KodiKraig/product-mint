@@ -109,12 +109,16 @@ describe('Pass Metadata Provider', () => {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
           {
-            trait_type: 'Organization ID',
+            trait_type: 'Organization',
             value: 1,
           },
           {
             trait_type: 'Product 1',
             value: 'Product 1',
+          },
+          {
+            trait_type: 'Subscription 1',
+            value: 'Active',
           },
         ],
       });
@@ -148,12 +152,16 @@ describe('Pass Metadata Provider', () => {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
           {
-            trait_type: 'Organization ID',
+            trait_type: 'Organization',
             value: 1,
           },
           {
             trait_type: 'Product 1',
             value: 'Product 1',
+          },
+          {
+            trait_type: 'Subscription 1',
+            value: 'Active',
           },
           {
             trait_type: 'Discount 1',
@@ -199,12 +207,16 @@ describe('Pass Metadata Provider', () => {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
           {
-            trait_type: 'Organization ID',
+            trait_type: 'Organization',
             value: 1,
           },
           {
             trait_type: 'Product 1',
             value: 'Product 1',
+          },
+          {
+            trait_type: 'Subscription 1',
+            value: 'Active',
           },
           {
             trait_type: 'Discount 1',

@@ -70,6 +70,15 @@ interface ISubscriptionEscrow {
         );
 
     /**
+     * @notice Get the product IDs for a product pass that have subscriptions.
+     * @param productPassId The ID of the product pass.
+     * @return productIds The product IDs.
+     */
+    function getPassSubs(
+        uint256 productPassId
+    ) external view returns (uint256[] memory);
+
+    /**
      * @notice Emitted when a subscription cycle is updated.
      * @param organizationId The ID of the organization.
      * @param productPassId The ID of the product pass.

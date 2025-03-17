@@ -353,24 +353,27 @@ describe('ProductPassNFT', () => {
       assertMetadata(tokenUris[0], {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
-          { trait_type: 'Organization ID', value: '1' },
+          { trait_type: 'Organization', value: '1' },
           { trait_type: 'Product 1', value: 'Product 1' },
           { trait_type: 'Product 4', value: 'Name 4' },
+          { trait_type: 'Subscription 1', value: 'Active' },
+          { trait_type: 'Subscription 4', value: 'Active' },
         ],
       });
 
       assertMetadata(tokenUris[1], {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
-          { trait_type: 'Organization ID', value: '1' },
+          { trait_type: 'Organization', value: '1' },
           { trait_type: 'Product 1', value: 'Product 1' },
+          { trait_type: 'Subscription 1', value: 'Active' },
         ],
       });
 
       assertMetadata(tokenUris[2], {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
-          { trait_type: 'Organization ID', value: '2' },
+          { trait_type: 'Organization', value: '2' },
           { trait_type: 'Product 2', value: 'Name 2' },
           { trait_type: 'Product 3', value: 'Name 3' },
         ],
@@ -379,15 +382,16 @@ describe('ProductPassNFT', () => {
       assertMetadata(tokenUris[3], {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
-          { trait_type: 'Organization ID', value: '1' },
+          { trait_type: 'Organization', value: '1' },
           { trait_type: 'Product 1', value: 'Product 1' },
+          { trait_type: 'Subscription 1', value: 'Active' },
         ],
       });
 
       assertMetadata(tokenUris[4], {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
-          { trait_type: 'Organization ID', value: '2' },
+          { trait_type: 'Organization', value: '2' },
           { trait_type: 'Product 2', value: 'Name 2' },
           { trait_type: 'Product 3', value: 'Name 3' },
         ],
