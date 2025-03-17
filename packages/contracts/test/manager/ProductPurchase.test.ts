@@ -536,7 +536,7 @@ describe('Purchase Manager', () => {
       assertMetadata(pass1Metadata, {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
-          { trait_type: 'Organization ID', value: '1' },
+          { trait_type: 'Organization', value: '1' },
           { trait_type: 'Product 1', value: 'Name 1' },
           { trait_type: 'Product 2', value: 'Name 2' },
         ],
@@ -545,7 +545,7 @@ describe('Purchase Manager', () => {
       assertMetadata(pass2Metadata, {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
-          { trait_type: 'Organization ID', value: '1' },
+          { trait_type: 'Organization', value: '1' },
           { trait_type: 'Product 1', value: 'Name 1' },
         ],
       });

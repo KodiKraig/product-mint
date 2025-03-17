@@ -184,7 +184,7 @@ describe('Purchase Manager', () => {
       assertMetadata(await productPassNFT.tokenURI(1), {
         ...EMPTY_METADATA,
         attributes: [
-          { trait_type: 'Organization ID', value: '1' },
+          { trait_type: 'Organization', value: '1' },
           { trait_type: 'Product 1', value: 'Product 1' },
           { trait_type: 'Product 2', value: 'Product 2' },
           { trait_type: 'Product 3', value: 'Product 3' },
@@ -431,7 +431,7 @@ describe('Purchase Manager', () => {
       assertMetadata(await productPassNFT.tokenURI(1), {
         ...EMPTY_METADATA,
         attributes: [
-          { trait_type: 'Organization ID', value: '1' },
+          { trait_type: 'Organization', value: '1' },
           { trait_type: 'Product 1', value: 'Product 1' },
           { trait_type: 'Subscription 1', value: 'Cancelled' },
         ],
@@ -1220,7 +1220,7 @@ describe('Purchase Manager', () => {
       assertMetadata(await productPassNFT.tokenURI(1), {
         ...EMPTY_METADATA,
         attributes: [
-          { trait_type: 'Organization ID', value: '1' },
+          { trait_type: 'Organization', value: '1' },
           { trait_type: 'Product 1', value: 'Product 1' },
           { trait_type: 'Subscription 1', value: 'Paused' },
         ],

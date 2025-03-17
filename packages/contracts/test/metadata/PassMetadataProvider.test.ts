@@ -109,7 +109,7 @@ describe('Pass Metadata Provider', () => {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
           {
-            trait_type: 'Organization ID',
+            trait_type: 'Organization',
             value: 1,
           },
           {
@@ -152,7 +152,7 @@ describe('Pass Metadata Provider', () => {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
           {
-            trait_type: 'Organization ID',
+            trait_type: 'Organization',
             value: 1,
           },
           {
@@ -207,7 +207,7 @@ describe('Pass Metadata Provider', () => {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
           {
-            trait_type: 'Organization ID',
+            trait_type: 'Organization',
             value: 1,
           },
           {

@@ -30,21 +30,21 @@ import {ISubscriptionEscrow} from "../escrow/ISubscriptionEscrow.sol";
  * @notice Provides attributes for Pass NFTs
  *
  * Attributes include:
- * - Organization ID
+ * - Organization -> <Organization ID>
  * - Product <Product ID> -> <Product Name>
  * - Subscription <Product ID> -> <Subscription Status>
  * - Discount <Discount ID> -> <Discount Name>
  * - Total Discount
  *
  * Example:
- * Organization ID: 1
- * Product 1: Pro Plan
- * Product 2: Token Usage
- * Subscription 1: Active
- * Subscription 2: Active
- * Discount 1: OG
- * Discount 2: FOUNDER
- * Total Discount: 8%
+ * Organization -> 1
+ * Product 1 -> Pro Plan
+ * Product 2 -> Token Usage
+ * Subscription 1 -> Active
+ * Subscription 2 -> Active
+ * Discount 1 -> OG
+ * Discount 2 -> FOUNDER
+ * Total Discount -> 8%
  */
 contract PassAttributeProvider is AttributeProvider, RegistryEnabled {
     using Strings for uint256;
@@ -66,7 +66,7 @@ contract PassAttributeProvider is AttributeProvider, RegistryEnabled {
             purchaseRegistry
                 .passOrganization(tokenId)
                 .toString()
-                .attributeTraitType("Organization ID"),
+                .attributeTraitType("Organization"),
             ",",
             _getOwnedProductAttributes(tokenId)
         );
