@@ -15,6 +15,7 @@ import {
   EXPECTED_DEFAULT_PASS_METADATA,
 } from '../metadata/helpers';
 import { assertMetadata } from '../metadata/helpers';
+import { assertCheckoutTotalCost } from '../calculator/helpers';
 
 describe('Purchase Manager', () => {
   describe('Successful Product Purchase', () => {
@@ -82,6 +83,7 @@ describe('Purchase Manager', () => {
         pricingRegistry,
         productPassNFT,
         couponRegistry,
+        pricingCalculator,
         purchaseRegistry,
         paymentEscrow,
         otherAccount,
@@ -95,6 +97,32 @@ describe('Purchase Manager', () => {
       });
 
       await productRegistry.linkPricing(1, [1]);
+
+      await assertCheckoutTotalCost(
+        pricingCalculator,
+        {
+          organizationId: 1,
+          productPassOwner: otherAccount,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [],
+          couponId: 0,
+        },
+        {
+          pricingIds: [1],
+          token: ethers.ZeroAddress,
+          costs: [ethers.parseEther('10')],
+          couponCost: 0,
+          couponDiscount: 0,
+          couponSavings: 0,
+          permanentCost: 0,
+          permanentDiscount: 0,
+          permanentSavings: 0,
+          subTotalCost: ethers.parseEther('10'),
+          checkoutTotalCost: ethers.parseEther('10'),
+        },
+      );
 
       await purchaseManager.connect(otherAccount).purchaseProducts(
         {
@@ -150,6 +178,7 @@ describe('Purchase Manager', () => {
         pricingRegistry,
         purchaseRegistry,
         passMetadataProvider,
+        pricingCalculator,
         couponRegistry,
         productPassNFT,
         mintToken,
@@ -245,6 +274,59 @@ describe('Purchase Manager', () => {
       expect(
         await couponRegistry.hasRedeemedCoupon(1, otherAccount2, 1),
       ).to.equal(false);
+
+      // Assert the checkout total costs
+      await assertCheckoutTotalCost(
+        pricingCalculator,
+        {
+          organizationId: 1,
+          productPassOwner: otherAccount,
+          productIds: [1, 2],
+          pricingIds: [1, 2],
+          quantities: [0, 0],
+          discountIds: [],
+          couponId: 1,
+        },
+        {
+          pricingIds: [1, 2],
+          token: await mintToken.getAddress(),
+          costs: [ethers.parseUnits('10', 6), ethers.parseUnits('20', 6)],
+          couponCost: ethers.parseUnits('27', 6),
+          couponDiscount: 1000,
+          couponSavings: ethers.parseUnits('3', 6),
+          permanentCost: 0,
+          permanentDiscount: 0,
+          permanentSavings: 0,
+          subTotalCost: ethers.parseUnits('30', 6),
+          checkoutTotalCost: ethers.parseUnits('27', 6),
+        },
+      );
+
+      await assertCheckoutTotalCost(
+        pricingCalculator,
+        {
+          organizationId: 1,
+          productPassOwner: otherAccount2,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [],
+          couponId: 0,
+        },
+        {
+          pricingIds: [1],
+          token: await mintToken.getAddress(),
+          costs: [ethers.parseUnits('10', 6)],
+          couponCost: 0,
+          couponDiscount: 0,
+          couponSavings: 0,
+          permanentCost: 0,
+          permanentDiscount: 0,
+          permanentSavings: 0,
+          subTotalCost: ethers.parseUnits('10', 6),
+          checkoutTotalCost: ethers.parseUnits('10', 6),
+        },
+      );
 
       // PURCHASE PRODUCT
       await expect(
@@ -599,6 +681,7 @@ describe('Purchase Manager', () => {
         pricingRegistry,
         purchaseRegistry,
         subscriptionEscrow,
+        pricingCalculator,
         mintToken,
         usageRecorder,
         paymentEscrow,
@@ -625,6 +708,33 @@ describe('Purchase Manager', () => {
       const cycleDuration = getCycleDuration(1);
 
       await productRegistry.linkPricing(1, [1]);
+
+      // Assert the checkout total costs
+      await assertCheckoutTotalCost(
+        pricingCalculator,
+        {
+          organizationId: 1,
+          productPassOwner: otherAccount,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [],
+          couponId: 0,
+        },
+        {
+          pricingIds: [1],
+          token: await mintToken.getAddress(),
+          costs: [ethers.parseUnits('10', 6)],
+          couponCost: 0,
+          couponDiscount: 0,
+          couponSavings: 0,
+          permanentCost: 0,
+          permanentDiscount: 0,
+          permanentSavings: 0,
+          subTotalCost: ethers.parseUnits('10', 6),
+          checkoutTotalCost: ethers.parseUnits('10', 6),
+        },
+      );
 
       // INITIAL PURCHASE
       let tx = await purchaseManager.connect(otherAccount).purchaseProducts({
@@ -766,6 +876,7 @@ describe('Purchase Manager', () => {
         pricingRegistry,
         purchaseRegistry,
         subscriptionEscrow,
+        pricingCalculator,
         mintToken,
         usageRecorder,
         paymentEscrow,
@@ -804,6 +915,33 @@ describe('Purchase Manager', () => {
       });
 
       await productRegistry.linkPricing(1, [1]);
+
+      // Assert the checkout total costs
+      await assertCheckoutTotalCost(
+        pricingCalculator,
+        {
+          organizationId: 1,
+          productPassOwner: otherAccount,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [100],
+          discountIds: [],
+          couponId: 0,
+        },
+        {
+          pricingIds: [1],
+          token: await mintToken.getAddress(),
+          costs: [ethers.parseUnits('204', 6)],
+          couponCost: 0,
+          couponDiscount: 0,
+          couponSavings: 0,
+          permanentCost: 0,
+          permanentDiscount: 0,
+          permanentSavings: 0,
+          subTotalCost: ethers.parseUnits('204', 6),
+          checkoutTotalCost: ethers.parseUnits('204', 6),
+        },
+      );
 
       // INITIAL PURCHASE
       let tx = await purchaseManager.connect(otherAccount).purchaseProducts({

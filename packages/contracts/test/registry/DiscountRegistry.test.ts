@@ -5,6 +5,7 @@ import {
 } from '../manager/helpers';
 import { DiscountRegistry } from '../../typechain-types';
 import { ethers } from 'hardhat';
+import { assertCheckoutTotalCost } from '../calculator/helpers';
 
 interface CreateDiscountParams {
   orgId?: number;
@@ -494,6 +495,7 @@ describe('DiscountRegistry', () => {
           discountRegistry,
           purchaseManager,
           otherAccount2,
+          pricingCalculator,
           mintToken,
           paymentEscrow,
         } = await loadWithDefaultDiscountAndPass();
@@ -506,6 +508,33 @@ describe('DiscountRegistry', () => {
         await mintToken
           .connect(otherAccount2)
           .approve(paymentEscrow, ethers.parseUnits('100', 6));
+
+        // Assert checkout total cost
+        await assertCheckoutTotalCost(
+          pricingCalculator,
+          {
+            organizationId: 1,
+            productIds: [1],
+            pricingIds: [1],
+            quantities: [0],
+            discountIds: [1],
+            couponId: 0,
+            productPassOwner: otherAccount2,
+          },
+          {
+            pricingIds: [1],
+            token: await mintToken.getAddress(),
+            costs: [ethers.parseUnits('10', 6)],
+            couponCost: 0,
+            couponDiscount: 0,
+            couponSavings: 0,
+            permanentCost: ethers.parseUnits('9', 6),
+            permanentDiscount: 1000,
+            permanentSavings: ethers.parseUnits('1', 6),
+            subTotalCost: ethers.parseUnits('10', 6),
+            checkoutTotalCost: ethers.parseUnits('9', 6),
+          },
+        );
 
         // Purchase second pass
         await purchaseManager.connect(otherAccount2).purchaseProducts({

@@ -2039,4 +2039,99 @@ describe('PricingCalculator', () => {
       ).to.be.revertedWithCustomError(pricingCalculator, 'InvalidChargeStyle');
     });
   });
+
+  describe('Checkout Cost', () => {
+    it('should revert if product ids are not found', async () => {
+      const { pricingCalculator, productRegistry } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      await expect(
+        pricingCalculator.getCheckoutTotalCost({
+          organizationId: 1,
+          productIds: [5],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [],
+          couponId: 0,
+          productPassOwner: ethers.ZeroAddress,
+        }),
+      )
+        .to.be.revertedWithCustomError(
+          productRegistry,
+          'ProductNotFoundForOrganization',
+        )
+        .withArgs(1, 5);
+    });
+
+    it('should revert if pricing ids are not found', async () => {
+      const { pricingCalculator, productRegistry } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      await expect(
+        pricingCalculator.getCheckoutTotalCost({
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [5],
+          quantities: [0],
+          discountIds: [],
+          couponId: 0,
+          productPassOwner: ethers.ZeroAddress,
+        }),
+      )
+        .to.be.revertedWithCustomError(
+          productRegistry,
+          'PricingNotLinkedToProduct',
+        )
+        .withArgs(1, 5);
+    });
+
+    it('should revert if pricing ids use different tokens', async () => {
+      const {
+        pricingCalculator,
+        productRegistry,
+        pricingRegistry,
+        paymentEscrow,
+        otherAccount2,
+      } = await loadWithPurchasedFlatRateSubscription();
+
+      // Create another product with a different token
+      await productRegistry.createProduct({
+        orgId: 1,
+        name: 'Product 2',
+        description: 'P2 Description',
+        imageUrl: 'https://example.com/product2',
+        externalUrl: 'https://example.com/product2-image',
+        isTransferable: false,
+      });
+
+      const MintToken = await hre.ethers.getContractFactory('MintToken');
+      const mintToken2 = await MintToken.deploy();
+      await paymentEscrow.setWhitelistedToken(
+        await mintToken2.getAddress(),
+        true,
+      );
+
+      await pricingRegistry.createFlatRateSubscriptionPricing({
+        organizationId: 1,
+        flatPrice: 100,
+        token: await mintToken2.getAddress(),
+        isRestricted: false,
+        chargeFrequency: 1,
+      });
+
+      await productRegistry.linkPricing(2, [2]);
+
+      await expect(
+        pricingCalculator.getCheckoutTotalCost({
+          organizationId: 1,
+          productIds: [1, 2],
+          pricingIds: [1, 2],
+          quantities: [0, 0],
+          discountIds: [],
+          couponId: 0,
+          productPassOwner: otherAccount2,
+        }),
+      ).to.be.revertedWithCustomError(pricingRegistry, 'PricingTokensMismatch');
+    });
+  });
 });
