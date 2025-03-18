@@ -324,19 +324,27 @@ interface IProductRegistry {
     /**
      * @notice Get all the pricing options for a product.
      * @param productId The product ID to get the pricing options for.
+     * @return pricingIds The pricing IDs that are linked to the product.
      * @return pricingOptions The pricing options for the product.
      */
     function getProductPricing(
         uint256 productId
-    ) external view returns (PricingUtils.Pricing[] memory);
+    ) external view returns (uint256[] memory, PricingUtils.Pricing[] memory);
 
     /**
      * @notice Get all the pricing options for a batch of products.
      * @dev This will be expensive to call and should be used with view only.
      * @param _productIds The product IDs to get the pricing options for.
+     * @return pricingIds The pricing IDs that are linked to the products.
      * @return pricingOptions The pricing options for the products.
      */
     function getProductPricingBatch(
         uint256[] memory _productIds
-    ) external view returns (PricingUtils.Pricing[][] memory pricingOptions);
+    )
+        external
+        view
+        returns (
+            uint256[][] memory pricingIds,
+            PricingUtils.Pricing[][] memory pricingOptions
+        );
 }

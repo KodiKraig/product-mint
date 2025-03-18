@@ -413,6 +413,11 @@ const _abi = [
     name: "getProductPricing",
     outputs: [
       {
+        internalType: "uint256[]",
+        name: "",
+        type: "uint256[]",
+      },
+      {
         components: [
           {
             internalType: "uint256",
@@ -500,6 +505,11 @@ const _abi = [
     ],
     name: "getProductPricingBatch",
     outputs: [
+      {
+        internalType: "uint256[][]",
+        name: "pricingIds",
+        type: "uint256[][]",
+      },
       {
         components: [
           {

@@ -903,10 +903,13 @@ describe('ProductRegistry', () => {
       expect(await productRegistry.getProductPricingIds(1)).to.deep.equal([
         1, 2,
       ]);
-      const pricingOptions = await productRegistry.getProductPricing(1);
+      const [pricingIds, pricingOptions] =
+        await productRegistry.getProductPricing(1);
+      expect(pricingIds.length).to.equal(2);
       expect(pricingOptions.length).to.equal(2);
 
       // Check all the pricing options are correct
+      expect(pricingIds[0]).to.equal(1);
       const expectedPricing1 = [
         1,
         0,
@@ -920,6 +923,7 @@ describe('ProductRegistry', () => {
       ];
       expect(pricingOptions[0]).to.deep.equal(expectedPricing1);
 
+      expect(pricingIds[1]).to.equal(2);
       const expectedPricing2 = [
         1,
         0,
@@ -956,8 +960,11 @@ describe('ProductRegistry', () => {
       ]);
 
       // Get all the pricing options for the products
-      const pricingOptionsBatched =
+      const [pricingIdsBatched, pricingOptionsBatched] =
         await productRegistry.getProductPricingBatch([1, 2]);
+      expect(pricingIdsBatched.length).to.equal(2);
+      expect(pricingIdsBatched[0]).to.deep.equal([1, 2]);
+      expect(pricingIdsBatched[1]).to.deep.equal([1, 2]);
       expect(pricingOptionsBatched.length).to.equal(2);
       expect(pricingOptionsBatched[0].length).to.equal(2);
       expect(pricingOptionsBatched[0]).to.deep.equal([

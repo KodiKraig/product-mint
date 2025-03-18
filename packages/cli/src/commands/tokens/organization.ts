@@ -3,6 +3,8 @@ import { provider, signerWallet } from '../../provider';
 import { OrganizationNFT__factory } from '@product-mint/ethers-sdk';
 import { getContractAddress } from '../../contract-address';
 import { waitTx } from '../../utils/tx';
+import { AddressLike } from 'ethers';
+import { parseCommaSeparatedList } from '../../utils/parsing';
 
 const organizationNFT = OrganizationNFT__factory.connect(
   getContractAddress('organizationNFT'),
@@ -71,13 +73,30 @@ export default function registerOrganizationCommand(program: Command): Command {
   organization
     .command('setWhitelisted')
     .description('Set the whitelisted status for a given address')
-    .argument('<addresses>', 'The addresses to set the whitelisted status for')
-    .argument('<isWhitelisted>', 'The whitelisted status')
+    .argument(
+      '<addresses>',
+      'Comma separated addresses to set the whitelisted status for',
+    )
+    .argument('<isWhitelisted>', 'Comma separated whitelisted statuses')
     .action(async (addresses, isWhitelisted) => {
+      const addressesArray = parseCommaSeparatedList<AddressLike>(addresses);
+      const isWhitelistedArray =
+        parseCommaSeparatedList<boolean>(isWhitelisted);
+
+      if (addressesArray.length !== isWhitelistedArray.length) {
+        throw new Error(
+          'Addresses and isWhitelisted arrays must be the same length',
+        );
+      }
+
+      if (addressesArray.length === 0) {
+        throw new Error('Addresses array cannot be empty');
+      }
+
       await waitTx(
         organizationNFT
           .connect(signerWallet)
-          .setWhitelisted(addresses, isWhitelisted),
+          .setWhitelisted(addressesArray, isWhitelistedArray),
       );
     });
 

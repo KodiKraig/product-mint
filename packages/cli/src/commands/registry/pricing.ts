@@ -3,14 +3,9 @@ import { PricingRegistry__factory } from '@product-mint/ethers-sdk';
 import { provider, signerWallet } from '../../provider';
 import { getContractAddress } from '../../contract-address';
 import { waitTx } from '../../utils/tx';
-import { convertFromUnits, convertToUnits } from '../../utils/tokens';
-import { ethers } from 'ethers';
-import {
-  formatChargeStyle,
-  formatChargeFrequency,
-  parsePricingTierString,
-  formatPricingTiers,
-} from '../../utils/pricing';
+import { getTokenDecimals } from '../../utils/tokens';
+import { ethers, parseUnits } from 'ethers';
+import { parsePricingTierString, formatPricing } from '../../utils/pricing';
 
 const pricingRegistry = PricingRegistry__factory.connect(
   getContractAddress('pricingRegistry'),
@@ -20,7 +15,7 @@ const pricingRegistry = PricingRegistry__factory.connect(
 export default function registerPricingCommand(program: Command): Command {
   const pricing = program
     .command('pricing')
-    .description('Manage pricing for a given product');
+    .description('Create and manage pricing configurations');
 
   pricing
     .command('orgPricing')
@@ -37,34 +32,23 @@ export default function registerPricingCommand(program: Command): Command {
       }
 
       console.log(
-        `${pricingIds.length} Pricing IDs for Organization ${organizationId}:`,
+        `${pricingIds.length} Pricing IDs for Organization ${organizationId}:\n`,
       );
 
       for (let i = 0; i < pricingIds.length; i++) {
-        console.log(`\nID: ${pricingIds[i]}`);
         console.log(
-          `Charge Style: ${pricingDetails[i].chargeStyle} (${formatChargeStyle(
-            pricingDetails[i].chargeStyle,
-          )})`,
+          await formatPricing({
+            id: pricingIds[i],
+            chargeStyle: pricingDetails[i].chargeStyle,
+            chargeFrequency: pricingDetails[i].chargeFrequency,
+            tiers: pricingDetails[i].tiers,
+            token: pricingDetails[i].token,
+            flatPrice: pricingDetails[i].flatPrice,
+            usageMeterId: pricingDetails[i].usageMeterId,
+            isActive: pricingDetails[i].isActive,
+            isRestricted: pricingDetails[i].isRestricted,
+          }),
         );
-        console.log(
-          `Charge Frequency: ${
-            pricingDetails[i].chargeFrequency
-          } (${formatChargeFrequency(pricingDetails[i].chargeFrequency)})`,
-        );
-        console.log(`Tiers: ${formatPricingTiers(pricingDetails[i].tiers)}`);
-        console.log(`Token: ${pricingDetails[i].token}`);
-        console.log(
-          `Flat Price: ${pricingDetails[i].flatPrice} (${await convertFromUnits(
-            {
-              tokenAddress: pricingDetails[i].token,
-              amount: pricingDetails[i].flatPrice,
-            },
-          )})`,
-        );
-        console.log(`Usage Meter ID: ${pricingDetails[i].usageMeterId}`);
-        console.log(`Is Active: ${pricingDetails[i].isActive}`);
-        console.log(`Is Restricted: ${pricingDetails[i].isRestricted}`);
       }
     });
 
@@ -97,14 +81,13 @@ function registerCreatePricingCommand(program: Command): Command {
     .action(async (organizationId, price, options) => {
       const { erc20, restricted } = options;
 
+      const decimals = await getTokenDecimals(erc20);
+
       await waitTx(
         pricingRegistry.connect(signerWallet).createOneTimePricing({
           organizationId,
           token: erc20,
-          flatPrice: await convertToUnits({
-            tokenAddress: erc20,
-            amount: price,
-          }),
+          flatPrice: parseUnits(price, decimals),
           isRestricted: restricted,
         }),
       );
@@ -134,15 +117,14 @@ function registerCreatePricingCommand(program: Command): Command {
       async (organizationId, flatPrice, token, chargeFrequency, options) => {
         const { restricted } = options;
 
+        const decimals = await getTokenDecimals(token);
+
         await waitTx(
           pricingRegistry
             .connect(signerWallet)
             .createFlatRateSubscriptionPricing({
               organizationId,
-              flatPrice: await convertToUnits({
-                tokenAddress: token,
-                amount: flatPrice,
-              }),
+              flatPrice: parseUnits(flatPrice, decimals),
               token,
               chargeFrequency,
               isRestricted: restricted,
@@ -164,7 +146,7 @@ function registerCreatePricingCommand(program: Command): Command {
     )
     .argument(
       '<pricingTiers>',
-      'The pricing tiers to use for the subscription in a comma separated list. i.e. 1,0,1000,1000000 -> (lowerBound, upperBound, pricePerUnit, priceFlatRate)',
+      'The pricing tiers to use for the subscription in a comma separated list using human readable format. i.e. 1,0,1000,1000000 -> (lowerBound, upperBound, pricePerUnit, priceFlatRate)',
     )
     .option(
       '--volume',
@@ -180,6 +162,8 @@ function registerCreatePricingCommand(program: Command): Command {
       async (organizationId, token, chargeFrequency, pricingTiers, options) => {
         const { volume, restricted } = options;
 
+        const decimals = await getTokenDecimals(token);
+
         await waitTx(
           pricingRegistry
             .connect(signerWallet)
@@ -187,7 +171,7 @@ function registerCreatePricingCommand(program: Command): Command {
               organizationId,
               token,
               chargeFrequency,
-              tiers: parsePricingTierString(pricingTiers),
+              tiers: parsePricingTierString(pricingTiers, decimals),
               isVolume: volume,
               isRestricted: restricted,
             }),
@@ -208,7 +192,7 @@ function registerCreatePricingCommand(program: Command): Command {
     )
     .argument(
       '<pricingTiers>',
-      'The pricing tiers to use for the subscription in a comma separated list. i.e. 1,0,1000,1000000 -> (lowerBound, upperBound, pricePerUnit, priceFlatRate)',
+      'The pricing tiers to use for the subscription in a comma separated list using human readable format. i.e. 1,0,1.5,10 -> (lowerBound, upperBound, pricePerUnit, priceFlatRate)',
     )
     .argument(
       '<usageMeterId>',
@@ -235,6 +219,8 @@ function registerCreatePricingCommand(program: Command): Command {
       ) => {
         const { volume, restricted } = options;
 
+        const decimals = await getTokenDecimals(token);
+
         await waitTx(
           pricingRegistry
             .connect(signerWallet)
@@ -242,7 +228,7 @@ function registerCreatePricingCommand(program: Command): Command {
               organizationId,
               token,
               chargeFrequency,
-              tiers: parsePricingTierString(pricingTiers),
+              tiers: parsePricingTierString(pricingTiers, decimals),
               usageMeterId,
               isVolume: volume,
               isRestricted: restricted,
