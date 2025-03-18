@@ -509,13 +509,18 @@ export interface IProductRegistry extends BaseContract {
 
   getProductPricing: TypedContractMethod<
     [productId: BigNumberish],
-    [PricingUtils.PricingStructOutput[]],
+    [[bigint[], PricingUtils.PricingStructOutput[]]],
     "view"
   >;
 
   getProductPricingBatch: TypedContractMethod<
     [_productIds: BigNumberish[]],
-    [PricingUtils.PricingStructOutput[][]],
+    [
+      [bigint[][], PricingUtils.PricingStructOutput[][]] & {
+        pricingIds: bigint[][];
+        pricingOptions: PricingUtils.PricingStructOutput[][];
+      }
+    ],
     "view"
   >;
 
@@ -644,14 +649,19 @@ export interface IProductRegistry extends BaseContract {
     nameOrSignature: "getProductPricing"
   ): TypedContractMethod<
     [productId: BigNumberish],
-    [PricingUtils.PricingStructOutput[]],
+    [[bigint[], PricingUtils.PricingStructOutput[]]],
     "view"
   >;
   getFunction(
     nameOrSignature: "getProductPricingBatch"
   ): TypedContractMethod<
     [_productIds: BigNumberish[]],
-    [PricingUtils.PricingStructOutput[][]],
+    [
+      [bigint[][], PricingUtils.PricingStructOutput[][]] & {
+        pricingIds: bigint[][];
+        pricingOptions: PricingUtils.PricingStructOutput[][];
+      }
+    ],
     "view"
   >;
   getFunction(

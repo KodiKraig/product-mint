@@ -1,15 +1,60 @@
+import { BigNumberish, formatUnits, parseUnits } from 'ethers';
+import { getTokenDecimals } from './tokens';
+
+/**
+ * Pricing
+ */
+
+export type Pricing = {
+  id: bigint;
+  chargeStyle: bigint;
+  chargeFrequency: bigint;
+  tiers: PricingTier[];
+  token: string;
+  flatPrice: bigint;
+  usageMeterId: bigint;
+  isActive: boolean;
+  isRestricted: boolean;
+};
+
+export const formatPricing = async (pricing: Pricing): Promise<string> => {
+  const decimals = await getTokenDecimals(pricing.token);
+
+  let formattedPricing = [
+    `ID: ${pricing.id}`,
+    `Charge Style: ${pricing.chargeStyle} (${formatChargeStyle(
+      pricing.chargeStyle,
+    )})`,
+    `Charge Frequency: ${pricing.chargeFrequency} (${formatChargeFrequency(
+      pricing.chargeFrequency,
+    )})`,
+    `Tiers: ${await formatPricingTiers(pricing.tiers, pricing.token)}`,
+    `Token: ${pricing.token}`,
+    `Flat Price: ${pricing.flatPrice} (${formatUnits(
+      pricing.flatPrice,
+      decimals,
+    )})`,
+    `Usage Meter ID: ${pricing.usageMeterId}`,
+    `Is Active: ${pricing.isActive}`,
+    `Is Restricted: ${pricing.isRestricted}`,
+  ];
+  return formattedPricing.join('\n');
+};
+
 /**
  * Pricing Tier
  */
-
 export type PricingTier = {
-  lowerBound: bigint;
-  upperBound: bigint;
-  pricePerUnit: bigint;
-  priceFlatRate: bigint;
+  lowerBound: BigNumberish;
+  upperBound: BigNumberish;
+  pricePerUnit: BigNumberish;
+  priceFlatRate: BigNumberish;
 };
 
-export const parsePricingTierString = (pricingTier: string): PricingTier[] => {
+export const parsePricingTierString = (
+  pricingTier: string,
+  decimals?: number,
+): PricingTier[] => {
   const split = pricingTier.split(',');
 
   if (split.length === 0 || split.length % 4 !== 0) {
@@ -20,25 +65,30 @@ export const parsePricingTierString = (pricingTier: string): PricingTier[] => {
 
   for (let i = 0; i < split.length; i += 4) {
     tiers.push({
-      lowerBound: BigInt(split[i]),
-      upperBound: BigInt(split[i + 1]),
-      pricePerUnit: BigInt(split[i + 2]),
-      priceFlatRate: BigInt(split[i + 3]),
+      lowerBound: split[i],
+      upperBound: split[i + 1],
+      pricePerUnit: parseUnits(split[i + 2], decimals),
+      priceFlatRate: parseUnits(split[i + 3], decimals),
     });
   }
 
   return tiers;
 };
 
-export const formatPricingTiers = (pricingTiers: PricingTier[]): string => {
-  return JSON.stringify(
-    pricingTiers.map((t) => ({
-      lowerBound: t.lowerBound.toString(),
-      upperBound: t.upperBound.toString(),
-      pricePerUnit: t.pricePerUnit.toString(),
-      priceFlatRate: t.priceFlatRate.toString(),
-    })),
-  );
+export const formatPricingTiers = async (
+  pricingTiers: PricingTier[],
+  tokenAddress: string,
+): Promise<string> => {
+  const decimals = await getTokenDecimals(tokenAddress);
+
+  const convertedTiers = pricingTiers.map((t) => ({
+    lowerBound: Number(t.lowerBound),
+    upperBound: Number(t.upperBound),
+    pricePerUnit: formatUnits(t.pricePerUnit, decimals),
+    priceFlatRate: formatUnits(t.priceFlatRate, decimals),
+  }));
+
+  return JSON.stringify(convertedTiers);
 };
 
 /**

@@ -354,21 +354,33 @@ contract ProductRegistry is
 
     function getProductPricing(
         uint256 productId
-    ) public view returns (PricingUtils.Pricing[] memory) {
+    ) public view returns (uint256[] memory, PricingUtils.Pricing[] memory) {
         uint256[] memory pricingIds = linkedPrices[productId].values();
-        return
+        return (
+            pricingIds,
             IPricingRegistry(registry.pricingRegistry()).getPricingBatch(
                 pricingIds
-            );
+            )
+        );
     }
 
     function getProductPricingBatch(
         uint256[] memory _productIds
-    ) external view returns (PricingUtils.Pricing[][] memory pricingOptions) {
+    )
+        external
+        view
+        returns (
+            uint256[][] memory pricingIds,
+            PricingUtils.Pricing[][] memory pricingOptions
+        )
+    {
+        pricingIds = new uint256[][](_productIds.length);
         pricingOptions = new PricingUtils.Pricing[][](_productIds.length);
 
         for (uint256 i = 0; i < _productIds.length; i++) {
-            pricingOptions[i] = getProductPricing(_productIds[i]);
+            (pricingIds[i], pricingOptions[i]) = getProductPricing(
+                _productIds[i]
+            );
         }
     }
 
