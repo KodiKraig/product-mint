@@ -30,9 +30,14 @@ export default function registerBalanceCommand(program: Command): Command {
       );
       const decimals = await token.decimals();
       const balance = await token.balanceOf(address);
+      const symbol = await token.symbol();
+
       console.log(`Decimals: ${decimals}`);
       console.log(
-        `${tokenAddress} balance:\n${ethers.formatUnits(balance, decimals)}`,
+        `\$${symbol} balance:\n ${balance} (${ethers.formatUnits(
+          balance,
+          decimals,
+        )})`,
       );
     });
 

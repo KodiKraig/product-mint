@@ -103,7 +103,10 @@ export default function registerProductCommand(program: Command): Command {
       'Comma separated pricing IDs to link to the product',
     )
     .action(async (productId, pricingIds) => {
-      const pricingIdsArray = parseCommaSeparatedList<bigint>(pricingIds);
+      const pricingIdsArray = parseCommaSeparatedList<bigint>(
+        pricingIds,
+        'number',
+      );
 
       await waitTx(productRegistry.linkPricing(productId, pricingIdsArray));
     });
@@ -117,7 +120,10 @@ export default function registerProductCommand(program: Command): Command {
       'Comma separated pricing IDs to unlink from the product',
     )
     .action(async (productId, pricingIds) => {
-      const pricingIdsArray = parseCommaSeparatedList<bigint>(pricingIds);
+      const pricingIdsArray = parseCommaSeparatedList<bigint>(
+        pricingIds,
+        'number',
+      );
 
       await waitTx(productRegistry.unlinkPricing(productId, pricingIdsArray));
     });

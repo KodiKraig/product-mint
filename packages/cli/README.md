@@ -14,7 +14,22 @@ npx ts-node src/index.ts balance native <address>
 npx ts-node src/index.ts balance erc20 <tokenAddress> <address>
 
 # Get total passes minted
-npx ts-node src/index.ts manager getTotalPassesMinted
+npx ts-node src/index.ts manager totalPassesMinted
+
+# Mint an organization
+npx ts-node src/index.ts tokens org mint <tokenAddress> <organizationAddress>
+
+# Create a product
+npx ts-node src/index.ts registry product create <organizationId> <name> <description>
+
+# Create a pricing model tier
+npx ts-node src/index.ts registry pricing create flatRate <organizationId> <flatPrice> <token> <chargeFrequency>
+
+# Link pricing model to product
+npx ts-node src/index.ts registry product linkPricing <productId> <pricingIds>
+
+# Mint a product pass!
+npx ts-node src/index.ts manager purchaseProducts <organizationId> <productIds> <pricingIds> <quantities>
 ```
 
 ## Getting Started
@@ -31,6 +46,12 @@ Install dependencies
 
 ```bash
 npm install
+```
+
+Build the ethers-sdk (used to interact with the contracts)
+
+```bash
+npm run build:ethers-sdk
 ```
 
 Run the CLI
