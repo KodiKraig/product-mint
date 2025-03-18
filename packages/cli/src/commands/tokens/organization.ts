@@ -5,6 +5,7 @@ import { getContractAddress } from '../../contract-address';
 import { waitTx } from '../../utils/tx';
 import { AddressLike } from 'ethers';
 import { parseCommaSeparatedList } from '../../utils/parsing';
+import { parseMetadata } from '../../utils/metadata';
 
 const organizationNFT = OrganizationNFT__factory.connect(
   getContractAddress('organizationNFT'),
@@ -79,9 +80,14 @@ export default function registerOrganizationCommand(program: Command): Command {
     )
     .argument('<isWhitelisted>', 'Comma separated whitelisted statuses')
     .action(async (addresses, isWhitelisted) => {
-      const addressesArray = parseCommaSeparatedList<AddressLike>(addresses);
-      const isWhitelistedArray =
-        parseCommaSeparatedList<boolean>(isWhitelisted);
+      const addressesArray = parseCommaSeparatedList<AddressLike>(
+        addresses,
+        'string',
+      );
+      const isWhitelistedArray = parseCommaSeparatedList<boolean>(
+        isWhitelisted,
+        'boolean',
+      );
 
       if (addressesArray.length !== isWhitelistedArray.length) {
         throw new Error(
@@ -109,6 +115,23 @@ export default function registerOrganizationCommand(program: Command): Command {
         'Is whitelisted:',
         await organizationNFT.whitelisted(address),
       );
+    });
+
+  /**
+   * Token URI
+   */
+
+  organization
+    .command('tokenURI')
+    .description('Get the token URI for a given Organization NFT')
+    .argument('<tokenId>', 'The token ID of the Organization NFT')
+    .action(async (tokenId) => {
+      const tokenURI = await organizationNFT.tokenURI(tokenId);
+
+      const { encoding, metadata } = parseMetadata(tokenURI);
+
+      console.log('Encoding:', encoding);
+      console.log('Metadata:', metadata);
     });
 
   return organization;
