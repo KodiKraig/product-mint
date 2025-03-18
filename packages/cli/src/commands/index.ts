@@ -1,9 +1,16 @@
 import { Command } from 'commander';
-import balanceCommand from './balance';
-import managerCommand from './manager';
+import registerBalanceCommand from './balance';
+import registerManagerCommand from './manager';
+import registerRegistryCommands from './registry';
+import registerTokensCommand from './tokens';
+import registerEscrowCommands from './escrow';
+import registerUsageCommand from './usage';
 
-export function registerAllCommands(program: Command): Command {
-  balanceCommand(program);
-  managerCommand(program);
-  return program;
+export function registerAllCommands(program: Command) {
+  registerBalanceCommand(program);
+  registerManagerCommand(program);
+  registerRegistryCommands(program);
+  registerTokensCommand(program);
+  registerEscrowCommands(program);
+  registerUsageCommand(program);
 }
