@@ -12,9 +12,7 @@ const purchaseManager = PurchaseManager__factory.connect(
 export default function registerManagerCommand(program: Command): Command {
   const managerCommand = program
     .command('manager')
-    .description(
-      'PurchaseManager contract commands to purchase products and manage subscriptions',
-    );
+    .description('Purchase products and manage subscriptions');
 
   managerCommand
     .command('getTotalPassesMinted')

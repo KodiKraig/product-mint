@@ -1,6 +1,6 @@
 import devAddresses from './dev.json';
 
-export type ContractAddresses = 'purchaseManager';
+export type ContractAddresses = keyof typeof devAddresses;
 
 export type AddressMode = 'prod' | 'test' | 'dev';
 
