@@ -33,6 +33,12 @@ Install dependencies
 npm install
 ```
 
+Build the ethers-sdk (used to interact with the contracts)
+
+```bash
+npm run build:ethers-sdk
+```
+
 Run the CLI
 
 ```bash
