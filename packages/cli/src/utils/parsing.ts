@@ -2,7 +2,7 @@ export type ParsedValueTypes = 'number' | 'boolean' | 'string';
 
 export const parseCommaSeparatedList = <T>(
   list: string,
-  type: ParsedValueTypes,
+  type: ParsedValueTypes = 'string',
 ): T[] => {
   if (!list.includes(',')) {
     const value = parseValue(list, type);
