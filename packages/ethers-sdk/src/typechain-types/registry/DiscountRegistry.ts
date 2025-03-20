@@ -50,6 +50,7 @@ export declare namespace IDiscountRegistry {
   };
 
   export type DiscountStruct = {
+    id: BigNumberish;
     orgId: BigNumberish;
     name: string;
     discount: BigNumberish;
@@ -60,6 +61,7 @@ export declare namespace IDiscountRegistry {
   };
 
   export type DiscountStructOutput = [
+    id: bigint,
     orgId: bigint,
     name: string,
     discount: bigint,
@@ -68,6 +70,7 @@ export declare namespace IDiscountRegistry {
     isActive: boolean,
     isRestricted: boolean
   ] & {
+    id: bigint;
     orgId: bigint;
     name: string;
     discount: bigint;
@@ -84,7 +87,9 @@ export interface DiscountRegistryInterface extends Interface {
       | "calculateTotalDiscountedAmount"
       | "calculateTotalPassDiscountedAmount"
       | "canMintDiscount"
+      | "canMintDiscountByName"
       | "createDiscount"
+      | "discountNames"
       | "getDiscount"
       | "getDiscountBatch"
       | "getDiscountNames"
@@ -130,8 +135,16 @@ export interface DiscountRegistryInterface extends Interface {
     values: [BigNumberish, BigNumberish, AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "canMintDiscountByName",
+    values: [BigNumberish, BigNumberish, AddressLike, string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "createDiscount",
     values: [IDiscountRegistry.CreateDiscountParamsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "discountNames",
+    values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "getDiscount",
@@ -232,7 +245,15 @@ export interface DiscountRegistryInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "canMintDiscountByName",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "createDiscount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "discountNames",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -469,10 +490,27 @@ export interface DiscountRegistry extends BaseContract {
     "view"
   >;
 
+  canMintDiscountByName: TypedContractMethod<
+    [
+      orgId: BigNumberish,
+      passId: BigNumberish,
+      passOwner: AddressLike,
+      name: string
+    ],
+    [void],
+    "view"
+  >;
+
   createDiscount: TypedContractMethod<
     [params: IDiscountRegistry.CreateDiscountParamsStruct],
     [void],
     "nonpayable"
+  >;
+
+  discountNames: TypedContractMethod<
+    [arg0: BigNumberish, arg1: string],
+    [bigint],
+    "view"
   >;
 
   getDiscount: TypedContractMethod<
@@ -639,12 +677,27 @@ export interface DiscountRegistry extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "canMintDiscountByName"
+  ): TypedContractMethod<
+    [
+      orgId: BigNumberish,
+      passId: BigNumberish,
+      passOwner: AddressLike,
+      name: string
+    ],
+    [void],
+    "view"
+  >;
+  getFunction(
     nameOrSignature: "createDiscount"
   ): TypedContractMethod<
     [params: IDiscountRegistry.CreateDiscountParamsStruct],
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "discountNames"
+  ): TypedContractMethod<[arg0: BigNumberish, arg1: string], [bigint], "view">;
   getFunction(
     nameOrSignature: "getDiscount"
   ): TypedContractMethod<
