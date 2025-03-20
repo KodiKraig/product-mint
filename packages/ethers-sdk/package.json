@@ -1,6 +1,6 @@
 {
   "name": "@product-mint/ethers-sdk",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Typechain ethers-v6 SDK for ProductMint contracts.",
   "main": "./dist/cjs/index.js",
   "types": "./dist/cjs/index.d.ts",
