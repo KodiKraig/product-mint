@@ -56,6 +56,9 @@ contract DiscountRegistry is
     // Product Pass Token ID => Discount IDs
     mapping(uint256 => EnumerableSet.UintSet) private passDiscounts;
 
+    // Organization ID => Discount Name => Discount ID
+    mapping(uint256 => mapping(string => uint256)) public discountNames;
+
     // Total discounts created
     uint256 public totalDiscounts;
 
@@ -171,6 +174,21 @@ contract DiscountRegistry is
         }
     }
 
+    function canMintDiscountByName(
+        uint256 orgId,
+        uint256 passId,
+        address passOwner,
+        string memory name
+    ) public view {
+        uint256 discountId = discountNames[orgId][name];
+
+        if (discountId == 0) {
+            revert DiscountNotFound(orgId, name);
+        }
+
+        canMintDiscount(orgId, passId, passOwner, discountId);
+    }
+
     function mintDiscountsToPass(
         uint256 orgId,
         uint256 passId,
@@ -281,6 +299,7 @@ contract DiscountRegistry is
 
         Discount storage _discount = discounts[totalDiscounts];
 
+        _discount.id = totalDiscounts;
         _discount.orgId = params.orgId;
         _setDiscountName(_discount, params.name);
         _setDiscount(_discount, params.discount);
@@ -320,8 +339,11 @@ contract DiscountRegistry is
             bytes(name).length <= 32,
             "Name cannot be longer than 32 characters"
         );
+        require(discountNames[discount.orgId][name] == 0, "Name already used");
 
+        delete discountNames[discount.orgId][discount.name];
         discount.name = name;
+        discountNames[discount.orgId][name] = discount.id;
     }
 
     function setDiscount(
