@@ -149,7 +149,7 @@ contract CouponRegistry is
         address passOwner,
         string memory code,
         bool isInitialPurchase
-    ) public view {
+    ) public view returns (uint256) {
         uint256 couponId = orgCouponCodes[orgId][code];
 
         if (couponId == 0) {
@@ -193,6 +193,8 @@ contract CouponRegistry is
         ) {
             revert CouponRestricted(couponId, passOwner);
         }
+
+        return couponId;
     }
 
     function discountedAmount(

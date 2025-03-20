@@ -512,7 +512,7 @@ export interface ICouponRegistry extends BaseContract {
       code: string,
       isInitialPurchase: boolean
     ],
-    [void],
+    [bigint],
     "view"
   >;
 
@@ -672,7 +672,7 @@ export interface ICouponRegistry extends BaseContract {
       code: string,
       isInitialPurchase: boolean
     ],
-    [void],
+    [bigint],
     "view"
   >;
   getFunction(

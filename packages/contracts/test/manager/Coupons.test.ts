@@ -136,7 +136,13 @@ describe('Purchase Manager', () => {
       await productRegistry.linkPricing(1, [1]);
 
       // Check if coupon is redeemable
-      await couponRegistry.isCodeRedeemable(1, otherAccount, 'COUPON1', true);
+      const couponId = await couponRegistry.isCodeRedeemable(
+        1,
+        otherAccount,
+        'COUPON1',
+        true,
+      );
+      expect(couponId).to.equal(1);
 
       // Assert the checkout total costs
       await assertCheckoutTotalCost(

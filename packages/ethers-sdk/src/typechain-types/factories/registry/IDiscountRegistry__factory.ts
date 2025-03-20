@@ -302,7 +302,47 @@ const _abi = [
       },
     ],
     name: "canMintDiscountByName",
-    outputs: [],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "orgId",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "passId",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "passOwner",
+        type: "address",
+      },
+      {
+        internalType: "string[]",
+        name: "names",
+        type: "string[]",
+      },
+    ],
+    name: "canMintDiscountByNameBatch",
+    outputs: [
+      {
+        internalType: "uint256[]",
+        name: "",
+        type: "uint256[]",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },

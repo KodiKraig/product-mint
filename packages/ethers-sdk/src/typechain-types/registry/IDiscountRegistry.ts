@@ -88,6 +88,7 @@ export interface IDiscountRegistryInterface extends Interface {
       | "calculateTotalPassDiscountedAmount"
       | "canMintDiscount"
       | "canMintDiscountByName"
+      | "canMintDiscountByNameBatch"
       | "createDiscount"
       | "discountNames"
       | "getDiscount"
@@ -132,6 +133,10 @@ export interface IDiscountRegistryInterface extends Interface {
   encodeFunctionData(
     functionFragment: "canMintDiscountByName",
     values: [BigNumberish, BigNumberish, AddressLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "canMintDiscountByNameBatch",
+    values: [BigNumberish, BigNumberish, AddressLike, string[]]
   ): string;
   encodeFunctionData(
     functionFragment: "createDiscount",
@@ -228,6 +233,10 @@ export interface IDiscountRegistryInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "canMintDiscountByName",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "canMintDiscountByNameBatch",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -441,7 +450,18 @@ export interface IDiscountRegistry extends BaseContract {
       passOwner: AddressLike,
       name: string
     ],
-    [void],
+    [bigint],
+    "view"
+  >;
+
+  canMintDiscountByNameBatch: TypedContractMethod<
+    [
+      orgId: BigNumberish,
+      passId: BigNumberish,
+      passOwner: AddressLike,
+      names: string[]
+    ],
+    [bigint[]],
     "view"
   >;
 
@@ -609,7 +629,19 @@ export interface IDiscountRegistry extends BaseContract {
       passOwner: AddressLike,
       name: string
     ],
-    [void],
+    [bigint],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "canMintDiscountByNameBatch"
+  ): TypedContractMethod<
+    [
+      orgId: BigNumberish,
+      passId: BigNumberish,
+      passOwner: AddressLike,
+      names: string[]
+    ],
+    [bigint[]],
     "view"
   >;
   getFunction(

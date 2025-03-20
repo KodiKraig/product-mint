@@ -167,7 +167,9 @@ describe('CouponRegistry', () => {
         expiration: (await time.latest()) + 1000,
       });
 
-      await couponRegistry.isCodeRedeemable(1, owner, 'TEST', false);
+      expect(
+        await couponRegistry.isCodeRedeemable(1, owner, 'TEST', false),
+      ).to.equal(1);
     });
 
     it('should be true if coupon is restricted and granted access', async () => {
@@ -185,10 +187,12 @@ describe('CouponRegistry', () => {
 
       await couponRegistry.setRestrictedAccess(1, [otherAccount], [true]);
 
-      await couponRegistry.isCodeRedeemable(1, otherAccount, 'TEST', false);
+      expect(
+        await couponRegistry.isCodeRedeemable(1, otherAccount, 'TEST', false),
+      ).to.equal(1);
     });
 
-    it('should be false if coupon does not exist', async () => {
+    it('should revert if coupon does not exist', async () => {
       const { couponRegistry, owner } = await loadFixture(deployCouponRegistry);
 
       await expect(couponRegistry.isCodeRedeemable(1, owner, 'TEST', false))
@@ -196,7 +200,7 @@ describe('CouponRegistry', () => {
         .withArgs('TEST');
     });
 
-    it('should be false if coupon is not active', async () => {
+    it('should revert if coupon is not active', async () => {
       const { organizationNFT, couponRegistry, owner } = await loadFixture(
         deployCouponRegistry,
       );
@@ -215,7 +219,7 @@ describe('CouponRegistry', () => {
         .withArgs(1);
     });
 
-    it('should be false if coupon is expired', async () => {
+    it('should revert if coupon is expired', async () => {
       const { couponRegistry, organizationNFT, owner } = await loadFixture(
         deployCouponRegistry,
       );
@@ -235,7 +239,7 @@ describe('CouponRegistry', () => {
         .withArgs(1);
     });
 
-    it('should be false if new customer only and not initial purchase', async () => {
+    it('should revert if new customer only and not initial purchase', async () => {
       const { couponRegistry, organizationNFT, owner } = await loadFixture(
         deployCouponRegistry,
       );
@@ -257,7 +261,7 @@ describe('CouponRegistry', () => {
         .withArgs(1);
     });
 
-    it('should be false if coupon is restricted and not granted access', async () => {
+    it('should revert if coupon is restricted and not granted access', async () => {
       const { couponRegistry, organizationNFT, owner } = await loadFixture(
         deployCouponRegistry,
       );

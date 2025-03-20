@@ -179,7 +179,7 @@ contract DiscountRegistry is
         uint256 passId,
         address passOwner,
         string memory name
-    ) public view {
+    ) public view returns (uint256) {
         uint256 discountId = discountNames[orgId][name];
 
         if (discountId == 0) {
@@ -187,6 +187,28 @@ contract DiscountRegistry is
         }
 
         canMintDiscount(orgId, passId, passOwner, discountId);
+
+        return discountId;
+    }
+
+    function canMintDiscountByNameBatch(
+        uint256 orgId,
+        uint256 passId,
+        address passOwner,
+        string[] memory names
+    ) external view returns (uint256[] memory) {
+        uint256[] memory discountIds = new uint256[](names.length);
+
+        for (uint256 i = 0; i < names.length; i++) {
+            discountIds[i] = canMintDiscountByName(
+                orgId,
+                passId,
+                passOwner,
+                names[i]
+            );
+        }
+
+        return discountIds;
     }
 
     function mintDiscountsToPass(
