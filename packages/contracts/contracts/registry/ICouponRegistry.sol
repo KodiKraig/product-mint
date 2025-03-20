@@ -231,13 +231,14 @@ interface ICouponRegistry {
      * @param passOwner Pass owner address
      * @param code Coupon code
      * @param isInitialPurchase True then the coupon is for an initial product pass mint purchase
+     * @return The coupon ID if the coupon is redeemable, else 0
      */
     function isCodeRedeemable(
         uint256 orgId,
         address passOwner,
         string memory code,
         bool isInitialPurchase
-    ) external view;
+    ) external view returns (uint256);
 
     /**
      * Creation
