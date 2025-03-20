@@ -116,9 +116,24 @@ describe('DiscountRegistry', () => {
     describe('Can Mint Discount', () => {
       it('should not revert for an active discount', async () => {
         const { discountRegistry, owner } = await loadWithDefaultDiscount();
+        await createDiscount(discountRegistry, { name: 'TEST2' });
 
         await discountRegistry.canMintDiscount(1, 1, owner, 1);
-        await discountRegistry.canMintDiscountByName(1, 1, owner, 'TEST');
+        await discountRegistry.canMintDiscount(1, 1, owner, 2);
+
+        expect(
+          await discountRegistry.canMintDiscountByName(1, 1, owner, 'TEST'),
+        ).to.equal(1);
+        expect(
+          await discountRegistry.canMintDiscountByName(1, 1, owner, 'TEST2'),
+        ).to.equal(2);
+
+        expect(
+          await discountRegistry.canMintDiscountByNameBatch(1, 1, owner, [
+            'TEST',
+            'TEST2',
+          ]),
+        ).to.deep.equal([1, 2]);
       });
 
       it('should not revert for a restricted discount if the user is in the restricted list', async () => {
@@ -130,6 +145,9 @@ describe('DiscountRegistry', () => {
 
         await discountRegistry.canMintDiscount(1, 1, owner, 1);
         await discountRegistry.canMintDiscountByName(1, 1, owner, 'TEST');
+        await discountRegistry.canMintDiscountByNameBatch(1, 1, owner, [
+          'TEST',
+        ]);
       });
 
       it('should not revert when max mints is 0', async () => {
@@ -139,6 +157,9 @@ describe('DiscountRegistry', () => {
 
         await discountRegistry.canMintDiscount(1, 1, owner, 1);
         await discountRegistry.canMintDiscountByName(1, 1, owner, 'TEST');
+        await discountRegistry.canMintDiscountByNameBatch(1, 1, owner, [
+          'TEST',
+        ]);
       });
 
       it('should be reverted for a restricted discount', async () => {
@@ -147,6 +168,14 @@ describe('DiscountRegistry', () => {
         await discountRegistry.setDiscountRestricted(1, true);
 
         await expect(discountRegistry.canMintDiscount(1, 1, owner, 1))
+          .to.be.revertedWithCustomError(
+            discountRegistry,
+            'DiscountAccessRestricted',
+          )
+          .withArgs(1, owner);
+        await expect(
+          discountRegistry.canMintDiscountByNameBatch(1, 1, owner, ['TEST']),
+        )
           .to.be.revertedWithCustomError(
             discountRegistry,
             'DiscountAccessRestricted',

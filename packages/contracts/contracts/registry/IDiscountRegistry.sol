@@ -215,13 +215,29 @@ interface IDiscountRegistry {
      * @param passId The pass ID
      * @param passOwner The pass owner
      * @param name The discount name
+     * @return The discount ID
      */
     function canMintDiscountByName(
         uint256 orgId,
         uint256 passId,
         address passOwner,
         string memory name
-    ) external view;
+    ) external view returns (uint256);
+
+    /**
+     * Check if a list of discounts can be minted by a pass owner with the name
+     * @param orgId The organization ID
+     * @param passId The pass ID
+     * @param passOwner The pass owner
+     * @param names The discount names
+     * @return The discount IDs
+     */
+    function canMintDiscountByNameBatch(
+        uint256 orgId,
+        uint256 passId,
+        address passOwner,
+        string[] memory names
+    ) external view returns (uint256[] memory);
 
     /**
      * @notice Mint discounts onto a pass
