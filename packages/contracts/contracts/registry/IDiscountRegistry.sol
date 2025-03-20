@@ -9,8 +9,9 @@ interface IDiscountRegistry {
 
     /**
      * @notice Discount struct
+     * @param id The id of the discount
      * @param orgId The organization ID
-     * @param name The name of the discount
+     * @param name The name of the discount. Must be unique within the organization.
      * @param discount The discount amount
      * @param totalMints The total number of mints for the discount
      * @param maxMints The maximum number of times the discount can be minted
@@ -18,6 +19,7 @@ interface IDiscountRegistry {
      * @param isRestricted Whether the discount is restricted
      */
     struct Discount {
+        uint256 id;
         uint256 orgId;
         string name;
         uint256 discount;
@@ -118,6 +120,17 @@ interface IDiscountRegistry {
     ) external view returns (uint256);
 
     /**
+     * @notice Get the discount ID for a discount name
+     * @param orgId The organization ID
+     * @param name The discount name
+     * @return The discount ID. 0 if the discount name does not exist.
+     */
+    function discountNames(
+        uint256 orgId,
+        string memory name
+    ) external view returns (uint256);
+
+    /**
      * Mint Discounts
      */
 
@@ -132,6 +145,13 @@ interface IDiscountRegistry {
         uint256 indexed passId,
         uint256 indexed discountId
     );
+
+    /**
+     * @notice Revert when discount is not found
+     * @param orgId The organization ID
+     * @param name The discount name
+     */
+    error DiscountNotFound(uint256 orgId, string name);
 
     /**
      * @notice Revert when discount is not for organization during minting
@@ -187,6 +207,20 @@ interface IDiscountRegistry {
         uint256 passId,
         address passOwner,
         uint256 discountId
+    ) external view;
+
+    /**
+     * Check if a discount can be minted by a pass owner with the name
+     * @param orgId The organization ID
+     * @param passId The pass ID
+     * @param passOwner The pass owner
+     * @param name The discount name
+     */
+    function canMintDiscountByName(
+        uint256 orgId,
+        uint256 passId,
+        address passOwner,
+        string memory name
     ) external view;
 
     /**

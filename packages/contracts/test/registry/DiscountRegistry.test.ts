@@ -17,6 +17,7 @@ interface CreateDiscountParams {
 }
 
 interface ExpectedDiscount {
+  id?: number;
   orgId?: number;
   name?: string;
   discount?: number;
@@ -63,10 +64,12 @@ export async function assertDiscount(
   const _expected = {
     ...DEFAULT_DISCOUNT_PARAMS,
     totalMints: 0,
+    id: discountId,
     ...expected,
   };
 
   expect(discount).to.deep.equal([
+    _expected.id,
     _expected.orgId,
     _expected.name,
     _expected.discount,
@@ -115,6 +118,7 @@ describe('DiscountRegistry', () => {
         const { discountRegistry, owner } = await loadWithDefaultDiscount();
 
         await discountRegistry.canMintDiscount(1, 1, owner, 1);
+        await discountRegistry.canMintDiscountByName(1, 1, owner, 'TEST');
       });
 
       it('should not revert for a restricted discount if the user is in the restricted list', async () => {
@@ -125,6 +129,7 @@ describe('DiscountRegistry', () => {
         await discountRegistry.setRestrictedAccess(1, [owner], [true]);
 
         await discountRegistry.canMintDiscount(1, 1, owner, 1);
+        await discountRegistry.canMintDiscountByName(1, 1, owner, 'TEST');
       });
 
       it('should not revert when max mints is 0', async () => {
@@ -133,6 +138,7 @@ describe('DiscountRegistry', () => {
         await discountRegistry.setDiscountMaxMints(1, 0);
 
         await discountRegistry.canMintDiscount(1, 1, owner, 1);
+        await discountRegistry.canMintDiscountByName(1, 1, owner, 'TEST');
       });
 
       it('should be reverted for a restricted discount', async () => {
@@ -164,6 +170,16 @@ describe('DiscountRegistry', () => {
         await expect(
           discountRegistry.canMintDiscount(1, 1, owner, 1),
         ).to.be.revertedWithCustomError(discountRegistry, 'DiscountNotActive');
+      });
+
+      it('should revert if discount is not found by name', async () => {
+        const { discountRegistry, owner } = await loadWithDefaultDiscount();
+
+        await expect(
+          discountRegistry.canMintDiscountByName(1, 1, owner, 'NOT_FOUND'),
+        )
+          .to.be.revertedWithCustomError(discountRegistry, 'DiscountNotFound')
+          .withArgs(1, 'NOT_FOUND');
       });
     });
 
@@ -351,7 +367,7 @@ describe('DiscountRegistry', () => {
       await expect(
         await discountRegistry.connect(otherAccount).createDiscount({
           orgId: 2,
-          name: 'TEST4',
+          name: 'TEST',
           discount: 1000,
           maxMints: 2000,
           isActive: true,
@@ -359,11 +375,11 @@ describe('DiscountRegistry', () => {
         }),
       )
         .to.emit(discountRegistry, 'DiscountCreated')
-        .withArgs(2, 4, 'TEST4', 1000);
+        .withArgs(2, 4, 'TEST', 1000);
 
       await assertDiscount(discountRegistry, 4, {
         orgId: 2,
-        name: 'TEST4',
+        name: 'TEST',
         isRestricted: true,
       });
 
@@ -373,15 +389,15 @@ describe('DiscountRegistry', () => {
       const discounts = await discountRegistry.getDiscountBatch([1, 2, 3, 4]);
 
       expect(discounts).to.deep.equal([
-        [1, 'TEST', 1000, 0, 2000, true, false],
-        [1, 'TEST2', 1000, 0, 2000, true, false],
-        [1, 'TEST3', 1000, 0, 2000, true, false],
-        [2, 'TEST4', 1000, 0, 2000, true, true],
+        [1, 1, 'TEST', 1000, 0, 2000, true, false],
+        [2, 1, 'TEST2', 1000, 0, 2000, true, false],
+        [3, 1, 'TEST3', 1000, 0, 2000, true, false],
+        [4, 2, 'TEST', 1000, 0, 2000, true, true],
       ]);
 
       const names = await discountRegistry.getDiscountNames([1, 2, 3, 4]);
 
-      expect(names).to.deep.equal(['TEST', 'TEST2', 'TEST3', 'TEST4']);
+      expect(names).to.deep.equal(['TEST', 'TEST2', 'TEST3', 'TEST']);
     });
   });
 
@@ -403,7 +419,28 @@ describe('DiscountRegistry', () => {
           .to.emit(discountRegistry, 'DiscountUpdated')
           .withArgs(1, 1);
 
+        expect(await discountRegistry.discountNames(1, 'NEW_NAME')).to.equal(1);
+
         await assertDiscount(discountRegistry, 1, { name: 'NEW_NAME' });
+
+        await expect(discountRegistry.setDiscountName(1, 'NEW_NAME_1'))
+          .to.emit(discountRegistry, 'DiscountUpdated')
+          .withArgs(1, 1);
+
+        expect(await discountRegistry.discountNames(1, 'NEW_NAME_1')).to.equal(
+          1,
+        );
+
+        await assertDiscount(discountRegistry, 1, { name: 'NEW_NAME_1' });
+
+        await expect(discountRegistry.setDiscountName(1, 'NEW_NAME'))
+          .to.emit(discountRegistry, 'DiscountUpdated')
+          .withArgs(1, 1);
+
+        expect(await discountRegistry.discountNames(1, 'NEW_NAME')).to.equal(1);
+        await assertDiscount(discountRegistry, 1, {
+          name: 'NEW_NAME',
+        });
       });
 
       it('name cannot be empty', async () => {
@@ -422,14 +459,12 @@ describe('DiscountRegistry', () => {
         ).to.be.revertedWith('Name cannot be longer than 32 characters');
       });
 
-      it('discounts can have the same name within the same organization', async () => {
+      it('discounts cannot have the same name within the same organization', async () => {
         const { discountRegistry } = await loadWithDefaultDiscount();
 
-        await expect(createDiscount(discountRegistry, { name: 'TEST' }))
-          .to.emit(discountRegistry, 'DiscountCreated')
-          .withArgs(1, 2, 'TEST', 1000);
-
-        await assertDiscount(discountRegistry, 2, { name: 'TEST' });
+        await expect(
+          createDiscount(discountRegistry, { name: 'TEST' }),
+        ).to.be.revertedWith('Name already used');
       });
     });
 

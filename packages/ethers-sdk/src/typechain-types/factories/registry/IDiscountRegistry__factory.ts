@@ -103,6 +103,22 @@ const _abi = [
         type: "uint256",
       },
       {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+    ],
+    name: "DiscountNotFound",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "orgId",
+        type: "uint256",
+      },
+      {
         internalType: "uint256",
         name: "passId",
         type: "uint256",
@@ -265,6 +281,34 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "orgId",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "passId",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "passOwner",
+        type: "address",
+      },
+      {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+    ],
+    name: "canMintDiscountByName",
+    outputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         components: [
           {
             internalType: "uint256",
@@ -311,6 +355,30 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
+        name: "orgId",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+    ],
+    name: "discountNames",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
         name: "discountId",
         type: "uint256",
       },
@@ -319,6 +387,11 @@ const _abi = [
     outputs: [
       {
         components: [
+          {
+            internalType: "uint256",
+            name: "id",
+            type: "uint256",
+          },
           {
             internalType: "uint256",
             name: "orgId",
@@ -375,6 +448,11 @@ const _abi = [
     outputs: [
       {
         components: [
+          {
+            internalType: "uint256",
+            name: "id",
+            type: "uint256",
+          },
           {
             internalType: "uint256",
             name: "orgId",
