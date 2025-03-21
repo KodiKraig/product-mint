@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import registerPricingCommand from './pricing';
 import registerProductCommand from './product';
 import registerPurchaseCommand from './purchase';
+import registerCouponCommand from './coupon';
 
 export default function registerRegistryCommands(program: Command) {
   const registry = program
@@ -13,4 +14,5 @@ export default function registerRegistryCommands(program: Command) {
   registerPricingCommand(registry);
   registerProductCommand(registry);
   registerPurchaseCommand(registry);
+  registerCouponCommand(registry);
 }
