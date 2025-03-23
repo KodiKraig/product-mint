@@ -38,6 +38,13 @@ interface IPaymentEscrow {
     function WHITELIST_ROLE() external view returns (bytes32);
 
     /**
+     * @notice Get the revoke charge role for revoking organization charge ability
+     * @dev It is important to allow the org charging to be revoked in case control over the org is lost
+     * @return Revoke charge role
+     */
+    function REVOKE_CHARGE_ROLE() external view returns (bytes32);
+
+    /**
      * Payment Processing
      */
 
@@ -282,4 +289,38 @@ interface IPaymentEscrow {
      * @param _feeReducer Fee reducer address
      */
     function setFeeReducer(address _feeReducer) external;
+
+    /**
+     * Revoking Organization Charge Ability
+     */
+
+    /**
+     * @notice Emitted when an organization's payment charge ability is updated.
+     * @param orgId Organization ID
+     * @param isRevoked True if the organization's payment charge ability is revoked, false otherwise
+     */
+    event OrgChargeAbilityUpdate(uint256 indexed orgId, bool isRevoked);
+
+    /**
+     * @notice Get if an organization's payment charge ability is revoked
+     * @param orgId Organization ID
+     * @return True if the organization's payment charge ability is revoked, false otherwise
+     */
+    function revokedOrgs(uint256 orgId) external view returns (bool);
+
+    /**
+     * @notice Revoke an organization's payment charge ability
+     * @dev WARNING: Once an organization's payment charge ability is revoked, it cannot be restored without reaching out to the team.
+     * If you accidentally revoke an organization's payment charge ability, please reach out to the team to restore it.
+     * This will not prevent funds from being withdrawn but it will prevent your customers from being able to purchase products
+     * preventing them from having their wallet funds used.
+     * @param orgId Organization ID
+     */
+    function revokeOrgChargeAbility(uint256 orgId) external;
+
+    /**
+     * @notice Restore an organization's payment charge ability
+     * @param orgId Organization ID
+     */
+    function restoreOrgChargeAbility(uint256 orgId) external;
 }

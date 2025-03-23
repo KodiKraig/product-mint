@@ -2,15 +2,22 @@ import { loadFixture } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import hre, { ethers } from 'hardhat';
 import calculateInterfaceId from '../../utils/calculate-interface-id';
+import { loadWithPurchasedFlatRateSubscription } from '../manager/helpers';
 
 describe('PaymentEscrow', () => {
   async function deployPaymentEscrow() {
-    const [owner, otherAccount] = await hre.ethers.getSigners();
+    const [owner, otherAccount, otherAccount2] = await hre.ethers.getSigners();
 
     const ContractRegistry = await hre.ethers.getContractFactory(
       'ContractRegistry',
     );
     const contractRegistry = await ContractRegistry.deploy();
+
+    const OrganizationAdmin = await hre.ethers.getContractFactory(
+      'OrganizationAdmin',
+    );
+    const organizationAdmin = await OrganizationAdmin.deploy(contractRegistry);
+    await contractRegistry.setOrgAdmin(organizationAdmin);
 
     const OrganizationAttributeProvider = await hre.ethers.getContractFactory(
       'OrganizationAttributeProvider',
@@ -53,11 +60,13 @@ describe('PaymentEscrow', () => {
     return {
       contractRegistry,
       paymentEscrow,
+      organizationAdmin,
       feeReducer,
       mintToken,
       mintToken2,
       owner,
       otherAccount,
+      otherAccount2,
       organizationNFT,
     };
   }
@@ -111,6 +120,12 @@ describe('PaymentEscrow', () => {
       expect(
         await paymentEscrow.hasRole(
           await paymentEscrow.WHITELIST_ROLE(),
+          owner,
+        ),
+      ).to.be.true;
+      expect(
+        await paymentEscrow.hasRole(
+          await paymentEscrow.REVOKE_CHARGE_ROLE(),
           owner,
         ),
       ).to.be.true;
@@ -607,6 +622,127 @@ describe('PaymentEscrow', () => {
           calculateInterfaceId(['supportsInterface(bytes4)']),
         ),
       ).to.be.true;
+    });
+  });
+
+  describe('Organization Charge Ability', () => {
+    it('cannot purchase product if charge ability is revoked', async () => {
+      const { purchaseManager, paymentEscrow, owner, otherAccount2 } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      await paymentEscrow.connect(owner).revokeOrgChargeAbility(1);
+
+      await expect(
+        purchaseManager.connect(otherAccount2).purchaseProducts({
+          organizationId: 1,
+          to: otherAccount2,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      ).to.be.revertedWith('Organization charge ability revoked');
+    });
+
+    it('can revoke as an org owner', async () => {
+      const { paymentEscrow, organizationNFT, otherAccount } =
+        await loadFixture(deployPaymentEscrow);
+
+      await organizationNFT.mint(otherAccount);
+
+      await expect(
+        paymentEscrow.connect(otherAccount).revokeOrgChargeAbility(1),
+      )
+        .to.emit(paymentEscrow, 'OrgChargeAbilityUpdate')
+        .withArgs(1, true);
+    });
+
+    it('cam revoke with the revoke charge role', async () => {
+      const { paymentEscrow, organizationNFT, otherAccount } =
+        await loadFixture(deployPaymentEscrow);
+
+      await paymentEscrow.grantRole(
+        await paymentEscrow.REVOKE_CHARGE_ROLE(),
+        otherAccount,
+      );
+
+      await organizationNFT.mint(otherAccount);
+
+      await expect(
+        paymentEscrow.connect(otherAccount).revokeOrgChargeAbility(1),
+      )
+        .to.emit(paymentEscrow, 'OrgChargeAbilityUpdate')
+        .withArgs(1, true);
+    });
+
+    it('cannot revoke if an org admin', async () => {
+      const {
+        paymentEscrow,
+        organizationAdmin,
+        organizationNFT,
+        owner,
+        otherAccount,
+      } = await loadFixture(deployPaymentEscrow);
+
+      await organizationNFT.mint(owner);
+
+      await organizationAdmin.connect(owner).addAdmin(1, otherAccount);
+
+      await expect(
+        paymentEscrow.connect(otherAccount).revokeOrgChargeAbility(1),
+      ).to.be.revertedWith('Not authorized to revoke charge ability');
+    });
+
+    it('cannot revoke if not an org owner', async () => {
+      const { paymentEscrow, organizationNFT, owner, otherAccount } =
+        await loadFixture(deployPaymentEscrow);
+
+      await organizationNFT.mint(owner);
+
+      await expect(
+        paymentEscrow.connect(otherAccount).revokeOrgChargeAbility(1),
+      ).to.be.revertedWith('Not authorized to revoke charge ability');
+    });
+
+    it('can restore charge ability', async () => {
+      const { paymentEscrow, organizationNFT, otherAccount, owner } =
+        await loadFixture(deployPaymentEscrow);
+
+      await organizationNFT.mint(otherAccount);
+
+      await paymentEscrow.connect(otherAccount).revokeOrgChargeAbility(1);
+
+      await expect(paymentEscrow.connect(owner).restoreOrgChargeAbility(1))
+        .to.emit(paymentEscrow, 'OrgChargeAbilityUpdate')
+        .withArgs(1, false);
+    });
+
+    it('only revoke charge role can restore charge ability', async () => {
+      const { paymentEscrow, organizationNFT, otherAccount, otherAccount2 } =
+        await loadFixture(deployPaymentEscrow);
+
+      await organizationNFT.mint(otherAccount);
+
+      await expect(
+        paymentEscrow.connect(otherAccount).restoreOrgChargeAbility(1),
+      )
+        .to.be.revertedWithCustomError(
+          paymentEscrow,
+          'AccessControlUnauthorizedAccount',
+        )
+        .withArgs(otherAccount, await paymentEscrow.REVOKE_CHARGE_ROLE());
+
+      await expect(
+        paymentEscrow.connect(otherAccount2).restoreOrgChargeAbility(1),
+      )
+        .to.be.revertedWithCustomError(
+          paymentEscrow,
+          'AccessControlUnauthorizedAccount',
+        )
+        .withArgs(otherAccount2, await paymentEscrow.REVOKE_CHARGE_ROLE());
     });
   });
 });

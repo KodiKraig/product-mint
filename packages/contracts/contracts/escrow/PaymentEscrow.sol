@@ -75,6 +75,9 @@ contract PaymentEscrow is
     // Token address => Whitelisted
     mapping(address => bool) public whitelistedTokens;
 
+    // Organization ID => Is organization charging ability revoked?
+    mapping(uint256 => bool) public revokedOrgs;
+
     // The denominator for the fee calculation and the maximum fee percentage
     uint256 public constant FEE_DENOMINATOR = 10000;
 
@@ -96,6 +99,10 @@ contract PaymentEscrow is
     // Role for whitelisting ERC20 tokens
     bytes32 public constant WHITELIST_ROLE = keccak256("WHITELIST_ROLE");
 
+    // Role for revoking organization charge ability
+    bytes32 public constant REVOKE_CHARGE_ROLE =
+        keccak256("REVOKE_CHARGE_ROLE");
+
     constructor(
         address _contractRegistry
     ) AccessControl() RegistryEnabled(_contractRegistry) ReentrancyGuard() {
@@ -105,6 +112,7 @@ contract PaymentEscrow is
         _grantRole(FEE_ENABLED_ROLE, _msgSender());
         _grantRole(FEE_WITHDRAW_ROLE, _msgSender());
         _grantRole(WHITELIST_ROLE, _msgSender());
+        _grantRole(REVOKE_CHARGE_ROLE, _msgSender());
     }
 
     /**
@@ -117,6 +125,7 @@ contract PaymentEscrow is
         address token,
         uint256 amount
     ) external payable onlyRegistry(registry.purchaseManager()) nonReentrant {
+        require(!revokedOrgs[orgId], "Organization charge ability revoked");
         require(amount > 0, "Amount must be greater than 0");
 
         uint256 orgAmount = !isFeeEnabled || feeExempt[orgId]
@@ -293,11 +302,39 @@ contract PaymentEscrow is
     }
 
     /**
+     * Revoking Organization Charge Ability
+     */
+
+    function revokeOrgChargeAbility(
+        uint256 orgId
+    ) external canRevokeCharge(orgId) {
+        revokedOrgs[orgId] = true;
+
+        emit OrgChargeAbilityUpdate(orgId, true);
+    }
+
+    function restoreOrgChargeAbility(
+        uint256 orgId
+    ) external onlyRole(REVOKE_CHARGE_ROLE) {
+        revokedOrgs[orgId] = false;
+
+        emit OrgChargeAbilityUpdate(orgId, false);
+    }
+
+    /**
      * Modifiers
      */
 
     modifier onlyValidFee(uint256 fee) {
         require(fee <= FEE_DENOMINATOR, "Invalid fee");
+        _;
+    }
+
+    modifier canRevokeCharge(uint256 orgId) {
+        require(
+            hasRole(REVOKE_CHARGE_ROLE, _msgSender()) || _isOrgOwner(orgId),
+            "Not authorized to revoke charge ability"
+        );
         _;
     }
 
