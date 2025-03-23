@@ -67,12 +67,12 @@ interface IPurchaseRegistry {
     /**
      * @notice Get the number of mints for an organization by a single wallet.
      * @param organizationId The organization ID that the pass belongs to.
-     * @param passOwner The owner of the passes.
+     * @param purchaser The wallet that is purchasing the products.
      * @return The number of mints by the wallet for the organization.
      */
     function passMintCount(
         uint256 organizationId,
-        address passOwner
+        address purchaser
     ) external view returns (uint256);
 
     /**
@@ -132,11 +132,17 @@ interface IPurchaseRegistry {
     error MintClosed();
 
     /**
+     * @notice Revert for when the gifting is disabled for an organization.
+     */
+    error GiftingIsDisabled(uint256 organizationId);
+
+    /**
      * @notice Record a product purchase and link the products to the pass.
      * @dev Only the purchase manager can record a product purchase.
      * @param _organizationId The organization ID that the product belongs to.
      * @param _passId The Product Pass ID to be used in the purchase.
      * @param _passOwner The owner of the pass.
+     * @param _purchaser The wallet that is purchasing the products.
      * @param _productIds The product IDs to be used in the purchase.
      * @param _pricingIds The pricing IDs to be used in the purchase.
      */
@@ -144,6 +150,7 @@ interface IPurchaseRegistry {
         uint256 _organizationId,
         uint256 _passId,
         address _passOwner,
+        address _purchaser,
         uint256[] calldata _productIds,
         uint256[] calldata _pricingIds
     ) external;
@@ -243,6 +250,17 @@ interface IPurchaseRegistry {
     ) external;
 
     /**
+     * @notice Get the whitelist status for an organization and a purchaser.
+     * @param orgId The organization ID to get the whitelist status for.
+     * @param purchaser The purchaser to get the whitelist status for.
+     * @return True if the purchaser is whitelisted, false otherwise.
+     */
+    function whitelisted(
+        uint256 orgId,
+        address purchaser
+    ) external view returns (bool);
+
+    /**
      * Mint Closed
      */
 
@@ -262,4 +280,32 @@ interface IPurchaseRegistry {
      * @param _isMintClosed True if the mint is closed, false otherwise.
      */
     function setMintClosed(uint256 organizationId, bool _isMintClosed) external;
+
+    /**
+     * Gifting
+     */
+
+    /**
+     * @notice Emitted when the gifting status for an organization is updated.
+     * @param organizationId The organization ID to update the gifting status for.
+     * @param isGifting True if the organization allows product passes to be gifted to other addresses, false otherwise.
+     */
+    event GiftingStatusChanged(uint256 indexed organizationId, bool isGifting);
+
+    /**
+     * @notice Get the gifting status for an organization.
+     * @param orgId The organization ID to get the gifting status for.
+     * @return True if the organization allows product passes to be gifted to other addresses, false otherwise.
+     */
+    function isGiftingEnabled(uint256 orgId) external view returns (bool);
+
+    /**
+     * @notice Set a new gifting status for an organization.
+     * @param organizationId The organization ID to set the gifting status for.
+     * @param _isGifting True if the organization allows product passes to be gifted to other addresses, false otherwise.
+     */
+    function setGiftingEnabled(
+        uint256 organizationId,
+        bool _isGifting
+    ) external;
 }

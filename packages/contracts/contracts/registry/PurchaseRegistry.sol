@@ -57,7 +57,7 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
     // Organization ID => Total pass mints
     mapping(uint256 => uint256) public totalPassMints;
 
-    // Organization ID -> Product Pass Owner -> Number of total mints
+    // Organization ID -> Product Pass Purchaser -> Number of total mints
     mapping(uint256 => mapping(address => uint256)) public passMintCount;
 
     // Organization ID -> Maximum number of pass mints by a single wallet
@@ -66,11 +66,14 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
     // Organization ID => Is organization whitelist only mint?
     mapping(uint256 => bool) public isWhitelist;
 
-    // Organization ID => Product Pass Owner => Is whitelisted?
+    // Organization ID => Product Pass Purchaser => Is whitelisted?
     mapping(uint256 => mapping(address => bool)) public whitelisted;
 
     // Organization ID => Is mint closed?
     mapping(uint256 => bool) public isMintClosed;
+
+    // Organization ID => Is gifting enabled to mint passes to other addresses?
+    mapping(uint256 => bool) public isGiftingEnabled;
 
     constructor(address _contractRegistry) RegistryEnabled(_contractRegistry) {}
 
@@ -100,6 +103,7 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
         uint256 _organizationId,
         uint256 _passId,
         address _passOwner,
+        address _purchaser,
         uint256[] calldata _productIds,
         uint256[] calldata _pricingIds
     ) external onlyRegistry(registry.purchaseManager()) {
@@ -116,6 +120,14 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
             revert MintClosed();
         }
 
+        if (
+            _passOwner != _purchaser &&
+            !isGiftingEnabled[_organizationId] &&
+            !_isOrgAdminAddress(_organizationId, _purchaser)
+        ) {
+            revert GiftingIsDisabled(_organizationId);
+        }
+
         if (passOrganization[_passId] == 0) {
             // New pass
             passOrganization[_passId] = _organizationId;
@@ -126,17 +138,19 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
 
         if (
             maxMints[_organizationId] > 0 &&
-            passMintCount[_organizationId][_passOwner] >=
-            maxMints[_organizationId]
+            passMintCount[_organizationId][_purchaser] >=
+            maxMints[_organizationId] &&
+            !_isOrgAdminAddress(_organizationId, _purchaser)
         ) {
             revert MaxMintsReached();
         } else {
-            passMintCount[_organizationId][_passOwner] += 1;
+            passMintCount[_organizationId][_purchaser] += 1;
         }
 
         if (
             isWhitelist[_organizationId] &&
-            !whitelisted[_organizationId][_passOwner]
+            !whitelisted[_organizationId][_purchaser] &&
+            !_isOrgAdminAddress(_organizationId, _purchaser)
         ) {
             revert AddressNotWhitelisted();
         }
@@ -244,6 +258,19 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
         isMintClosed[organizationId] = _isMintClosed;
 
         emit MintClosedStatusChanged(organizationId, _isMintClosed);
+    }
+
+    /**
+     * Gifting
+     */
+
+    function setGiftingEnabled(
+        uint256 organizationId,
+        bool _isGifting
+    ) external onlyOrgAdmin(organizationId) {
+        isGiftingEnabled[organizationId] = _isGifting;
+
+        emit GiftingStatusChanged(organizationId, _isGifting);
     }
 
     /**

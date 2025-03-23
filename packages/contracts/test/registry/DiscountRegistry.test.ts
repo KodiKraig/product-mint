@@ -162,25 +162,43 @@ describe('DiscountRegistry', () => {
         ]);
       });
 
-      it('should be reverted for a restricted discount', async () => {
+      it('should not be reverted for a restricted discount if the user is an org admin', async () => {
         const { discountRegistry, owner } = await loadWithDefaultDiscount();
 
         await discountRegistry.setDiscountRestricted(1, true);
 
-        await expect(discountRegistry.canMintDiscount(1, 1, owner, 1))
+        await expect(discountRegistry.canMintDiscount(1, 1, owner, 1)).to.not.be
+          .reverted;
+        await expect(
+          discountRegistry.canMintDiscountByName(1, 1, owner, 'TEST'),
+        ).to.not.be.reverted;
+        await expect(
+          discountRegistry.canMintDiscountByNameBatch(1, 1, owner, ['TEST']),
+        ).to.not.be.reverted;
+      });
+
+      it('should be reverted for a restricted discount if the user is not an org admin', async () => {
+        const { discountRegistry, otherAccount } =
+          await loadWithDefaultDiscount();
+
+        await discountRegistry.setDiscountRestricted(1, true);
+
+        await expect(discountRegistry.canMintDiscount(1, 1, otherAccount, 1))
           .to.be.revertedWithCustomError(
             discountRegistry,
             'DiscountAccessRestricted',
           )
-          .withArgs(1, owner);
+          .withArgs(1, otherAccount);
         await expect(
-          discountRegistry.canMintDiscountByNameBatch(1, 1, owner, ['TEST']),
+          discountRegistry.canMintDiscountByNameBatch(1, 1, otherAccount, [
+            'TEST',
+          ]),
         )
           .to.be.revertedWithCustomError(
             discountRegistry,
             'DiscountAccessRestricted',
           )
-          .withArgs(1, owner);
+          .withArgs(1, otherAccount);
       });
 
       it('should be reverted for a different organization', async () => {

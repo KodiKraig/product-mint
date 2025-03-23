@@ -143,7 +143,7 @@ contract DiscountRegistry is
     function canMintDiscount(
         uint256 orgId,
         uint256 passId,
-        address passOwner,
+        address minter,
         uint256 discountId
     ) public view {
         Discount memory _discount = discounts[discountId];
@@ -158,9 +158,10 @@ contract DiscountRegistry is
 
         if (
             _discount.isRestricted &&
-            !restrictedAccess[orgId][passOwner].contains(discountId)
+            !restrictedAccess[orgId][minter].contains(discountId) &&
+            !_isOrgAdminAddress(orgId, minter)
         ) {
-            revert DiscountAccessRestricted(discountId, passOwner);
+            revert DiscountAccessRestricted(discountId, minter);
         }
 
         if (
@@ -177,7 +178,7 @@ contract DiscountRegistry is
     function canMintDiscountByName(
         uint256 orgId,
         uint256 passId,
-        address passOwner,
+        address minter,
         string memory name
     ) public view returns (uint256) {
         uint256 discountId = discountNames[orgId][name];
@@ -186,7 +187,7 @@ contract DiscountRegistry is
             revert DiscountNotFound(orgId, name);
         }
 
-        canMintDiscount(orgId, passId, passOwner, discountId);
+        canMintDiscount(orgId, passId, minter, discountId);
 
         return discountId;
     }
@@ -194,7 +195,7 @@ contract DiscountRegistry is
     function canMintDiscountByNameBatch(
         uint256 orgId,
         uint256 passId,
-        address passOwner,
+        address minter,
         string[] memory names
     ) external view returns (uint256[] memory) {
         uint256[] memory discountIds = new uint256[](names.length);
@@ -203,7 +204,7 @@ contract DiscountRegistry is
             discountIds[i] = canMintDiscountByName(
                 orgId,
                 passId,
-                passOwner,
+                minter,
                 names[i]
             );
         }
@@ -214,10 +215,10 @@ contract DiscountRegistry is
     function mintDiscountsToPass(
         uint256 orgId,
         uint256 passId,
-        address passOwner,
+        address minter,
         uint256[] calldata discountIds
     ) external onlyRegistry(registry.purchaseManager()) {
-        _mintDiscountsToPass(orgId, passId, passOwner, discountIds);
+        _mintDiscountsToPass(orgId, passId, minter, discountIds);
     }
 
     function mintDiscountsToPassByOwner(
@@ -264,19 +265,19 @@ contract DiscountRegistry is
     function _mintDiscountsToPass(
         uint256 orgId,
         uint256 passId,
-        address passOwner,
+        address minter,
         uint256[] calldata discountIds
     ) internal {
         require(discountIds.length > 0, "Invalid discount ids");
 
         for (uint256 i = 0; i < discountIds.length; i++) {
-            canMintDiscount(orgId, passId, passOwner, discountIds[i]);
+            canMintDiscount(orgId, passId, minter, discountIds[i]);
 
             discounts[discountIds[i]].totalMints++;
             passDiscounts[passId].add(discountIds[i]);
-            restrictedAccess[orgId][passOwner].remove(discountIds[i]);
+            restrictedAccess[orgId][minter].remove(discountIds[i]);
 
-            emit DiscountMinted(orgId, passId, discountIds[i]);
+            emit DiscountMinted(orgId, passId, discountIds[i], minter);
         }
     }
 

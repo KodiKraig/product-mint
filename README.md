@@ -28,6 +28,7 @@ We guarantee you will love the simplicity and flexibility of ProductMint. You wi
 - ✅ **Create limited time and lifetime coupons***
 - ✅ **Upgrade/downgrade subscriptions***
 - ✅ **Airdrop passes, upgrades, renewals, and tier changes to users***
+- ✅ **Gifting product passes to other addresses***
 - ✅ **Whitelist addresses for product mints***
 - ✅ **Restrict addresses for special pricing configurations***
 - ✅ **Pause subscriptions and lock up time for trading***

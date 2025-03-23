@@ -106,7 +106,7 @@ describe('PurchaseRegistry', () => {
     await expect(
       purchaseRegistry
         .connect(owner)
-        .recordProductPurchase(1, 1, owner.address, [1], [1]),
+        .recordProductPurchase(1, 1, owner.address, owner.address, [1], [1]),
     ).to.be.revertedWith('Caller not authorized');
   });
 
@@ -378,6 +378,32 @@ describe('PurchaseRegistry', () => {
 
       await expect(
         purchaseRegistry.connect(otherAccount).setMintClosed(1, true),
+      ).to.be.revertedWith('Not an admin of the organization');
+    });
+  });
+
+  describe('Gifting', () => {
+    it('should return true if gifting is enabled', async () => {
+      const { purchaseRegistry, owner } = await loadWithDefaultProduct();
+
+      await expect(purchaseRegistry.connect(owner).setGiftingEnabled(1, true))
+        .to.emit(purchaseRegistry, 'GiftingStatusChanged')
+        .withArgs(1, true);
+
+      expect(await purchaseRegistry.isGiftingEnabled(1)).to.be.true;
+
+      await expect(purchaseRegistry.connect(owner).setGiftingEnabled(1, false))
+        .to.emit(purchaseRegistry, 'GiftingStatusChanged')
+        .withArgs(1, false);
+
+      expect(await purchaseRegistry.isGiftingEnabled(1)).to.be.false;
+    });
+
+    it('only org admins can set the gifting status', async () => {
+      const { purchaseRegistry, otherAccount } = await loadWithDefaultProduct();
+
+      await expect(
+        purchaseRegistry.connect(otherAccount).setGiftingEnabled(1, true),
       ).to.be.revertedWith('Not an admin of the organization');
     });
   });

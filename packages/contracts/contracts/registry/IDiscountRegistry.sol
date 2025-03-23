@@ -139,11 +139,13 @@ interface IDiscountRegistry {
      * @param orgId The organization ID
      * @param passId The pass ID
      * @param discountId The discount ID
+     * @param minter The minter for the discount
      */
     event DiscountMinted(
         uint256 indexed orgId,
         uint256 indexed passId,
-        uint256 indexed discountId
+        uint256 indexed discountId,
+        address minter
     );
 
     /**
@@ -169,9 +171,9 @@ interface IDiscountRegistry {
     /**
      * @notice Revert when discount is restricted and access is not granted during minting
      * @param discountId The discount ID
-     * @param passOwner The pass owner
+     * @param minter The minter
      */
-    error DiscountAccessRestricted(uint256 discountId, address passOwner);
+    error DiscountAccessRestricted(uint256 discountId, address minter);
 
     /**
      * @notice Revert when discount max mints is reached during minting
@@ -199,13 +201,13 @@ interface IDiscountRegistry {
      * @dev will revert if any of the checks fail
      * @param orgId The organization ID
      * @param passId The pass ID
-     * @param passOwner The pass owner
+     * @param minter The minter
      * @param discountId The discount ID
      */
     function canMintDiscount(
         uint256 orgId,
         uint256 passId,
-        address passOwner,
+        address minter,
         uint256 discountId
     ) external view;
 
@@ -213,14 +215,14 @@ interface IDiscountRegistry {
      * Check if a discount can be minted by a pass owner with the name
      * @param orgId The organization ID
      * @param passId The pass ID
-     * @param passOwner The pass owner
+     * @param minter The minter
      * @param name The discount name
      * @return The discount ID
      */
     function canMintDiscountByName(
         uint256 orgId,
         uint256 passId,
-        address passOwner,
+        address minter,
         string memory name
     ) external view returns (uint256);
 
@@ -228,14 +230,14 @@ interface IDiscountRegistry {
      * Check if a list of discounts can be minted by a pass owner with the name
      * @param orgId The organization ID
      * @param passId The pass ID
-     * @param passOwner The pass owner
+     * @param minter The minter
      * @param names The discount names
      * @return The discount IDs
      */
     function canMintDiscountByNameBatch(
         uint256 orgId,
         uint256 passId,
-        address passOwner,
+        address minter,
         string[] memory names
     ) external view returns (uint256[] memory);
 
@@ -244,13 +246,13 @@ interface IDiscountRegistry {
      * @dev used by purchase manager
      * @param orgId The organization ID
      * @param passId The pass ID
-     * @param passOwner The pass owner
+     * @param minter The minter for the discount
      * @param discountIds The discount IDs
      */
     function mintDiscountsToPass(
         uint256 orgId,
         uint256 passId,
-        address passOwner,
+        address minter,
         uint256[] calldata discountIds
     ) external;
 

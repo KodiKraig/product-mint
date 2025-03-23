@@ -15,12 +15,14 @@ interface IPurchaseManager {
      *  the amount paid is recorded.
      * @param orgId The ID of the organization that the products are purchased for.
      * @param passOwner The address of the owner of the product pass that paid for the products.
+     * @param purchaser The address of the purchaser of the products.
      * @param token The token used for the purchase.
      * @param amountPaid The total amount paid for the products including any discounts from coupons.
      */
     event PerformPurchase(
         uint256 indexed orgId,
         address indexed passOwner,
+        address indexed purchaser,
         address token,
         uint256 amountPaid
     );
@@ -144,6 +146,7 @@ interface IPurchaseManager {
      */
     struct PurchaseProductsParams {
         address passOwner;
+        address purchaser;
         uint256 orgId;
         uint256 productPassId;
         uint256[] productIds;
@@ -153,6 +156,21 @@ interface IPurchaseManager {
         bool airdrop;
         bool pause;
         bool isInitialPurchase;
+    }
+
+    /**
+     * @dev Used internally by the PurchaseManager during the product purchase.
+     */
+    struct PerformPurchaseParams {
+        uint256 orgId;
+        uint256 productPassId;
+        address passOwner;
+        address purchaser;
+        uint256 totalAmount;
+        address token;
+        bool airdrop;
+        bool isInitialPurchase;
+        bool forceCoupon;
     }
 
     /**

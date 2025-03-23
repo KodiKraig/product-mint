@@ -19,7 +19,7 @@ import { assertCheckoutTotalCost } from '../calculator/helpers';
 
 describe('Purchase Manager', () => {
   describe('Successful Product Purchase', () => {
-    it('can airdrop a pass and mint a discount onto it', async () => {
+    it('can airdrop a pass and mint a restricted discount onto it', async () => {
       const {
         purchaseManager,
         productRegistry,
@@ -47,20 +47,35 @@ describe('Purchase Manager', () => {
         discount: 1000, // 10% off
         maxMints: 0,
         isActive: true,
-        isRestricted: false,
+        isRestricted: true,
       });
 
-      await purchaseManager.connect(owner).purchaseProducts({
-        to: otherAccount,
-        organizationId: 1,
-        productIds: [1],
-        pricingIds: [1],
-        quantities: [0],
-        discountIds: [1],
-        couponCode: '',
-        airdrop: true,
-        pause: false,
-      });
+      await expect(
+        purchaseManager.connect(owner).purchaseProducts({
+          to: otherAccount,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [1],
+          couponCode: '',
+          airdrop: true,
+          pause: false,
+        }),
+      )
+        .to.emit(discountRegistry, 'DiscountMinted')
+        .withArgs(1, 1, 1, owner)
+        .to.emit(purchaseManager, 'ProductsPurchased')
+        .withArgs(
+          1,
+          1,
+          otherAccount,
+          [1],
+          [1],
+          [0],
+          await mintToken.getAddress(),
+          ethers.parseEther('1'),
+        );
 
       expect(await productPassNFT.ownerOf(1)).to.equal(otherAccount);
       expect(await purchaseRegistry.getPassProductIds(1)).to.deep.equal([1]);
@@ -69,7 +84,8 @@ describe('Purchase Manager', () => {
       );
       expect(await purchaseRegistry.productSupply(1)).to.equal(1);
       expect(await purchaseRegistry.passOrganization(1)).to.equal(1);
-      expect(await purchaseRegistry.passMintCount(1, otherAccount)).to.equal(1);
+      expect(await purchaseRegistry.passMintCount(1, owner)).to.equal(1);
+      expect(await purchaseRegistry.passMintCount(1, otherAccount)).to.equal(0);
 
       expect(await discountRegistry.hasPassDiscount(1, 1)).to.equal(true);
       expect(await discountRegistry.getTotalPassDiscount(1)).to.equal(1000);
@@ -363,6 +379,7 @@ describe('Purchase Manager', () => {
         .withArgs(
           1,
           otherAccount,
+          otherAccount,
           await mintToken.getAddress(),
           ethers.parseUnits('27', 6),
         )
@@ -404,6 +421,7 @@ describe('Purchase Manager', () => {
         .and.to.emit(purchaseManager, 'PerformPurchase')
         .withArgs(
           1,
+          otherAccount2,
           otherAccount2,
           await mintToken.getAddress(),
           ethers.parseUnits('10', 6),
@@ -775,6 +793,7 @@ describe('Purchase Manager', () => {
         .and.to.emit(purchaseManager, 'PerformPurchase')
         .withArgs(
           1,
+          otherAccount,
           otherAccount,
           await mintToken.getAddress(),
           ethers.parseUnits('10', 6),
@@ -1362,6 +1381,7 @@ describe('Purchase Manager', () => {
         .withArgs(
           1,
           otherAccount,
+          otherAccount,
           await mintToken.getAddress(),
           ethers.parseUnits('10', 6),
         )
@@ -1399,9 +1419,328 @@ describe('Purchase Manager', () => {
         ethers.parseUnits('10', 6),
       );
     });
+
+    it('can gift purchase a product pass using your own coupons and minting discounts and force sub into pause state', async () => {
+      const {
+        purchaseManager,
+        discountRegistry,
+        couponRegistry,
+        pricingRegistry,
+        productRegistry,
+        productPassNFT,
+        purchaseRegistry,
+        subscriptionEscrow,
+        paymentEscrow,
+        mintToken,
+        otherAccount,
+        otherAccount2,
+      } = await loadWithDefaultProduct();
+
+      await subscriptionEscrow.setSubscriptionsPausable(1, true);
+      await purchaseRegistry.setGiftingEnabled(1, true);
+
+      // Mint tokens
+
+      await mintToken
+        .connect(otherAccount)
+        .mint(otherAccount, ethers.parseUnits('100', 6));
+      await mintToken
+        .connect(otherAccount)
+        .approve(paymentEscrow, ethers.parseUnits('100', 6));
+
+      // Create pricing
+
+      await pricingRegistry.createFlatRateSubscriptionPricing({
+        organizationId: 1,
+        flatPrice: ethers.parseUnits('100', 6),
+        token: await mintToken.getAddress(),
+        isRestricted: false,
+        chargeFrequency: 1,
+      });
+
+      await productRegistry.linkPricing(1, [1]);
+
+      // Create coupon
+
+      await couponRegistry.createCoupon({
+        orgId: 1,
+        code: 'COUPON1',
+        discount: 1000,
+        expiration: (await time.latest()) + 1000,
+        maxTotalRedemptions: 10,
+        isInitialPurchaseOnly: false,
+        isActive: true,
+        isRestricted: true,
+        isOneTimeUse: true,
+      });
+
+      await couponRegistry.setRestrictedAccess(1, [otherAccount], [true]);
+
+      // Create discount
+
+      await discountRegistry.createDiscount({
+        orgId: 1,
+        name: 'DISCOUNT1',
+        discount: 1500,
+        maxMints: 10,
+        isActive: true,
+        isRestricted: true,
+      });
+
+      await discountRegistry.setRestrictedAccess(1, [otherAccount], [true]);
+
+      // Purchase product pass
+
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseProducts({
+          to: otherAccount2,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [1],
+          couponCode: 'COUPON1',
+          airdrop: false,
+          pause: false,
+        }),
+      )
+        .to.emit(discountRegistry, 'DiscountMinted')
+        .withArgs(1, 1, 1, otherAccount)
+        .to.emit(purchaseManager, 'PerformPurchase')
+        .withArgs(
+          1,
+          otherAccount2,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('76.5', 6),
+        );
+
+      // Assertions
+
+      expect(await mintToken.balanceOf(otherAccount)).to.equal(
+        ethers.parseUnits('23.5', 6),
+      );
+      expect(await productPassNFT.ownerOf(1)).to.equal(otherAccount2);
+      expect(await purchaseManager.passSupply()).to.equal(1);
+      await assertSubscription(
+        subscriptionEscrow,
+        {
+          productPassId: 1,
+          productId: 1,
+        },
+        {
+          orgId: 1,
+          pricingId: 1,
+          startDate: 0,
+          endDate: 0,
+          timeRemaining: getCycleDuration(1),
+          isCancelled: false,
+          isPaused: true,
+          status: 3,
+        },
+      );
+    });
+
+    it('can airdrop multiple passes even when org has a whitelist with active subs', async () => {
+      const {
+        purchaseManager,
+        purchaseRegistry,
+        productPassNFT,
+        owner,
+        otherAccount,
+        otherAccount2,
+        subscriptionEscrow,
+      } = await loadWithPurchasedFlatRateSubscription();
+
+      expect(await subscriptionEscrow.subscriptionsPauseable(1)).to.equal(
+        false,
+      );
+
+      await purchaseRegistry.setWhitelist(1, true);
+
+      await purchaseManager.connect(owner).purchaseProducts({
+        to: otherAccount,
+        organizationId: 1,
+        productIds: [1],
+        pricingIds: [1],
+        quantities: [0],
+        discountIds: [],
+        couponCode: '',
+        airdrop: true,
+        pause: false,
+      });
+
+      await purchaseManager.connect(owner).purchaseProducts({
+        to: otherAccount2,
+        organizationId: 1,
+        productIds: [1],
+        pricingIds: [1],
+        quantities: [0],
+        discountIds: [],
+        couponCode: '',
+        airdrop: true,
+        pause: false,
+      });
+
+      expect(await productPassNFT.ownerOf(2)).to.equal(otherAccount);
+      expect(await productPassNFT.ownerOf(3)).to.equal(otherAccount2);
+    });
+
+    it('can airdrop passes to multiple addresses when when max mints is reached by admin', async () => {
+      const {
+        purchaseManager,
+        purchaseRegistry,
+        productPassNFT,
+        owner,
+        otherAccount,
+        otherAccount2,
+      } = await loadWithPurchasedFlatRateSubscription();
+
+      await purchaseRegistry.setMaxMints(1, 1);
+
+      await purchaseManager.connect(owner).purchaseProducts({
+        to: otherAccount,
+        organizationId: 1,
+        productIds: [1],
+        pricingIds: [1],
+        quantities: [0],
+        discountIds: [],
+        couponCode: '',
+        airdrop: true,
+        pause: false,
+      });
+
+      await purchaseManager.connect(owner).purchaseProducts({
+        to: otherAccount2,
+        organizationId: 1,
+        productIds: [1],
+        pricingIds: [1],
+        quantities: [0],
+        discountIds: [],
+        couponCode: '',
+        airdrop: true,
+        pause: false,
+      });
+
+      expect(await productPassNFT.ownerOf(2)).to.equal(otherAccount);
+      expect(await productPassNFT.ownerOf(3)).to.equal(otherAccount2);
+    });
   });
 
   describe('Failed Product Purchase', () => {
+    it('cannot gift a product pass to someone that is not authorized to use the pricing model', async () => {
+      const {
+        purchaseManager,
+        productRegistry,
+        pricingRegistry,
+        otherAccount,
+        otherAccount2,
+        mintToken,
+      } = await loadWithDefaultProduct();
+
+      await pricingRegistry.createFlatRateSubscriptionPricing({
+        organizationId: 1,
+        flatPrice: ethers.parseUnits('100', 6),
+        token: await mintToken.getAddress(),
+        isRestricted: true,
+        chargeFrequency: 1,
+      });
+
+      await productRegistry.linkPricing(1, [1]);
+
+      await pricingRegistry.setRestrictedAccess(1, [otherAccount], [true]);
+
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseProducts({
+          to: otherAccount2,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      ).to.be.revertedWithCustomError(
+        pricingRegistry,
+        'PricingRestrictedAccess',
+      );
+    });
+
+    it('reverts when gifting a pass to someone that has already reached the max mints', async () => {
+      const { purchaseManager, purchaseRegistry, otherAccount, otherAccount2 } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      await purchaseRegistry.setMaxMints(1, 1);
+      await purchaseRegistry.setGiftingEnabled(1, true);
+
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseProducts({
+          to: otherAccount2,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      ).to.be.revertedWithCustomError(purchaseRegistry, 'MaxMintsReached');
+    });
+
+    it('reverts when attempting to a gift a pass to someone when gifting is disabled', async () => {
+      const { purchaseManager, purchaseRegistry, otherAccount, otherAccount2 } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseProducts({
+          to: otherAccount2,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      )
+        .to.be.revertedWithCustomError(purchaseRegistry, 'GiftingIsDisabled')
+        .withArgs(1);
+    });
+
+    it('reverts when the minter is not whitelisted even if the future pass owner is whitelisted during a gift purchase', async () => {
+      const { purchaseManager, purchaseRegistry, otherAccount, otherAccount2 } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      await purchaseRegistry.setGiftingEnabled(1, true);
+      await purchaseRegistry.setWhitelist(1, true);
+      await purchaseRegistry.whitelistPassOwners(
+        1,
+        [otherAccount, otherAccount2],
+        [false, true],
+      );
+
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseProducts({
+          to: otherAccount2,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      ).to.be.revertedWithCustomError(
+        purchaseRegistry,
+        'AddressNotWhitelisted',
+      );
+    });
+
     it('cannot purchase a paused subscription product if the org does not allow it', async () => {
       const {
         purchaseManager,
@@ -1479,7 +1818,7 @@ describe('Purchase Manager', () => {
       await productRegistry.linkPricing(1, [1]);
 
       await expect(
-        purchaseManager.purchaseProducts(
+        purchaseManager.connect(otherAccount).purchaseProducts(
           {
             to: otherAccount,
             organizationId: 1,
@@ -1886,7 +2225,7 @@ describe('Purchase Manager', () => {
       await expect(
         purchaseManager.connect(otherAccount2).purchaseProducts(
           {
-            to: otherAccount,
+            to: otherAccount2,
             organizationId: 1,
             productIds: [1],
             pricingIds: [1],
@@ -1985,7 +2324,7 @@ describe('Purchase Manager', () => {
       const {
         purchaseManager,
         purchaseRegistry,
-        owner,
+        otherAccount,
         pricingRegistry,
         productRegistry,
       } = await loadWithDefaultProduct();
@@ -2002,9 +2341,9 @@ describe('Purchase Manager', () => {
       await productRegistry.linkPricing(1, [1]);
 
       await expect(
-        purchaseManager.connect(owner).purchaseProducts(
+        purchaseManager.connect(otherAccount).purchaseProducts(
           {
-            to: owner,
+            to: otherAccount,
             organizationId: 1,
             productIds: [1],
             pricingIds: [1],
