@@ -98,6 +98,10 @@ contract ContractRegistry is
     // Manager
 
     function setPurchaseManager(address _purchaseManager) external onlyOwner {
+        _setPurchaseManager(_purchaseManager);
+    }
+
+    function _setPurchaseManager(address _purchaseManager) internal {
         _checkInterface(
             _purchaseManager,
             type(IPurchaseManager).interfaceId,
@@ -112,6 +116,10 @@ contract ContractRegistry is
     // Admin
 
     function setOrgAdmin(address _orgAdmin) external onlyOwner {
+        _setOrgAdmin(_orgAdmin);
+    }
+
+    function _setOrgAdmin(address _orgAdmin) internal {
         _checkInterface(
             _orgAdmin,
             type(IOrganizationAdmin).interfaceId,
@@ -126,6 +134,10 @@ contract ContractRegistry is
     // NFTs
 
     function setProductPassNFT(address _productPassNFT) external onlyOwner {
+        _setProductPassNFT(_productPassNFT);
+    }
+
+    function _setProductPassNFT(address _productPassNFT) internal {
         _checkInterface(_productPassNFT, type(IERC721).interfaceId, "IERC721");
         _checkInterface(
             _productPassNFT,
@@ -141,6 +153,10 @@ contract ContractRegistry is
     }
 
     function setOrganizationNFT(address _organizationNFT) external onlyOwner {
+        _setOrganizationNFT(_organizationNFT);
+    }
+
+    function _setOrganizationNFT(address _organizationNFT) internal {
         _checkInterface(_organizationNFT, type(IERC721).interfaceId, "IERC721");
         _checkInterface(
             _organizationNFT,
@@ -158,6 +174,10 @@ contract ContractRegistry is
     // Registry
 
     function setProductRegistry(address _productRegistry) external onlyOwner {
+        _setProductRegistry(_productRegistry);
+    }
+
+    function _setProductRegistry(address _productRegistry) internal {
         _checkInterface(
             _productRegistry,
             type(IProductRegistry).interfaceId,
@@ -170,6 +190,10 @@ contract ContractRegistry is
     }
 
     function setPricingRegistry(address _pricingRegistry) external onlyOwner {
+        _setPricingRegistry(_pricingRegistry);
+    }
+
+    function _setPricingRegistry(address _pricingRegistry) internal {
         _checkInterface(
             _pricingRegistry,
             type(IPricingRegistry).interfaceId,
@@ -182,6 +206,10 @@ contract ContractRegistry is
     }
 
     function setPurchaseRegistry(address _purchaseRegistry) external onlyOwner {
+        _setPurchaseRegistry(_purchaseRegistry);
+    }
+
+    function _setPurchaseRegistry(address _purchaseRegistry) internal {
         _checkInterface(
             _purchaseRegistry,
             type(IPurchaseRegistry).interfaceId,
@@ -194,6 +222,10 @@ contract ContractRegistry is
     }
 
     function setCouponRegistry(address _couponRegistry) external onlyOwner {
+        _setCouponRegistry(_couponRegistry);
+    }
+
+    function _setCouponRegistry(address _couponRegistry) internal {
         _checkInterface(
             _couponRegistry,
             type(ICouponRegistry).interfaceId,
@@ -206,6 +238,10 @@ contract ContractRegistry is
     }
 
     function setDiscountRegistry(address _discountRegistry) external onlyOwner {
+        _setDiscountRegistry(_discountRegistry);
+    }
+
+    function _setDiscountRegistry(address _discountRegistry) internal {
         _checkInterface(
             _discountRegistry,
             type(IDiscountRegistry).interfaceId,
@@ -222,6 +258,10 @@ contract ContractRegistry is
     function setPricingCalculator(
         address _pricingCalculator
     ) external onlyOwner {
+        _setPricingCalculator(_pricingCalculator);
+    }
+
+    function _setPricingCalculator(address _pricingCalculator) internal {
         _checkInterface(
             _pricingCalculator,
             type(IPricingCalculator).interfaceId,
@@ -238,6 +278,12 @@ contract ContractRegistry is
     function setProductTransferOracle(
         address _productTransferOracle
     ) external onlyOwner {
+        _setProductTransferOracle(_productTransferOracle);
+    }
+
+    function _setProductTransferOracle(
+        address _productTransferOracle
+    ) internal {
         _checkInterface(
             _productTransferOracle,
             type(IProductTransferOracle).interfaceId,
@@ -252,6 +298,12 @@ contract ContractRegistry is
     function setSubscriptionTransferOracle(
         address _subscriptionTransferOracle
     ) external onlyOwner {
+        _setSubscriptionTransferOracle(_subscriptionTransferOracle);
+    }
+
+    function _setSubscriptionTransferOracle(
+        address _subscriptionTransferOracle
+    ) internal {
         _checkInterface(
             _subscriptionTransferOracle,
             type(ISubscriptionTransferOracle).interfaceId,
@@ -271,6 +323,10 @@ contract ContractRegistry is
     function setSubscriptionEscrow(
         address _subscriptionEscrow
     ) external onlyOwner {
+        _setSubscriptionEscrow(_subscriptionEscrow);
+    }
+
+    function _setSubscriptionEscrow(address _subscriptionEscrow) internal {
         _checkInterface(
             _subscriptionEscrow,
             type(ISubscriptionEscrow).interfaceId,
@@ -283,6 +339,10 @@ contract ContractRegistry is
     }
 
     function setPaymentEscrow(address _paymentEscrow) external onlyOwner {
+        _setPaymentEscrow(_paymentEscrow);
+    }
+
+    function _setPaymentEscrow(address _paymentEscrow) internal {
         _checkInterface(
             _paymentEscrow,
             type(IPaymentEscrow).interfaceId,
@@ -297,6 +357,10 @@ contract ContractRegistry is
     // Usage recorder
 
     function setUsageRecorder(address _usageRecorder) external onlyOwner {
+        _setUsageRecorder(_usageRecorder);
+    }
+
+    function _setUsageRecorder(address _usageRecorder) internal {
         _checkInterface(
             _usageRecorder,
             type(IUsageRecorder).interfaceId,
@@ -306,6 +370,43 @@ contract ContractRegistry is
         usageRecorder = _usageRecorder;
 
         emit ContractUpdated("UsageRecorder", _usageRecorder);
+    }
+
+    // Batch Setup
+
+    function batchSetContracts(
+        BatchSetupContracts memory _contracts
+    ) external onlyOwner {
+        // Manager
+        _setPurchaseManager(_contracts.purchaseManager);
+
+        // Admin
+        _setOrgAdmin(_contracts.orgAdmin);
+
+        // NFTs
+        _setProductPassNFT(_contracts.productPassNFT);
+        _setOrganizationNFT(_contracts.organizationNFT);
+
+        // Registry
+        _setProductRegistry(_contracts.productRegistry);
+        _setPricingRegistry(_contracts.pricingRegistry);
+        _setPurchaseRegistry(_contracts.purchaseRegistry);
+        _setCouponRegistry(_contracts.couponRegistry);
+        _setDiscountRegistry(_contracts.discountRegistry);
+
+        // Calculator
+        _setPricingCalculator(_contracts.pricingCalculator);
+
+        // Oracles
+        _setProductTransferOracle(_contracts.productTransferOracle);
+        _setSubscriptionTransferOracle(_contracts.subscriptionTransferOracle);
+
+        // Escrow
+        _setSubscriptionEscrow(_contracts.subscriptionEscrow);
+        _setPaymentEscrow(_contracts.paymentEscrow);
+
+        // Usage recorder
+        _setUsageRecorder(_contracts.usageRecorder);
     }
 
     /**

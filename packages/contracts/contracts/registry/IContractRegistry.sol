@@ -157,4 +157,40 @@ interface IContractRegistry {
      * @return The address of the organization NFT.
      */
     function ORG_LOCK() external view returns (bytes32);
+
+    /**
+     * Batch Setup
+     */
+
+    struct BatchSetupContracts {
+        // Manager
+        address purchaseManager;
+        // Admin
+        address orgAdmin;
+        // NFTs
+        address productPassNFT;
+        address organizationNFT;
+        // Registry
+        address productRegistry;
+        address pricingRegistry;
+        address purchaseRegistry;
+        address couponRegistry;
+        address discountRegistry;
+        // Calculator
+        address pricingCalculator;
+        // Oracles
+        address productTransferOracle;
+        address subscriptionTransferOracle;
+        // Escrow
+        address subscriptionEscrow;
+        address paymentEscrow;
+        // Usage recorder
+        address usageRecorder;
+    }
+
+    /**
+     * @notice Batch set all the contracts in the registry.
+     * @param _contracts The contracts to be set.
+     */
+    function batchSetContracts(BatchSetupContracts memory _contracts) external;
 }

@@ -1,0 +1,21 @@
+{
+  "contractRegistry": "0xF52c4403f939099e139fa59b92aa41914ea8DBd8",
+  "mintToken": "0xFc610ff6DeCBB4b6ec3ec135D1f7e32e74AAf207",
+  "couponRegistry": "0x4EBF9e5009367A8e002014b211B3bD2A618B2d9C",
+  "discountRegistry": "0xbC3AB9D5746EE45e3Bac27B25E14567045F4f115",
+  "organizationAdmin": "0x4DB28Aa71eB01DF4b928830eB6A9b93B227F1758",
+  "organizationAttributeProvider": "0x13228DFe3e958844c54e1A7Ece9587c585917756",
+  "passAttributeProvider": "0x313deB1dd6aC07159E88D5a5a3EfF41d76Cf5ffC",
+  "paymentEscrow": "0x3cCc3F297af6e0a4794D91542E6B1e5471ddb12d",
+  "pricingCalculator": "0x7B8841594834bBdb89783C32370E8B3231cc4D09",
+  "pricingRegistry": "0xEC0BFe8dA91367b40C19576F1f7d2743606E27D8",
+  "productRegistry": "0xBf31aD908EA3b7930aa85AD06eC290Ac9A11103D",
+  "purchaseManager": "0xA4aa728d6C1De8aE3ECB9Be91B8aB80456336c62",
+  "purchaseRegistry": "0x9Aaf735185Af62FE1AAC22Cdbc858cd5ED49941E",
+  "subscriptionEscrow": "0x990a08D6a5e94994e2AEd13845a214e0e02e90C2",
+  "usageRecorder": "0xe85aB1b8027025aB5b1629f84505da33a2B5a964",
+  "organizationMetadataProvider": "0x247a2aa1d9970d87e6B2EC7125690d4C676a31eC",
+  "passMetadataProvider": "0x21d82479354F125b1721F4B840D2ba8dE7774543",
+  "organizationNFT": "0x8Cf02fdf0969145595fa3c637F0072B754934400",
+  "productPassNFT": "0xA59283Bacbadf80539f777Bb6959bAccCC18cf89"
+}

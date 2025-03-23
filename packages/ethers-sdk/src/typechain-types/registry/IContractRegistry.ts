@@ -22,11 +22,66 @@ import type {
   TypedContractMethod,
 } from "../common";
 
+export declare namespace IContractRegistry {
+  export type BatchSetupContractsStruct = {
+    purchaseManager: AddressLike;
+    orgAdmin: AddressLike;
+    productPassNFT: AddressLike;
+    organizationNFT: AddressLike;
+    productRegistry: AddressLike;
+    pricingRegistry: AddressLike;
+    purchaseRegistry: AddressLike;
+    couponRegistry: AddressLike;
+    discountRegistry: AddressLike;
+    pricingCalculator: AddressLike;
+    productTransferOracle: AddressLike;
+    subscriptionTransferOracle: AddressLike;
+    subscriptionEscrow: AddressLike;
+    paymentEscrow: AddressLike;
+    usageRecorder: AddressLike;
+  };
+
+  export type BatchSetupContractsStructOutput = [
+    purchaseManager: string,
+    orgAdmin: string,
+    productPassNFT: string,
+    organizationNFT: string,
+    productRegistry: string,
+    pricingRegistry: string,
+    purchaseRegistry: string,
+    couponRegistry: string,
+    discountRegistry: string,
+    pricingCalculator: string,
+    productTransferOracle: string,
+    subscriptionTransferOracle: string,
+    subscriptionEscrow: string,
+    paymentEscrow: string,
+    usageRecorder: string
+  ] & {
+    purchaseManager: string;
+    orgAdmin: string;
+    productPassNFT: string;
+    organizationNFT: string;
+    productRegistry: string;
+    pricingRegistry: string;
+    purchaseRegistry: string;
+    couponRegistry: string;
+    discountRegistry: string;
+    pricingCalculator: string;
+    productTransferOracle: string;
+    subscriptionTransferOracle: string;
+    subscriptionEscrow: string;
+    paymentEscrow: string;
+    usageRecorder: string;
+  };
+}
+
 export interface IContractRegistryInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "ORG_LOCK"
       | "PASS_LOCK"
+      | "batchSetContracts"
       | "couponRegistry"
       | "discountRegistry"
       | "orgAdmin"
@@ -48,6 +103,10 @@ export interface IContractRegistryInterface extends Interface {
 
   encodeFunctionData(functionFragment: "ORG_LOCK", values?: undefined): string;
   encodeFunctionData(functionFragment: "PASS_LOCK", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "batchSetContracts",
+    values: [IContractRegistry.BatchSetupContractsStruct]
+  ): string;
   encodeFunctionData(
     functionFragment: "couponRegistry",
     values?: undefined
@@ -108,6 +167,10 @@ export interface IContractRegistryInterface extends Interface {
 
   decodeFunctionResult(functionFragment: "ORG_LOCK", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "PASS_LOCK", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "batchSetContracts",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "couponRegistry",
     data: BytesLike
@@ -227,6 +290,12 @@ export interface IContractRegistry extends BaseContract {
 
   PASS_LOCK: TypedContractMethod<[], [string], "view">;
 
+  batchSetContracts: TypedContractMethod<
+    [_contracts: IContractRegistry.BatchSetupContractsStruct],
+    [void],
+    "nonpayable"
+  >;
+
   couponRegistry: TypedContractMethod<[], [string], "view">;
 
   discountRegistry: TypedContractMethod<[], [string], "view">;
@@ -267,6 +336,13 @@ export interface IContractRegistry extends BaseContract {
   getFunction(
     nameOrSignature: "PASS_LOCK"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "batchSetContracts"
+  ): TypedContractMethod<
+    [_contracts: IContractRegistry.BatchSetupContractsStruct],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "couponRegistry"
   ): TypedContractMethod<[], [string], "view">;

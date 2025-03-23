@@ -55,6 +55,96 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "purchaseManager",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "orgAdmin",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "productPassNFT",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "organizationNFT",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "productRegistry",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "pricingRegistry",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "purchaseRegistry",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "couponRegistry",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "discountRegistry",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "pricingCalculator",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "productTransferOracle",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "subscriptionTransferOracle",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "subscriptionEscrow",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "paymentEscrow",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "usageRecorder",
+            type: "address",
+          },
+        ],
+        internalType: "struct IContractRegistry.BatchSetupContracts",
+        name: "_contracts",
+        type: "tuple",
+      },
+    ],
+    name: "batchSetContracts",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "couponRegistry",
     outputs: [
