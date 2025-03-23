@@ -28,6 +28,7 @@ export interface IPurchaseRegistryInterface extends Interface {
     nameOrSignature:
       | "getPassProductIds"
       | "hasPassPurchasedProducts"
+      | "isGiftingEnabled"
       | "isMintClosed"
       | "isWhitelist"
       | "maxMints"
@@ -36,6 +37,7 @@ export interface IPurchaseRegistryInterface extends Interface {
       | "productMaxSupply"
       | "productSupply"
       | "recordProductPurchase"
+      | "setGiftingEnabled"
       | "setMaxMints"
       | "setMintClosed"
       | "setProductMaxSupply"
@@ -43,10 +45,12 @@ export interface IPurchaseRegistryInterface extends Interface {
       | "totalPassMints"
       | "totalProductsSold"
       | "whitelistPassOwners"
+      | "whitelisted"
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
+      | "GiftingStatusChanged"
       | "MaxMintsUpdated"
       | "MintClosedStatusChanged"
       | "ProductMaxSupplyUpdated"
@@ -61,6 +65,10 @@ export interface IPurchaseRegistryInterface extends Interface {
   encodeFunctionData(
     functionFragment: "hasPassPurchasedProducts",
     values: [BigNumberish, BigNumberish[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isGiftingEnabled",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "isMintClosed",
@@ -96,9 +104,14 @@ export interface IPurchaseRegistryInterface extends Interface {
       BigNumberish,
       BigNumberish,
       AddressLike,
+      AddressLike,
       BigNumberish[],
       BigNumberish[]
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setGiftingEnabled",
+    values: [BigNumberish, boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "setMaxMints",
@@ -128,6 +141,10 @@ export interface IPurchaseRegistryInterface extends Interface {
     functionFragment: "whitelistPassOwners",
     values: [BigNumberish, AddressLike[], boolean[]]
   ): string;
+  encodeFunctionData(
+    functionFragment: "whitelisted",
+    values: [BigNumberish, AddressLike]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "getPassProductIds",
@@ -135,6 +152,10 @@ export interface IPurchaseRegistryInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "hasPassPurchasedProducts",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isGiftingEnabled",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -167,6 +188,10 @@ export interface IPurchaseRegistryInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setGiftingEnabled",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setMaxMints",
     data: BytesLike
   ): Result;
@@ -194,6 +219,23 @@ export interface IPurchaseRegistryInterface extends Interface {
     functionFragment: "whitelistPassOwners",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "whitelisted",
+    data: BytesLike
+  ): Result;
+}
+
+export namespace GiftingStatusChangedEvent {
+  export type InputTuple = [organizationId: BigNumberish, isGifting: boolean];
+  export type OutputTuple = [organizationId: bigint, isGifting: boolean];
+  export interface OutputObject {
+    organizationId: bigint;
+    isGifting: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export namespace MaxMintsUpdatedEvent {
@@ -340,6 +382,12 @@ export interface IPurchaseRegistry extends BaseContract {
     "view"
   >;
 
+  isGiftingEnabled: TypedContractMethod<
+    [orgId: BigNumberish],
+    [boolean],
+    "view"
+  >;
+
   isMintClosed: TypedContractMethod<
     [organizationId: BigNumberish],
     [boolean],
@@ -359,7 +407,7 @@ export interface IPurchaseRegistry extends BaseContract {
   >;
 
   passMintCount: TypedContractMethod<
-    [organizationId: BigNumberish, passOwner: AddressLike],
+    [organizationId: BigNumberish, purchaser: AddressLike],
     [bigint],
     "view"
   >;
@@ -387,9 +435,16 @@ export interface IPurchaseRegistry extends BaseContract {
       _organizationId: BigNumberish,
       _passId: BigNumberish,
       _passOwner: AddressLike,
+      _purchaser: AddressLike,
       _productIds: BigNumberish[],
       _pricingIds: BigNumberish[]
     ],
+    [void],
+    "nonpayable"
+  >;
+
+  setGiftingEnabled: TypedContractMethod<
+    [organizationId: BigNumberish, _isGifting: boolean],
     [void],
     "nonpayable"
   >;
@@ -444,6 +499,12 @@ export interface IPurchaseRegistry extends BaseContract {
     "nonpayable"
   >;
 
+  whitelisted: TypedContractMethod<
+    [orgId: BigNumberish, purchaser: AddressLike],
+    [boolean],
+    "view"
+  >;
+
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
@@ -459,6 +520,9 @@ export interface IPurchaseRegistry extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "isGiftingEnabled"
+  ): TypedContractMethod<[orgId: BigNumberish], [boolean], "view">;
+  getFunction(
     nameOrSignature: "isMintClosed"
   ): TypedContractMethod<[organizationId: BigNumberish], [boolean], "view">;
   getFunction(
@@ -470,7 +534,7 @@ export interface IPurchaseRegistry extends BaseContract {
   getFunction(
     nameOrSignature: "passMintCount"
   ): TypedContractMethod<
-    [organizationId: BigNumberish, passOwner: AddressLike],
+    [organizationId: BigNumberish, purchaser: AddressLike],
     [bigint],
     "view"
   >;
@@ -490,9 +554,17 @@ export interface IPurchaseRegistry extends BaseContract {
       _organizationId: BigNumberish,
       _passId: BigNumberish,
       _passOwner: AddressLike,
+      _purchaser: AddressLike,
       _productIds: BigNumberish[],
       _pricingIds: BigNumberish[]
     ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setGiftingEnabled"
+  ): TypedContractMethod<
+    [organizationId: BigNumberish, _isGifting: boolean],
     [void],
     "nonpayable"
   >;
@@ -545,7 +617,21 @@ export interface IPurchaseRegistry extends BaseContract {
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "whitelisted"
+  ): TypedContractMethod<
+    [orgId: BigNumberish, purchaser: AddressLike],
+    [boolean],
+    "view"
+  >;
 
+  getEvent(
+    key: "GiftingStatusChanged"
+  ): TypedContractEvent<
+    GiftingStatusChangedEvent.InputTuple,
+    GiftingStatusChangedEvent.OutputTuple,
+    GiftingStatusChangedEvent.OutputObject
+  >;
   getEvent(
     key: "MaxMintsUpdated"
   ): TypedContractEvent<
@@ -583,6 +669,17 @@ export interface IPurchaseRegistry extends BaseContract {
   >;
 
   filters: {
+    "GiftingStatusChanged(uint256,bool)": TypedContractEvent<
+      GiftingStatusChangedEvent.InputTuple,
+      GiftingStatusChangedEvent.OutputTuple,
+      GiftingStatusChangedEvent.OutputObject
+    >;
+    GiftingStatusChanged: TypedContractEvent<
+      GiftingStatusChangedEvent.InputTuple,
+      GiftingStatusChangedEvent.OutputTuple,
+      GiftingStatusChangedEvent.OutputObject
+    >;
+
     "MaxMintsUpdated(uint256,uint256)": TypedContractEvent<
       MaxMintsUpdatedEvent.InputTuple,
       MaxMintsUpdatedEvent.OutputTuple,

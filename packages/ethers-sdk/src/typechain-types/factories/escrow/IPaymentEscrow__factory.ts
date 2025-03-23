@@ -140,6 +140,25 @@ const _abi = [
         type: "uint256",
       },
       {
+        indexed: false,
+        internalType: "bool",
+        name: "isRevoked",
+        type: "bool",
+      },
+    ],
+    name: "OrgChargeAbilityUpdate",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "orgId",
+        type: "uint256",
+      },
+      {
         indexed: true,
         internalType: "address",
         name: "from",
@@ -241,6 +260,19 @@ const _abi = [
   {
     inputs: [],
     name: "FEE_WITHDRAW_ROLE",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "REVOKE_CHARGE_ROLE",
     outputs: [
       {
         internalType: "bytes32",
@@ -408,6 +440,51 @@ const _abi = [
         internalType: "uint256",
         name: "",
         type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "orgId",
+        type: "uint256",
+      },
+    ],
+    name: "restoreOrgChargeAbility",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "orgId",
+        type: "uint256",
+      },
+    ],
+    name: "revokeOrgChargeAbility",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "orgId",
+        type: "uint256",
+      },
+    ],
+    name: "revokedOrgs",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",

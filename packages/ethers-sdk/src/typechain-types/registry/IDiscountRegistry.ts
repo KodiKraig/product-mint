@@ -350,13 +350,20 @@ export namespace DiscountMintedEvent {
   export type InputTuple = [
     orgId: BigNumberish,
     passId: BigNumberish,
-    discountId: BigNumberish
+    discountId: BigNumberish,
+    minter: AddressLike
   ];
-  export type OutputTuple = [orgId: bigint, passId: bigint, discountId: bigint];
+  export type OutputTuple = [
+    orgId: bigint,
+    passId: bigint,
+    discountId: bigint,
+    minter: string
+  ];
   export interface OutputObject {
     orgId: bigint;
     passId: bigint;
     discountId: bigint;
+    minter: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -436,7 +443,7 @@ export interface IDiscountRegistry extends BaseContract {
     [
       orgId: BigNumberish,
       passId: BigNumberish,
-      passOwner: AddressLike,
+      minter: AddressLike,
       discountId: BigNumberish
     ],
     [void],
@@ -447,7 +454,7 @@ export interface IDiscountRegistry extends BaseContract {
     [
       orgId: BigNumberish,
       passId: BigNumberish,
-      passOwner: AddressLike,
+      minter: AddressLike,
       name: string
     ],
     [bigint],
@@ -458,7 +465,7 @@ export interface IDiscountRegistry extends BaseContract {
     [
       orgId: BigNumberish,
       passId: BigNumberish,
-      passOwner: AddressLike,
+      minter: AddressLike,
       names: string[]
     ],
     [bigint[]],
@@ -529,7 +536,7 @@ export interface IDiscountRegistry extends BaseContract {
     [
       orgId: BigNumberish,
       passId: BigNumberish,
-      passOwner: AddressLike,
+      minter: AddressLike,
       discountIds: BigNumberish[]
     ],
     [void],
@@ -614,7 +621,7 @@ export interface IDiscountRegistry extends BaseContract {
     [
       orgId: BigNumberish,
       passId: BigNumberish,
-      passOwner: AddressLike,
+      minter: AddressLike,
       discountId: BigNumberish
     ],
     [void],
@@ -626,7 +633,7 @@ export interface IDiscountRegistry extends BaseContract {
     [
       orgId: BigNumberish,
       passId: BigNumberish,
-      passOwner: AddressLike,
+      minter: AddressLike,
       name: string
     ],
     [bigint],
@@ -638,7 +645,7 @@ export interface IDiscountRegistry extends BaseContract {
     [
       orgId: BigNumberish,
       passId: BigNumberish,
-      passOwner: AddressLike,
+      minter: AddressLike,
       names: string[]
     ],
     [bigint[]],
@@ -696,7 +703,7 @@ export interface IDiscountRegistry extends BaseContract {
     [
       orgId: BigNumberish,
       passId: BigNumberish,
-      passOwner: AddressLike,
+      minter: AddressLike,
       discountIds: BigNumberish[]
     ],
     [void],
@@ -800,7 +807,7 @@ export interface IDiscountRegistry extends BaseContract {
       DiscountCreatedEvent.OutputObject
     >;
 
-    "DiscountMinted(uint256,uint256,uint256)": TypedContractEvent<
+    "DiscountMinted(uint256,uint256,uint256,address)": TypedContractEvent<
       DiscountMintedEvent.InputTuple,
       DiscountMintedEvent.OutputTuple,
       DiscountMintedEvent.OutputObject

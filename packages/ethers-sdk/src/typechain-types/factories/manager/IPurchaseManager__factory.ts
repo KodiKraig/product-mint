@@ -45,6 +45,12 @@ const _abi = [
         type: "address",
       },
       {
+        indexed: true,
+        internalType: "address",
+        name: "purchaser",
+        type: "address",
+      },
+      {
         indexed: false,
         internalType: "address",
         name: "token",

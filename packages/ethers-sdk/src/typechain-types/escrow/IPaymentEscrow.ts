@@ -31,6 +31,7 @@ export interface IPaymentEscrowInterface extends Interface {
       | "FEE_EXEMPT_ROLE"
       | "FEE_SETTER_ROLE"
       | "FEE_WITHDRAW_ROLE"
+      | "REVOKE_CHARGE_ROLE"
       | "WHITELIST_ROLE"
       | "calculateFee"
       | "exoticFee"
@@ -40,6 +41,9 @@ export interface IPaymentEscrowInterface extends Interface {
       | "getFeeBalance"
       | "isFeeEnabled"
       | "orgBalances"
+      | "restoreOrgChargeAbility"
+      | "revokeOrgChargeAbility"
+      | "revokedOrgs"
       | "setExoticFee"
       | "setFeeEnabled"
       | "setFeeExempt"
@@ -61,6 +65,7 @@ export interface IPaymentEscrowInterface extends Interface {
       | "FeeSet"
       | "FeeWithdraw"
       | "OrgBalanceWithdrawn"
+      | "OrgChargeAbilityUpdate"
       | "TransferAmount"
       | "WhitelistedTokenSet"
   ): EventFragment;
@@ -83,6 +88,10 @@ export interface IPaymentEscrowInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "FEE_WITHDRAW_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "REVOKE_CHARGE_ROLE",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -114,6 +123,18 @@ export interface IPaymentEscrowInterface extends Interface {
   encodeFunctionData(
     functionFragment: "orgBalances",
     values: [BigNumberish, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "restoreOrgChargeAbility",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokeOrgChargeAbility",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokedOrgs",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setExoticFee",
@@ -177,6 +198,10 @@ export interface IPaymentEscrowInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "REVOKE_CHARGE_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "WHITELIST_ROLE",
     data: BytesLike
   ): Result;
@@ -198,6 +223,18 @@ export interface IPaymentEscrowInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "orgBalances",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "restoreOrgChargeAbility",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "revokeOrgChargeAbility",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "revokedOrgs",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -335,6 +372,19 @@ export namespace OrgBalanceWithdrawnEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace OrgChargeAbilityUpdateEvent {
+  export type InputTuple = [orgId: BigNumberish, isRevoked: boolean];
+  export type OutputTuple = [orgId: bigint, isRevoked: boolean];
+  export interface OutputObject {
+    orgId: bigint;
+    isRevoked: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace TransferAmountEvent {
   export type InputTuple = [
     orgId: BigNumberish,
@@ -429,6 +479,8 @@ export interface IPaymentEscrow extends BaseContract {
 
   FEE_WITHDRAW_ROLE: TypedContractMethod<[], [string], "view">;
 
+  REVOKE_CHARGE_ROLE: TypedContractMethod<[], [string], "view">;
+
   WHITELIST_ROLE: TypedContractMethod<[], [string], "view">;
 
   calculateFee: TypedContractMethod<
@@ -454,6 +506,20 @@ export interface IPaymentEscrow extends BaseContract {
     [bigint],
     "view"
   >;
+
+  restoreOrgChargeAbility: TypedContractMethod<
+    [orgId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  revokeOrgChargeAbility: TypedContractMethod<
+    [orgId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  revokedOrgs: TypedContractMethod<[orgId: BigNumberish], [boolean], "view">;
 
   setExoticFee: TypedContractMethod<
     [newFee: BigNumberish],
@@ -536,6 +602,9 @@ export interface IPaymentEscrow extends BaseContract {
     nameOrSignature: "FEE_WITHDRAW_ROLE"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "REVOKE_CHARGE_ROLE"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "WHITELIST_ROLE"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
@@ -570,6 +639,15 @@ export interface IPaymentEscrow extends BaseContract {
     [bigint],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "restoreOrgChargeAbility"
+  ): TypedContractMethod<[orgId: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "revokeOrgChargeAbility"
+  ): TypedContractMethod<[orgId: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "revokedOrgs"
+  ): TypedContractMethod<[orgId: BigNumberish], [boolean], "view">;
   getFunction(
     nameOrSignature: "setExoticFee"
   ): TypedContractMethod<[newFee: BigNumberish], [void], "nonpayable">;
@@ -672,6 +750,13 @@ export interface IPaymentEscrow extends BaseContract {
     OrgBalanceWithdrawnEvent.OutputObject
   >;
   getEvent(
+    key: "OrgChargeAbilityUpdate"
+  ): TypedContractEvent<
+    OrgChargeAbilityUpdateEvent.InputTuple,
+    OrgChargeAbilityUpdateEvent.OutputTuple,
+    OrgChargeAbilityUpdateEvent.OutputObject
+  >;
+  getEvent(
     key: "TransferAmount"
   ): TypedContractEvent<
     TransferAmountEvent.InputTuple,
@@ -762,6 +847,17 @@ export interface IPaymentEscrow extends BaseContract {
       OrgBalanceWithdrawnEvent.InputTuple,
       OrgBalanceWithdrawnEvent.OutputTuple,
       OrgBalanceWithdrawnEvent.OutputObject
+    >;
+
+    "OrgChargeAbilityUpdate(uint256,bool)": TypedContractEvent<
+      OrgChargeAbilityUpdateEvent.InputTuple,
+      OrgChargeAbilityUpdateEvent.OutputTuple,
+      OrgChargeAbilityUpdateEvent.OutputObject
+    >;
+    OrgChargeAbilityUpdate: TypedContractEvent<
+      OrgChargeAbilityUpdateEvent.InputTuple,
+      OrgChargeAbilityUpdateEvent.OutputTuple,
+      OrgChargeAbilityUpdateEvent.OutputObject
     >;
 
     "TransferAmount(uint256,address,address,uint256,uint256)": TypedContractEvent<
