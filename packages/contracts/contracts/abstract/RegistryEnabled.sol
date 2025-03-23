@@ -42,11 +42,18 @@ abstract contract RegistryEnabled is Context {
     }
 
     function _isOrgAdmin(uint256 organizationId) internal view returns (bool) {
+        return _isOrgAdminAddress(organizationId, _msgSender());
+    }
+
+    function _isOrgAdminAddress(
+        uint256 organizationId,
+        address orgAdmin
+    ) internal view returns (bool) {
         return
-            _isOrgOwner(organizationId) ||
+            _isOrgOwnerAddress(organizationId, orgAdmin) ||
             IOrganizationAdmin(registry.orgAdmin()).isAdmin(
                 organizationId,
-                _msgSender()
+                orgAdmin
             );
     }
 
@@ -96,7 +103,14 @@ abstract contract RegistryEnabled is Context {
     }
 
     function _isOrgOwner(uint256 organizationId) internal view returns (bool) {
-        return _orgOwner(organizationId) == _msgSender();
+        return _isOrgOwnerAddress(organizationId, _msgSender());
+    }
+
+    function _isOrgOwnerAddress(
+        uint256 organizationId,
+        address orgOwner
+    ) internal view returns (bool) {
+        return _orgOwner(organizationId) == orgOwner;
     }
 
     function _orgOwner(uint256 organizationId) internal view returns (address) {

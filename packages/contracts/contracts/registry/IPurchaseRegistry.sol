@@ -67,12 +67,12 @@ interface IPurchaseRegistry {
     /**
      * @notice Get the number of mints for an organization by a single wallet.
      * @param organizationId The organization ID that the pass belongs to.
-     * @param passOwner The owner of the passes.
+     * @param purchaser The wallet that is purchasing the products.
      * @return The number of mints by the wallet for the organization.
      */
     function passMintCount(
         uint256 organizationId,
-        address passOwner
+        address purchaser
     ) external view returns (uint256);
 
     /**
@@ -136,14 +136,14 @@ interface IPurchaseRegistry {
      * @dev Only the purchase manager can record a product purchase.
      * @param _organizationId The organization ID that the product belongs to.
      * @param _passId The Product Pass ID to be used in the purchase.
-     * @param _passOwner The owner of the pass.
+     * @param _purchaser The wallet that is purchasing the products.
      * @param _productIds The product IDs to be used in the purchase.
      * @param _pricingIds The pricing IDs to be used in the purchase.
      */
     function recordProductPurchase(
         uint256 _organizationId,
         uint256 _passId,
-        address _passOwner,
+        address _purchaser,
         uint256[] calldata _productIds,
         uint256[] calldata _pricingIds
     ) external;
@@ -241,6 +241,17 @@ interface IPurchaseRegistry {
         address[] calldata _addresses,
         bool[] calldata _isWhitelisted
     ) external;
+
+    /**
+     * @notice Get the whitelist status for an organization and a purchaser.
+     * @param orgId The organization ID to get the whitelist status for.
+     * @param purchaser The purchaser to get the whitelist status for.
+     * @return True if the purchaser is whitelisted, false otherwise.
+     */
+    function whitelisted(
+        uint256 orgId,
+        address purchaser
+    ) external view returns (bool);
 
     /**
      * Mint Closed

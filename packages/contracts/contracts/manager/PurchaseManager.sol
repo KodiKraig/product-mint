@@ -72,11 +72,13 @@ contract PurchaseManager is
     ) external payable nonReentrant whenNotPaused {
         passSupply++;
 
+        address purchaser = _msgSender();
+
         if (params.discountIds.length > 0) {
             IDiscountRegistry(registry.discountRegistry()).mintDiscountsToPass(
                 params.organizationId,
                 passSupply,
-                params.to,
+                purchaser,
                 params.discountIds
             );
         }
@@ -84,6 +86,7 @@ contract PurchaseManager is
         _purchaseProducts(
             PurchaseProductsParams({
                 passOwner: params.to,
+                purchaser: purchaser,
                 orgId: params.organizationId,
                 productPassId: passSupply,
                 productIds: params.productIds,
@@ -91,7 +94,9 @@ contract PurchaseManager is
                 quantities: params.quantities,
                 couponCode: params.couponCode,
                 airdrop: params.airdrop,
-                pause: params.pause,
+                pause: params.pause ||
+                    (purchaser != params.to &&
+                        !_isOrgAdmin(params.organizationId)),
                 isInitialPurchase: true
             })
         );
@@ -102,9 +107,12 @@ contract PurchaseManager is
     function purchaseAdditionalProducts(
         AdditionalPurchaseParams calldata params
     ) external payable onlyPassOwnerOrAdmin(params.productPassId) nonReentrant {
+        address passOwner = _passOwner(params.productPassId);
+
         _purchaseProducts(
             PurchaseProductsParams({
-                passOwner: _passOwner(params.productPassId),
+                passOwner: passOwner,
+                purchaser: passOwner,
                 orgId: IPurchaseRegistry(registry.purchaseRegistry())
                     .passOrganization(params.productPassId),
                 productPassId: params.productPassId,
@@ -136,13 +144,13 @@ contract PurchaseManager is
             );
 
         if (bytes(params.couponCode).length > 0) {
-            _setCoupon(params.orgId, params.passOwner, params.couponCode);
+            _setCoupon(params.orgId, params.purchaser, params.couponCode);
         }
 
         IPurchaseRegistry(registry.purchaseRegistry()).recordProductPurchase(
             params.orgId,
             params.productPassId,
-            params.passOwner,
+            params.purchaser,
             params.productIds,
             params.pricingIds
         );
@@ -165,6 +173,7 @@ contract PurchaseManager is
                 PerformPurchaseParams({
                     orgId: params.orgId,
                     productPassId: params.productPassId,
+                    purchaser: params.purchaser,
                     passOwner: params.passOwner,
                     totalAmount: totalAmount,
                     token: token,
@@ -227,6 +236,7 @@ contract PurchaseManager is
                     orgId: params.orgId,
                     productPassId: params.productPassId,
                     passOwner: passOwner,
+                    purchaser: passOwner,
                     totalAmount: amount,
                     token: token,
                     airdrop: params.airdrop,
@@ -272,12 +282,15 @@ contract PurchaseManager is
             registry.subscriptionEscrow()
         ).renewSubscription(productPassId, productId);
 
+        address passOwner = _passOwner(productPassId);
+
         if (price > 0) {
             _performPurchase(
                 PerformPurchaseParams({
                     orgId: orgId,
                     productPassId: productPassId,
-                    passOwner: _passOwner(productPassId),
+                    passOwner: passOwner,
+                    purchaser: passOwner,
                     totalAmount: price,
                     token: token,
                     airdrop: airdrop,
@@ -302,12 +315,15 @@ contract PurchaseManager is
             registry.subscriptionEscrow()
         ).changeSubscriptionUnitQuantity(productPassId, productId, quantity);
 
+        address passOwner = _passOwner(productPassId);
+
         if (amount > 0) {
             _performPurchase(
                 PerformPurchaseParams({
                     orgId: orgId,
                     productPassId: productPassId,
-                    passOwner: _passOwner(productPassId),
+                    passOwner: passOwner,
+                    purchaser: passOwner,
                     totalAmount: amount,
                     token: token,
                     airdrop: airdrop,
@@ -406,12 +422,12 @@ contract PurchaseManager is
         if (
             ICouponRegistry(registry.couponRegistry()).hasPassCouponCode(
                 params.orgId,
-                params.passOwner
+                params.purchaser
             )
         ) {
             params.totalAmount = _redeemCoupon(
                 params.orgId,
-                params.passOwner,
+                params.purchaser,
                 params.totalAmount,
                 params.isInitialPurchase,
                 params.forceCoupon
@@ -431,7 +447,7 @@ contract PurchaseManager is
                 value: msg.value
             }(
                 params.orgId,
-                payable(params.passOwner),
+                payable(params.purchaser),
                 params.token,
                 params.totalAmount
             );
@@ -440,6 +456,7 @@ contract PurchaseManager is
         emit PerformPurchase(
             params.orgId,
             params.passOwner,
+            params.purchaser,
             params.token,
             params.totalAmount
         );
