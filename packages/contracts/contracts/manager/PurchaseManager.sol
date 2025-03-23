@@ -150,6 +150,7 @@ contract PurchaseManager is
         IPurchaseRegistry(registry.purchaseRegistry()).recordProductPurchase(
             params.orgId,
             params.productPassId,
+            params.passOwner,
             params.purchaser,
             params.productIds,
             params.pricingIds

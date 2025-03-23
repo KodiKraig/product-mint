@@ -1413,6 +1413,7 @@ describe('Purchase Manager', () => {
         pricingRegistry,
         productRegistry,
         productPassNFT,
+        purchaseRegistry,
         subscriptionEscrow,
         paymentEscrow,
         mintToken,
@@ -1421,6 +1422,7 @@ describe('Purchase Manager', () => {
       } = await loadWithDefaultProduct();
 
       await subscriptionEscrow.setSubscriptionsPausable(1, true);
+      await purchaseRegistry.setGiftingEnabled(1, true);
 
       // Mint tokens
 
@@ -1644,6 +1646,7 @@ describe('Purchase Manager', () => {
         await loadWithPurchasedFlatRateSubscription();
 
       await purchaseRegistry.setMaxMints(1, 1);
+      await purchaseRegistry.setGiftingEnabled(1, true);
 
       await expect(
         purchaseManager.connect(otherAccount).purchaseProducts({
@@ -1660,10 +1663,32 @@ describe('Purchase Manager', () => {
       ).to.be.revertedWithCustomError(purchaseRegistry, 'MaxMintsReached');
     });
 
+    it('reverts when attempting to a gift a pass to someone when gifting is disabled', async () => {
+      const { purchaseManager, purchaseRegistry, otherAccount, otherAccount2 } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseProducts({
+          to: otherAccount2,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      )
+        .to.be.revertedWithCustomError(purchaseRegistry, 'GiftingIsDisabled')
+        .withArgs(1);
+    });
+
     it('reverts when the minter is not whitelisted even if the future pass owner is whitelisted during a gift purchase', async () => {
       const { purchaseManager, purchaseRegistry, otherAccount, otherAccount2 } =
         await loadWithPurchasedFlatRateSubscription();
 
+      await purchaseRegistry.setGiftingEnabled(1, true);
       await purchaseRegistry.setWhitelist(1, true);
       await purchaseRegistry.whitelistPassOwners(
         1,
@@ -2173,7 +2198,7 @@ describe('Purchase Manager', () => {
       await expect(
         purchaseManager.connect(otherAccount2).purchaseProducts(
           {
-            to: otherAccount,
+            to: otherAccount2,
             organizationId: 1,
             productIds: [1],
             pricingIds: [1],

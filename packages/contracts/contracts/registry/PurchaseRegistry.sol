@@ -72,6 +72,9 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
     // Organization ID => Is mint closed?
     mapping(uint256 => bool) public isMintClosed;
 
+    // Organization ID => Is gifting enabled to mint passes to other addresses?
+    mapping(uint256 => bool) public isGiftingEnabled;
+
     constructor(address _contractRegistry) RegistryEnabled(_contractRegistry) {}
 
     function getPassProductIds(
@@ -99,6 +102,7 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
     function recordProductPurchase(
         uint256 _organizationId,
         uint256 _passId,
+        address _passOwner,
         address _purchaser,
         uint256[] calldata _productIds,
         uint256[] calldata _pricingIds
@@ -114,6 +118,14 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
 
         if (isMintClosed[_organizationId]) {
             revert MintClosed();
+        }
+
+        if (
+            _passOwner != _purchaser &&
+            !isGiftingEnabled[_organizationId] &&
+            !_isOrgAdminAddress(_organizationId, _purchaser)
+        ) {
+            revert GiftingIsDisabled(_organizationId);
         }
 
         if (passOrganization[_passId] == 0) {
@@ -246,6 +258,19 @@ contract PurchaseRegistry is RegistryEnabled, IPurchaseRegistry, IERC165 {
         isMintClosed[organizationId] = _isMintClosed;
 
         emit MintClosedStatusChanged(organizationId, _isMintClosed);
+    }
+
+    /**
+     * Gifting
+     */
+
+    function setGiftingEnabled(
+        uint256 organizationId,
+        bool _isGifting
+    ) external onlyOrgAdmin(organizationId) {
+        isGiftingEnabled[organizationId] = _isGifting;
+
+        emit GiftingStatusChanged(organizationId, _isGifting);
     }
 
     /**
