@@ -64,7 +64,18 @@ describe('Purchase Manager', () => {
         }),
       )
         .to.emit(discountRegistry, 'DiscountMinted')
-        .withArgs(1, 1, 1, owner);
+        .withArgs(1, 1, 1, owner)
+        .to.emit(purchaseManager, 'ProductsPurchased')
+        .withArgs(
+          1,
+          1,
+          otherAccount,
+          [1],
+          [1],
+          [0],
+          await mintToken.getAddress(),
+          ethers.parseEther('1'),
+        );
 
       expect(await productPassNFT.ownerOf(1)).to.equal(otherAccount);
       expect(await purchaseRegistry.getPassProductIds(1)).to.deep.equal([1]);
@@ -1494,7 +1505,15 @@ describe('Purchase Manager', () => {
         }),
       )
         .to.emit(discountRegistry, 'DiscountMinted')
-        .withArgs(1, 1, 1, otherAccount);
+        .withArgs(1, 1, 1, otherAccount)
+        .to.emit(purchaseManager, 'PerformPurchase')
+        .withArgs(
+          1,
+          otherAccount2,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('76.5', 6),
+        );
 
       // Assertions
 
