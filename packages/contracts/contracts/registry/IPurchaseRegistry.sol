@@ -288,7 +288,7 @@ interface IPurchaseRegistry {
     /**
      * @notice Emitted when the gifting status for an organization is updated.
      * @param organizationId The organization ID to update the gifting status for.
-     * @param isGifting True if the organization is gifting, false otherwise.
+     * @param isGifting True if the organization allows product passes to be gifted to other addresses, false otherwise.
      */
     event GiftingStatusChanged(uint256 indexed organizationId, bool isGifting);
 
