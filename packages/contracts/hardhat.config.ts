@@ -21,31 +21,27 @@ const config: HardhatUserConfig = {
     token: 'ETH',
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
   },
-  // networks: {
-  //   hychainMainnet: {
-  //     url: 'https://rpc.hychain.com/http',
-  //     accounts: [PRIVATE_KEY],
-  //   },
-  //   hychainTestnet: {
-  //     url: 'https://testnet-rpc.hychain.com/http',
-  //     accounts: [PRIVATE_KEY],
-  //   },
-  // },
-  // etherscan: {
-  //   apiKey: {
-  //     hychainMainnet: 'NO_API_KEY_NEEDED', // Blockscout doesn't require an API key
-  //   },
-  //   customChains: [
-  //     {
-  //       network: 'hychainMainnet',
-  //       chainId: 2911,
-  //       urls: {
-  //         apiURL: 'https://hychain.calderaexplorer.xyz/api/v1',
-  //         browserURL: 'https://explorer.hychain.com',
-  //       },
-  //     },
-  //   ],
-  // },
+  networks: {
+    baseSepolia: {
+      url: process.env.BASE_SEPOLIA_RPC_URL,
+      accounts: [PRIVATE_KEY],
+    },
+  },
+  etherscan: {
+    apiKey: {
+      baseSepolia: process.env.BASE_SCAN_API_KEY ?? '',
+    },
+    customChains: [
+      {
+        network: 'baseSepolia',
+        chainId: 84532,
+        urls: {
+          apiURL: 'https://api-sepolia.basescan.org/api',
+          browserURL: 'https://sepolia.basescan.org',
+        },
+      },
+    ],
+  },
 };
 
 export default config;

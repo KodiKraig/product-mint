@@ -11,7 +11,9 @@
     "clean": "hardhat clean",
     "visualize": "hardhat ignition visualize ./ignition/modules/ProductMintSystem.ts",
     "node:local": "hardhat node",
-    "deploy:local": "hardhat node & hardhat ignition deploy ./ignition/modules/ProductMintSystem.ts --network localhost"
+    "deploy:local": "hardhat ignition deploy ./ignition/modules/ProductMintSystem.ts --network localhost",
+    "deploy:base-sepolia": "hardhat ignition deploy ./ignition/modules/ProductMintSystem.ts --network baseSepolia",
+    "verify:base-sepolia": "hardhat ignition verify chain-84532 --include-unrelated-contracts"
   },
   "keywords": [
     "productmint",
