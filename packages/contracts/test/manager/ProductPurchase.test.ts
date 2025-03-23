@@ -19,7 +19,7 @@ import { assertCheckoutTotalCost } from '../calculator/helpers';
 
 describe('Purchase Manager', () => {
   describe('Successful Product Purchase', () => {
-    it('can airdrop a pass and mint a discount onto it', async () => {
+    it('can airdrop a pass and mint a restricted discount onto it', async () => {
       const {
         purchaseManager,
         productRegistry,
@@ -47,20 +47,24 @@ describe('Purchase Manager', () => {
         discount: 1000, // 10% off
         maxMints: 0,
         isActive: true,
-        isRestricted: false,
+        isRestricted: true,
       });
 
-      await purchaseManager.connect(owner).purchaseProducts({
-        to: otherAccount,
-        organizationId: 1,
-        productIds: [1],
-        pricingIds: [1],
-        quantities: [0],
-        discountIds: [1],
-        couponCode: '',
-        airdrop: true,
-        pause: false,
-      });
+      await expect(
+        purchaseManager.connect(owner).purchaseProducts({
+          to: otherAccount,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [1],
+          couponCode: '',
+          airdrop: true,
+          pause: false,
+        }),
+      )
+        .to.emit(discountRegistry, 'DiscountMinted')
+        .withArgs(1, 1, 1, owner);
 
       expect(await productPassNFT.ownerOf(1)).to.equal(otherAccount);
       expect(await purchaseRegistry.getPassProductIds(1)).to.deep.equal([1]);
@@ -1476,17 +1480,21 @@ describe('Purchase Manager', () => {
 
       // Purchase product pass
 
-      await purchaseManager.connect(otherAccount).purchaseProducts({
-        to: otherAccount2,
-        organizationId: 1,
-        productIds: [1],
-        pricingIds: [1],
-        quantities: [0],
-        discountIds: [1],
-        couponCode: 'COUPON1',
-        airdrop: false,
-        pause: false,
-      });
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseProducts({
+          to: otherAccount2,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [1],
+          couponCode: 'COUPON1',
+          airdrop: false,
+          pause: false,
+        }),
+      )
+        .to.emit(discountRegistry, 'DiscountMinted')
+        .withArgs(1, 1, 1, otherAccount);
 
       // Assertions
 
