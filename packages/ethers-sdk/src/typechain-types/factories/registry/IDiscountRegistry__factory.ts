@@ -18,7 +18,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "passOwner",
+        name: "minter",
         type: "address",
       },
     ],
@@ -179,6 +179,12 @@ const _abi = [
         name: "discountId",
         type: "uint256",
       },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "minter",
+        type: "address",
+      },
     ],
     name: "DiscountMinted",
     type: "event",
@@ -264,7 +270,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "passOwner",
+        name: "minter",
         type: "address",
       },
       {
@@ -292,7 +298,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "passOwner",
+        name: "minter",
         type: "address",
       },
       {
@@ -326,7 +332,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "passOwner",
+        name: "minter",
         type: "address",
       },
       {
@@ -670,7 +676,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "passOwner",
+        name: "minter",
         type: "address",
       },
       {

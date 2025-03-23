@@ -239,18 +239,21 @@ export namespace PerformPurchaseEvent {
   export type InputTuple = [
     orgId: BigNumberish,
     passOwner: AddressLike,
+    purchaser: AddressLike,
     token: AddressLike,
     amountPaid: BigNumberish
   ];
   export type OutputTuple = [
     orgId: bigint,
     passOwner: string,
+    purchaser: string,
     token: string,
     amountPaid: bigint
   ];
   export interface OutputObject {
     orgId: bigint;
     passOwner: string;
+    purchaser: string;
     token: string;
     amountPaid: bigint;
   }
@@ -524,7 +527,7 @@ export interface IPurchaseManager extends BaseContract {
   >;
 
   filters: {
-    "PerformPurchase(uint256,address,address,uint256)": TypedContractEvent<
+    "PerformPurchase(uint256,address,address,address,uint256)": TypedContractEvent<
       PerformPurchaseEvent.InputTuple,
       PerformPurchaseEvent.OutputTuple,
       PerformPurchaseEvent.OutputObject

@@ -28,6 +28,7 @@ export interface PurchaseRegistryInterface extends Interface {
     nameOrSignature:
       | "getPassProductIds"
       | "hasPassPurchasedProducts"
+      | "isGiftingEnabled"
       | "isMintClosed"
       | "isWhitelist"
       | "maxMints"
@@ -37,6 +38,7 @@ export interface PurchaseRegistryInterface extends Interface {
       | "productSupply"
       | "recordProductPurchase"
       | "registry"
+      | "setGiftingEnabled"
       | "setMaxMints"
       | "setMintClosed"
       | "setProductMaxSupply"
@@ -50,6 +52,7 @@ export interface PurchaseRegistryInterface extends Interface {
 
   getEvent(
     nameOrSignatureOrTopic:
+      | "GiftingStatusChanged"
       | "MaxMintsUpdated"
       | "MintClosedStatusChanged"
       | "ProductMaxSupplyUpdated"
@@ -64,6 +67,10 @@ export interface PurchaseRegistryInterface extends Interface {
   encodeFunctionData(
     functionFragment: "hasPassPurchasedProducts",
     values: [BigNumberish, BigNumberish[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isGiftingEnabled",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "isMintClosed",
@@ -99,11 +106,16 @@ export interface PurchaseRegistryInterface extends Interface {
       BigNumberish,
       BigNumberish,
       AddressLike,
+      AddressLike,
       BigNumberish[],
       BigNumberish[]
     ]
   ): string;
   encodeFunctionData(functionFragment: "registry", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "setGiftingEnabled",
+    values: [BigNumberish, boolean]
+  ): string;
   encodeFunctionData(
     functionFragment: "setMaxMints",
     values: [BigNumberish, BigNumberish]
@@ -150,6 +162,10 @@ export interface PurchaseRegistryInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "isGiftingEnabled",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "isMintClosed",
     data: BytesLike
   ): Result;
@@ -179,6 +195,10 @@ export interface PurchaseRegistryInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "registry", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setGiftingEnabled",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setMaxMints",
     data: BytesLike
@@ -215,6 +235,19 @@ export interface PurchaseRegistryInterface extends Interface {
     functionFragment: "whitelisted",
     data: BytesLike
   ): Result;
+}
+
+export namespace GiftingStatusChangedEvent {
+  export type InputTuple = [organizationId: BigNumberish, isGifting: boolean];
+  export type OutputTuple = [organizationId: bigint, isGifting: boolean];
+  export interface OutputObject {
+    organizationId: bigint;
+    isGifting: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export namespace MaxMintsUpdatedEvent {
@@ -361,6 +394,12 @@ export interface PurchaseRegistry extends BaseContract {
     "view"
   >;
 
+  isGiftingEnabled: TypedContractMethod<
+    [arg0: BigNumberish],
+    [boolean],
+    "view"
+  >;
+
   isMintClosed: TypedContractMethod<[arg0: BigNumberish], [boolean], "view">;
 
   isWhitelist: TypedContractMethod<[arg0: BigNumberish], [boolean], "view">;
@@ -384,6 +423,7 @@ export interface PurchaseRegistry extends BaseContract {
       _organizationId: BigNumberish,
       _passId: BigNumberish,
       _passOwner: AddressLike,
+      _purchaser: AddressLike,
       _productIds: BigNumberish[],
       _pricingIds: BigNumberish[]
     ],
@@ -392,6 +432,12 @@ export interface PurchaseRegistry extends BaseContract {
   >;
 
   registry: TypedContractMethod<[], [string], "view">;
+
+  setGiftingEnabled: TypedContractMethod<
+    [organizationId: BigNumberish, _isGifting: boolean],
+    [void],
+    "nonpayable"
+  >;
 
   setMaxMints: TypedContractMethod<
     [organizationId: BigNumberish, _maxMints: BigNumberish],
@@ -466,6 +512,9 @@ export interface PurchaseRegistry extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "isGiftingEnabled"
+  ): TypedContractMethod<[arg0: BigNumberish], [boolean], "view">;
+  getFunction(
     nameOrSignature: "isMintClosed"
   ): TypedContractMethod<[arg0: BigNumberish], [boolean], "view">;
   getFunction(
@@ -497,6 +546,7 @@ export interface PurchaseRegistry extends BaseContract {
       _organizationId: BigNumberish,
       _passId: BigNumberish,
       _passOwner: AddressLike,
+      _purchaser: AddressLike,
       _productIds: BigNumberish[],
       _pricingIds: BigNumberish[]
     ],
@@ -506,6 +556,13 @@ export interface PurchaseRegistry extends BaseContract {
   getFunction(
     nameOrSignature: "registry"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "setGiftingEnabled"
+  ): TypedContractMethod<
+    [organizationId: BigNumberish, _isGifting: boolean],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "setMaxMints"
   ): TypedContractMethod<
@@ -567,6 +624,13 @@ export interface PurchaseRegistry extends BaseContract {
   >;
 
   getEvent(
+    key: "GiftingStatusChanged"
+  ): TypedContractEvent<
+    GiftingStatusChangedEvent.InputTuple,
+    GiftingStatusChangedEvent.OutputTuple,
+    GiftingStatusChangedEvent.OutputObject
+  >;
+  getEvent(
     key: "MaxMintsUpdated"
   ): TypedContractEvent<
     MaxMintsUpdatedEvent.InputTuple,
@@ -603,6 +667,17 @@ export interface PurchaseRegistry extends BaseContract {
   >;
 
   filters: {
+    "GiftingStatusChanged(uint256,bool)": TypedContractEvent<
+      GiftingStatusChangedEvent.InputTuple,
+      GiftingStatusChangedEvent.OutputTuple,
+      GiftingStatusChangedEvent.OutputObject
+    >;
+    GiftingStatusChanged: TypedContractEvent<
+      GiftingStatusChangedEvent.InputTuple,
+      GiftingStatusChangedEvent.OutputTuple,
+      GiftingStatusChangedEvent.OutputObject
+    >;
+
     "MaxMintsUpdated(uint256,uint256)": TypedContractEvent<
       MaxMintsUpdatedEvent.InputTuple,
       MaxMintsUpdatedEvent.OutputTuple,

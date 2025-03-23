@@ -15,6 +15,17 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "organizationId",
+        type: "uint256",
+      },
+    ],
+    name: "GiftingIsDisabled",
+    type: "error",
+  },
+  {
     inputs: [],
     name: "InvalidOrganization",
     type: "error",
@@ -38,6 +49,25 @@ const _abi = [
     inputs: [],
     name: "ProductAlreadyAdded",
     type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "organizationId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "isGifting",
+        type: "bool",
+      },
+    ],
+    name: "GiftingStatusChanged",
+    type: "event",
   },
   {
     anonymous: false,
@@ -193,6 +223,25 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
+        name: "orgId",
+        type: "uint256",
+      },
+    ],
+    name: "isGiftingEnabled",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
         name: "organizationId",
         type: "uint256",
       },
@@ -255,7 +304,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "passOwner",
+        name: "purchaser",
         type: "address",
       },
     ],
@@ -345,6 +394,11 @@ const _abi = [
         type: "address",
       },
       {
+        internalType: "address",
+        name: "_purchaser",
+        type: "address",
+      },
+      {
         internalType: "uint256[]",
         name: "_productIds",
         type: "uint256[]",
@@ -356,6 +410,24 @@ const _abi = [
       },
     ],
     name: "recordProductPurchase",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "organizationId",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "_isGifting",
+        type: "bool",
+      },
+    ],
+    name: "setGiftingEnabled",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -496,6 +568,30 @@ const _abi = [
     name: "whitelistPassOwners",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "orgId",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "purchaser",
+        type: "address",
+      },
+    ],
+    name: "whitelisted",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
 ] as const;
