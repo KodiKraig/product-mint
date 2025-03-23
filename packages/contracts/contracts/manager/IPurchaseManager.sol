@@ -156,6 +156,20 @@ interface IPurchaseManager {
     }
 
     /**
+     * @dev Used internally by the PurchaseManager during the product purchase.
+     */
+    struct PerformPurchaseParams {
+        uint256 orgId;
+        uint256 productPassId;
+        address passOwner;
+        uint256 totalAmount;
+        address token;
+        bool airdrop;
+        bool isInitialPurchase;
+        bool forceCoupon;
+    }
+
+    /**
      * Change subscription pricing
      */
 

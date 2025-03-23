@@ -162,14 +162,16 @@ contract PurchaseManager is
 
         if (totalAmount > 0) {
             _performPurchase(
-                params.orgId,
-                params.productPassId,
-                params.passOwner,
-                totalAmount,
-                token,
-                params.airdrop,
-                params.isInitialPurchase,
-                true
+                PerformPurchaseParams({
+                    orgId: params.orgId,
+                    productPassId: params.productPassId,
+                    passOwner: params.passOwner,
+                    totalAmount: totalAmount,
+                    token: token,
+                    airdrop: params.airdrop,
+                    isInitialPurchase: params.isInitialPurchase,
+                    forceCoupon: true
+                })
             );
         }
 
@@ -221,14 +223,16 @@ contract PurchaseManager is
 
         if (amount > 0) {
             _performPurchase(
-                params.orgId,
-                params.productPassId,
-                passOwner,
-                amount,
-                token,
-                params.airdrop,
-                false,
-                false
+                PerformPurchaseParams({
+                    orgId: params.orgId,
+                    productPassId: params.productPassId,
+                    passOwner: passOwner,
+                    totalAmount: amount,
+                    token: token,
+                    airdrop: params.airdrop,
+                    isInitialPurchase: false,
+                    forceCoupon: false
+                })
             );
         }
     }
@@ -270,14 +274,16 @@ contract PurchaseManager is
 
         if (price > 0) {
             _performPurchase(
-                orgId,
-                productPassId,
-                _passOwner(productPassId),
-                price,
-                token,
-                airdrop,
-                false,
-                false
+                PerformPurchaseParams({
+                    orgId: orgId,
+                    productPassId: productPassId,
+                    passOwner: _passOwner(productPassId),
+                    totalAmount: price,
+                    token: token,
+                    airdrop: airdrop,
+                    isInitialPurchase: false,
+                    forceCoupon: false
+                })
             );
         }
     }
@@ -298,14 +304,16 @@ contract PurchaseManager is
 
         if (amount > 0) {
             _performPurchase(
-                orgId,
-                productPassId,
-                _passOwner(productPassId),
-                amount,
-                token,
-                airdrop,
-                false,
-                false
+                PerformPurchaseParams({
+                    orgId: orgId,
+                    productPassId: productPassId,
+                    passOwner: _passOwner(productPassId),
+                    totalAmount: amount,
+                    token: token,
+                    airdrop: airdrop,
+                    isInitialPurchase: false,
+                    forceCoupon: false
+                })
             );
         }
     }
@@ -388,49 +396,53 @@ contract PurchaseManager is
      * Payment Processing
      */
 
-    function _performPurchase(
-        uint256 orgId,
-        uint256 productPassId,
-        address passOwner,
-        uint256 totalAmount,
-        address token,
-        bool airdrop,
-        bool isInitialPurchase,
-        bool forceCoupon
-    ) internal {
-        if (airdrop) {
-            _checkOrgAdmin(orgId);
+    function _performPurchase(PerformPurchaseParams memory params) internal {
+        if (params.airdrop) {
+            _checkOrgAdmin(params.orgId);
             return;
         }
 
         // Apply coupon discount first
         if (
             ICouponRegistry(registry.couponRegistry()).hasPassCouponCode(
-                orgId,
-                passOwner
+                params.orgId,
+                params.passOwner
             )
         ) {
-            totalAmount = _redeemCoupon(
-                orgId,
-                passOwner,
-                totalAmount,
-                isInitialPurchase,
-                forceCoupon
+            params.totalAmount = _redeemCoupon(
+                params.orgId,
+                params.passOwner,
+                params.totalAmount,
+                params.isInitialPurchase,
+                params.forceCoupon
             );
         }
 
         // Apply permanent pass discounts
-        totalAmount = IDiscountRegistry(registry.discountRegistry())
-            .calculateTotalPassDiscountedAmount(productPassId, totalAmount);
+        params.totalAmount = IDiscountRegistry(registry.discountRegistry())
+            .calculateTotalPassDiscountedAmount(
+                params.productPassId,
+                params.totalAmount
+            );
 
         // Transfer funds
-        if (totalAmount > 0) {
+        if (params.totalAmount > 0) {
             IPaymentEscrow(registry.paymentEscrow()).transferDirect{
                 value: msg.value
-            }(orgId, payable(passOwner), token, totalAmount);
+            }(
+                params.orgId,
+                payable(params.passOwner),
+                params.token,
+                params.totalAmount
+            );
         }
 
-        emit PerformPurchase(orgId, passOwner, token, totalAmount);
+        emit PerformPurchase(
+            params.orgId,
+            params.passOwner,
+            params.token,
+            params.totalAmount
+        );
     }
 
     receive() external payable {}
