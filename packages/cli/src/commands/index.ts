@@ -5,6 +5,7 @@ import registerRegistryCommands from './registry';
 import registerTokensCommand from './tokens';
 import registerEscrowCommands from './escrow';
 import registerUsageCommand from './usage';
+import registerCalculatorCommand from './calculator';
 
 export function registerAllCommands(program: Command) {
   registerBalanceCommand(program);
@@ -13,4 +14,5 @@ export function registerAllCommands(program: Command) {
   registerTokensCommand(program);
   registerEscrowCommands(program);
   registerUsageCommand(program);
+  registerCalculatorCommand(program);
 }
