@@ -13,7 +13,9 @@
     "node:local": "hardhat node",
     "deploy:local": "hardhat ignition deploy ./ignition/modules/ProductMintSystem.ts --network localhost",
     "deploy:base-sepolia": "hardhat ignition deploy ./ignition/modules/ProductMintSystem.ts --network baseSepolia",
-    "verify:base-sepolia": "hardhat ignition verify chain-84532 --include-unrelated-contracts"
+    "verify:base-sepolia": "hardhat ignition verify chain-84532 --include-unrelated-contracts",
+    "deploy:base-mainnet": "hardhat ignition deploy ./ignition/modules/ProductMintSystem.ts --network base",
+    "verify:base-mainnet": "hardhat ignition verify chain-8453 --include-unrelated-contracts"
   },
   "keywords": [
     "productmint",
