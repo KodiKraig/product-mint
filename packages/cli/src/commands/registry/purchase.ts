@@ -3,7 +3,10 @@ import { PurchaseRegistry__factory } from '@product-mint/ethers-sdk';
 import { getContractAddress } from '../../contract-address';
 import { signerWallet } from '../../provider';
 import { waitTx } from '../../utils/tx';
-import { parseCommaSeparatedList } from '../../utils/parsing';
+import {
+  parseBooleanValue,
+  parseCommaSeparatedList,
+} from '../../utils/parsing';
 
 const purchaseRegistry = PurchaseRegistry__factory.connect(
   getContractAddress('purchaseRegistry'),
@@ -116,7 +119,12 @@ export default function registerPurchaseCommand(program: Command) {
     .argument('<organizationId>', 'The organization ID')
     .argument('<isWhitelist>', 'The whitelist status for the organization')
     .action(async (organizationId, isWhitelist) => {
-      await waitTx(purchaseRegistry.setWhitelist(organizationId, isWhitelist));
+      await waitTx(
+        purchaseRegistry.setWhitelist(
+          organizationId,
+          parseBooleanValue(isWhitelist)!,
+        ),
+      );
     });
 
   purchaseCommand
@@ -140,5 +148,36 @@ export default function registerPurchaseCommand(program: Command) {
           isWhitelistedList,
         ),
       );
+    });
+
+  /**
+   * Mint Closed
+   */
+
+  purchaseCommand
+    .command('setMintClosed')
+    .description('Set the mint closed status for an organization')
+    .argument('<organizationId>', 'The organization ID')
+    .argument(
+      '<isMintClosed>',
+      'The mint closed status for the organization. true or false.',
+    )
+    .action(async (organizationId, isMintClosed) => {
+      await waitTx(
+        purchaseRegistry.setMintClosed(
+          organizationId,
+          parseBooleanValue(isMintClosed)!,
+        ),
+      );
+    });
+
+  purchaseCommand
+    .command('isMintClosed')
+    .description('Is the mint closed for an organization?')
+    .argument('<organizationId>', 'The organization ID')
+    .action(async (organizationId) => {
+      const isMintClosed = await purchaseRegistry.isMintClosed(organizationId);
+      console.log(`Organization ID: ${organizationId}`);
+      console.log(`Is mint closed: ${isMintClosed}`);
     });
 }

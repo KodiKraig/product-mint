@@ -40,7 +40,7 @@ const parseNumericValue = (value: string): number | null => {
   return Number(value);
 };
 
-const parseBooleanValue = (value: string): boolean | null => {
+export const parseBooleanValue = (value: string): boolean | null => {
   if (!value || value === '') {
     return null;
   }
