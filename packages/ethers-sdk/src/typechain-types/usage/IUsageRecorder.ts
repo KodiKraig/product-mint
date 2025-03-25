@@ -29,7 +29,9 @@ export interface IUsageRecorderInterface extends Interface {
       | "createMeter"
       | "getOrganizationMeters"
       | "increaseMeter"
+      | "increaseMeterBatch"
       | "incrementMeter"
+      | "incrementMeterBatch"
       | "isActiveOrgMeter"
       | "passUsages"
       | "processMeterPayment"
@@ -63,8 +65,16 @@ export interface IUsageRecorderInterface extends Interface {
     values: [BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "increaseMeterBatch",
+    values: [BigNumberish, BigNumberish[], BigNumberish[]]
+  ): string;
+  encodeFunctionData(
     functionFragment: "incrementMeter",
     values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "incrementMeterBatch",
+    values: [BigNumberish, BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "isActiveOrgMeter",
@@ -108,7 +118,15 @@ export interface IUsageRecorderInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "increaseMeterBatch",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "incrementMeter",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "incrementMeterBatch",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -289,8 +307,20 @@ export interface IUsageRecorder extends BaseContract {
     "nonpayable"
   >;
 
+  increaseMeterBatch: TypedContractMethod<
+    [meterId: BigNumberish, tokenIds: BigNumberish[], values: BigNumberish[]],
+    [void],
+    "nonpayable"
+  >;
+
   incrementMeter: TypedContractMethod<
     [meterId: BigNumberish, tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  incrementMeterBatch: TypedContractMethod<
+    [meterId: BigNumberish, tokenIds: BigNumberish[]],
     [void],
     "nonpayable"
   >;
@@ -362,9 +392,23 @@ export interface IUsageRecorder extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "increaseMeterBatch"
+  ): TypedContractMethod<
+    [meterId: BigNumberish, tokenIds: BigNumberish[], values: BigNumberish[]],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "incrementMeter"
   ): TypedContractMethod<
     [meterId: BigNumberish, tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "incrementMeterBatch"
+  ): TypedContractMethod<
+    [meterId: BigNumberish, tokenIds: BigNumberish[]],
     [void],
     "nonpayable"
   >;
