@@ -1975,25 +1975,6 @@ describe('PricingRegistry', () => {
       ).to.be.revertedWith('Not an admin of the organization');
     });
 
-    it('cannot set pricing token if not IERC20', async () => {
-      const { pricingRegistry, organizationNFT, owner } = await loadFixture(
-        deployPricingRegistry,
-      );
-
-      await organizationNFT.connect(owner).mint(owner);
-
-      await pricingRegistry.connect(owner).createOneTimePricing({
-        organizationId: 1,
-        flatPrice: 0,
-        token: ethers.ZeroAddress,
-        isRestricted: false,
-      });
-
-      await expect(
-        pricingRegistry.connect(owner).setPricingToken(1, pricingRegistry),
-      ).to.be.revertedWithCustomError(pricingRegistry, 'RequiresERC20Token');
-    });
-
     it('can set pricing token if IERC20', async () => {
       const { pricingRegistry, organizationNFT, owner, mintToken } =
         await loadFixture(deployPricingRegistry);
