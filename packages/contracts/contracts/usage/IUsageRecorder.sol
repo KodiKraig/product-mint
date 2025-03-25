@@ -113,6 +113,19 @@ interface IUsageRecorder {
     function totalMeterCount() external view returns (uint256);
 
     /**
+     * @notice Returns all meters for an organization.
+     * @param organizationId The ID of the organization.
+     * @return meters The IDs of the meters under the organization's control.
+     */
+    function getOrganizationMeters(
+        uint256 organizationId
+    ) external view returns (uint256[] memory);
+
+    /**
+     * Create
+     */
+
+    /**
      * @notice Creates a new meter for an organization.
      * @param organizationId The ID of the organization.
      * @param aggregationMethod The method of aggregation for the meter.
@@ -123,12 +136,27 @@ interface IUsageRecorder {
     ) external;
 
     /**
+     * Activate
+     */
+
+    /**
      * @notice Sets the active status of a meter.
      * @dev Meters must be active in order to record usage.
      * @param meterId The ID of the meter.
      * @param isActive The new active status of the meter.
      */
     function setMeterActive(uint256 meterId, bool isActive) external;
+
+    /**
+     * @notice Returns true if a meter is active for an organization.
+     * @param meterId The ID of the meter.
+     * @return isActive True if the meter is active, else False.
+     */
+    function isActiveOrgMeter(uint256 meterId) external view returns (bool);
+
+    /**
+     * Count Meters
+     */
 
     /**
      * @notice Increments a COUNT meter for a product pass token ID.
@@ -138,15 +166,46 @@ interface IUsageRecorder {
     function incrementMeter(uint256 meterId, uint256 tokenId) external;
 
     /**
+     * @notice Increments a COUNT meter for a batch of product pass token IDs.
+     * @param meterId The ID of the meter.
+     * @param tokenIds The IDs of the product pass tokens.
+     */
+    function incrementMeterBatch(
+        uint256 meterId,
+        uint256[] memory tokenIds
+    ) external;
+
+    /**
+     * Sum Meters
+     */
+
+    /**
      * @notice Increases a SUM meter for a product pass token ID.
      * @param meterId The ID of the meter.
      * @param tokenId The ID of the product pass token.
+     * @param value The value to increment the meter by.
      */
     function increaseMeter(
         uint256 meterId,
         uint256 tokenId,
         uint256 value
     ) external;
+
+    /**
+     * @notice Increases a SUM meter for a batch of product pass token IDs.
+     * @param meterId The ID of the meter.
+     * @param tokenIds The IDs of the product pass tokens.
+     * @param values The values to increment the meter by.
+     */
+    function increaseMeterBatch(
+        uint256 meterId,
+        uint256[] memory tokenIds,
+        uint256[] memory values
+    ) external;
+
+    /**
+     * Adjust
+     */
 
     /**
      * @notice Adjusts a meter for a product pass token ID by setting a specific value. Useful for adjusting a meter if incorrect usage was recorded.
@@ -161,6 +220,10 @@ interface IUsageRecorder {
     ) external;
 
     /**
+     * Process payments
+     */
+
+    /**
      * @notice Processes a meter payment for a product pass token ID by setting the usage back to 0.
      * @param meterId The ID of the meter.
      * @param tokenId The ID of the product pass token.
@@ -170,20 +233,4 @@ interface IUsageRecorder {
         uint256 meterId,
         uint256 tokenId
     ) external returns (uint256);
-
-    /**
-     * @notice Returns all meters for an organization.
-     * @param organizationId The ID of the organization.
-     * @return meters The IDs of the meters under the organization's control.
-     */
-    function getOrganizationMeters(
-        uint256 organizationId
-    ) external view returns (uint256[] memory);
-
-    /**
-     * @notice Returns true if a meter is active for an organization.
-     * @param meterId The ID of the meter.
-     * @return isActive True if the meter is active, else False.
-     */
-    function isActiveOrgMeter(uint256 meterId) external view returns (bool);
 }

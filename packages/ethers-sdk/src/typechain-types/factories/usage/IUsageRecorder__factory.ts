@@ -206,12 +206,53 @@ const _abi = [
         type: "uint256",
       },
       {
+        internalType: "uint256[]",
+        name: "tokenIds",
+        type: "uint256[]",
+      },
+      {
+        internalType: "uint256[]",
+        name: "values",
+        type: "uint256[]",
+      },
+    ],
+    name: "increaseMeterBatch",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "meterId",
+        type: "uint256",
+      },
+      {
         internalType: "uint256",
         name: "tokenId",
         type: "uint256",
       },
     ],
     name: "incrementMeter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "meterId",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256[]",
+        name: "tokenIds",
+        type: "uint256[]",
+      },
+    ],
+    name: "incrementMeterBatch",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

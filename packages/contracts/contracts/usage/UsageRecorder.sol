@@ -49,9 +49,20 @@ contract UsageRecorder is RegistryEnabled, IUsageRecorder, IERC165 {
 
     constructor(address _contractRegistry) RegistryEnabled(_contractRegistry) {}
 
+    function getOrganizationMeters(
+        uint256 organizationId
+    ) external view returns (uint256[] memory) {
+        return organizations[organizationId].values();
+    }
+
+    function isActiveOrgMeter(uint256 meterId) external view returns (bool) {
+        return
+            organizations[usageMeters[meterId].orgId].contains(meterId) &&
+            usageMeters[meterId].isActive;
+    }
+
     /**
-     * Usage Meters
-     * Used for usage based charge styles.
+     * Create
      */
 
     function createMeter(
@@ -69,6 +80,10 @@ contract UsageRecorder is RegistryEnabled, IUsageRecorder, IERC165 {
         emit MeterCreated(organizationId, totalMeterCount);
     }
 
+    /**
+     * Activate
+     */
+
     function setMeterActive(
         uint256 meterId,
         bool isActive
@@ -78,15 +93,31 @@ contract UsageRecorder is RegistryEnabled, IUsageRecorder, IERC165 {
         emit MeterActiveSet(usageMeters[meterId].orgId, meterId, isActive);
     }
 
+    /**
+     * Count Meters
+     */
+
     function incrementMeter(
         uint256 meterId,
         uint256 tokenId
     ) external onlyOrgAdminActiveMeter(usageMeters[meterId].orgId, meterId) {
-        require(
-            usageMeters[meterId].aggregationMethod == AggregationMethod.COUNT,
-            "Meter is not a count meter"
-        );
+        _checkCountMeter(meterId);
 
+        _incrementMeter(meterId, tokenId);
+    }
+
+    function incrementMeterBatch(
+        uint256 meterId,
+        uint256[] memory tokenIds
+    ) external onlyOrgAdminActiveMeter(usageMeters[meterId].orgId, meterId) {
+        _checkCountMeter(meterId);
+
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            _incrementMeter(meterId, tokenIds[i]);
+        }
+    }
+
+    function _incrementMeter(uint256 meterId, uint256 tokenId) internal {
         passUsages[meterId][tokenId]++;
 
         emit MeterUsageSet(
@@ -97,16 +128,43 @@ contract UsageRecorder is RegistryEnabled, IUsageRecorder, IERC165 {
         );
     }
 
+    /**
+     * Sum Meters
+     */
+
     function increaseMeter(
         uint256 meterId,
         uint256 tokenId,
         uint256 value
     ) external onlyOrgAdminActiveMeter(usageMeters[meterId].orgId, meterId) {
+        _checkSumMeter(meterId);
+
+        _increaseMeter(meterId, tokenId, value);
+    }
+
+    function increaseMeterBatch(
+        uint256 meterId,
+        uint256[] memory tokenIds,
+        uint256[] memory values
+    ) external onlyOrgAdminActiveMeter(usageMeters[meterId].orgId, meterId) {
+        require(tokenIds.length > 0, "No token IDs provided");
         require(
-            usageMeters[meterId].aggregationMethod == AggregationMethod.SUM,
-            "Meter is not a sum meter"
+            tokenIds.length == values.length,
+            "Token IDs and values must be the same length"
         );
 
+        _checkSumMeter(meterId);
+
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            _increaseMeter(meterId, tokenIds[i], values[i]);
+        }
+    }
+
+    function _increaseMeter(
+        uint256 meterId,
+        uint256 tokenId,
+        uint256 value
+    ) internal {
         passUsages[meterId][tokenId] += value;
 
         emit MeterUsageSet(
@@ -117,6 +175,10 @@ contract UsageRecorder is RegistryEnabled, IUsageRecorder, IERC165 {
         );
     }
 
+    /**
+     * Adjust
+     */
+
     function adjustMeter(
         uint256 meterId,
         uint256 tokenId,
@@ -126,6 +188,10 @@ contract UsageRecorder is RegistryEnabled, IUsageRecorder, IERC165 {
 
         emit MeterUsageSet(usageMeters[meterId].orgId, meterId, tokenId, value);
     }
+
+    /**
+     * Process payments
+     */
 
     function processMeterPayment(
         uint256 meterId,
@@ -147,18 +213,6 @@ contract UsageRecorder is RegistryEnabled, IUsageRecorder, IERC165 {
         );
 
         return usage;
-    }
-
-    function getOrganizationMeters(
-        uint256 organizationId
-    ) external view returns (uint256[] memory) {
-        return organizations[organizationId].values();
-    }
-
-    function isActiveOrgMeter(uint256 meterId) external view returns (bool) {
-        return
-            organizations[usageMeters[meterId].orgId].contains(meterId) &&
-            usageMeters[meterId].isActive;
     }
 
     /**
@@ -192,6 +246,24 @@ contract UsageRecorder is RegistryEnabled, IUsageRecorder, IERC165 {
         _checkOrgMeterExists(organizationId, meterId);
         _checkRegistry(registry.subscriptionEscrow());
         _;
+    }
+
+    /**
+     * Checks
+     */
+
+    function _checkCountMeter(uint256 meterId) internal view {
+        require(
+            usageMeters[meterId].aggregationMethod == AggregationMethod.COUNT,
+            "Meter is not a count meter"
+        );
+    }
+
+    function _checkSumMeter(uint256 meterId) internal view {
+        require(
+            usageMeters[meterId].aggregationMethod == AggregationMethod.SUM,
+            "Meter is not a sum meter"
+        );
     }
 
     /**
