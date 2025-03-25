@@ -92,6 +92,8 @@ describe('UsageRecorder', () => {
         'processMeterPayment(uint256,uint256)',
         'getOrganizationMeters(uint256)',
         'isActiveOrgMeter(uint256)',
+        'incrementMeterBatch(uint256,uint256[])',
+        'increaseMeterBatch(uint256,uint256[],uint256[])',
       ]);
 
       expect(await usageRecorder.supportsInterface(interfaceId)).to.be.true;
@@ -337,6 +339,99 @@ describe('UsageRecorder', () => {
       });
     });
 
+    describe('Increment Count Meter Batch', () => {
+      it('can increment an active meter as the owner', async () => {
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
+
+        await organizationNFT.connect(owner).mint(owner.address);
+
+        await usageRecorder.connect(owner).createMeter(1, 1);
+
+        await expect(
+          usageRecorder.connect(owner).incrementMeterBatch(1, [1, 2, 3]),
+        )
+          .to.emit(usageRecorder, 'MeterUsageSet')
+          .withArgs(1, 1, 1, 1n)
+          .to.emit(usageRecorder, 'MeterUsageSet')
+          .withArgs(1, 1, 2, 1n)
+          .to.emit(usageRecorder, 'MeterUsageSet')
+          .withArgs(1, 1, 3, 1n);
+
+        expect(await usageRecorder.passUsages(1, 1)).to.equal(1n);
+        expect(await usageRecorder.passUsages(1, 2)).to.equal(1n);
+        expect(await usageRecorder.passUsages(1, 3)).to.equal(1n);
+      });
+
+      it('can increment a meter as an admin', async () => {
+        const {
+          usageRecorder,
+          organizationAdmin,
+          organizationNFT,
+          owner,
+          otherAccount,
+        } = await loadFixture(deployUsageRecorder);
+
+        await organizationNFT.connect(owner).mint(owner.address);
+
+        await usageRecorder.connect(owner).createMeter(1, 1);
+
+        await organizationAdmin.addAdmin(1, otherAccount.address);
+
+        await usageRecorder
+          .connect(otherAccount)
+          .incrementMeterBatch(1, [1, 2, 3]);
+
+        expect(await usageRecorder.passUsages(1, 1)).to.equal(1n);
+        expect(await usageRecorder.passUsages(1, 2)).to.equal(1n);
+        expect(await usageRecorder.passUsages(1, 3)).to.equal(1n);
+      });
+
+      it('cannot increment a meter if the meter is not active', async () => {
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
+
+        await organizationNFT.connect(owner).mint(owner.address);
+
+        await usageRecorder.connect(owner).createMeter(1, 1);
+
+        await usageRecorder.connect(owner).setMeterActive(1, false);
+
+        await expect(
+          usageRecorder.connect(owner).incrementMeterBatch(1, [1, 2, 3]),
+        ).to.be.revertedWith('Meter is not active');
+      });
+
+      it('cannot increment a meter if the meter is not the correct type', async () => {
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
+
+        await organizationNFT.connect(owner).mint(owner.address);
+
+        await usageRecorder.connect(owner).createMeter(1, 0);
+
+        await expect(
+          usageRecorder.connect(owner).incrementMeterBatch(1, [1, 2, 3]),
+        ).to.be.revertedWith('Meter is not a count meter');
+      });
+
+      it('cannot increment a meter if the caller is not the owner or an admin', async () => {
+        const { usageRecorder, organizationNFT, owner, otherAccount } =
+          await loadFixture(deployUsageRecorder);
+
+        await organizationNFT.connect(owner).mint(owner.address);
+
+        await usageRecorder.connect(owner).createMeter(1, 0);
+
+        await expect(
+          usageRecorder.connect(otherAccount).incrementMeterBatch(1, [1, 2, 3]),
+        ).to.be.revertedWith('Not an admin of the organization');
+      });
+    });
+
     describe('Increase Sum Meter', () => {
       it('can increase a sum meter as the owner', async () => {
         const { usageRecorder, organizationNFT, owner } = await loadFixture(
@@ -425,6 +520,147 @@ describe('UsageRecorder', () => {
         await expect(
           usageRecorder.connect(owner).increaseMeter(1, 1, 100),
         ).to.be.revertedWith('Meter is not active');
+      });
+    });
+
+    describe('Increase Sum Meter Batch', () => {
+      it('can increase a sum meter as the owner', async () => {
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
+
+        await organizationNFT.connect(owner).mint(owner.address);
+
+        await usageRecorder.connect(owner).createMeter(1, 0);
+
+        await expect(
+          usageRecorder
+            .connect(owner)
+            .increaseMeterBatch(1, [1, 2, 3], [100, 200, 300]),
+        )
+          .to.emit(usageRecorder, 'MeterUsageSet')
+          .withArgs(1, 1, 1, 100n)
+          .to.emit(usageRecorder, 'MeterUsageSet')
+          .withArgs(1, 1, 2, 200n)
+          .to.emit(usageRecorder, 'MeterUsageSet')
+          .withArgs(1, 1, 3, 300n);
+
+        expect(await usageRecorder.passUsages(1, 1)).to.equal(100n);
+        expect(await usageRecorder.passUsages(1, 2)).to.equal(200n);
+        expect(await usageRecorder.passUsages(1, 3)).to.equal(300n);
+      });
+
+      it('can increase a sum meter as an admin', async () => {
+        const {
+          usageRecorder,
+          organizationAdmin,
+          organizationNFT,
+          owner,
+          otherAccount,
+        } = await loadFixture(deployUsageRecorder);
+
+        await organizationNFT.connect(owner).mint(owner.address);
+
+        await usageRecorder.connect(owner).createMeter(1, 0);
+
+        await organizationAdmin.addAdmin(1, otherAccount.address);
+
+        await expect(
+          usageRecorder
+            .connect(otherAccount)
+            .increaseMeterBatch(1, [1, 2, 3], [100, 200, 300]),
+        )
+          .to.emit(usageRecorder, 'MeterUsageSet')
+          .withArgs(1, 1, 1, 100n)
+          .to.emit(usageRecorder, 'MeterUsageSet')
+          .withArgs(1, 1, 2, 200n)
+          .to.emit(usageRecorder, 'MeterUsageSet')
+          .withArgs(1, 1, 3, 300n);
+
+        expect(await usageRecorder.passUsages(1, 1)).to.equal(100n);
+        expect(await usageRecorder.passUsages(1, 2)).to.equal(200n);
+        expect(await usageRecorder.passUsages(1, 3)).to.equal(300n);
+      });
+
+      it('cannot increase a sum meter if the meter is not a sum meter', async () => {
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
+
+        await organizationNFT.connect(owner).mint(owner.address);
+
+        await usageRecorder.connect(owner).createMeter(1, 1);
+
+        await expect(
+          usageRecorder
+            .connect(owner)
+            .increaseMeterBatch(1, [1, 2, 3], [100, 200, 300]),
+        ).to.be.revertedWith('Meter is not a sum meter');
+      });
+
+      it('cannot increase a sum meter if the caller is not the owner or an admin', async () => {
+        const { usageRecorder, organizationNFT, owner, otherAccount } =
+          await loadFixture(deployUsageRecorder);
+
+        await organizationNFT.connect(owner).mint(owner.address);
+
+        await usageRecorder.connect(owner).createMeter(1, 0);
+
+        await expect(
+          usageRecorder
+            .connect(otherAccount)
+            .increaseMeterBatch(1, [1, 2, 3], [100, 200, 300]),
+        ).to.be.revertedWith('Not an admin of the organization');
+      });
+
+      it('cannot increase a sum meter if the meter is not active', async () => {
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
+
+        await organizationNFT.connect(owner).mint(owner.address);
+
+        await usageRecorder.connect(owner).createMeter(1, 0);
+
+        await usageRecorder.connect(owner).setMeterActive(1, false);
+
+        await expect(
+          usageRecorder
+            .connect(owner)
+            .increaseMeterBatch(1, [1, 2, 3], [100, 200, 300]),
+        ).to.be.revertedWith('Meter is not active');
+      });
+
+      it('revert if token IDs are not provided', async () => {
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
+
+        await organizationNFT.connect(owner).mint(owner.address);
+
+        await usageRecorder.connect(owner).createMeter(1, 0);
+
+        await expect(
+          usageRecorder
+            .connect(owner)
+            .increaseMeterBatch(1, [], [100, 200, 300]),
+        ).to.be.revertedWith('No token IDs provided');
+      });
+
+      it('revert if token IDs and values are not the same length', async () => {
+        const { usageRecorder, organizationNFT, owner } = await loadFixture(
+          deployUsageRecorder,
+        );
+
+        await organizationNFT.connect(owner).mint(owner.address);
+
+        await usageRecorder.connect(owner).createMeter(1, 0);
+
+        await expect(
+          usageRecorder
+            .connect(owner)
+            .increaseMeterBatch(1, [1, 2, 3], [100, 200]),
+        ).to.be.revertedWith('Token IDs and values must be the same length');
       });
     });
 

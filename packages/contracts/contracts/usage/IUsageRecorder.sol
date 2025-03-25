@@ -138,14 +138,37 @@ interface IUsageRecorder {
     function incrementMeter(uint256 meterId, uint256 tokenId) external;
 
     /**
+     * @notice Increments a COUNT meter for a batch of product pass token IDs.
+     * @param meterId The ID of the meter.
+     * @param tokenIds The IDs of the product pass tokens.
+     */
+    function incrementMeterBatch(
+        uint256 meterId,
+        uint256[] memory tokenIds
+    ) external;
+
+    /**
      * @notice Increases a SUM meter for a product pass token ID.
      * @param meterId The ID of the meter.
      * @param tokenId The ID of the product pass token.
+     * @param value The value to increment the meter by.
      */
     function increaseMeter(
         uint256 meterId,
         uint256 tokenId,
         uint256 value
+    ) external;
+
+    /**
+     * @notice Increases a SUM meter for a batch of product pass token IDs.
+     * @param meterId The ID of the meter.
+     * @param tokenIds The IDs of the product pass tokens.
+     * @param values The values to increment the meter by.
+     */
+    function increaseMeterBatch(
+        uint256 meterId,
+        uint256[] memory tokenIds,
+        uint256[] memory values
     ) external;
 
     /**
