@@ -246,4 +246,17 @@ const registerUpdateDiscountCommand = (program: Command) => {
           .setRestrictedAccess(discountId, _passOwners, _restricted),
       );
     });
+
+  updateDiscountCommand
+    .command('maxMints')
+    .description('Update the maximum number of mints for the discount')
+    .argument('<discountId>', 'The ID of the discount to update')
+    .argument('<maxMints>', 'The new maximum number of mints')
+    .action(async (discountId, maxMints) => {
+      await waitTx(
+        discountRegistry
+          .connect(signerWallet)
+          .setDiscountMaxMints(discountId, Number(maxMints)),
+      );
+    });
 };
