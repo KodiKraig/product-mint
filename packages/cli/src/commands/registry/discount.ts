@@ -68,8 +68,8 @@ export default function registerDiscountCommand(program: Command) {
     .action(async (organizationId, discountId, passOwner) => {
       const hasRestrictedAccess = await discountRegistry.hasRestrictedAccess(
         organizationId,
-        discountId,
         passOwner,
+        discountId,
       );
 
       console.log(
