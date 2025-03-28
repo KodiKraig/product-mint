@@ -1,8 +1,10 @@
 import devAddresses from './dev.json';
 import baseSepoliaAddresses from './base-sepolia.json';
+import baseMainnetAddresses from './base-mainnet.json';
+
 export type ContractAddresses = keyof typeof devAddresses;
 
-export type AddressMode = 'dev' | 'base-sepolia';
+export type AddressMode = 'dev' | 'base-sepolia' | 'base-mainnet';
 
 export function getContractAddress(contract: ContractAddresses): string {
   let address: string;
@@ -13,6 +15,8 @@ export function getContractAddress(contract: ContractAddresses): string {
     address = devAddresses[contract];
   } else if (mode === 'base-sepolia') {
     address = baseSepoliaAddresses[contract];
+  } else if (mode === 'base-mainnet') {
+    address = baseMainnetAddresses[contract];
   } else {
     throw new Error(`Unsupported address mode: ${mode}`);
   }

@@ -18,3 +18,6 @@ coverage.json
 
 # Hardhat Ignition files
 **/ignition/deployments/**
+
+# CLI tool local scripts
+**/cli/scripts/**

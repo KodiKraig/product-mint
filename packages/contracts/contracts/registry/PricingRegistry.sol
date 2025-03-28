@@ -433,10 +433,6 @@ contract PricingRegistry is RegistryEnabled, IPricingRegistry, IERC165 {
         }
 
         if (token != address(0)) {
-            if (!IERC165(token).supportsInterface(type(IERC20).interfaceId)) {
-                revert RequiresERC20Token();
-            }
-
             if (
                 !IPaymentEscrow(registry.paymentEscrow()).whitelistedTokens(
                     token

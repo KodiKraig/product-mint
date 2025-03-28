@@ -3,7 +3,10 @@ import { provider, signerWallet } from '../../provider';
 import { DiscountRegistry__factory } from '@product-mint/ethers-sdk';
 import { getContractAddress } from '../../contract-address';
 import { waitTx } from '../../utils/tx';
-import { parseCommaSeparatedList } from '../../utils/parsing';
+import {
+  parseBooleanValue,
+  parseCommaSeparatedList,
+} from '../../utils/parsing';
 
 const discountRegistry = DiscountRegistry__factory.connect(
   getContractAddress('discountRegistry'),
@@ -65,8 +68,8 @@ export default function registerDiscountCommand(program: Command) {
     .action(async (organizationId, discountId, passOwner) => {
       const hasRestrictedAccess = await discountRegistry.hasRestrictedAccess(
         organizationId,
-        discountId,
         passOwner,
+        discountId,
       );
 
       console.log(
@@ -191,7 +194,7 @@ const registerUpdateDiscountCommand = (program: Command) => {
       await waitTx(
         discountRegistry
           .connect(signerWallet)
-          .setDiscountRestricted(discountId, restricted),
+          .setDiscountRestricted(discountId, parseBooleanValue(restricted)!),
       );
     });
 
@@ -241,6 +244,19 @@ const registerUpdateDiscountCommand = (program: Command) => {
         discountRegistry
           .connect(signerWallet)
           .setRestrictedAccess(discountId, _passOwners, _restricted),
+      );
+    });
+
+  updateDiscountCommand
+    .command('maxMints')
+    .description('Update the maximum number of mints for the discount')
+    .argument('<discountId>', 'The ID of the discount to update')
+    .argument('<maxMints>', 'The new maximum number of mints')
+    .action(async (discountId, maxMints) => {
+      await waitTx(
+        discountRegistry
+          .connect(signerWallet)
+          .setDiscountMaxMints(discountId, Number(maxMints)),
       );
     });
 };
