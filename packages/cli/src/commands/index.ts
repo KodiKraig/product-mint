@@ -6,6 +6,7 @@ import registerTokensCommand from './tokens';
 import registerEscrowCommands from './escrow';
 import registerUsageCommand from './usage';
 import registerCalculatorCommand from './calculator';
+import registerMetadataCommand from './metadata';
 
 export function registerAllCommands(program: Command) {
   registerBalanceCommand(program);
@@ -15,4 +16,5 @@ export function registerAllCommands(program: Command) {
   registerEscrowCommands(program);
   registerUsageCommand(program);
   registerCalculatorCommand(program);
+  registerMetadataCommand(program);
 }
