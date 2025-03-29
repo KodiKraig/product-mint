@@ -4,7 +4,8 @@ import { SubscriptionEscrow } from '../../typechain-types';
 import { expect } from 'chai';
 
 export async function deployPurchaseManager() {
-  const [owner, otherAccount, otherAccount2] = await hre.ethers.getSigners();
+  const [owner, otherAccount, otherAccount2, otherAccount3, otherAccount4] =
+    await hre.ethers.getSigners();
 
   // Registry
 
@@ -161,6 +162,8 @@ export async function deployPurchaseManager() {
     owner,
     otherAccount,
     otherAccount2,
+    otherAccount3,
+    otherAccount4,
   };
 }
 
