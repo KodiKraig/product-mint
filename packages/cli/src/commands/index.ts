@@ -7,8 +7,10 @@ import registerEscrowCommands from './escrow';
 import registerUsageCommand from './usage';
 import registerCalculatorCommand from './calculator';
 import registerMetadataCommand from './metadata';
+import registerAdminCommand from './admin';
 
 export function registerAllCommands(program: Command) {
+  registerAdminCommand(program);
   registerBalanceCommand(program);
   registerManagerCommand(program);
   registerRegistryCommands(program);

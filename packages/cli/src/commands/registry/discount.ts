@@ -110,6 +110,30 @@ export default function registerDiscountCommand(program: Command) {
       }
     });
 
+  discountCommand
+    .command('validate')
+    .description('Validate discount codes by name for an address')
+    .argument('<organizationId>', 'Organization ID for the discount code')
+    .argument(
+      '<names>',
+      'Names of the discount codes in a comma separated list',
+    )
+    .argument('<minter>', 'Minter address')
+    .argument('<productPassId>', 'Id of the product pass')
+    .action(async (organizationId, names, minter, productPassId) => {
+      try {
+        await discountRegistry.canMintDiscountByNameBatch(
+          organizationId,
+          productPassId,
+          minter,
+          parseCommaSeparatedList<string>(names),
+        );
+        console.log('Valid discount code!');
+      } catch (e) {
+        console.error('Cannot mint code', e);
+      }
+    });
+
   /**
    * Create
    */

@@ -1,7 +1,9 @@
 import { SubscriptionEscrow__factory } from '@product-mint/ethers-sdk';
 import { Command } from 'commander';
 import { getContractAddress } from '../../contract-address';
-import { provider } from '../../provider';
+import { provider, signerWallet } from '../../provider';
+import { waitTx } from '../../utils/tx';
+import { parseBooleanValue } from '../../utils/parsing';
 
 const subEscrow = SubscriptionEscrow__factory.connect(
   getContractAddress('subscriptionEscrow'),
@@ -13,7 +15,35 @@ export default function registerSubscriptionCommands(program: Command) {
     .command('subscription')
     .description('Manage subscriptions');
 
-  const events = subscription
+  // Owner can change pricing
+
+  subscription
+    .command('canOwnerChangePricing')
+    .description('Check if the owner can change the subscription')
+    .argument('<orgId>', 'The organization id')
+    .action(async (orgId) => {
+      const result = await subEscrow.ownerChangePricing(orgId);
+      console.log(`Can owner change subscription: ${result}`);
+    });
+
+  subscription
+    .command('setOwnerChangePricing')
+    .description('Set the owner change pricing')
+    .argument('<orgId>', 'The organization id')
+    .argument('<canChange>', 'The can change value')
+    .action(async (orgId, canChange) => {
+      await waitTx(
+        subEscrow
+          .connect(signerWallet)
+          .setOwnerChangePricing(orgId, parseBooleanValue(canChange)!),
+      );
+    });
+
+  registerEvents(subscription);
+}
+
+const registerEvents = async (command: Command) => {
+  const events = command
     .command('events')
     .description('Query subscription related events');
 
@@ -70,4 +100,4 @@ export default function registerSubscriptionCommands(program: Command) {
         );
       }
     });
-}
+};
