@@ -1,0 +1,500 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_contractRegistry",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum PricingUtils.ChargeStyle",
+        "name": "chargeStyle",
+        "type": "uint8"
+      }
+    ],
+    "name": "InvalidChargeStyle",
+    "type": "error"
+  },
+  { "inputs": [], "name": "InvalidPauseState", "type": "error" },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "uint256", "name": "productPassId", "type": "uint256" },
+      { "internalType": "uint256", "name": "productId", "type": "uint256" }
+    ],
+    "name": "InvalidUnitQuantity",
+    "type": "error"
+  },
+  { "inputs": [], "name": "OrganizationIsNotPausable", "type": "error" },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "uint256", "name": "productPassId", "type": "uint256" },
+      { "internalType": "uint256", "name": "productId", "type": "uint256" }
+    ],
+    "name": "SubscriptionAlreadyExists",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "organizationId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "canChange",
+        "type": "bool"
+      }
+    ],
+    "name": "OwnerChangePricingSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "organizationId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "productPassId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "productId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum ISubscriptionEscrow.SubscriptionStatus",
+        "name": "status",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "startDate",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "endDate",
+        "type": "uint256"
+      }
+    ],
+    "name": "SubscriptionCycleUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "organizationId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "pausable",
+        "type": "bool"
+      }
+    ],
+    "name": "SubscriptionPausableSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "organizationId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "productPassId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "productId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newPricingId",
+        "type": "uint256"
+      }
+    ],
+    "name": "SubscriptionPricingChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "productPassId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "productId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "quantity",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "maxQuantity",
+        "type": "uint256"
+      }
+    ],
+    "name": "UnitQuantitySet",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productPassId", "type": "uint256" },
+      { "internalType": "uint256", "name": "productId", "type": "uint256" },
+      { "internalType": "bool", "name": "cancel", "type": "bool" }
+    ],
+    "name": "cancelSubscription",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productPassId", "type": "uint256" },
+      { "internalType": "uint256", "name": "productId", "type": "uint256" },
+      { "internalType": "uint256", "name": "newPricingId", "type": "uint256" },
+      { "internalType": "bool", "name": "isPassOwner", "type": "bool" }
+    ],
+    "name": "changeSubscriptionPricing",
+    "outputs": [
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productPassId", "type": "uint256" },
+      { "internalType": "uint256", "name": "productId", "type": "uint256" },
+      { "internalType": "uint256", "name": "quantity", "type": "uint256" }
+    ],
+    "name": "changeSubscriptionUnitQuantity",
+    "outputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_organizationId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_productPassId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_productIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_pricingIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_cycleDurations",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_unitQuantities",
+        "type": "uint256[]"
+      },
+      { "internalType": "bool", "name": "_pause", "type": "bool" }
+    ],
+    "name": "createSubscriptions",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productPassId", "type": "uint256" }
+    ],
+    "name": "getPassSubs",
+    "outputs": [
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productPassId", "type": "uint256" },
+      { "internalType": "uint256", "name": "productId", "type": "uint256" }
+    ],
+    "name": "getRenewalCost",
+    "outputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "uint256", "name": "price", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productPassId", "type": "uint256" },
+      { "internalType": "uint256[]", "name": "productIds", "type": "uint256[]" }
+    ],
+    "name": "getRenewalCostBatch",
+    "outputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "address[]", "name": "tokens", "type": "address[]" },
+      { "internalType": "uint256[]", "name": "prices", "type": "uint256[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productPassId", "type": "uint256" },
+      { "internalType": "uint256", "name": "productId", "type": "uint256" }
+    ],
+    "name": "getSubscription",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+          { "internalType": "uint256", "name": "pricingId", "type": "uint256" },
+          { "internalType": "uint256", "name": "startDate", "type": "uint256" },
+          { "internalType": "uint256", "name": "endDate", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "timeRemaining",
+            "type": "uint256"
+          },
+          { "internalType": "bool", "name": "isCancelled", "type": "bool" },
+          { "internalType": "bool", "name": "isPaused", "type": "bool" }
+        ],
+        "internalType": "struct ISubscriptionEscrow.Subscription",
+        "name": "",
+        "type": "tuple"
+      },
+      {
+        "internalType": "enum ISubscriptionEscrow.SubscriptionStatus",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productPassId", "type": "uint256" },
+      { "internalType": "uint256[]", "name": "productIds", "type": "uint256[]" }
+    ],
+    "name": "getSubscriptionBatch",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+          { "internalType": "uint256", "name": "pricingId", "type": "uint256" },
+          { "internalType": "uint256", "name": "startDate", "type": "uint256" },
+          { "internalType": "uint256", "name": "endDate", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "timeRemaining",
+            "type": "uint256"
+          },
+          { "internalType": "bool", "name": "isCancelled", "type": "bool" },
+          { "internalType": "bool", "name": "isPaused", "type": "bool" }
+        ],
+        "internalType": "struct ISubscriptionEscrow.Subscription[]",
+        "name": "_subs",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "enum ISubscriptionEscrow.SubscriptionStatus[]",
+        "name": "_statuses",
+        "type": "uint8[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productPassId", "type": "uint256" },
+      { "internalType": "uint256", "name": "productId", "type": "uint256" }
+    ],
+    "name": "getUnitQuantity",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productPassId", "type": "uint256" },
+      { "internalType": "uint256", "name": "productId", "type": "uint256" }
+    ],
+    "name": "getUnitQuantityFull",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+          { "internalType": "uint256", "name": "quantity", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "maxQuantity",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ISubscriptionEscrow.UnitQuantity",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productPassId", "type": "uint256" },
+      { "internalType": "uint256[]", "name": "productIds", "type": "uint256[]" }
+    ],
+    "name": "isTransferable",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "ownerChangePricing",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productPassId", "type": "uint256" },
+      { "internalType": "uint256", "name": "productId", "type": "uint256" },
+      { "internalType": "bool", "name": "pause", "type": "bool" }
+    ],
+    "name": "pauseSubscription",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "registry",
+    "outputs": [
+      {
+        "internalType": "contract IContractRegistry",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productPassId", "type": "uint256" },
+      { "internalType": "uint256", "name": "productId", "type": "uint256" }
+    ],
+    "name": "renewSubscription",
+    "outputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "uint256", "name": "price", "type": "uint256" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "bool", "name": "canChange", "type": "bool" }
+    ],
+    "name": "setOwnerChangePricing",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "bool", "name": "_pausable", "type": "bool" }
+    ],
+    "name": "setSubscriptionsPausable",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "subscriptionsPauseable",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }
+    ],
+    "name": "supportsInterface",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "pure",
+    "type": "function"
+  }
+]

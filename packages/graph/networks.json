@@ -1,0 +1,102 @@
+{
+  "base": {
+    "CouponRegistry": {
+      "address": "0xFc610ff6DeCBB4b6ec3ec135D1f7e32e74AAf207",
+      "startBlock": 28078314
+    },
+    "DiscountRegistry": {
+      "address": "0x4EBF9e5009367A8e002014b211B3bD2A618B2d9C",
+      "startBlock": 28078314
+    },
+    "OrganizationAdmin": {
+      "address": "0xbC3AB9D5746EE45e3Bac27B25E14567045F4f115",
+      "startBlock": 28078314
+    },
+    "PaymentEscrow": {
+      "address": "0x313deB1dd6aC07159E88D5a5a3EfF41d76Cf5ffC",
+      "startBlock": 28078314
+    },
+    "PricingRegistry": {
+      "address": "0x7B8841594834bBdb89783C32370E8B3231cc4D09",
+      "startBlock": 28078314
+    },
+    "ProductRegistry": {
+      "address": "0xEC0BFe8dA91367b40C19576F1f7d2743606E27D8",
+      "startBlock": 28078314
+    },
+    "PurchaseManager": {
+      "address": "0xBf31aD908EA3b7930aa85AD06eC290Ac9A11103D",
+      "startBlock": 28078314
+    },
+    "PurchaseRegistry": {
+      "address": "0xA4aa728d6C1De8aE3ECB9Be91B8aB80456336c62",
+      "startBlock": 28078314
+    },
+    "SubscriptionEscrow": {
+      "address": "0x9Aaf735185Af62FE1AAC22Cdbc858cd5ED49941E",
+      "startBlock": 28078314
+    },
+    "UsageRecorder": {
+      "address": "0x990a08D6a5e94994e2AEd13845a214e0e02e90C2",
+      "startBlock": 28078314
+    },
+    "OrganizationNFT": {
+      "address": "0x273cBd7EABd28d4220F1Eb3Bc79f1cE48a41C2d8",
+      "startBlock": 28078314
+    },
+    "ProductPassNFT": {
+      "address": "0x1d02ecC16193C5e2e33BE52fc95947edBf0B7870",
+      "startBlock": 28078314
+    }
+  },
+  "base-sepolia": {
+    "CouponRegistry": {
+      "address": "0xb07412AC0d8621437e16b6844077E2CF086515De",
+      "startBlock": 23571055
+    },
+    "DiscountRegistry": {
+      "address": "0xdd41d7292007C48Ae64e69C31e7D691aF38A16aC",
+      "startBlock": 23551551
+    },
+    "OrganizationAdmin": {
+      "address": "0xcE4C0422Cf10bE5489732339Ba41471E92420f51",
+      "startBlock": 24229396
+    },
+    "PaymentEscrow": {
+      "address": "0xfc91B5dFd126A5DFEf9f3E7724D3c738E6b2F772",
+      "startBlock": 23551559
+    },
+    "PricingRegistry": {
+      "address": "0x6788FAb74286b39f1369E78D97b6223FBa6d450E",
+      "startBlock": 23569958
+    },
+    "ProductRegistry": {
+      "address": "0x08A5364cf82dB1261009343a281418987A75325F",
+      "startBlock": 23569943
+    },
+    "PurchaseManager": {
+      "address": "0x0da94511236963A849aDd2D7BE97B143F1b126Bd",
+      "startBlock": 23551567
+    },
+    "PurchaseRegistry": {
+      "address": "0x2744901fD948f384f347a5594484e89e82e8fA3A",
+      "startBlock": 23569939
+    },
+    "SubscriptionEscrow": {
+      "address": "0xA92B6576B6070Ece85d730136E9A95Da28b70453",
+      "startBlock": 23551571
+    },
+    "UsageRecorder": {
+      "address": "0xFb33B51E513EFF928D2b75F9c5b707F4B2213d2d",
+      "startBlock": 23551573
+    },
+    "OrganizationNFT": {
+      "address": "0xC2bea1D2A05931c8A560BDe3Dbaaf4f75e1a4EE3",
+      "startBlock": 23551589
+    },
+    "ProductPassNFT": {
+      "address": "0x10D6eF4A569c79b7d40f750EBeAba859a5B8c0db",
+      "startBlock": 23551825
+    }
+  }
+}
