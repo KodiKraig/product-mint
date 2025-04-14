@@ -66,5 +66,20 @@ export default function registerUsageCommand(program: Command): Command {
       console.log(`Pass ID: ${passId}`);
       console.log(`Usage: ${usage}`);
     });
+
+  usage
+    .command('adjustMeter')
+    .description('Adjust the usage for a pass by token ID')
+    .argument('<meterId>', 'The meter ID')
+    .argument('<passId>', 'The pass ID')
+    .argument('<amount>', 'The amount to set the usage to')
+    .action(async (meterId, passId, amount) => {
+      await waitTx(
+        usageRecorder
+          .connect(signerWallet)
+          .adjustMeter(meterId, passId, amount),
+      );
+    });
+
   return usage;
 }
