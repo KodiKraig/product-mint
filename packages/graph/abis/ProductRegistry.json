@@ -1,0 +1,522 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_contractRegistry",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productId", "type": "uint256" },
+      { "internalType": "uint256", "name": "pricingId", "type": "uint256" }
+    ],
+    "name": "PricingNotLinkedToProduct",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productId", "type": "uint256" }
+    ],
+    "name": "ProductIsNotActive",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "organizationId",
+        "type": "uint256"
+      },
+      { "internalType": "uint256", "name": "productId", "type": "uint256" }
+    ],
+    "name": "ProductNotFoundForOrganization",
+    "type": "error"
+  },
+  { "inputs": [], "name": "ValueCannotBeEmpty", "type": "error" },
+  { "inputs": [], "name": "ValueTooLong", "type": "error" },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "organizationId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "productId",
+        "type": "uint256"
+      }
+    ],
+    "name": "ProductCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "organizationId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "productId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "pricingId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isLinked",
+        "type": "bool"
+      }
+    ],
+    "name": "ProductPricingLinkUpdate",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "organizationId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "productId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isActive",
+        "type": "bool"
+      }
+    ],
+    "name": "ProductStatusChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "organizationId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "productId",
+        "type": "uint256"
+      }
+    ],
+    "name": "ProductUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "organizationId",
+        "type": "uint256"
+      },
+      { "internalType": "uint256", "name": "productId", "type": "uint256" },
+      { "internalType": "uint256", "name": "pricingId", "type": "uint256" }
+    ],
+    "name": "canPurchaseProduct",
+    "outputs": [],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_organizationId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_productIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_pricingIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "canPurchaseProducts",
+    "outputs": [],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+          { "internalType": "string", "name": "name", "type": "string" },
+          { "internalType": "string", "name": "description", "type": "string" },
+          { "internalType": "string", "name": "imageUrl", "type": "string" },
+          { "internalType": "string", "name": "externalUrl", "type": "string" },
+          { "internalType": "bool", "name": "isTransferable", "type": "bool" }
+        ],
+        "internalType": "struct IProductRegistry.CreateProductParams",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "name": "createProduct",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_organizationId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getOrgProductIds",
+    "outputs": [
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_organizationId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getOrgProducts",
+    "outputs": [
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" },
+      {
+        "components": [
+          { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+          { "internalType": "string", "name": "name", "type": "string" },
+          { "internalType": "string", "name": "description", "type": "string" },
+          { "internalType": "string", "name": "imageUrl", "type": "string" },
+          { "internalType": "string", "name": "externalUrl", "type": "string" },
+          { "internalType": "bool", "name": "isTransferable", "type": "bool" },
+          { "internalType": "bool", "name": "isActive", "type": "bool" }
+        ],
+        "internalType": "struct IProductRegistry.Product[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productId", "type": "uint256" }
+    ],
+    "name": "getProduct",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+          { "internalType": "string", "name": "name", "type": "string" },
+          { "internalType": "string", "name": "description", "type": "string" },
+          { "internalType": "string", "name": "imageUrl", "type": "string" },
+          { "internalType": "string", "name": "externalUrl", "type": "string" },
+          { "internalType": "bool", "name": "isTransferable", "type": "bool" },
+          { "internalType": "bool", "name": "isActive", "type": "bool" }
+        ],
+        "internalType": "struct IProductRegistry.Product",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "_productIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "getProductNames",
+    "outputs": [
+      {
+        "internalType": "string[]",
+        "name": "_productNames",
+        "type": "string[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productId", "type": "uint256" }
+    ],
+    "name": "getProductPricing",
+    "outputs": [
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" },
+      {
+        "components": [
+          { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+          {
+            "internalType": "enum PricingUtils.ChargeStyle",
+            "name": "chargeStyle",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum PricingUtils.ChargeFrequency",
+            "name": "chargeFrequency",
+            "type": "uint8"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "lowerBound",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "upperBound",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "pricePerUnit",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "priceFlatRate",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct PricingUtils.PricingTier[]",
+            "name": "tiers",
+            "type": "tuple[]"
+          },
+          { "internalType": "address", "name": "token", "type": "address" },
+          { "internalType": "uint256", "name": "flatPrice", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "usageMeterId",
+            "type": "uint256"
+          },
+          { "internalType": "bool", "name": "isActive", "type": "bool" },
+          { "internalType": "bool", "name": "isRestricted", "type": "bool" }
+        ],
+        "internalType": "struct PricingUtils.Pricing[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productId", "type": "uint256" }
+    ],
+    "name": "getProductPricingIds",
+    "outputs": [
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "_productIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "getProductsBatch",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+          { "internalType": "string", "name": "name", "type": "string" },
+          { "internalType": "string", "name": "description", "type": "string" },
+          { "internalType": "string", "name": "imageUrl", "type": "string" },
+          { "internalType": "string", "name": "externalUrl", "type": "string" },
+          { "internalType": "bool", "name": "isTransferable", "type": "bool" },
+          { "internalType": "bool", "name": "isActive", "type": "bool" }
+        ],
+        "internalType": "struct IProductRegistry.Product[]",
+        "name": "_products",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "organizationId",
+        "type": "uint256"
+      },
+      { "internalType": "uint256", "name": "productId", "type": "uint256" }
+    ],
+    "name": "isOrgProduct",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "_productIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "isTransferable",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productId", "type": "uint256" },
+      { "internalType": "uint256[]", "name": "pricingIds", "type": "uint256[]" }
+    ],
+    "name": "linkPricing",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "registry",
+    "outputs": [
+      {
+        "internalType": "contract IContractRegistry",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productId", "type": "uint256" },
+      { "internalType": "bool", "name": "_isActive", "type": "bool" }
+    ],
+    "name": "setProductActive",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productId", "type": "uint256" },
+      { "internalType": "string", "name": "description", "type": "string" }
+    ],
+    "name": "setProductDescription",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productId", "type": "uint256" },
+      { "internalType": "string", "name": "externalUrl", "type": "string" }
+    ],
+    "name": "setProductExternalUrl",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productId", "type": "uint256" },
+      { "internalType": "string", "name": "imageUrl", "type": "string" }
+    ],
+    "name": "setProductImageUrl",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productId", "type": "uint256" },
+      { "internalType": "string", "name": "name", "type": "string" }
+    ],
+    "name": "setProductName",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productId", "type": "uint256" },
+      { "internalType": "bool", "name": "_isTransferable", "type": "bool" }
+    ],
+    "name": "setProductTransferable",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }
+    ],
+    "name": "supportsInterface",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalProductSupply",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "productId", "type": "uint256" },
+      { "internalType": "uint256[]", "name": "pricingIds", "type": "uint256[]" }
+    ],
+    "name": "unlinkPricing",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

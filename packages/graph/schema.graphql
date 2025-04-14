@@ -1,0 +1,652 @@
+type CouponCreated @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  couponId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type CouponRedeemed @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  couponId: BigInt! # uint256
+  passOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type CouponStatusUpdated @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  couponId: BigInt! # uint256
+  isActive: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type CouponUpdated @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  couponId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PassCouponCodeSet @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  passOwner: Bytes! # address
+  code: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RestrictedAccessUpdated @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  accessId: BigInt! # uint256
+  passOwner: Bytes! # address
+  restricted: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+type DiscountCreated @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  discountId: BigInt! # uint256
+  name: String! # string
+  discount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type DiscountMinted @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  passId: BigInt! # uint256
+  discountId: BigInt! # uint256
+  minter: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type DiscountUpdated @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  discountId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type DiscountRegistryRestrictedAccessUpdated @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  accessId: BigInt! # uint256
+  passOwner: Bytes! # address
+  restricted: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+type OrgAdminUpdate @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  admin: Bytes! # address
+  status: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+type ExoticFeeSet @entity(immutable: true) {
+  id: Bytes!
+  fee: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type FeeEnabled @entity(immutable: true) {
+  id: Bytes!
+  isEnabled: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type FeeExemptSet @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  isExempt: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type FeeReducerSet @entity(immutable: true) {
+  id: Bytes!
+  feeReducer: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type FeeSet @entity(immutable: true) {
+  id: Bytes!
+  token: Bytes! # address
+  newFee: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type FeeWithdraw @entity(immutable: true) {
+  id: Bytes!
+  token: Bytes! # address
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OrgBalanceWithdrawn @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  token: Bytes! # address
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OrgChargeAbilityUpdate @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  isRevoked: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RoleAdminChanged @entity(immutable: true) {
+  id: Bytes!
+  role: Bytes! # bytes32
+  previousAdminRole: Bytes! # bytes32
+  newAdminRole: Bytes! # bytes32
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RoleGranted @entity(immutable: true) {
+  id: Bytes!
+  role: Bytes! # bytes32
+  account: Bytes! # address
+  sender: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RoleRevoked @entity(immutable: true) {
+  id: Bytes!
+  role: Bytes! # bytes32
+  account: Bytes! # address
+  sender: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TransferAmount @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  from: Bytes! # address
+  token: Bytes! # address
+  totalAmount: BigInt! # uint256
+  orgAmount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WhitelistedTokenSet @entity(immutable: true) {
+  id: Bytes!
+  token: Bytes! # address
+  isWhitelisted: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+type PricingCreated @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  pricingId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PricingStatusChanged @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  pricingId: BigInt! # uint256
+  isActive: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PricingUpdated @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  pricingId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RestrictedAccessGranted @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  pricingId: BigInt! # uint256
+  productPassOwner: Bytes! # address
+  isRestricted: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+type ProductCreated @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  productId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ProductPricingLinkUpdate @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  productId: BigInt! # uint256
+  pricingId: BigInt! # uint256
+  isLinked: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ProductStatusChanged @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  productId: BigInt! # uint256
+  isActive: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ProductUpdated @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  productId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+type OwnershipTransferStarted @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Paused @entity(immutable: true) {
+  id: Bytes!
+  account: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PerformPurchase @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  passOwner: Bytes! # address
+  purchaser: Bytes! # address
+  token: Bytes! # address
+  amountPaid: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ProductsPurchased @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  productPassId: BigInt! # uint256
+  passOwner: Bytes! # address
+  productIds: [BigInt!]! # uint256[]
+  pricingIds: [BigInt!]! # uint256[]
+  quantities: [BigInt!]! # uint256[]
+  token: Bytes! # address
+  amountPaid: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Unpaused @entity(immutable: true) {
+  id: Bytes!
+  account: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+type GiftingStatusChanged @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  isGifting: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MaxMintsUpdated @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  maxMints: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MintClosedStatusChanged @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  isMintClosed: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ProductMaxSupplyUpdated @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  productId: BigInt! # uint256
+  maxSupply: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WhitelistPassOwnerUpdated @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  passOwner: Bytes! # address
+  isWhitelisted: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WhitelistStatusChanged @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  isWhitelist: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+type OwnerChangePricingSet @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  canChange: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SubscriptionCycleUpdated @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  productPassId: BigInt! # uint256
+  productId: BigInt! # uint256
+  status: Int! # uint8
+  startDate: BigInt! # uint256
+  endDate: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SubscriptionPausableSet @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  pausable: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SubscriptionPricingChanged @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  productPassId: BigInt! # uint256
+  productId: BigInt! # uint256
+  newPricingId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type UnitQuantitySet @entity(immutable: true) {
+  id: Bytes!
+  productPassId: BigInt! # uint256
+  productId: BigInt! # uint256
+  quantity: BigInt! # uint256
+  maxQuantity: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+type MeterActiveSet @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  meterId: BigInt! # uint256
+  isActive: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MeterCreated @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  meterId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MeterPaymentProcessed @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  meterId: BigInt! # uint256
+  tokenId: BigInt! # uint256
+  usage: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MeterUsageSet @entity(immutable: true) {
+  id: Bytes!
+  organizationId: BigInt! # uint256
+  meterId: BigInt! # uint256
+  tokenId: BigInt! # uint256
+  usage: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+type Approval @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  approved: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ApprovalForAll @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  operator: Bytes! # address
+  approved: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MetadataProviderSet @entity(immutable: true) {
+  id: Bytes!
+  previousProvider: Bytes! # address
+  newProvider: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MintOpenSet @entity(immutable: true) {
+  id: Bytes!
+  mintOpen: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OrganizationNFTRoleAdminChanged @entity(immutable: true) {
+  id: Bytes!
+  role: Bytes! # bytes32
+  previousAdminRole: Bytes! # bytes32
+  newAdminRole: Bytes! # bytes32
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OrganizationNFTRoleGranted @entity(immutable: true) {
+  id: Bytes!
+  role: Bytes! # bytes32
+  account: Bytes! # address
+  sender: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OrganizationNFTRoleRevoked @entity(immutable: true) {
+  id: Bytes!
+  role: Bytes! # bytes32
+  account: Bytes! # address
+  sender: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Transfer @entity(immutable: true) {
+  id: Bytes!
+  from: Bytes! # address
+  to: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WhitelistedSet @entity(immutable: true) {
+  id: Bytes!
+  account: Bytes! # address
+  isWhitelisted: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+type ProductPassNFTApproval @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  approved: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ProductPassNFTApprovalForAll @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  operator: Bytes! # address
+  approved: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ProductPassNFTMetadataProviderSet @entity(immutable: true) {
+  id: Bytes!
+  previousProvider: Bytes! # address
+  newProvider: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ProductPassNFTOwnershipTransferStarted @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ProductPassNFTOwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ProductPassNFTTransfer @entity(immutable: true) {
+  id: Bytes!
+  from: Bytes! # address
+  to: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

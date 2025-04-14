@@ -1,0 +1,568 @@
+[
+  {
+    "inputs": [
+      { "internalType": "address", "name": "registry", "type": "address" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "discountId", "type": "uint256" },
+      { "internalType": "address", "name": "minter", "type": "address" }
+    ],
+    "name": "DiscountAccessRestricted",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "discountId", "type": "uint256" },
+      { "internalType": "uint256", "name": "passId", "type": "uint256" }
+    ],
+    "name": "DiscountAlreadyMinted",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "discountId", "type": "uint256" }
+    ],
+    "name": "DiscountDoesNotExist",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "discountId", "type": "uint256" },
+      { "internalType": "uint256", "name": "maxMints", "type": "uint256" }
+    ],
+    "name": "DiscountMaxMintsReached",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "discountId", "type": "uint256" }
+    ],
+    "name": "DiscountNotActive",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "uint256", "name": "discountId", "type": "uint256" }
+    ],
+    "name": "DiscountNotForOrg",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "string", "name": "name", "type": "string" }
+    ],
+    "name": "DiscountNotFound",
+    "type": "error"
+  },
+  { "inputs": [], "name": "InvalidRestrictedAccessInput", "type": "error" },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "uint256", "name": "passId", "type": "uint256" }
+    ],
+    "name": "PassNotOrgMember",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "orgId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "discountId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "discount",
+        "type": "uint256"
+      }
+    ],
+    "name": "DiscountCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "orgId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "passId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "discountId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "minter",
+        "type": "address"
+      }
+    ],
+    "name": "DiscountMinted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "orgId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "discountId",
+        "type": "uint256"
+      }
+    ],
+    "name": "DiscountUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "orgId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "accessId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "passOwner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "restricted",
+        "type": "bool"
+      }
+    ],
+    "name": "RestrictedAccessUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "discountIds",
+        "type": "uint256[]"
+      },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "calculateTotalDiscountedAmount",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "passId", "type": "uint256" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "calculateTotalPassDiscountedAmount",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "uint256", "name": "passId", "type": "uint256" },
+      { "internalType": "address", "name": "minter", "type": "address" },
+      { "internalType": "uint256", "name": "discountId", "type": "uint256" }
+    ],
+    "name": "canMintDiscount",
+    "outputs": [],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "uint256", "name": "passId", "type": "uint256" },
+      { "internalType": "address", "name": "minter", "type": "address" },
+      { "internalType": "string", "name": "name", "type": "string" }
+    ],
+    "name": "canMintDiscountByName",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "uint256", "name": "passId", "type": "uint256" },
+      { "internalType": "address", "name": "minter", "type": "address" },
+      { "internalType": "string[]", "name": "names", "type": "string[]" }
+    ],
+    "name": "canMintDiscountByNameBatch",
+    "outputs": [
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+          { "internalType": "string", "name": "name", "type": "string" },
+          { "internalType": "uint256", "name": "discount", "type": "uint256" },
+          { "internalType": "uint256", "name": "maxMints", "type": "uint256" },
+          { "internalType": "bool", "name": "isActive", "type": "bool" },
+          { "internalType": "bool", "name": "isRestricted", "type": "bool" }
+        ],
+        "internalType": "struct IDiscountRegistry.CreateDiscountParams",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "name": "createDiscount",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "string", "name": "", "type": "string" }
+    ],
+    "name": "discountNames",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "discountId", "type": "uint256" }
+    ],
+    "name": "getDiscount",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "id", "type": "uint256" },
+          { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+          { "internalType": "string", "name": "name", "type": "string" },
+          { "internalType": "uint256", "name": "discount", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "totalMints",
+            "type": "uint256"
+          },
+          { "internalType": "uint256", "name": "maxMints", "type": "uint256" },
+          { "internalType": "bool", "name": "isActive", "type": "bool" },
+          { "internalType": "bool", "name": "isRestricted", "type": "bool" }
+        ],
+        "internalType": "struct IDiscountRegistry.Discount",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "discountIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "getDiscountBatch",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "id", "type": "uint256" },
+          { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+          { "internalType": "string", "name": "name", "type": "string" },
+          { "internalType": "uint256", "name": "discount", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "totalMints",
+            "type": "uint256"
+          },
+          { "internalType": "uint256", "name": "maxMints", "type": "uint256" },
+          { "internalType": "bool", "name": "isActive", "type": "bool" },
+          { "internalType": "bool", "name": "isRestricted", "type": "bool" }
+        ],
+        "internalType": "struct IDiscountRegistry.Discount[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "discountIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "getDiscountNames",
+    "outputs": [{ "internalType": "string[]", "name": "", "type": "string[]" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" }
+    ],
+    "name": "getOrgDiscountIds",
+    "outputs": [
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "passId", "type": "uint256" }
+    ],
+    "name": "getPassDiscountIds",
+    "outputs": [
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "address", "name": "passOwner", "type": "address" }
+    ],
+    "name": "getRestrictedAccess",
+    "outputs": [
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "discountIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "getTotalDiscount",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "passId", "type": "uint256" }
+    ],
+    "name": "getTotalPassDiscount",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "passId", "type": "uint256" },
+      { "internalType": "uint256", "name": "discountId", "type": "uint256" }
+    ],
+    "name": "hasPassDiscount",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "address", "name": "passOwner", "type": "address" },
+      { "internalType": "uint256", "name": "accessId", "type": "uint256" }
+    ],
+    "name": "hasRestrictedAccess",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "uint256", "name": "passId", "type": "uint256" },
+      { "internalType": "address", "name": "minter", "type": "address" },
+      {
+        "internalType": "uint256[]",
+        "name": "discountIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "mintDiscountsToPass",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+      { "internalType": "uint256[]", "name": "passIds", "type": "uint256[]" },
+      {
+        "internalType": "uint256[]",
+        "name": "discountIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "mintDiscountsToPassByOrg",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "passId", "type": "uint256" },
+      {
+        "internalType": "uint256[]",
+        "name": "discountIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "mintDiscountsToPassByOwner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "registry",
+    "outputs": [
+      {
+        "internalType": "contract IContractRegistry",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "discountId", "type": "uint256" },
+      { "internalType": "uint256", "name": "discount", "type": "uint256" }
+    ],
+    "name": "setDiscount",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "discountId", "type": "uint256" },
+      { "internalType": "bool", "name": "isActive", "type": "bool" }
+    ],
+    "name": "setDiscountActive",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "discountId", "type": "uint256" },
+      { "internalType": "uint256", "name": "maxMints", "type": "uint256" }
+    ],
+    "name": "setDiscountMaxMints",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "discountId", "type": "uint256" },
+      { "internalType": "string", "name": "name", "type": "string" }
+    ],
+    "name": "setDiscountName",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "discountId", "type": "uint256" },
+      { "internalType": "bool", "name": "isRestricted", "type": "bool" }
+    ],
+    "name": "setDiscountRestricted",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "discountId", "type": "uint256" },
+      {
+        "internalType": "address[]",
+        "name": "passOwners",
+        "type": "address[]"
+      },
+      { "internalType": "bool[]", "name": "restricted", "type": "bool[]" }
+    ],
+    "name": "setRestrictedAccess",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }
+    ],
+    "name": "supportsInterface",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalDiscounts",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
