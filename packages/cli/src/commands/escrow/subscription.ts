@@ -15,6 +15,40 @@ export default function registerSubscriptionCommands(program: Command) {
     .command('subscription')
     .description('Manage subscriptions');
 
+  // Get subscription
+  subscription
+    .command('getSub')
+    .description('Get a subscription')
+    .argument('<productPassId>', 'The product pass id')
+    .argument('<productId>', 'The product id')
+    .action(async (productPassId, productId) => {
+      const result = await subEscrow.getSubscription(productPassId, productId);
+
+      const parseStatus = (status: bigint) => {
+        switch (status) {
+          case 0n:
+            return 'Active';
+          case 1n:
+            return 'Cancelled';
+          case 2n:
+            return 'Past Due';
+          case 3n:
+            return 'Paused';
+          default:
+            return 'Unknown';
+        }
+      };
+
+      console.log(`\nOrg ID: ${result[0][0]}`);
+      console.log(`Pricing ID: ${result[0][1]}`);
+      console.log(`Start Date: ${result[0][2]}`);
+      console.log(`End Date: ${result[0][3]}`);
+      console.log(`Time Remaining: ${result[0][4]}`);
+      console.log(`Is Cancelled: ${result[0][5]}`);
+      console.log(`Is Paused: ${result[0][6]}`);
+      console.log(`Status: ${parseStatus(result[1])}`);
+    });
+
   // Owner can change pricing
 
   subscription
