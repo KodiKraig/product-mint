@@ -51,20 +51,15 @@ contract RenewalProcessor is
      */
 
     function getAllPassRenewalStatusBatch(
-        uint256 _startPassId,
-        uint256 _endPassId
-    )
-        external
-        view
-        validPassIndex(_startPassId, _endPassId)
-        returns (PassRenewalStatus[][] memory passRenewalStatus)
-    {
-        passRenewalStatus = new PassRenewalStatus[][](
-            _endPassId - _startPassId + 1
-        );
+        uint256[] memory _passIds
+    ) external view returns (PassRenewalStatus[][] memory passRenewalStatus) {
+        _checkPassIdsProvided(_passIds);
 
-        for (uint256 i = _startPassId; i <= _endPassId; i++) {
-            passRenewalStatus[i - _startPassId] = _getAllPassRenewalStatus(i);
+        passRenewalStatus = new PassRenewalStatus[][](_passIds.length);
+
+        for (uint256 i = 0; i < _passIds.length; i++) {
+            _checkPassId(_passIds[i]);
+            passRenewalStatus[i] = _getAllPassRenewalStatus(_passIds[i]);
         }
     }
 
@@ -245,6 +240,10 @@ contract RenewalProcessor is
                 IPurchaseManager(registry.purchaseManager()).passSupply(),
             "Pass ID must be less than total supply"
         );
+    }
+
+    function _checkPassIdsProvided(uint256[] memory _passIds) internal pure {
+        require(_passIds.length > 0, "No pass IDs provided");
     }
 
     /**

@@ -96,7 +96,7 @@ describe('RenewalProcessor', () => {
       const { renewalProcessor } = await loadRenewalProcessor();
 
       const interfaceId = calculateInterfaceId([
-        'getAllPassRenewalStatusBatch(uint256,uint256)',
+        'getAllPassRenewalStatusBatch(uint256[])',
         'getAllPassRenewalStatus(uint256)',
         'getSingleProductRenewalStatus(uint256,uint256)',
         'processAllPassRenewal(uint256)',
@@ -128,20 +128,22 @@ describe('RenewalProcessor', () => {
       await expect(
         renewalProcessor
           .connect(otherAccount)
-          .getAllPassRenewalStatusBatch(2, 1),
-      ).to.be.revertedWith('Invalid index');
-
-      await expect(
-        renewalProcessor
-          .connect(otherAccount)
-          .getAllPassRenewalStatusBatch(1, 2),
+          .getAllPassRenewalStatusBatch([1, 2]),
       ).to.be.revertedWith('Pass ID must be less than total supply');
 
       await expect(
         renewalProcessor
           .connect(otherAccount)
-          .getAllPassRenewalStatusBatch(0, 1),
+          .getAllPassRenewalStatusBatch([0, 1]),
       ).to.be.revertedWith('Pass ID must be greater than 0');
+    });
+
+    it('should revert if no pass ids are provided', async () => {
+      const { renewalProcessor, otherAccount } = await loadRenewalProcessor();
+
+      await expect(
+        renewalProcessor.connect(otherAccount).getAllPassRenewalStatusBatch([]),
+      ).to.be.revertedWith('No pass IDs provided');
     });
   });
 
@@ -554,8 +556,7 @@ describe('RenewalProcessor', () => {
 
       // Assert renewal status - NOT READY
       let renewalStatuses = await renewalProcessor.getAllPassRenewalStatusBatch(
-        1,
-        5,
+        Array.from({ length: 5 }, (_, i) => i + 1),
       );
 
       expect(renewalStatuses.length).to.equal(5);
@@ -615,8 +616,7 @@ describe('RenewalProcessor', () => {
 
       // Assert renewal status
       renewalStatuses = await renewalProcessor.getAllPassRenewalStatusBatch(
-        1,
-        5,
+        Array.from({ length: 5 }, (_, i) => i + 1),
       );
 
       expect(renewalStatuses.length).to.equal(5);
@@ -704,8 +704,7 @@ describe('RenewalProcessor', () => {
 
       // Assert renewal status
       renewalStatuses = await renewalProcessor.getAllPassRenewalStatusBatch(
-        1,
-        5,
+        Array.from({ length: 5 }, (_, i) => i + 1),
       );
 
       expect(renewalStatuses.length).to.equal(5);

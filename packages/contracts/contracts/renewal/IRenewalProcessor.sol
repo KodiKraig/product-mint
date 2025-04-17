@@ -62,13 +62,11 @@ interface IRenewalProcessor {
 
     /**
      * @notice Get the renewal status for all products on a batch of passes.
-     * @param _startPassId The start product pass ID of the batch.
-     * @param _endPassId The end product pass ID of the batch.
+     * @param _passIds List of product pass IDs to get the renewal status for.
      * @return The renewal status for all products on each pass.
      */
     function getAllPassRenewalStatusBatch(
-        uint256 _startPassId,
-        uint256 _endPassId
+        uint256[] memory _passIds
     ) external view returns (PassRenewalStatus[][] memory);
 
     /**
