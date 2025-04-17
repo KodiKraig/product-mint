@@ -83,6 +83,8 @@ const registerEventsCommand = (program: Command) => {
             return 'Cancelled';
           case 4n:
             return 'Paused';
+          case 5n:
+            return 'Ready';
           default:
             return 'Unknown';
         }
