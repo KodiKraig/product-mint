@@ -4,6 +4,7 @@ import { loadWithPurchasedFlatRateSubscription } from '../manager/helpers';
 import { RenewalProcessor } from '../../typechain-types';
 import { time } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { getCycleDuration } from '../../utils/cycle-duration';
+import calculateInterfaceId from '../../utils/calculate-interface-id';
 
 async function assertNoRenewalEventEmitted(renewalProcessor: RenewalProcessor) {
   const events = await renewalProcessor.queryFilter(
@@ -90,15 +91,134 @@ describe('RenewalProcessor', () => {
     });
   });
 
-  describe('Process Single Product Renewal', () => {
-    it('should revert if subscription does not exist', async () => {
+  describe('Supports Interface', () => {
+    it('should support the IRenewalProcessor interface', async () => {
+      const { renewalProcessor } = await loadRenewalProcessor();
+
+      const interfaceId = calculateInterfaceId([
+        'getAllPassRenewalStatusBatch(uint256,uint256)',
+        'getAllPassRenewalStatus(uint256)',
+        'getSingleProductRenewalStatus(uint256,uint256)',
+        'processAllPassRenewal(uint256)',
+        'processAllPassRenewalBatch(uint256,uint256)',
+        'processSingleProductRenewal(uint256,uint256)',
+      ]);
+
+      expect(await renewalProcessor.supportsInterface(interfaceId)).to.be.true;
+    });
+
+    it('should support the IERC165 interface', async () => {
+      const { renewalProcessor } = await loadRenewalProcessor();
+
+      expect(await renewalProcessor.supportsInterface('0x01ffc9a7')).to.be.true;
+    });
+
+    it('should not support other interfaces', async () => {
+      const { renewalProcessor } = await loadRenewalProcessor();
+
+      expect(await renewalProcessor.supportsInterface('0xffffffff')).to.be
+        .false;
+    });
+  });
+
+  describe('Get All Pass Renewal Status Batch', () => {
+    it('should revert for invalid pass indexes', async () => {
       const { renewalProcessor, otherAccount } = await loadRenewalProcessor();
 
       await expect(
         renewalProcessor
           .connect(otherAccount)
-          .processSingleProductRenewal(10, 10),
-      ).to.be.revertedWith('Subscription does not exist');
+          .getAllPassRenewalStatusBatch(2, 1),
+      ).to.be.revertedWith('Invalid index');
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .getAllPassRenewalStatusBatch(1, 2),
+      ).to.be.revertedWith('Pass ID must be less than total supply');
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .getAllPassRenewalStatusBatch(0, 1),
+      ).to.be.revertedWith('Pass ID must be greater than 0');
+    });
+  });
+
+  describe('Get All Pass Renewal Status', () => {
+    it('should revert for invalid pass id', async () => {
+      const { renewalProcessor, otherAccount } = await loadRenewalProcessor();
+
+      await expect(
+        renewalProcessor.connect(otherAccount).getAllPassRenewalStatus(0),
+      ).to.be.revertedWith('Pass ID must be greater than 0');
+
+      await expect(
+        renewalProcessor.connect(otherAccount).getAllPassRenewalStatus(10),
+      ).to.be.revertedWith('Pass ID must be less than total supply');
+    });
+
+    it('should return the renewal status for all products on the pass', async () => {
+      const { renewalProcessor, otherAccount } = await loadRenewalProcessor();
+
+      const renewalStatuses = await renewalProcessor
+        .connect(otherAccount)
+        .getAllPassRenewalStatus(1);
+
+      expect(renewalStatuses).to.have.lengthOf(1);
+      expect(renewalStatuses[0].passId).to.equal(1);
+      expect(renewalStatuses[0].productId).to.equal(1);
+      expect(renewalStatuses[0].renewalStatus).to.equal(2);
+      expect(renewalStatuses[0].subStatus).to.equal(0);
+    });
+  });
+
+  describe('Get Single Product Renewal Status', () => {
+    it('should revert for invalid pass id', async () => {
+      const { renewalProcessor, otherAccount } = await loadRenewalProcessor();
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .getSingleProductRenewalStatus(0, 1),
+      ).to.be.revertedWith('Pass ID must be greater than 0');
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .getSingleProductRenewalStatus(10, 1),
+      ).to.be.revertedWith('Pass ID must be less than total supply');
+    });
+
+    it('should return the renewal status for the product on the pass', async () => {
+      const { renewalProcessor, otherAccount } = await loadRenewalProcessor();
+
+      const renewalStatus = await renewalProcessor
+        .connect(otherAccount)
+        .getSingleProductRenewalStatus(1, 1);
+
+      expect(renewalStatus.passId).to.equal(1);
+      expect(renewalStatus.productId).to.equal(1);
+      expect(renewalStatus.renewalStatus).to.equal(2);
+      expect(renewalStatus.subStatus).to.equal(0);
+    });
+  });
+
+  describe('Process Single Product Renewal', () => {
+    it('should revert for invalid pass index', async () => {
+      const { renewalProcessor, otherAccount } = await loadRenewalProcessor();
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .processSingleProductRenewal(0, 1),
+      ).to.be.revertedWith('Pass ID must be greater than 0');
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .processSingleProductRenewal(10, 1),
+      ).to.be.revertedWith('Pass ID must be less than total supply');
     });
 
     it('should not emit an event if the renewal is not ready', async () => {
@@ -240,6 +360,18 @@ describe('RenewalProcessor', () => {
   });
 
   describe('Process All Pass Renewal', () => {
+    it('should revert for invalid pass id', async () => {
+      const { renewalProcessor, otherAccount } = await loadRenewalProcessor();
+
+      await expect(
+        renewalProcessor.connect(otherAccount).processAllPassRenewal(0),
+      ).to.be.revertedWith('Pass ID must be greater than 0');
+
+      await expect(
+        renewalProcessor.connect(otherAccount).processAllPassRenewal(10),
+      ).to.be.revertedWith('Pass ID must be less than total supply');
+    });
+
     it('should ignore a product pass that does not have any subscriptions', async () => {
       const { renewalProcessor, owner } =
         await loadRenewalProcessorWithOneTimePurchasedProduct();
@@ -253,6 +385,22 @@ describe('RenewalProcessor', () => {
   });
 
   describe('Process All Pass Renewal Batch', () => {
+    it('should revert for invalid pass indexes', async () => {
+      const { renewalProcessor, otherAccount } = await loadRenewalProcessor();
+
+      await expect(
+        renewalProcessor.connect(otherAccount).processAllPassRenewalBatch(2, 1),
+      ).to.be.revertedWith('Invalid index');
+
+      await expect(
+        renewalProcessor.connect(otherAccount).processAllPassRenewalBatch(1, 2),
+      ).to.be.revertedWith('Pass ID must be less than total supply');
+
+      await expect(
+        renewalProcessor.connect(otherAccount).processAllPassRenewalBatch(0, 1),
+      ).to.be.revertedWith('Pass ID must be greater than 0');
+    });
+
     it('should ignore a product pass that does not have any subscriptions', async () => {
       const { renewalProcessor, owner } =
         await loadRenewalProcessorWithOneTimePurchasedProduct();
@@ -401,12 +549,131 @@ describe('RenewalProcessor', () => {
         .connect(otherAccount4)
         .pauseSubscription(5, 3, true);
 
+      // Assert total passes is 5
+      expect(await purchaseManager.passSupply()).to.equal(5);
+
+      // Assert renewal status - NOT READY
+      let renewalStatuses = await renewalProcessor.getAllPassRenewalStatusBatch(
+        1,
+        5,
+      );
+
+      expect(renewalStatuses.length).to.equal(5);
+
+      // Assert renewal status for pass 1
+      expect(renewalStatuses[0].length).to.equal(1);
+      expect(renewalStatuses[0][0].subscription.orgId).to.equal(1);
+      expect(renewalStatuses[0][0].passId).to.equal(1);
+      expect(renewalStatuses[0][0].productId).to.equal(1);
+      expect(renewalStatuses[0][0].renewalStatus).to.equal(2);
+      expect(renewalStatuses[0][0].subStatus).to.equal(0);
+
+      // Assert renewal status for pass 2
+      expect(renewalStatuses[1].length).to.equal(0);
+
+      // Assert renewal status for pass 3
+      expect(renewalStatuses[2].length).to.equal(2);
+      expect(renewalStatuses[2][0].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[2][0].passId).to.equal(3);
+      expect(renewalStatuses[2][0].productId).to.equal(3);
+      expect(renewalStatuses[2][0].renewalStatus).to.equal(2);
+      expect(renewalStatuses[2][0].subStatus).to.equal(0);
+      expect(renewalStatuses[2][1].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[2][1].passId).to.equal(3);
+      expect(renewalStatuses[2][1].productId).to.equal(4);
+      expect(renewalStatuses[2][1].renewalStatus).to.equal(2);
+      expect(renewalStatuses[2][1].subStatus).to.equal(0);
+
+      // Assert renewal status for pass 4
+      expect(renewalStatuses[3].length).to.equal(2);
+      expect(renewalStatuses[3][0].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[3][0].passId).to.equal(4);
+      expect(renewalStatuses[3][0].productId).to.equal(3);
+      expect(renewalStatuses[3][0].renewalStatus).to.equal(2);
+      expect(renewalStatuses[3][0].subStatus).to.equal(1);
+      expect(renewalStatuses[3][1].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[3][1].passId).to.equal(4);
+      expect(renewalStatuses[3][1].productId).to.equal(4);
+      expect(renewalStatuses[3][1].renewalStatus).to.equal(2);
+      expect(renewalStatuses[3][1].subStatus).to.equal(0);
+
+      // Assert renewal status for pass 5
+      expect(renewalStatuses[4].length).to.equal(2);
+      expect(renewalStatuses[4][0].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[4][0].passId).to.equal(5);
+      expect(renewalStatuses[4][0].productId).to.equal(3);
+      expect(renewalStatuses[4][0].renewalStatus).to.equal(2);
+      expect(renewalStatuses[4][0].subStatus).to.equal(3);
+      expect(renewalStatuses[4][1].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[4][1].passId).to.equal(5);
+      expect(renewalStatuses[4][1].productId).to.equal(4);
+      expect(renewalStatuses[4][1].renewalStatus).to.equal(2);
+      expect(renewalStatuses[4][1].subStatus).to.equal(0);
+
       // Advance time to past due for weekly flat rate subscription
       await time.increaseTo((await time.latest()) + getCycleDuration(2));
 
+      // Assert renewal status
+      renewalStatuses = await renewalProcessor.getAllPassRenewalStatusBatch(
+        1,
+        5,
+      );
+
+      expect(renewalStatuses.length).to.equal(5);
+
+      // Assert renewal status for pass 1
+      expect(renewalStatuses[0].length).to.equal(1);
+      expect(renewalStatuses[0][0].subscription.orgId).to.equal(1);
+      expect(renewalStatuses[0][0].passId).to.equal(1);
+      expect(renewalStatuses[0][0].productId).to.equal(1);
+      expect(renewalStatuses[0][0].renewalStatus).to.equal(5);
+      expect(renewalStatuses[0][0].subStatus).to.equal(2);
+
+      // Assert renewal status for pass 2
+      expect(renewalStatuses[1].length).to.equal(0);
+
+      // Assert renewal status for pass 3
+      expect(renewalStatuses[2].length).to.equal(2);
+      expect(renewalStatuses[2][0].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[2][0].passId).to.equal(3);
+      expect(renewalStatuses[2][0].productId).to.equal(3);
+      expect(renewalStatuses[2][0].renewalStatus).to.equal(5);
+      expect(renewalStatuses[2][0].subStatus).to.equal(2);
+      expect(renewalStatuses[2][1].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[2][1].passId).to.equal(3);
+      expect(renewalStatuses[2][1].productId).to.equal(4);
+      expect(renewalStatuses[2][1].renewalStatus).to.equal(5);
+      expect(renewalStatuses[2][1].subStatus).to.equal(2);
+
+      // Assert renewal status for pass 4
+      expect(renewalStatuses[3].length).to.equal(2);
+      expect(renewalStatuses[3][0].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[3][0].passId).to.equal(4);
+      expect(renewalStatuses[3][0].productId).to.equal(3);
+      expect(renewalStatuses[3][0].renewalStatus).to.equal(3);
+      expect(renewalStatuses[3][0].subStatus).to.equal(2);
+      expect(renewalStatuses[3][1].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[3][1].passId).to.equal(4);
+      expect(renewalStatuses[3][1].productId).to.equal(4);
+      expect(renewalStatuses[3][1].renewalStatus).to.equal(2);
+      expect(renewalStatuses[3][1].subStatus).to.equal(0);
+
+      // Assert renewal status for pass 5
+      expect(renewalStatuses[4].length).to.equal(2);
+      expect(renewalStatuses[4][0].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[4][0].passId).to.equal(5);
+      expect(renewalStatuses[4][0].productId).to.equal(3);
+      expect(renewalStatuses[4][0].renewalStatus).to.equal(4);
+      expect(renewalStatuses[4][0].subStatus).to.equal(3);
+      expect(renewalStatuses[4][1].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[4][1].passId).to.equal(5);
+      expect(renewalStatuses[4][1].productId).to.equal(4);
+      expect(renewalStatuses[4][1].renewalStatus).to.equal(5);
+      expect(renewalStatuses[4][1].subStatus).to.equal(2);
+
       // TEST -> Process the renewals
       await expect(
-        renewalProcessor.connect(owner).processAllPassRenewalBatch(1, 6),
+        renewalProcessor.connect(owner).processAllPassRenewalBatch(1, 5),
       )
         .to.emit(renewalProcessor, 'RenewalProcessed')
         .withArgs(1, 1, 1, 0)
@@ -434,6 +701,64 @@ describe('RenewalProcessor', () => {
       expect(await mintToken.balanceOf(otherAccount4)).to.equal(
         ethers.parseUnits('98', 6),
       );
+
+      // Assert renewal status
+      renewalStatuses = await renewalProcessor.getAllPassRenewalStatusBatch(
+        1,
+        5,
+      );
+
+      expect(renewalStatuses.length).to.equal(5);
+
+      // Assert renewal status for pass 1
+      expect(renewalStatuses[0].length).to.equal(1);
+      expect(renewalStatuses[0][0].subscription.orgId).to.equal(1);
+      expect(renewalStatuses[0][0].passId).to.equal(1);
+      expect(renewalStatuses[0][0].productId).to.equal(1);
+      expect(renewalStatuses[0][0].renewalStatus).to.equal(2);
+      expect(renewalStatuses[0][0].subStatus).to.equal(0);
+
+      // Assert renewal status for pass 2
+      expect(renewalStatuses[1].length).to.equal(0);
+
+      // Assert renewal status for pass 3
+      expect(renewalStatuses[2].length).to.equal(2);
+      expect(renewalStatuses[2][0].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[2][0].passId).to.equal(3);
+      expect(renewalStatuses[2][0].productId).to.equal(3);
+      expect(renewalStatuses[2][0].renewalStatus).to.equal(2);
+      expect(renewalStatuses[2][0].subStatus).to.equal(0);
+      expect(renewalStatuses[2][1].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[2][1].passId).to.equal(3);
+      expect(renewalStatuses[2][1].productId).to.equal(4);
+      expect(renewalStatuses[2][1].renewalStatus).to.equal(2);
+      expect(renewalStatuses[2][1].subStatus).to.equal(0);
+
+      // Assert renewal status for pass 4
+      expect(renewalStatuses[3].length).to.equal(2);
+      expect(renewalStatuses[3][0].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[3][0].passId).to.equal(4);
+      expect(renewalStatuses[3][0].productId).to.equal(3);
+      expect(renewalStatuses[3][0].renewalStatus).to.equal(3);
+      expect(renewalStatuses[3][0].subStatus).to.equal(2);
+      expect(renewalStatuses[3][1].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[3][1].passId).to.equal(4);
+      expect(renewalStatuses[3][1].productId).to.equal(4);
+      expect(renewalStatuses[3][1].renewalStatus).to.equal(2);
+      expect(renewalStatuses[3][1].subStatus).to.equal(0);
+
+      // Assert renewal status for pass 5
+      expect(renewalStatuses[4].length).to.equal(2);
+      expect(renewalStatuses[4][0].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[4][0].passId).to.equal(5);
+      expect(renewalStatuses[4][0].productId).to.equal(3);
+      expect(renewalStatuses[4][0].renewalStatus).to.equal(4);
+      expect(renewalStatuses[4][0].subStatus).to.equal(3);
+      expect(renewalStatuses[4][1].subscription.orgId).to.equal(3);
+      expect(renewalStatuses[4][1].passId).to.equal(5);
+      expect(renewalStatuses[4][1].productId).to.equal(4);
+      expect(renewalStatuses[4][1].renewalStatus).to.equal(5);
+      expect(renewalStatuses[4][1].subStatus).to.equal(2);
     });
   });
 });

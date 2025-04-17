@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.24;
 
+import {ISubscriptionEscrow} from "../escrow/ISubscriptionEscrow.sol";
+
 interface IRenewalProcessor {
     /**
      * @notice The status of a subscription renewal.
@@ -11,13 +13,15 @@ interface IRenewalProcessor {
      * @dev NOT_READY: The renewal is not ready to be processed.
      * @dev CANCELLED: The subscription was cancelled.
      * @dev PAUSED: The subscription was paused.
+     * @dev READY: The renewal is ready to be processed.
      */
     enum RenewalStatus {
         SUCCESS,
         FAILED,
         NOT_READY,
         CANCELLED,
-        PAUSED
+        PAUSED,
+        READY
     }
 
     /**
@@ -36,10 +40,60 @@ interface IRenewalProcessor {
     );
 
     /**
-     * @notice Processes a single subscription renewal for all products on a pass.
-     * @param _passId The product pass ID of the subscription.
+     * @notice The status of a subscription renewal for a specific product.
+     *
+     * @param passId The product pass ID of the subscription.
+     * @param productId The product ID of the subscription on the pass.
+     * @param subscription The subscription details.
+     * @param subStatus The status of the subscription.
+     * @param renewalStatus The status of the renewal process.
      */
-    function processAllPassRenewal(uint256 _passId) external;
+    struct PassRenewalStatus {
+        uint256 passId;
+        uint256 productId;
+        ISubscriptionEscrow.Subscription subscription;
+        ISubscriptionEscrow.SubscriptionStatus subStatus;
+        RenewalStatus renewalStatus;
+    }
+
+    /**
+     * View Renewal Status
+     */
+
+    /**
+     * @notice Get the renewal status for all products on a batch of passes.
+     * @param _startPassId The start product pass ID of the batch.
+     * @param _endPassId The end product pass ID of the batch.
+     * @return The renewal status for all products on each pass.
+     */
+    function getAllPassRenewalStatusBatch(
+        uint256 _startPassId,
+        uint256 _endPassId
+    ) external view returns (PassRenewalStatus[][] memory);
+
+    /**
+     * @notice Get the renewal status for all products on a pass.
+     * @param _passId The product pass ID of the subscription.
+     * @return The renewal status for all products on the pass.
+     */
+    function getAllPassRenewalStatus(
+        uint256 _passId
+    ) external view returns (PassRenewalStatus[] memory);
+
+    /**
+     * @notice Get the renewal status for a specific product on a pass.
+     * @param _passId The product pass ID of the subscription.
+     * @param _productId The product ID of the subscription on the pass.
+     * @return The renewal status for the product on the pass.
+     */
+    function getSingleProductRenewalStatus(
+        uint256 _passId,
+        uint256 _productId
+    ) external view returns (PassRenewalStatus memory);
+
+    /**
+     * Renewal Processing
+     */
 
     /**
      * @notice Processes a batch of subscription renewals for all products on each pass.
@@ -50,6 +104,12 @@ interface IRenewalProcessor {
         uint256 _startPassId,
         uint256 _endPassId
     ) external;
+
+    /**
+     * @notice Processes subscription renewals for all products on a pass.
+     * @param _passId The product pass ID of the subscription.
+     */
+    function processAllPassRenewal(uint256 _passId) external;
 
     /**
      * @notice Processes a single subscription renewal for a specific product.
