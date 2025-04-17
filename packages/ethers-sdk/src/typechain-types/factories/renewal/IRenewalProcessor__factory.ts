@@ -48,6 +48,265 @@ const _abi = [
         type: "uint256",
       },
     ],
+    name: "getAllPassRenewalStatus",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "passId",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "productId",
+            type: "uint256",
+          },
+          {
+            components: [
+              {
+                internalType: "uint256",
+                name: "orgId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "pricingId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "startDate",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "endDate",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "timeRemaining",
+                type: "uint256",
+              },
+              {
+                internalType: "bool",
+                name: "isCancelled",
+                type: "bool",
+              },
+              {
+                internalType: "bool",
+                name: "isPaused",
+                type: "bool",
+              },
+            ],
+            internalType: "struct ISubscriptionEscrow.Subscription",
+            name: "subscription",
+            type: "tuple",
+          },
+          {
+            internalType: "enum ISubscriptionEscrow.SubscriptionStatus",
+            name: "subStatus",
+            type: "uint8",
+          },
+          {
+            internalType: "enum IRenewalProcessor.RenewalStatus",
+            name: "renewalStatus",
+            type: "uint8",
+          },
+        ],
+        internalType: "struct IRenewalProcessor.PassRenewalStatus[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_startPassId",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_endPassId",
+        type: "uint256",
+      },
+    ],
+    name: "getAllPassRenewalStatusBatch",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "passId",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "productId",
+            type: "uint256",
+          },
+          {
+            components: [
+              {
+                internalType: "uint256",
+                name: "orgId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "pricingId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "startDate",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "endDate",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "timeRemaining",
+                type: "uint256",
+              },
+              {
+                internalType: "bool",
+                name: "isCancelled",
+                type: "bool",
+              },
+              {
+                internalType: "bool",
+                name: "isPaused",
+                type: "bool",
+              },
+            ],
+            internalType: "struct ISubscriptionEscrow.Subscription",
+            name: "subscription",
+            type: "tuple",
+          },
+          {
+            internalType: "enum ISubscriptionEscrow.SubscriptionStatus",
+            name: "subStatus",
+            type: "uint8",
+          },
+          {
+            internalType: "enum IRenewalProcessor.RenewalStatus",
+            name: "renewalStatus",
+            type: "uint8",
+          },
+        ],
+        internalType: "struct IRenewalProcessor.PassRenewalStatus[][]",
+        name: "",
+        type: "tuple[][]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_passId",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_productId",
+        type: "uint256",
+      },
+    ],
+    name: "getSingleProductRenewalStatus",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "passId",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "productId",
+            type: "uint256",
+          },
+          {
+            components: [
+              {
+                internalType: "uint256",
+                name: "orgId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "pricingId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "startDate",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "endDate",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "timeRemaining",
+                type: "uint256",
+              },
+              {
+                internalType: "bool",
+                name: "isCancelled",
+                type: "bool",
+              },
+              {
+                internalType: "bool",
+                name: "isPaused",
+                type: "bool",
+              },
+            ],
+            internalType: "struct ISubscriptionEscrow.Subscription",
+            name: "subscription",
+            type: "tuple",
+          },
+          {
+            internalType: "enum ISubscriptionEscrow.SubscriptionStatus",
+            name: "subStatus",
+            type: "uint8",
+          },
+          {
+            internalType: "enum IRenewalProcessor.RenewalStatus",
+            name: "renewalStatus",
+            type: "uint8",
+          },
+        ],
+        internalType: "struct IRenewalProcessor.PassRenewalStatus",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_passId",
+        type: "uint256",
+      },
+    ],
     name: "processAllPassRenewal",
     outputs: [],
     stateMutability: "nonpayable",
