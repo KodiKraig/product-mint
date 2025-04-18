@@ -82,9 +82,11 @@ export interface IRenewalProcessorInterface extends Interface {
       | "getAllPassRenewalStatus"
       | "getAllPassRenewalStatusBatch"
       | "getSingleProductRenewalStatus"
+      | "getSingleProductRenewalStatusBatch"
       | "processAllPassRenewal"
       | "processAllPassRenewalBatch"
       | "processSingleProductRenewal"
+      | "processSingleProductRenewalBatch"
   ): FunctionFragment;
 
   getEvent(nameOrSignatureOrTopic: "RenewalProcessed"): EventFragment;
@@ -95,11 +97,15 @@ export interface IRenewalProcessorInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getAllPassRenewalStatusBatch",
-    values: [BigNumberish, BigNumberish]
+    values: [BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "getSingleProductRenewalStatus",
     values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getSingleProductRenewalStatusBatch",
+    values: [BigNumberish[], BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "processAllPassRenewal",
@@ -107,11 +113,15 @@ export interface IRenewalProcessorInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "processAllPassRenewalBatch",
-    values: [BigNumberish, BigNumberish]
+    values: [BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "processSingleProductRenewal",
     values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "processSingleProductRenewalBatch",
+    values: [BigNumberish[], BigNumberish[]]
   ): string;
 
   decodeFunctionResult(
@@ -127,6 +137,10 @@ export interface IRenewalProcessorInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getSingleProductRenewalStatusBatch",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "processAllPassRenewal",
     data: BytesLike
   ): Result;
@@ -136,6 +150,10 @@ export interface IRenewalProcessorInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "processSingleProductRenewal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "processSingleProductRenewalBatch",
     data: BytesLike
   ): Result;
 }
@@ -215,7 +233,7 @@ export interface IRenewalProcessor extends BaseContract {
   >;
 
   getAllPassRenewalStatusBatch: TypedContractMethod<
-    [_startPassId: BigNumberish, _endPassId: BigNumberish],
+    [_passIds: BigNumberish[]],
     [IRenewalProcessor.PassRenewalStatusStructOutput[][]],
     "view"
   >;
@@ -226,6 +244,12 @@ export interface IRenewalProcessor extends BaseContract {
     "view"
   >;
 
+  getSingleProductRenewalStatusBatch: TypedContractMethod<
+    [_passIds: BigNumberish[], _productIds: BigNumberish[]],
+    [IRenewalProcessor.PassRenewalStatusStructOutput[]],
+    "view"
+  >;
+
   processAllPassRenewal: TypedContractMethod<
     [_passId: BigNumberish],
     [void],
@@ -233,13 +257,19 @@ export interface IRenewalProcessor extends BaseContract {
   >;
 
   processAllPassRenewalBatch: TypedContractMethod<
-    [_startPassId: BigNumberish, _endPassId: BigNumberish],
+    [_passIds: BigNumberish[]],
     [void],
     "nonpayable"
   >;
 
   processSingleProductRenewal: TypedContractMethod<
     [_passId: BigNumberish, _productId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  processSingleProductRenewalBatch: TypedContractMethod<
+    [_passIds: BigNumberish[], _productIds: BigNumberish[]],
     [void],
     "nonpayable"
   >;
@@ -258,7 +288,7 @@ export interface IRenewalProcessor extends BaseContract {
   getFunction(
     nameOrSignature: "getAllPassRenewalStatusBatch"
   ): TypedContractMethod<
-    [_startPassId: BigNumberish, _endPassId: BigNumberish],
+    [_passIds: BigNumberish[]],
     [IRenewalProcessor.PassRenewalStatusStructOutput[][]],
     "view"
   >;
@@ -270,19 +300,29 @@ export interface IRenewalProcessor extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "getSingleProductRenewalStatusBatch"
+  ): TypedContractMethod<
+    [_passIds: BigNumberish[], _productIds: BigNumberish[]],
+    [IRenewalProcessor.PassRenewalStatusStructOutput[]],
+    "view"
+  >;
+  getFunction(
     nameOrSignature: "processAllPassRenewal"
   ): TypedContractMethod<[_passId: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "processAllPassRenewalBatch"
-  ): TypedContractMethod<
-    [_startPassId: BigNumberish, _endPassId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  ): TypedContractMethod<[_passIds: BigNumberish[]], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "processSingleProductRenewal"
   ): TypedContractMethod<
     [_passId: BigNumberish, _productId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "processSingleProductRenewalBatch"
+  ): TypedContractMethod<
+    [_passIds: BigNumberish[], _productIds: BigNumberish[]],
     [void],
     "nonpayable"
   >;

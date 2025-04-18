@@ -126,14 +126,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "_startPassId",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_endPassId",
-        type: "uint256",
+        internalType: "uint256[]",
+        name: "_passIds",
+        type: "uint256[]",
       },
     ],
     name: "getAllPassRenewalStatusBatch",
@@ -302,6 +297,94 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256[]",
+        name: "_passIds",
+        type: "uint256[]",
+      },
+      {
+        internalType: "uint256[]",
+        name: "_productIds",
+        type: "uint256[]",
+      },
+    ],
+    name: "getSingleProductRenewalStatusBatch",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "passId",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "productId",
+            type: "uint256",
+          },
+          {
+            components: [
+              {
+                internalType: "uint256",
+                name: "orgId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "pricingId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "startDate",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "endDate",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "timeRemaining",
+                type: "uint256",
+              },
+              {
+                internalType: "bool",
+                name: "isCancelled",
+                type: "bool",
+              },
+              {
+                internalType: "bool",
+                name: "isPaused",
+                type: "bool",
+              },
+            ],
+            internalType: "struct ISubscriptionEscrow.Subscription",
+            name: "subscription",
+            type: "tuple",
+          },
+          {
+            internalType: "enum ISubscriptionEscrow.SubscriptionStatus",
+            name: "subStatus",
+            type: "uint8",
+          },
+          {
+            internalType: "enum IRenewalProcessor.RenewalStatus",
+            name: "renewalStatus",
+            type: "uint8",
+          },
+        ],
+        internalType: "struct IRenewalProcessor.PassRenewalStatus[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "_passId",
         type: "uint256",
@@ -315,14 +398,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "_startPassId",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_endPassId",
-        type: "uint256",
+        internalType: "uint256[]",
+        name: "_passIds",
+        type: "uint256[]",
       },
     ],
     name: "processAllPassRenewalBatch",
@@ -344,6 +422,24 @@ const _abi = [
       },
     ],
     name: "processSingleProductRenewal",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256[]",
+        name: "_passIds",
+        type: "uint256[]",
+      },
+      {
+        internalType: "uint256[]",
+        name: "_productIds",
+        type: "uint256[]",
+      },
+    ],
+    name: "processSingleProductRenewalBatch",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
