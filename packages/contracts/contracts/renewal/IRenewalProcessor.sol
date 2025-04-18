@@ -90,6 +90,17 @@ interface IRenewalProcessor {
     ) external view returns (PassRenewalStatus memory);
 
     /**
+     * @notice Get the renewal status for a batch of products on a batch of passes.
+     * @param _passIds List of product pass IDs to get the renewal status for.
+     * @param _productIds List of product IDs to get the renewal status for.
+     * @return The renewal status for the products on the passes.
+     */
+    function getSingleProductRenewalStatusBatch(
+        uint256[] memory _passIds,
+        uint256[] memory _productIds
+    ) external view returns (PassRenewalStatus[] memory);
+
+    /**
      * Renewal Processing
      */
 
@@ -113,5 +124,15 @@ interface IRenewalProcessor {
     function processSingleProductRenewal(
         uint256 _passId,
         uint256 _productId
+    ) external;
+
+    /**
+     * @notice Processes a batch of single subscription renewals for specific products.
+     * @param _passIds List of product pass IDs to process the renewal for.
+     * @param _productIds List of product IDs to process the renewal for.
+     */
+    function processSingleProductRenewalBatch(
+        uint256[] memory _passIds,
+        uint256[] memory _productIds
     ) external;
 }

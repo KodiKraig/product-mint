@@ -99,9 +99,11 @@ describe('RenewalProcessor', () => {
         'getAllPassRenewalStatusBatch(uint256[])',
         'getAllPassRenewalStatus(uint256)',
         'getSingleProductRenewalStatus(uint256,uint256)',
+        'getSingleProductRenewalStatusBatch(uint256[],uint256[])',
         'processAllPassRenewal(uint256)',
         'processAllPassRenewalBatch(uint256[])',
         'processSingleProductRenewal(uint256,uint256)',
+        'processSingleProductRenewalBatch(uint256[],uint256[])',
       ]);
 
       expect(await renewalProcessor.supportsInterface(interfaceId)).to.be.true;
@@ -203,6 +205,70 @@ describe('RenewalProcessor', () => {
       expect(renewalStatus.productId).to.equal(1);
       expect(renewalStatus.renewalStatus).to.equal(2);
       expect(renewalStatus.subStatus).to.equal(0);
+    });
+  });
+
+  describe('Get Single Product Renewal Status Batch', () => {
+    it('should revert for invalid array lengths', async () => {
+      const { renewalProcessor, otherAccount } = await loadRenewalProcessor();
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .getSingleProductRenewalStatusBatch([1], []),
+      ).to.be.revertedWith('No product IDs provided');
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .getSingleProductRenewalStatusBatch([], [1]),
+      ).to.be.revertedWith('No pass IDs provided');
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .getSingleProductRenewalStatusBatch([], []),
+      ).to.be.revertedWith('No pass IDs provided');
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .getSingleProductRenewalStatusBatch([1], [1, 2]),
+      ).to.be.revertedWith('Pass IDs and product IDs must be the same length');
+    });
+
+    it('should revert for invalid pass ids', async () => {
+      const { renewalProcessor, otherAccount } = await loadRenewalProcessor();
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .getSingleProductRenewalStatusBatch([1, 2], [1, 2]),
+      ).to.be.revertedWith('Pass ID must be less than total supply');
+    });
+
+    it('should revert if the the product does not exist on the pass', async () => {
+      const { renewalProcessor, otherAccount } = await loadRenewalProcessor();
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .getSingleProductRenewalStatusBatch([1], [2]),
+      ).to.be.revertedWith('Subscription does not exist');
+    });
+
+    it('should return the renewal status for the products on the passes', async () => {
+      const { renewalProcessor, otherAccount } = await loadRenewalProcessor();
+
+      const renewalStatuses = await renewalProcessor
+        .connect(otherAccount)
+        .getSingleProductRenewalStatusBatch([1], [1]);
+
+      expect(renewalStatuses).to.have.lengthOf(1);
+      expect(renewalStatuses[0].passId).to.equal(1);
+      expect(renewalStatuses[0].productId).to.equal(1);
+      expect(renewalStatuses[0].renewalStatus).to.equal(2);
+      expect(renewalStatuses[0].subStatus).to.equal(0);
     });
   });
 
@@ -358,6 +424,103 @@ describe('RenewalProcessor', () => {
       expect(await mintToken.balanceOf(otherAccount.address)).to.equal(
         ethers.parseUnits('90', 6),
       );
+    });
+  });
+
+  describe('Process Single Product Renewal Batch', () => {
+    it('should revert for invalid array lengths', async () => {
+      const { renewalProcessor, otherAccount } = await loadRenewalProcessor();
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .processSingleProductRenewalBatch([1], []),
+      ).to.be.revertedWith('No product IDs provided');
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .processSingleProductRenewalBatch([], [1]),
+      ).to.be.revertedWith('No pass IDs provided');
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .processSingleProductRenewalBatch([], []),
+      ).to.be.revertedWith('No pass IDs provided');
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .processSingleProductRenewalBatch([1], [1, 2]),
+      ).to.be.revertedWith('Pass IDs and product IDs must be the same length');
+    });
+
+    it('should revert for invalid pass ids', async () => {
+      const { renewalProcessor, otherAccount } = await loadRenewalProcessor();
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .processSingleProductRenewalBatch([1, 2], [1, 2]),
+      ).to.be.revertedWith('Pass ID must be less than total supply');
+    });
+
+    it('should revert if the the product does not exist on the pass', async () => {
+      const { renewalProcessor, otherAccount } = await loadRenewalProcessor();
+
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .processSingleProductRenewalBatch([1], [2]),
+      ).to.be.revertedWith('Subscription does not exist');
+    });
+
+    it('should process renewals for multiple products on a pass', async () => {
+      const {
+        renewalProcessor,
+        mintToken,
+        purchaseManager,
+        paymentEscrow,
+        otherAccount,
+        otherAccount2,
+        subscriptionEscrow,
+      } = await loadRenewalProcessor();
+
+      await mintToken
+        .connect(otherAccount2)
+        .mint(otherAccount2, ethers.parseUnits('100', 6));
+      await mintToken
+        .connect(otherAccount2)
+        .approve(paymentEscrow, ethers.parseUnits('100', 6));
+
+      // Mint Pass 2
+      await purchaseManager.connect(otherAccount2).purchaseProducts({
+        to: otherAccount2,
+        organizationId: 1,
+        productIds: [1],
+        pricingIds: [1],
+        quantities: [0],
+        discountIds: [],
+        couponCode: '',
+        airdrop: false,
+        pause: false,
+      });
+
+      // Advance time to past due
+      const [subscription] = await subscriptionEscrow.getSubscription(2, 1);
+      await time.increaseTo(subscription.endDate + 1n);
+
+      // TEST - Process renewal for pass 1 and pass 2
+      await expect(
+        renewalProcessor
+          .connect(otherAccount)
+          .processSingleProductRenewalBatch([1, 2], [1, 1]),
+      )
+        .to.emit(renewalProcessor, 'RenewalProcessed')
+        .withArgs(1, 1, 1, 0)
+        .to.emit(renewalProcessor, 'RenewalProcessed')
+        .withArgs(1, 2, 1, 0);
     });
   });
 

@@ -59,12 +59,15 @@ contract RenewalProcessor is
     function getAllPassRenewalStatusBatch(
         uint256[] memory _passIds
     ) external view returns (PassRenewalStatus[][] memory passRenewalStatus) {
-        _checkPassIdsProvided(_passIds);
+        _checkPassIdLength(_passIds);
 
         passRenewalStatus = new PassRenewalStatus[][](_passIds.length);
 
+        uint256 passSupply = IPurchaseManager(registry.purchaseManager())
+            .passSupply();
+
         for (uint256 i = 0; i < _passIds.length; i++) {
-            _checkPassId(_passIds[i]);
+            _checkPassId(_passIds[i], passSupply);
             passRenewalStatus[i] = _getAllPassRenewalStatus(_passIds[i]);
         }
     }
@@ -74,6 +77,26 @@ contract RenewalProcessor is
         uint256 _productId
     ) external view validPassId(_passId) returns (PassRenewalStatus memory) {
         return _getSingleProductRenewalStatus(_passId, _productId);
+    }
+
+    function getSingleProductRenewalStatusBatch(
+        uint256[] memory _passIds,
+        uint256[] memory _productIds
+    ) external view returns (PassRenewalStatus[] memory passRenewalStatus) {
+        _checkIdLengths(_passIds, _productIds);
+
+        passRenewalStatus = new PassRenewalStatus[](_passIds.length);
+
+        uint256 passSupply = IPurchaseManager(registry.purchaseManager())
+            .passSupply();
+
+        for (uint256 i = 0; i < _passIds.length; i++) {
+            _checkPassId(_passIds[i], passSupply);
+            passRenewalStatus[i] = _getSingleProductRenewalStatus(
+                _passIds[i],
+                _productIds[i]
+            );
+        }
     }
 
     function _getAllPassRenewalStatus(
@@ -134,10 +157,13 @@ contract RenewalProcessor is
     function processAllPassRenewalBatch(
         uint256[] memory _passIds
     ) external nonReentrant {
-        _checkPassIdsProvided(_passIds);
+        _checkPassIdLength(_passIds);
+
+        uint256 passSupply = IPurchaseManager(registry.purchaseManager())
+            .passSupply();
 
         for (uint256 i = 0; i < _passIds.length; i++) {
-            _checkPassId(_passIds[i]);
+            _checkPassId(_passIds[i], passSupply);
             _processAllPassRenewal(_passIds[i]);
         }
     }
@@ -147,6 +173,21 @@ contract RenewalProcessor is
         uint256 _productId
     ) external validPassId(_passId) nonReentrant {
         _processSingleProductRenewal(_passId, _productId);
+    }
+
+    function processSingleProductRenewalBatch(
+        uint256[] memory _passIds,
+        uint256[] memory _productIds
+    ) external nonReentrant {
+        _checkIdLengths(_passIds, _productIds);
+
+        uint256 passSupply = IPurchaseManager(registry.purchaseManager())
+            .passSupply();
+
+        for (uint256 i = 0; i < _passIds.length; i++) {
+            _checkPassId(_passIds[i], passSupply);
+            _processSingleProductRenewal(_passIds[i], _productIds[i]);
+        }
     }
 
     function _processAllPassRenewal(uint256 _passId) internal {
@@ -216,7 +257,10 @@ contract RenewalProcessor is
      */
 
     modifier validPassId(uint256 _passId) {
-        _checkPassId(_passId);
+        _checkPassId(
+            _passId,
+            IPurchaseManager(registry.purchaseManager()).passSupply()
+        );
         _;
     }
 
@@ -224,17 +268,28 @@ contract RenewalProcessor is
      * Checks
      */
 
-    function _checkPassId(uint256 _passId) internal view {
+    function _checkPassId(uint256 _passId, uint256 _passSupply) internal pure {
         require(_passId > 0, "Pass ID must be greater than 0");
         require(
-            _passId <=
-                IPurchaseManager(registry.purchaseManager()).passSupply(),
+            _passId <= _passSupply,
             "Pass ID must be less than total supply"
         );
     }
 
-    function _checkPassIdsProvided(uint256[] memory _passIds) internal pure {
+    function _checkPassIdLength(uint256[] memory _passIds) internal pure {
         require(_passIds.length > 0, "No pass IDs provided");
+    }
+
+    function _checkIdLengths(
+        uint256[] memory _passIds,
+        uint256[] memory _productIds
+    ) internal pure {
+        _checkPassIdLength(_passIds);
+        require(_productIds.length > 0, "No product IDs provided");
+        require(
+            _passIds.length == _productIds.length,
+            "Pass IDs and product IDs must be the same length"
+        );
     }
 
     /**
