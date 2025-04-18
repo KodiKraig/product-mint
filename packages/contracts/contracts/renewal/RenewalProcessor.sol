@@ -50,6 +50,12 @@ contract RenewalProcessor is
      * View Renewal Status
      */
 
+    function getAllPassRenewalStatus(
+        uint256 _passId
+    ) external view validPassId(_passId) returns (PassRenewalStatus[] memory) {
+        return _getAllPassRenewalStatus(_passId);
+    }
+
     function getAllPassRenewalStatusBatch(
         uint256[] memory _passIds
     ) external view returns (PassRenewalStatus[][] memory passRenewalStatus) {
@@ -61,12 +67,6 @@ contract RenewalProcessor is
             _checkPassId(_passIds[i]);
             passRenewalStatus[i] = _getAllPassRenewalStatus(_passIds[i]);
         }
-    }
-
-    function getAllPassRenewalStatus(
-        uint256 _passId
-    ) external view validPassId(_passId) returns (PassRenewalStatus[] memory) {
-        return _getAllPassRenewalStatus(_passId);
     }
 
     function getSingleProductRenewalStatus(
@@ -125,6 +125,12 @@ contract RenewalProcessor is
      * Renewal Processing
      */
 
+    function processAllPassRenewal(
+        uint256 _passId
+    ) external validPassId(_passId) nonReentrant {
+        _processAllPassRenewal(_passId);
+    }
+
     function processAllPassRenewalBatch(
         uint256[] memory _passIds
     ) external nonReentrant {
@@ -134,12 +140,6 @@ contract RenewalProcessor is
             _checkPassId(_passIds[i]);
             _processAllPassRenewal(_passIds[i]);
         }
-    }
-
-    function processAllPassRenewal(
-        uint256 _passId
-    ) external validPassId(_passId) nonReentrant {
-        _processAllPassRenewal(_passId);
     }
 
     function processSingleProductRenewal(

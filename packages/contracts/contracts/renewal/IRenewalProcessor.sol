@@ -61,15 +61,6 @@ interface IRenewalProcessor {
      */
 
     /**
-     * @notice Get the renewal status for all products on a batch of passes.
-     * @param _passIds List of product pass IDs to get the renewal status for.
-     * @return The renewal status for all products on each pass.
-     */
-    function getAllPassRenewalStatusBatch(
-        uint256[] memory _passIds
-    ) external view returns (PassRenewalStatus[][] memory);
-
-    /**
      * @notice Get the renewal status for all products on a pass.
      * @param _passId The product pass ID of the subscription.
      * @return The renewal status for all products on the pass.
@@ -77,6 +68,15 @@ interface IRenewalProcessor {
     function getAllPassRenewalStatus(
         uint256 _passId
     ) external view returns (PassRenewalStatus[] memory);
+
+    /**
+     * @notice Get the renewal status for all products on a batch of passes.
+     * @param _passIds List of product pass IDs to get the renewal status for.
+     * @return The renewal status for all products on each pass.
+     */
+    function getAllPassRenewalStatusBatch(
+        uint256[] memory _passIds
+    ) external view returns (PassRenewalStatus[][] memory);
 
     /**
      * @notice Get the renewal status for a specific product on a pass.
@@ -94,16 +94,16 @@ interface IRenewalProcessor {
      */
 
     /**
-     * @notice Processes a batch of subscription renewals for all products on each pass.
-     * @param _passIds List of product pass IDs to process the renewal for.
-     */
-    function processAllPassRenewalBatch(uint256[] memory _passIds) external;
-
-    /**
      * @notice Processes subscription renewals for all products on a pass.
      * @param _passId The product pass ID of the subscription.
      */
     function processAllPassRenewal(uint256 _passId) external;
+
+    /**
+     * @notice Processes a batch of subscription renewals for all products on each pass.
+     * @param _passIds List of product pass IDs to process the renewal for.
+     */
+    function processAllPassRenewalBatch(uint256[] memory _passIds) external;
 
     /**
      * @notice Processes a single subscription renewal for a specific product.
