@@ -95,13 +95,9 @@ interface IRenewalProcessor {
 
     /**
      * @notice Processes a batch of subscription renewals for all products on each pass.
-     * @param _startPassId The start product pass ID of the batch.
-     * @param _endPassId The end product pass ID of the batch.
+     * @param _passIds List of product pass IDs to process the renewal for.
      */
-    function processAllPassRenewalBatch(
-        uint256 _startPassId,
-        uint256 _endPassId
-    ) external;
+    function processAllPassRenewalBatch(uint256[] memory _passIds) external;
 
     /**
      * @notice Processes subscription renewals for all products on a pass.

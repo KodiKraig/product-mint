@@ -100,7 +100,7 @@ describe('RenewalProcessor', () => {
         'getAllPassRenewalStatus(uint256)',
         'getSingleProductRenewalStatus(uint256,uint256)',
         'processAllPassRenewal(uint256)',
-        'processAllPassRenewalBatch(uint256,uint256)',
+        'processAllPassRenewalBatch(uint256[])',
         'processSingleProductRenewal(uint256,uint256)',
       ]);
 
@@ -387,19 +387,23 @@ describe('RenewalProcessor', () => {
   });
 
   describe('Process All Pass Renewal Batch', () => {
-    it('should revert for invalid pass indexes', async () => {
+    it('should revert for invalid pass input', async () => {
       const { renewalProcessor, otherAccount } = await loadRenewalProcessor();
 
       await expect(
-        renewalProcessor.connect(otherAccount).processAllPassRenewalBatch(2, 1),
-      ).to.be.revertedWith('Invalid index');
+        renewalProcessor.connect(otherAccount).processAllPassRenewalBatch([]),
+      ).to.be.revertedWith('No pass IDs provided');
 
       await expect(
-        renewalProcessor.connect(otherAccount).processAllPassRenewalBatch(1, 2),
+        renewalProcessor
+          .connect(otherAccount)
+          .processAllPassRenewalBatch([1, 2]),
       ).to.be.revertedWith('Pass ID must be less than total supply');
 
       await expect(
-        renewalProcessor.connect(otherAccount).processAllPassRenewalBatch(0, 1),
+        renewalProcessor
+          .connect(otherAccount)
+          .processAllPassRenewalBatch([0, 1]),
       ).to.be.revertedWith('Pass ID must be greater than 0');
     });
 
@@ -408,7 +412,7 @@ describe('RenewalProcessor', () => {
         await loadRenewalProcessorWithOneTimePurchasedProduct();
 
       // Process the renewal
-      await renewalProcessor.connect(owner).processAllPassRenewalBatch(1, 1);
+      await renewalProcessor.connect(owner).processAllPassRenewalBatch([1]);
 
       // Assert no renewal event was emitted
       await assertNoRenewalEventEmitted(renewalProcessor);
@@ -673,7 +677,9 @@ describe('RenewalProcessor', () => {
 
       // TEST -> Process the renewals
       await expect(
-        renewalProcessor.connect(owner).processAllPassRenewalBatch(1, 5),
+        renewalProcessor
+          .connect(owner)
+          .processAllPassRenewalBatch([1, 2, 3, 4, 5]),
       )
         .to.emit(renewalProcessor, 'RenewalProcessed')
         .withArgs(1, 1, 1, 0)

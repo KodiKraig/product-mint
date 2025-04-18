@@ -126,11 +126,13 @@ contract RenewalProcessor is
      */
 
     function processAllPassRenewalBatch(
-        uint256 _startPassId,
-        uint256 _endPassId
-    ) external validPassIndex(_startPassId, _endPassId) nonReentrant {
-        for (uint256 i = _startPassId; i <= _endPassId; i++) {
-            _processAllPassRenewal(i);
+        uint256[] memory _passIds
+    ) external nonReentrant {
+        _checkPassIdsProvided(_passIds);
+
+        for (uint256 i = 0; i < _passIds.length; i++) {
+            _checkPassId(_passIds[i]);
+            _processAllPassRenewal(_passIds[i]);
         }
     }
 
@@ -218,20 +220,9 @@ contract RenewalProcessor is
         _;
     }
 
-    modifier validPassIndex(uint256 _start, uint256 _end) {
-        _checkPassIndex(_start, _end);
-        _;
-    }
-
     /**
      * Checks
      */
-
-    function _checkPassIndex(uint256 _start, uint256 _end) internal view {
-        require(_start <= _end, "Invalid index");
-        _checkPassId(_start);
-        _checkPassId(_end);
-    }
 
     function _checkPassId(uint256 _passId) internal view {
         require(_passId > 0, "Pass ID must be greater than 0");
