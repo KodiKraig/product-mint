@@ -135,4 +135,13 @@ describe('ProductMintSystemModule', () => {
       organizationMetadataProvider,
     );
   });
+
+  it('should deploy the renewal processor with the correct registry', async () => {
+    const { renewalProcessor, contractRegistry } = await loadFixture(
+      deployProductMintSystem,
+    );
+
+    expect(await renewalProcessor.getAddress()).to.not.be.undefined;
+    expect(await renewalProcessor.registry()).to.equal(contractRegistry);
+  });
 });

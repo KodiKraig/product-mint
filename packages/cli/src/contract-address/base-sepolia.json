@@ -17,5 +17,6 @@
   "organizationMetadataProvider": "0x153B45616273176E8168e82Dc5c6De674caC0A29",
   "passMetadataProvider": "0x2B113946Cb729f94254aF5cC6bd412499F021df9",
   "organizationNFT": "0xC2bea1D2A05931c8A560BDe3Dbaaf4f75e1a4EE3",
-  "productPassNFT": "0x10D6eF4A569c79b7d40f750EBeAba859a5B8c0db"
+  "productPassNFT": "0x10D6eF4A569c79b7d40f750EBeAba859a5B8c0db",
+  "renewalProcessor": "0x98ffecB049695349ed448b7F9A5636c417BE4220"
 }
