@@ -25,12 +25,12 @@ interface IRenewalProcessor {
     }
 
     /**
-     * @notice Emitted when a subscription renewal is processed.
+     * @notice Emitted when a subscription renewal is processed/attempted.
      *
      * @param orgId The organization ID of the subscription.
      * @param productPassId The product pass ID of the subscription.
      * @param productId The product ID of the subscription.
-     * @param status The status of the renewal process. (NOT_READY will not be emitted)
+     * @param status The status of the renewal process.
      */
     event RenewalProcessed(
         uint256 indexed orgId,
