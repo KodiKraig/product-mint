@@ -9,7 +9,7 @@
     "test:coverage:watch": "nodemon -e js,ts,sol --watch contracts --watch test --watch ignition/modules --exec 'hardhat coverage'",
     "compile": "hardhat compile",
     "clean": "hardhat clean",
-    "visualize": "hardhat ignition visualize ./ignition/modules/UpgradePassMetadata.ts",
+    "visualize": "hardhat ignition visualize ./ignition/modules/RenewalProcessor.ts",
     "node:local": "hardhat node",
     "deploy:local": "hardhat ignition deploy ./ignition/modules/ProductMintSystem.ts --network localhost",
     "deploy:base-sepolia": "hardhat ignition deploy ./ignition/modules/ProductMintSystem.ts --network baseSepolia",
@@ -17,7 +17,9 @@
     "deploy:base-mainnet": "hardhat ignition deploy ./ignition/modules/ProductMintSystem.ts --network base",
     "verify:base-mainnet": "hardhat ignition verify chain-8453 --include-unrelated-contracts",
     "deploy:pass-metadata-v2:base-sepolia": "hardhat ignition deploy ./ignition/modules/UpgradePassMetadata.ts --network baseSepolia",
-    "deploy:pass-metadata-v2:base-mainnet": "hardhat ignition deploy ./ignition/modules/UpgradePassMetadata.ts --network base"
+    "deploy:pass-metadata-v2:base-mainnet": "hardhat ignition deploy ./ignition/modules/UpgradePassMetadata.ts --network base",
+    "deploy:renewal-processor:base-sepolia": "hardhat ignition deploy ./ignition/modules/RenewalProcessor.ts --network baseSepolia",
+    "deploy:renewal-processor:base-mainnet": "hardhat ignition deploy ./ignition/modules/RenewalProcessor.ts --network base"
   },
   "keywords": [
     "productmint",
