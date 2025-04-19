@@ -6,6 +6,7 @@ import { provider, signerWallet } from '../provider';
 import { getContractAddress } from '../contract-address';
 import { Command } from 'commander';
 import { waitTx } from '../utils/tx';
+import { parseCommaSeparatedList } from '../utils/parsing';
 
 const renewalContract = RenewalProcessor__factory.connect(
   getContractAddress('renewalProcessor'),
@@ -61,6 +62,27 @@ export default function registerRenewalCommands(program: Command) {
             Array.from({ length: Number(totalPasses) }, (_, i) => i + 1),
           ),
       );
+    });
+
+  renewalCommand
+    .command('listStatus')
+    .description('Get the renewal status for a single product pass')
+    .argument('<passIds>', 'Comma separated list of pass IDs')
+    .action(async (passIds) => {
+      const statuses = await renewalContract.getAllPassRenewalStatusBatch(
+        parseCommaSeparatedList<number>(passIds, 'number'),
+      );
+
+      console.log(`Renewal statuses for pass ${passIds.length}`);
+
+      for (const status of statuses) {
+        console.log('\n');
+        for (const renewal of status) {
+          console.log(`Pass ID: ${renewal.passId}`);
+          console.log(`Product ID: ${renewal.productId}`);
+          console.log(`Status: ${parseStatus(renewal.renewalStatus)}`);
+        }
+      }
     });
 
   registerEventsCommand(renewalCommand);
