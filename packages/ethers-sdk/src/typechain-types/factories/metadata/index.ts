@@ -7,3 +7,4 @@ export { OrganizationAttributeProvider__factory } from "./OrganizationAttributeP
 export { OrganizationMetadataProvider__factory } from "./OrganizationMetadataProvider__factory";
 export { PassAttributeProvider__factory } from "./PassAttributeProvider__factory";
 export { PassMetadataProvider__factory } from "./PassMetadataProvider__factory";
+export { PassMetadataProviderV2__factory } from "./PassMetadataProviderV2__factory";

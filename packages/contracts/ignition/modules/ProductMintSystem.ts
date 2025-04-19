@@ -26,7 +26,7 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
   const passAttributeProvider = m.contract('PassAttributeProvider', [
     contractRegistry,
   ]);
-  const passMetadataProvider = m.contract('PassMetadataProvider', [
+  const passMetadataProvider = m.contract('PassMetadataProviderV2', [
     contractRegistry,
     passAttributeProvider,
   ]);
@@ -88,6 +88,9 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
   // ERC20 Testing Token
   const mintToken = m.contract('MintToken');
 
+  // Renewal processor
+  const renewalProcessor = m.contract('RenewalProcessor', [contractRegistry]);
+
   // Batch set all the contracts in the registry
   m.call(contractRegistry, 'batchSetContracts', [
     {
@@ -127,6 +130,7 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
     usageRecorder,
     orgAdmin,
     mintToken,
+    renewalProcessor,
   };
 });
 

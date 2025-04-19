@@ -7,3 +7,4 @@ export type { OrganizationAttributeProvider } from "./OrganizationAttributeProvi
 export type { OrganizationMetadataProvider } from "./OrganizationMetadataProvider";
 export type { PassAttributeProvider } from "./PassAttributeProvider";
 export type { PassMetadataProvider } from "./PassMetadataProvider";
+export type { PassMetadataProviderV2 } from "./PassMetadataProviderV2";

@@ -8,6 +8,7 @@ import registerUsageCommand from './usage';
 import registerCalculatorCommand from './calculator';
 import registerMetadataCommand from './metadata';
 import registerAdminCommand from './admin';
+import registerRenewalCommands from './renewal';
 
 export function registerAllCommands(program: Command) {
   registerAdminCommand(program);
@@ -19,4 +20,5 @@ export function registerAllCommands(program: Command) {
   registerUsageCommand(program);
   registerCalculatorCommand(program);
   registerMetadataCommand(program);
+  registerRenewalCommands(program);
 }
