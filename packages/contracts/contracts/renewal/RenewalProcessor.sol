@@ -57,7 +57,7 @@ contract RenewalProcessor is
     }
 
     function getAllPassRenewalStatusBatch(
-        uint256[] memory _passIds
+        uint256[] calldata _passIds
     ) external view returns (PassRenewalStatus[][] memory passRenewalStatus) {
         _checkPassIdLength(_passIds);
 
@@ -80,8 +80,8 @@ contract RenewalProcessor is
     }
 
     function getSingleProductRenewalStatusBatch(
-        uint256[] memory _passIds,
-        uint256[] memory _productIds
+        uint256[] calldata _passIds,
+        uint256[] calldata _productIds
     ) external view returns (PassRenewalStatus[] memory passRenewalStatus) {
         _checkIdLengths(_passIds, _productIds);
 
@@ -155,7 +155,7 @@ contract RenewalProcessor is
     }
 
     function processAllPassRenewalBatch(
-        uint256[] memory _passIds
+        uint256[] calldata _passIds
     ) external nonReentrant {
         _checkPassIdLength(_passIds);
 
@@ -176,8 +176,8 @@ contract RenewalProcessor is
     }
 
     function processSingleProductRenewalBatch(
-        uint256[] memory _passIds,
-        uint256[] memory _productIds
+        uint256[] calldata _passIds,
+        uint256[] calldata _productIds
     ) external nonReentrant {
         _checkIdLengths(_passIds, _productIds);
 
