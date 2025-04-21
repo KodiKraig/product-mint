@@ -14,6 +14,17 @@ export default function registerProductPassCommand(program: Command): Command {
     .command('pass')
     .description('Interact with the Product Pass NFT contract');
 
+  passCommand
+    .command('ownerOf')
+    .description('Get the owner of a given Product Pass NFT')
+    .argument('<tokenId>', 'The token ID of the Product Pass NFT')
+    .action(async (tokenId) => {
+      const owner = await passNFT.ownerOf(tokenId);
+
+      console.log(`Pass ID: ${tokenId}`);
+      console.log('Owner:', owner);
+    });
+
   /**
    * Token URI
    */
