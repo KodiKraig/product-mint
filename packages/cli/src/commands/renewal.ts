@@ -1,4 +1,5 @@
 import {
+  IRenewalProcessor,
   PurchaseManager__factory,
   RenewalProcessor__factory,
 } from '@product-mint/ethers-sdk';
@@ -42,6 +43,20 @@ export default function registerRenewalCommands(program: Command) {
     .command('renewal')
     .description('Renewal processor commands');
 
+  /**
+   * Renew
+   */
+
+  renewalCommand
+    .command('renew')
+    .description('Renew a single product pass')
+    .argument('<passId>', 'The token ID of the Product Pass NFT')
+    .action(async (passId) => {
+      await waitTx(
+        renewalContract.connect(signerWallet).processAllPassRenewal(passId),
+      );
+    });
+
   renewalCommand
     .command('renewAll')
     .description('Renew all product passes')
@@ -64,6 +79,10 @@ export default function registerRenewalCommands(program: Command) {
       );
     });
 
+  /**
+   * Status
+   */
+
   renewalCommand
     .command('listStatus')
     .description('Get the renewal status for a single product pass')
@@ -73,16 +92,25 @@ export default function registerRenewalCommands(program: Command) {
         parseCommaSeparatedList<number>(passIds, 'number'),
       );
 
-      console.log(`Renewal statuses for pass ${passIds.length}`);
+      outputRenewalStatusList(statuses);
+    });
 
-      for (const status of statuses) {
-        console.log('\n');
-        for (const renewal of status) {
-          console.log(`Pass ID: ${renewal.passId}`);
-          console.log(`Product ID: ${renewal.productId}`);
-          console.log(`Status: ${parseStatus(renewal.renewalStatus)}`);
-        }
-      }
+  renewalCommand
+    .command('listStatusAll')
+    .description('Get the renewal status for all product passes')
+    .action(async () => {
+      const totalPasses = await purchaseManagerContract.passSupply();
+
+      const passIds = Array.from(
+        { length: Number(totalPasses) },
+        (_, i) => i + 1,
+      );
+
+      const statuses = await renewalContract.getAllPassRenewalStatusBatch(
+        passIds,
+      );
+
+      outputRenewalStatusList(statuses);
     });
 
   registerEventsCommand(renewalCommand);
@@ -122,9 +150,31 @@ const registerEventsCommand = (program: Command) => {
 
       for (const event of events) {
         console.log(`\nOrg ID: ${event.args.orgId}`);
-        console.log(`Product Pass ID: ${event.args.productPassId}`);
+        console.log(`Pass ID: ${event.args.productPassId}`);
         console.log(`Product ID: ${event.args.productId}`);
         console.log(`Status: ${parseStatus(event.args.status)}`);
       }
     });
+};
+
+const outputRenewalStatusList = (
+  statuses: IRenewalProcessor.PassRenewalStatusStructOutput[][],
+) => {
+  console.log(`Renewal statuses for ${statuses.length} passes`);
+
+  for (const status of statuses) {
+    console.log('\n');
+    for (const renewal of status) {
+      outputRenewalStatus(renewal);
+    }
+  }
+};
+
+const outputRenewalStatus = (
+  event: IRenewalProcessor.PassRenewalStatusStructOutput,
+) => {
+  console.log(`Org ID: ${event.subscription.orgId}`);
+  console.log(`Pass ID: ${event.passId}`);
+  console.log(`Product ID: ${event.productId}`);
+  console.log(`Status: ${parseStatus(event.renewalStatus)}`);
 };
