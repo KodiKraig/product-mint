@@ -85,7 +85,7 @@ export default function registerRenewalCommands(program: Command) {
 
   renewalCommand
     .command('listStatus')
-    .description('Get the renewal status for a single product pass')
+    .description('Get the renewal status for a list of product passes')
     .argument('<passIds>', 'Comma separated list of pass IDs')
     .action(async (passIds) => {
       const statuses = await renewalContract.getAllPassRenewalStatusBatch(
