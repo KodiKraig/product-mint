@@ -47,6 +47,10 @@
     "ProductPassNFT": {
       "address": "0x1d02ecC16193C5e2e33BE52fc95947edBf0B7870",
       "startBlock": 28078314
+    },
+    "RenewalProcessor": {
+      "address": "0x596e8467451e6eF9F381E97957EbFe4D4F073CBD",
+      "startBlock": 28078314
     }
   },
   "base-sepolia": {
@@ -96,6 +100,10 @@
     },
     "ProductPassNFT": {
       "address": "0x10D6eF4A569c79b7d40f750EBeAba859a5B8c0db",
+      "startBlock": 23551825
+    },
+    "RenewalProcessor": {
+      "address": "0x98ffecB049695349ed448b7F9A5636c417BE4220",
       "startBlock": 23551825
     }
   }

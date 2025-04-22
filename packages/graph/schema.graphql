@@ -650,3 +650,14 @@ type ProductPassNFTTransfer @entity(immutable: true) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+type RenewalProcessed @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  productPassId: BigInt! # uint256
+  productId: BigInt! # uint256
+  status: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  from: Bytes! # address
+}
