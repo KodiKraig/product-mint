@@ -153,6 +153,7 @@ const registerEventsCommand = (program: Command) => {
         console.log(`Pass ID: ${event.args.productPassId}`);
         console.log(`Product ID: ${event.args.productId}`);
         console.log(`Status: ${parseStatus(event.args.status)}`);
+        console.log(`Block number: ${event.blockNumber}`);
       }
     });
 };
