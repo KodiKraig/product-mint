@@ -43,7 +43,7 @@ _* Additional settings configurable by the product owner_
 
 - The **PaymentEscrow** contract is responsible for collecting all funds
 - The contract is non-upgradeable and has no ability to mingle with user funds
-- When you sell a product, the funds are yours to keep!
+- When you sell a product, the funds are yours to keep. No bs fraud charges or account freezes!
 - View [PaymentEscrow](./packages/contracts/contracts/escrow/PaymentEscrow.sol)
 
 ### Product Owner Benefits
@@ -74,7 +74,7 @@ Below outlines the minimum steps required to start selling Product Pass NFTs usi
 
 _You do not need to use the CLI to interact with the contracts but it is the recommended approach until our dashboard is released._
 
-### Mint an Organization NFT
+### 1. Mint an Organization NFT
 
 An Organization NFT allows you to sell products and withdraw funds from the [payment escrow contract](./packages/contracts/contracts/escrow/PaymentEscrow.sol) whenever a product is purchased.
 
@@ -97,7 +97,7 @@ Adding an admin address allows you to manage the organization NFT without having
 - `organizationId`: The token ID of the organization NFT that was minted.
 - `adminAddress`: The address to add as an admin.
 
-### Create a Product
+### 2. Create a Product
 
 Every NFT can have multiple products with different pricing models and subscriptions.
 
@@ -109,7 +109,7 @@ Every NFT can have multiple products with different pricing models and subscript
 - `name`: The name of the product. (e.g. "Pro Tools")
 - `description`: The description of the product. (e.g. "Unlock the pro tools.")
 
-### Create a Pricing Model
+### 3. Create a Pricing Model
 
 You can create multiple pricing models for a product allowing you to offer different pricing configurations to users.
 
@@ -124,7 +124,7 @@ You can create multiple pricing models for a product allowing you to offer diffe
 
 **NOTE:** Subscriptions require an ERC20 token address. You may use the [$MINT token](./packages/contracts/contracts/tokens/MintToken.sol) for testing.
 
-### Link Pricing Model to Product
+### 4. Link Pricing Model to Product
 
 In order to sell a product, you need to link a pricing model to the product. 
 
@@ -135,7 +135,7 @@ In order to sell a product, you need to link a pricing model to the product.
 - `productId`: The ID of the product that was created.
 - `pricingIds`: The IDs of the pricing models to link to the product.
 
-### Start minting Product Pass NFTs!
+### 5. Start minting Product Pass NFTs!
 
 Once your product is created and linked to a pricing model, you can start minting! 
 
