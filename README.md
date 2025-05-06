@@ -76,7 +76,7 @@ _You do not need to use the CLI to interact with the contracts but it is the rec
 
 ### 1. Mint an Organization NFT
 
-An Organization NFT allows you to sell products and withdraw funds from the [payment escrow contract](./packages/contracts/contracts/escrow/PaymentEscrow.sol) whenever a product is purchased.
+An Organization NFT allows you to sell products and withdraw funds from the [PaymentEscrow contract](./packages/contracts/contracts/escrow/PaymentEscrow.sol) whenever a product is purchased.
 
 ```bash
 ./run.sh tokens org mint <to>
@@ -137,7 +137,7 @@ In order to sell a product, you need to link a pricing model to the product.
 
 ### 5. Start minting Product Pass NFTs!
 
-Once your product is created and linked to a pricing model, you can start minting! 
+Once your product is created and linked to a pricing model, you can start minting!
 
 There are a couple of ways to mint the Product Pass NFTs:
 
@@ -145,7 +145,9 @@ There are a couple of ways to mint the Product Pass NFTs:
 2. Allow users to mint directly from your website using the [ProductMint SDK](./packages/ethers-sdk/README.md)
 3. Mint from your backend server using the [ProductMint SDK](./packages/ethers-sdk/README.md) with a managed wallet provider like [Privy](https://privy.io/).
 
-To mint Product Pass NFTs, you need to interact with the [ProductManager contract](./packages/contracts/contracts/ProductManager.sol). The purchaser must approve the [Payment Escrow contract](./packages/contracts/contracts/escrow/PaymentEscrow.sol) to spend the ERC20 token.
+To mint Product Pass NFTs, you need to interact with the [ProductManager contract](./packages/contracts/contracts/ProductManager.sol).
+
+_The purchaser must approve the [PaymentEscrow contract](./packages/contracts/contracts/escrow/PaymentEscrow.sol) to spend the ERC20 token._
 
 ## Supported Chains
 
@@ -153,7 +155,7 @@ To mint Product Pass NFTs, you need to interact with the [ProductManager contrac
     <img src="./packages/contracts/assets/BaseChainLogo.svg" width="200" height="100" alt="Base Chain">
 </a>
 
-**Contract Addresses**
+**Deployed Contract Addresses**
 - [Base - _Mainnet_](../cli/src/contract-address/base-mainnet.json)
 - [Base - _Sepolia_](../cli/src/contract-address/base-sepolia.json)
 
