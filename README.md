@@ -74,6 +74,9 @@ _* Additional settings configurable by the product owner_
     <img src="./packages/contracts/assets/BaseChainLogo.svg" width="200" height="100" alt="Base Chain">
 </a>
 
+- [Base - _Mainnet_](../cli/src/contract-address/base-mainnet.json)
+- [Base - _Sepolia_](../cli/src/contract-address/base-sepolia.json)
+
 _More chains coming soon!_
 
 ## Packages
