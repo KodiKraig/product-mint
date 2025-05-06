@@ -1,4 +1,4 @@
-# ProductMint - Contracts
+# @product-mint/contracts
 
 The worlds first NFT based permissionless subscription payment system.
 
@@ -140,17 +140,14 @@ The worlds first NFT based permissionless subscription payment system.
 
 ## Deployed Contracts
 
-All of the Ethereum based chains where the system is currently deployed.
+All of the Ethereum based chains where the system is currently deployed. View contract addresses below.
 
 <br />
 <a href="https://base.org" target="_blank">
     <img src="./assets/BaseChainLogo.svg" width="80" height="25" alt="Base Chain">
 </a>
 
-### Base - _Mainnet_
+### Base
+- [Base - _Mainnet_](../cli/src/contract-address/base-mainnet.json)
+- [Base - _Sepolia_](../cli/src/contract-address/base-sepolia.json)
 
-- Coming soon!
-
-### Base - _Testnet_
-
-- Coming soon!
