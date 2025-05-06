@@ -5,31 +5,31 @@ ProductMint CLI tool for interacting with deployed contracts from the command li
 ## Example Commands
 
 ```bash
-npx ts-node src/index.ts <command>
+./run.sh <command>
 
 # Get balance of a native token
-npx ts-node src/index.ts balance native <address>
+./run.sh balance native <address>
 
 # Get balance of an ERC20 token
-npx ts-node src/index.ts balance erc20 <tokenAddress> <address>
+./run.sh balance erc20 <tokenAddress> <address>
 
 # Get total passes minted
-npx ts-node src/index.ts manager totalPassesMinted
+./run.sh manager totalPassesMinted
 
 # Mint an organization
-npx ts-node src/index.ts tokens org mint <tokenAddress> <organizationAddress>
+./run.sh tokens org mint <tokenAddress> <organizationAddress>
 
 # Create a product
-npx ts-node src/index.ts registry product create <organizationId> <name> <description>
+./run.sh registry product create <organizationId> <name> <description>
 
 # Create a pricing model tier
-npx ts-node src/index.ts registry pricing create flatRate <organizationId> <flatPrice> <token> <chargeFrequency>
+./run.sh registry pricing create flatRate <organizationId> <flatPrice> <token> <chargeFrequency>
 
 # Link pricing model to product
-npx ts-node src/index.ts registry product linkPricing <productId> <pricingIds>
+./run.sh registry product linkPricing <productId> <pricingIds>
 
 # Mint a product pass!
-npx ts-node src/index.ts manager purchaseProducts <organizationId> <productIds> <pricingIds> <quantities>
+./run.sh manager purchaseProducts <organizationId> <productIds> <pricingIds> <quantities>
 ```
 
 ## Getting Started
@@ -57,5 +57,5 @@ npm run build:ethers-sdk
 Run the CLI
 
 ```bash
-npx ts-node src/index.ts <command>
+./run.sh <command>
 ```
