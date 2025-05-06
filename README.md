@@ -50,8 +50,8 @@ _* Additional settings configurable by the product owner_
 
 - Instant payment settlement
 - Funds available for withdraw immediately
+- No fraud risk from chargebacks
 - Lower fees than all traditional payment processors
-    - _Fees only applied during purchases_
 - Use your own ERC20 token for product purchases
 - Offer multiple ERC20 tokens to give users more options
 - Automatic subscription renewal processing with retries
@@ -77,8 +77,6 @@ _* Additional settings configurable by the product owner_
 _More chains coming soon!_
 
 ## Packages
-
-This npm workspace aims to provide all the packages needed to build and interact with the ProductMint system. We will continue to add more packages as we expand the system with a focus on the developer experience. Open source everything will continue to be a priority.
 
 - <a href="./packages/cli/README.md">__@product-mint/cli__</a>: CLI tool for interacting with deployed contracts from the command line.
 - <a href="./packages/contracts/README.md">__@product-mint/contracts__</a>: Ethereum Solidity contracts.

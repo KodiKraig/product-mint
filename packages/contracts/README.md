@@ -1,4 +1,4 @@
-# ProductMint - Contracts
+# @product-mint/contracts
 
 The worlds first NFT based permissionless subscription payment system.
 
