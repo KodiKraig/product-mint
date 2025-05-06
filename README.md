@@ -145,7 +145,7 @@ There are a couple of ways to mint the Product Pass NFTs:
 2. Allow users to mint directly from your website using the [ProductMint SDK](./packages/ethers-sdk/README.md)
 3. Mint from your backend server using the [ProductMint SDK](./packages/ethers-sdk/README.md) with a managed wallet provider like [Privy](https://privy.io/).
 
-To mint Product Pass NFTs, you need to interact with the [ProductManager contract](./packages/contracts/contracts/ProductManager.sol).
+To mint Product Pass NFTs, you need to interact with the [PurchaseManager contract](./packages/contracts/contracts/manager/PurchaseManager.sol).
 
 _The purchaser must approve the [PaymentEscrow contract](./packages/contracts/contracts/escrow/PaymentEscrow.sol) to spend the ERC20 token._
 
