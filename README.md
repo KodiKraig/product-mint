@@ -37,6 +37,116 @@ We guarantee you will love the simplicity and flexibility of ProductMint. You wi
 
 _* Additional settings configurable by the product owner_
 
+## ProductMint vs. Stripe
+
+<table style="text-align: center;">
+    <tr>
+        <th style="padding: 10px;">Feature</th>
+        <th style="text-align: center; padding: 10px; min-width: 150px;">ProductMint</th>
+        <th style="text-align: center; padding: 10px; min-width: 150px;">Stripe</th>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Decentralized</td>
+        <td>✅</td>
+        <td>❌</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Instant Payment Settlement</td>
+        <td>✅</td>
+        <td>❌</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">No fraud payment slashing</td>
+        <td>✅</td>
+        <td>❌</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Full user control over subscriptions</td>
+        <td>✅</td>
+        <td>❌</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Lowest fees</td>
+        <td>✅</td>
+        <td>❌</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">No account freezes</td>
+        <td>✅</td>
+        <td>❌</td>
+    </tr>
+        <tr>
+        <td style="text-align: left;">Multiple independent subscriptions</td>
+        <td>✅</td>
+        <td>❌</td>
+    </tr>
+     <tr>
+        <td style="text-align: left;">Permanent discounts</td>
+        <td>✅</td>
+        <td>❌</td>
+    </tr>
+     <tr>
+        <td style="text-align: left;">Pause subscriptions</td>
+        <td>✅</td>
+        <td>❌</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">One time product purchases</td>
+        <td>✅</td>
+        <td>✅</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Tiered subscription pricing</td>
+        <td>✅</td>
+        <td>✅</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Usage based subscription pricing</td>
+        <td>✅</td>
+        <td>✅</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Coupons</td>
+        <td>✅</td>
+        <td>✅</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Upgrade/downgrade subscriptions</td>
+        <td>✅</td>
+        <td>✅</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Automatic subscription renewals</td>
+        <td>✅</td>
+        <td>✅</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Webhooks</td>
+        <td>In-progress 🚀</td>
+        <td>✅</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Prefab checkout flow</td>
+        <td>Coming soon!</td>
+        <td>✅</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Prefab customer portal</td>
+        <td>Coming soon!</td>
+        <td>✅</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Billing email notifications</td>
+        <td>Coming soon!</td>
+        <td>✅</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Dashboard</td>
+        <td>Coming soon!</td>
+        <td>✅</td>
+    </tr>
+</table>
+
 ## Why use ProductMint?
 
 ### 🔥 _Your revenue is yours and no one can take it!_ 🔥
