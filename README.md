@@ -37,7 +37,7 @@ We guarantee you will love the simplicity and flexibility of ProductMint. You wi
 
 _* Additional settings configurable by the product owner_
 
-## ProductMint vs. Stripe
+## Comparison with Stripe
 
 <table style="text-align: center;">
     <tr>
