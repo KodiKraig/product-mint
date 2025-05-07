@@ -57,5 +57,3 @@ The following are the list of contract events that can be used directly with a w
 
 - `RenewalProcessed`
     - When a subscription renewal is processed.
-
-
