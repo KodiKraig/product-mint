@@ -91,6 +91,11 @@ _* Additional settings configurable by the product owner_
         <td>❌</td>
     </tr>
     <tr>
+        <td style="text-align: left;">Allow users to resell subscriptions</td>
+        <td>✅</td>
+        <td>❌</td>
+    </tr>
+    <tr>
         <td style="text-align: left;">One time product purchases</td>
         <td>✅</td>
         <td>✅</td>
@@ -121,31 +126,33 @@ _* Additional settings configurable by the product owner_
         <td>✅</td>
     </tr>
     <tr>
-        <td style="text-align: left;">Webhooks</td>
-        <td>In-progress 🚀</td>
+        <td style="text-align: left;"><a href="./docs/Webhooks.md">Webhooks*</a></td>
+        <td>✅</td>
         <td>✅</td>
     </tr>
     <tr>
-        <td style="text-align: left;">Prefab checkout flow</td>
-        <td>Coming soon!</td>
+        <td style="text-align: left;">Prefab checkout*</td>
+        <td>✅</td>
         <td>✅</td>
     </tr>
     <tr>
-        <td style="text-align: left;">Prefab customer portal</td>
-        <td>Coming soon!</td>
+        <td style="text-align: left;">Prefab customer portal*</td>
+        <td>✅</td>
         <td>✅</td>
     </tr>
     <tr>
-        <td style="text-align: left;">Billing email notifications</td>
-        <td>Coming soon!</td>
+        <td style="text-align: left;">Billing email notifications*</td>
+        <td>✅</td>
         <td>✅</td>
     </tr>
     <tr>
-        <td style="text-align: left;">Dashboard</td>
-        <td>Coming soon!</td>
+        <td style="text-align: left;">Dashboard*</td>
+        <td>✅</td>
         <td>✅</td>
     </tr>
 </table>
+
+_* Coming soon! 🚀_
 
 ## Why use ProductMint?
 
