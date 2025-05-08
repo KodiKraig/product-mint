@@ -10,6 +10,8 @@ Stop risking your revenue to centralized payment processors and wasting time set
 
 We guarantee you will love the simplicity and flexibility of ProductMint. You will save time and keep more of your revenue! 💰💰💰
 
+[DeepWiki](https://deepwiki.com/KodiKraig/product-mint)
+
 ## Features
 
 - ✅ **_One-time_ product purchases**
