@@ -53,8 +53,29 @@ export default function registerPricingCommand(program: Command): Command {
     });
 
   registerCreatePricingCommand(pricing);
-
+  registerUpdatePricingCommand(pricing);
   return pricing;
+}
+
+function registerUpdatePricingCommand(program: Command) {
+  const update = program
+    .command('update')
+    .description(
+      'Update an existing pricing configurations for a given organization',
+    );
+
+  update
+    .command('meterId')
+    .description('Update the usage meter ID for a given pricing configuration')
+    .argument('<pricingId>', 'The pricing ID')
+    .argument('<usageMeterId>', 'The usage meter ID')
+    .action(async (pricingId, usageMeterId) => {
+      await waitTx(
+        pricingRegistry
+          .connect(signerWallet)
+          .setPricingUsageMeterId(pricingId, usageMeterId),
+      );
+    });
 }
 
 function registerCreatePricingCommand(program: Command): Command {
