@@ -27,6 +27,25 @@ export default function registerManagerCommand(program: Command): Command {
     });
 
   managerCommand
+    .command('changeUnitQuantity')
+    .description('Change the unit quantity for a tiered subscription')
+    .argument('<productPassId>', 'The product pass id')
+    .argument('<productId>', 'The product id')
+    .argument('<quantity>', 'The quantity to change to')
+    .action(async (productPassId, productId, quantity) => {
+      await waitTx(
+        purchaseManager
+          .connect(signerWallet)
+          .changeTieredSubscriptionUnitQuantity(
+            productPassId,
+            productId,
+            quantity,
+            false,
+          ),
+      );
+    });
+
+  managerCommand
     .command('purchaseProducts')
     .description('Purchase products by minting a new Product Pass NFT')
     .argument('to', 'The address to mint the Product Pass NFT to')

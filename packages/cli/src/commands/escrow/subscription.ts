@@ -49,6 +49,17 @@ export default function registerSubscriptionCommands(program: Command) {
       console.log(`Status: ${parseStatus(result[1])}`);
     });
 
+  // Get unit quantity
+  subscription
+    .command('getUnitQuantity')
+    .description('Get the unit quantity for a subscription')
+    .argument('<productPassId>', 'The product pass id')
+    .argument('<productId>', 'The product id')
+    .action(async (productPassId, productId) => {
+      const result = await subEscrow.getUnitQuantity(productPassId, productId);
+      console.log(`Unit Quantity: ${result}`);
+    });
+
   // Owner can change pricing
 
   subscription
