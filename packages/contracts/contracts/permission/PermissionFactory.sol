@@ -105,6 +105,22 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
      * @dev View permissions
      */
 
+    function getAllPermissionIds() external view returns (bytes32[] memory) {
+        return allPermissions.values();
+    }
+
+    function getAllPermissions() external view returns (Permission[] memory) {
+        return getPermissionBatch(allPermissions.values());
+    }
+
+    function getPermissionIdByName(
+        string memory _name
+    ) external view returns (bytes32) {
+        bytes32 _permissionId = permissionByName[_name];
+        _checkPermissionExists(_permissionId);
+        return _permissionId;
+    }
+
     function getPermission(
         bytes32 _permissionId
     )
@@ -126,28 +142,12 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
         }
     }
 
-    function getPermissionIdByName(
-        string memory _name
-    ) external view returns (bytes32) {
-        bytes32 _permissionId = permissionByName[_name];
-        _checkPermissionExists(_permissionId);
-        return _permissionId;
-    }
-
     function getPermissionByName(
         string memory _name
     ) external view returns (Permission memory) {
         bytes32 permissionId = permissionByName[_name];
         _checkPermissionExists(permissionId);
         return permissions[permissionId];
-    }
-
-    function getAllPermissionIds() external view returns (bytes32[] memory) {
-        return allPermissions.values();
-    }
-
-    function getAllPermissions() external view returns (Permission[] memory) {
-        return getPermissionBatch(allPermissions.values());
     }
 
     function isPermissionActive(
@@ -181,27 +181,27 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
     function _loadCorePermissions() internal {
         createPermission(
             PermissionUtils.PASS_WALLET_SPEND,
-            "Allow an organization to spend funds from your wallet"
+            "Approve an organization to spend funds from your wallet"
         );
         createPermission(
             PermissionUtils.PASS_PURCHASE_MINT,
-            "Mint a new Product Pass NFT for the organization"
+            "Mint a new Product Pass NFT"
         );
         createPermission(
             PermissionUtils.PASS_PURCHASE_ADDITIONAL,
-            "Purchase additional products for your Product Pass"
+            "Purchase additional products"
         );
         createPermission(
             PermissionUtils.PASS_SUBSCRIPTION_RENEWAL,
-            "Renew subscriptions on your Product Pass"
+            "Automatically renew expired subscriptions"
         );
         createPermission(
             PermissionUtils.PASS_SUBSCRIPTION_PRICING,
-            "Update or downgrade the pricing for a subscription on your Product Pass"
+            "Update or downgrade the pricing for a subscription"
         );
         createPermission(
             PermissionUtils.PASS_SUBSCRIPTION_QUANTITY,
-            "Change the quantity for a TIERED subscription on your Product Pass"
+            "Change the quantity for a TIERED subscription"
         );
     }
 
