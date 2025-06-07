@@ -58,7 +58,7 @@ contract PermissionRegistry is
         address _registry,
         address _permissionFactory
     ) RegistryEnabled(_registry) Ownable(_msgSender()) {
-        permissionFactory = IPermissionFactory(_permissionFactory);
+        _setPermissionFactory(_permissionFactory);
     }
 
     /**
@@ -192,6 +192,10 @@ contract PermissionRegistry is
     function setPermissionFactory(
         address _permissionFactory
     ) external onlyOwner {
+        _setPermissionFactory(_permissionFactory);
+    }
+
+    function _setPermissionFactory(address _permissionFactory) internal {
         require(
             IERC165(_permissionFactory).supportsInterface(
                 type(IPermissionFactory).interfaceId

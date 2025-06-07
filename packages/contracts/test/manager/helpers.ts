@@ -176,6 +176,8 @@ export async function deployPurchaseManager() {
     pricingCalculator,
     paymentEscrow,
     purchaseManager,
+    permissionRegistry,
+    permissionFactory,
     mintToken,
     owner,
     otherAccount,
