@@ -79,8 +79,18 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
 
   const paymentEscrow = m.contract('PaymentEscrow', [contractRegistry]);
 
+  // Permission
+  const permissionFactory = m.contract('PermissionFactory');
+  const permissionRegistry = m.contract('PermissionRegistry', [
+    contractRegistry,
+    permissionFactory,
+  ]);
+
   // Purchase manager
-  const purchaseManager = m.contract('PurchaseManager', [contractRegistry]);
+  const purchaseManager = m.contract('PurchaseManager', [
+    contractRegistry,
+    permissionRegistry,
+  ]);
 
   // Usage recorder
   const usageRecorder = m.contract('UsageRecorder', [contractRegistry]);
@@ -131,6 +141,8 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
     orgAdmin,
     mintToken,
     renewalProcessor,
+    permissionFactory,
+    permissionRegistry,
   };
 });
 

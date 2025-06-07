@@ -144,4 +144,13 @@ describe('ProductMintSystemModule', () => {
     expect(await renewalProcessor.getAddress()).to.not.be.undefined;
     expect(await renewalProcessor.registry()).to.equal(contractRegistry);
   });
+
+  it('should deploy the permission factory and registry with the correct contracts', async () => {
+    const { permissionFactory, permissionRegistry } = await loadFixture(
+      deployProductMintSystem,
+    );
+
+    expect(await permissionFactory.getAddress()).to.not.be.undefined;
+    expect(await permissionRegistry.getAddress()).to.not.be.undefined;
+  });
 });
