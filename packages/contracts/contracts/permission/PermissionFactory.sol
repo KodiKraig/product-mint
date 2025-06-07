@@ -32,7 +32,7 @@ import {PermissionUtils} from "../libs/PermissionUtils.sol";
  * Permissions are used to control access to various features of the system giving pass owners full control
  * over how organizations can charge their wallet for products and subscriptions minted on Product Passes.
  *
- * The contract owner can add new permissions and update existing permissions.
+ * Only the contract owner can add new permissions and update existing permissions.
  *
  * Permission names follow the dot notation format. ex: "pass.purchase.mint"
  */
@@ -49,7 +49,7 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
     // Permission name => Permission ID
     mapping(string => bytes32) private permissionByName;
 
-    constructor() Ownable(msg.sender) {
+    constructor() Ownable(_msgSender()) {
         _loadCorePermissions();
     }
 
@@ -105,20 +105,20 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
      * @dev View permissions
      */
 
-    function getAllPermissionIds() external view returns (bytes32[] memory) {
-        return allPermissions.values();
-    }
-
-    function getAllPermissions() external view returns (Permission[] memory) {
-        return getPermissionBatch(allPermissions.values());
-    }
-
     function getPermissionIdByName(
         string memory _name
     ) external view returns (bytes32) {
         bytes32 _permissionId = permissionByName[_name];
         _checkPermissionExists(_permissionId);
         return _permissionId;
+    }
+
+    function getAllPermissionIds() external view returns (bytes32[] memory) {
+        return allPermissions.values();
+    }
+
+    function getAllPermissions() external view returns (Permission[] memory) {
+        return getPermissionBatch(allPermissions.values());
     }
 
     function getPermission(
@@ -144,10 +144,19 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
 
     function getPermissionByName(
         string memory _name
-    ) external view returns (Permission memory) {
+    ) public view returns (Permission memory) {
         bytes32 permissionId = permissionByName[_name];
         _checkPermissionExists(permissionId);
         return permissions[permissionId];
+    }
+
+    function getPermissionByNameBatch(
+        string[] memory _names
+    ) external view returns (Permission[] memory _permissions) {
+        _permissions = new Permission[](_names.length);
+        for (uint256 i = 0; i < _names.length; i++) {
+            _permissions[i] = getPermissionByName(_names[i]);
+        }
     }
 
     function isPermissionActive(
@@ -158,6 +167,15 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
             permissions[_permissionId].isActive;
     }
 
+    function isPermissionActiveBatch(
+        bytes32[] memory _permissionIds
+    ) external view returns (bool[] memory _isActive) {
+        _isActive = new bool[](_permissionIds.length);
+        for (uint256 i = 0; i < _permissionIds.length; i++) {
+            _isActive[i] = isPermissionActive(_permissionIds[i]);
+        }
+    }
+
     function isPermissionActiveByName(
         string memory _name
     ) public view returns (bool) {
@@ -165,12 +183,12 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
         return isPermissionActive(_permissionId);
     }
 
-    function isPermissionActiveBatch(
-        bytes32[] memory _permissionIds
+    function isPermissionActiveByNameBatch(
+        string[] memory _names
     ) external view returns (bool[] memory _isActive) {
-        _isActive = new bool[](_permissionIds.length);
-        for (uint256 i = 0; i < _permissionIds.length; i++) {
-            _isActive[i] = isPermissionActive(_permissionIds[i]);
+        _isActive = new bool[](_names.length);
+        for (uint256 i = 0; i < _names.length; i++) {
+            _isActive[i] = isPermissionActiveByName(_names[i]);
         }
     }
 
@@ -206,7 +224,7 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
     }
 
     /**
-     * @dev Assertions
+     * @dev Checks
      */
 
     function _checkPermissionExists(bytes32 _permissionId) internal view {
