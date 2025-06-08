@@ -28,12 +28,12 @@ interface IPermissionRegistry {
         bytes32[] memory _permissions
     ) external view returns (bool[] memory _hasPermissions);
 
-    function ownerPermissions(
+    function getPermissions(
         uint256 _orgId,
         address _owner
     ) external view returns (bytes32[] memory);
 
-    function ownerPermissionsBatch(
+    function getPermissionsBatch(
         uint256[] memory _orgIds,
         address[] memory _owners
     ) external view returns (bytes32[][] memory _permissions);

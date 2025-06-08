@@ -52,7 +52,7 @@ contract PermissionRegistry is
     mapping(uint256 => mapping(address => EnumerableSet.Bytes32Set))
         private permissions;
 
-    IPermissionFactory private permissionFactory;
+    IPermissionFactory public permissionFactory;
 
     constructor(
         address _registry,
@@ -84,28 +84,34 @@ contract PermissionRegistry is
         returns (bool[] memory _hasPermissions)
     {
         _hasPermissions = new bool[](_permissions.length);
+
         EnumerableSet.Bytes32Set storage _orgPermissions = permissions[_orgId][
             _owner
         ];
+
         for (uint256 i = 0; i < _permissions.length; i++) {
             _hasPermissions[i] = _orgPermissions.contains(_permissions[i]);
         }
     }
 
-    function ownerPermissions(
+    function getPermissions(
         uint256 _orgId,
         address _owner
     ) public view returns (bytes32[] memory) {
         return permissions[_orgId][_owner].values();
     }
 
-    function ownerPermissionsBatch(
+    function getPermissionsBatch(
         uint256[] memory _orgIds,
         address[] memory _owners
     ) external view returns (bytes32[][] memory _permissions) {
+        require(_orgIds.length > 0, "No orgIds provided");
+        require(_orgIds.length == _owners.length, "Invalid input length");
+
         _permissions = new bytes32[][](_owners.length);
+
         for (uint256 i = 0; i < _owners.length; i++) {
-            _permissions[i] = ownerPermissions(_orgIds[i], _owners[i]);
+            _permissions[i] = getPermissions(_orgIds[i], _owners[i]);
         }
     }
 
@@ -127,7 +133,8 @@ contract PermissionRegistry is
     function removePermissions(
         uint256 _orgId,
         bytes32[] memory _permissions
-    ) external activePermissions(_permissions) {
+    ) external {
+        _checkPermissionsProvided(_permissions);
         _orgOwner(_orgId);
         address _owner = _msgSender();
         for (uint256 i = 0; i < _permissions.length; i++) {
@@ -147,7 +154,7 @@ contract PermissionRegistry is
             _param = _params[i];
 
             for (uint256 j = 0; j < _param.permissions.length; j++) {
-                _assertActivePermission(_param.permissions[j]);
+                _checkActivePermission(_param.permissions[j]);
 
                 if (_param.grantAccess) {
                     permissions[_param.orgId][_param.owner].add(
@@ -200,19 +207,25 @@ contract PermissionRegistry is
             IERC165(_permissionFactory).supportsInterface(
                 type(IPermissionFactory).interfaceId
             ),
-            "Permission factory does not support IPermissionFactory interface"
+            "Invalid permission factory"
         );
         permissionFactory = IPermissionFactory(_permissionFactory);
     }
 
     /**
-     * @dev Assertions
+     * @dev Checks
      */
 
-    function _assertActivePermission(bytes32 _permission) internal view {
+    function _checkActivePermission(bytes32 _permission) internal view {
         if (!permissionFactory.isPermissionActive(_permission)) {
             revert InactivePermission(_permission);
         }
+    }
+
+    function _checkPermissionsProvided(
+        bytes32[] memory _permissions
+    ) internal pure {
+        require(_permissions.length > 0, "No permissions provided");
     }
 
     /**
@@ -220,14 +233,14 @@ contract PermissionRegistry is
      */
 
     modifier activePermission(bytes32 _permission) {
-        _assertActivePermission(_permission);
+        _checkActivePermission(_permission);
         _;
     }
 
     modifier activePermissions(bytes32[] memory _permissions) {
-        require(_permissions.length > 0, "No permissions provided");
+        _checkPermissionsProvided(_permissions);
         for (uint256 i = 0; i < _permissions.length; i++) {
-            _assertActivePermission(_permissions[i]);
+            _checkActivePermission(_permissions[i]);
         }
         _;
     }
