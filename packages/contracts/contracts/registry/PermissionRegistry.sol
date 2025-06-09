@@ -90,7 +90,7 @@ contract PermissionRegistry is
         return ownerPermissions[_orgId][_owner].contains(_permission);
     }
 
-    function hasOwnerPermissions(
+    function hasOwnerPermissionBatch(
         uint256 _orgId,
         address _owner,
         bytes32[] memory _permissions

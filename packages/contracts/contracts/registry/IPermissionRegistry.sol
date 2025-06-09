@@ -30,7 +30,7 @@ interface IPermissionRegistry {
         bytes32 _permission
     ) external view returns (bool);
 
-    function hasOwnerPermissions(
+    function hasOwnerPermissionBatch(
         uint256 _orgId,
         address _owner,
         bytes32[] memory _permissions

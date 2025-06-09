@@ -88,7 +88,7 @@ describe('PermissionRegistry', () => {
       const { permissionRegistry, owner } = await loadWithDefaultProduct();
 
       expect(
-        await permissionRegistry.hasOwnerPermissions(1, owner, [
+        await permissionRegistry.hasOwnerPermissionBatch(1, owner, [
           hashPermissionId('pass.wallet.spend'),
           hashPermissionId('pass.purchase.additional'),
         ]),
@@ -103,7 +103,7 @@ describe('PermissionRegistry', () => {
       ]);
 
       expect(
-        await permissionRegistry.hasOwnerPermissions(1, owner, [
+        await permissionRegistry.hasOwnerPermissionBatch(1, owner, [
           hashPermissionId('pass.wallet.spend'),
           hashPermissionId('pass.purchase.additional'),
         ]),
@@ -120,7 +120,7 @@ describe('PermissionRegistry', () => {
       );
 
       await expect(
-        permissionRegistry.hasOwnerPermissions(1, owner, [
+        permissionRegistry.hasOwnerPermissionBatch(1, owner, [
           hashPermissionId('pass.wallet.spend'),
         ]),
       ).to.be.revertedWithCustomError(
@@ -133,7 +133,7 @@ describe('PermissionRegistry', () => {
       const { permissionRegistry, owner } = await loadWithDefaultProduct();
 
       await expect(
-        permissionRegistry.hasOwnerPermissions(1, owner, [
+        permissionRegistry.hasOwnerPermissionBatch(1, owner, [
           hashPermissionId('not a permission'),
         ]),
       )
@@ -148,7 +148,7 @@ describe('PermissionRegistry', () => {
       const { permissionRegistry, owner } = await loadWithDefaultProduct();
 
       await expect(
-        permissionRegistry.hasOwnerPermissions(1, owner, []),
+        permissionRegistry.hasOwnerPermissionBatch(1, owner, []),
       ).to.be.revertedWith('No permissions provided');
     });
   });
@@ -268,7 +268,7 @@ describe('PermissionRegistry', () => {
       ).to.be.true;
 
       expect(
-        await permissionRegistry.hasOwnerPermissions(1, owner, [
+        await permissionRegistry.hasOwnerPermissionBatch(1, owner, [
           hashPermissionId('pass.wallet.spend'),
           hashPermissionId('pass.purchase.additional'),
         ]),
