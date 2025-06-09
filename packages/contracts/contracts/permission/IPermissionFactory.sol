@@ -21,6 +21,10 @@ interface IPermissionFactory {
     }
 
     /**
+     * @dev Create permissions
+     */
+
+    /**
      * @dev Permission creation
      * Emitted when a new permission is created.
      *
@@ -33,16 +37,6 @@ interface IPermissionFactory {
         string name,
         string description
     );
-
-    /**
-     * @dev Permission activation
-     * Emitted when a permission is activated or deactivated.
-     */
-    event PermissionActivation(bytes32 indexed permissionId, bool isActive);
-
-    /**
-     * @dev Create permissions
-     */
 
     /**
      * Create a new permission.
@@ -63,6 +57,12 @@ interface IPermissionFactory {
     /**
      * @dev Permission status
      */
+
+    /**
+     * @dev Permission activation
+     * Emitted when a permission is activated or deactivated.
+     */
+    event PermissionActivation(bytes32 indexed permissionId, bool isActive);
 
     /**
      * Set the active status of a permission.
