@@ -134,7 +134,12 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
 
     function getPermissionBatch(
         bytes32[] memory _permissionIds
-    ) public view returns (Permission[] memory _permissions) {
+    )
+        public
+        view
+        permissionsProvided(_permissionIds)
+        returns (Permission[] memory _permissions)
+    {
         _permissions = new Permission[](_permissionIds.length);
         for (uint256 i = 0; i < _permissionIds.length; i++) {
             _checkPermissionExists(_permissionIds[i]);
@@ -152,7 +157,12 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
 
     function getPermissionByNameBatch(
         string[] memory _names
-    ) external view returns (Permission[] memory _permissions) {
+    )
+        external
+        view
+        permissionNamesProvided(_names)
+        returns (Permission[] memory _permissions)
+    {
         _permissions = new Permission[](_names.length);
         for (uint256 i = 0; i < _names.length; i++) {
             _permissions[i] = getPermissionByName(_names[i]);
@@ -169,7 +179,7 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
 
     function isPermissionActiveBatch(
         bytes32[] memory _permissionIds
-    ) external view returns (bool) {
+    ) external view permissionsProvided(_permissionIds) returns (bool) {
         for (uint256 i = 0; i < _permissionIds.length; i++) {
             if (!isPermissionActive(_permissionIds[i])) {
                 return false;
@@ -187,7 +197,7 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
 
     function isPermissionActiveByNameBatch(
         string[] memory _names
-    ) external view returns (bool) {
+    ) external view permissionNamesProvided(_names) returns (bool) {
         for (uint256 i = 0; i < _names.length; i++) {
             if (!isPermissionActiveByName(_names[i])) {
                 return false;
@@ -234,12 +244,34 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
         );
     }
 
+    function _checkPermissionsProvided(
+        bytes32[] memory _permissions
+    ) internal pure {
+        require(_permissions.length > 0, "No permissions provided");
+    }
+
+    function _checkPermissionNamesProvided(
+        string[] memory _names
+    ) internal pure {
+        require(_names.length > 0, "No permission names provided");
+    }
+
     /**
      * @dev Modifiers
      */
 
     modifier permissionExists(bytes32 _permissionId) {
         _checkPermissionExists(_permissionId);
+        _;
+    }
+
+    modifier permissionsProvided(bytes32[] memory _permissions) {
+        _checkPermissionsProvided(_permissions);
+        _;
+    }
+
+    modifier permissionNamesProvided(string[] memory _names) {
+        _checkPermissionNamesProvided(_names);
         _;
     }
 

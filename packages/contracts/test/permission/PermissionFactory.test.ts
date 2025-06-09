@@ -351,6 +351,16 @@ describe('PermissionFactory', () => {
           ]),
         ).to.be.revertedWith('Permission does not exist');
       });
+
+      it('should revert if no permissions are provided', async () => {
+        const { permissionFactory } = await loadFixture(
+          deployPermissionFactory,
+        );
+
+        await expect(
+          permissionFactory.getPermissionBatch([]),
+        ).to.be.revertedWith('No permissions provided');
+      });
     });
 
     describe('Get Permission By Name', () => {
@@ -383,126 +393,148 @@ describe('PermissionFactory', () => {
           ).to.be.revertedWith('Permission does not exist');
         });
       });
+    });
 
-      describe('Get Permission By Name Batch', () => {
-        it('should get a batch of permissions by name', async () => {
-          const { permissionFactory } = await loadFixture(
-            deployPermissionFactory,
-          );
+    describe('Get Permission By Name Batch', () => {
+      it('should get a batch of permissions by name', async () => {
+        const { permissionFactory } = await loadFixture(
+          deployPermissionFactory,
+        );
 
-          const permissions = await permissionFactory.getPermissionByNameBatch([
+        const permissions = await permissionFactory.getPermissionByNameBatch([
+          'pass.wallet.spend',
+          'pass.purchase.additional',
+        ]);
+
+        expect(permissions.length).to.equal(2);
+        expect(permissions[0].name).to.equal('pass.wallet.spend');
+        expect(permissions[1].name).to.equal('pass.purchase.additional');
+      });
+
+      it('should revert if permission does not exist', async () => {
+        const { permissionFactory } = await loadFixture(
+          deployPermissionFactory,
+        );
+
+        await expect(
+          permissionFactory.getPermissionByNameBatch([
+            'pass.wallet.spend',
+            'pass.purchase.additional',
+            'test.permission',
+          ]),
+        ).to.be.revertedWith('Permission does not exist');
+      });
+
+      it('should revert if no permissions are provided', async () => {
+        const { permissionFactory } = await loadFixture(
+          deployPermissionFactory,
+        );
+
+        await expect(
+          permissionFactory.getPermissionByNameBatch([]),
+        ).to.be.revertedWith('No permission names provided');
+      });
+    });
+
+    describe('Is Permission Active', () => {
+      it('should return true if permission is active', async () => {
+        const { permissionFactory } = await loadFixture(
+          deployPermissionFactory,
+        );
+
+        const isActive = await permissionFactory.isPermissionActive(
+          hashPermissionId('pass.wallet.spend'),
+        );
+        expect(isActive).to.equal(true);
+
+        const isActiveByName = await permissionFactory.isPermissionActiveByName(
+          'pass.wallet.spend',
+        );
+        expect(isActiveByName).to.equal(true);
+      });
+
+      it('should return false if permission is not active', async () => {
+        const { permissionFactory } = await loadFixture(
+          deployPermissionFactory,
+        );
+
+        await permissionFactory.setPermissionActive(
+          hashPermissionId('pass.wallet.spend'),
+          false,
+        );
+
+        const isActive = await permissionFactory.isPermissionActive(
+          hashPermissionId('pass.wallet.spend'),
+        );
+        expect(isActive).to.equal(false);
+
+        const isActiveByName = await permissionFactory.isPermissionActiveByName(
+          'pass.wallet.spend',
+        );
+        expect(isActiveByName).to.equal(false);
+      });
+    });
+
+    describe('Is Permission Active Batch', () => {
+      it('should return a batch of active statuses', async () => {
+        const { permissionFactory } = await loadFixture(
+          deployPermissionFactory,
+        );
+
+        const isActive = await permissionFactory.isPermissionActiveBatch([
+          hashPermissionId('pass.wallet.spend'),
+          hashPermissionId('pass.purchase.additional'),
+        ]);
+
+        expect(isActive).to.equal(true);
+
+        const isActiveByName =
+          await permissionFactory.isPermissionActiveByNameBatch([
             'pass.wallet.spend',
             'pass.purchase.additional',
           ]);
 
-          expect(permissions.length).to.equal(2);
-          expect(permissions[0].name).to.equal('pass.wallet.spend');
-          expect(permissions[1].name).to.equal('pass.purchase.additional');
-
-          it('should revert if permission does not exist', async () => {
-            const { permissionFactory } = await loadFixture(
-              deployPermissionFactory,
-            );
-
-            await expect(
-              permissionFactory.getPermissionByNameBatch([
-                'pass.wallet.spend',
-                'pass.purchase.additional',
-                'test.permission',
-              ]),
-            ).to.be.revertedWith('Permission does not exist');
-          });
-        });
-
-        describe('Is Permission Active', () => {
-          it('should return true if permission is active', async () => {
-            const { permissionFactory } = await loadFixture(
-              deployPermissionFactory,
-            );
-
-            const isActive = await permissionFactory.isPermissionActive(
-              hashPermissionId('pass.wallet.spend'),
-            );
-            expect(isActive).to.equal(true);
-
-            const isActiveByName =
-              await permissionFactory.isPermissionActiveByName(
-                'pass.wallet.spend',
-              );
-            expect(isActiveByName).to.equal(true);
-          });
-
-          it('should return false if permission is not active', async () => {
-            const { permissionFactory } = await loadFixture(
-              deployPermissionFactory,
-            );
-
-            await permissionFactory.setPermissionActive(
-              hashPermissionId('pass.wallet.spend'),
-              false,
-            );
-
-            const isActive = await permissionFactory.isPermissionActive(
-              hashPermissionId('pass.wallet.spend'),
-            );
-            expect(isActive).to.equal(false);
-
-            const isActiveByName =
-              await permissionFactory.isPermissionActiveByName(
-                'pass.wallet.spend',
-              );
-            expect(isActiveByName).to.equal(false);
-          });
-        });
+        expect(isActiveByName).to.equal(true);
       });
 
-      describe('Is Permission Active Batch', () => {
-        it('should return a batch of active statuses', async () => {
-          const { permissionFactory } = await loadFixture(
-            deployPermissionFactory,
-          );
+      it('should return false if permission is not active', async () => {
+        const { permissionFactory } = await loadFixture(
+          deployPermissionFactory,
+        );
 
-          const isActive = await permissionFactory.isPermissionActiveBatch([
-            hashPermissionId('pass.wallet.spend'),
-            hashPermissionId('pass.purchase.additional'),
+        await permissionFactory.setPermissionActive(
+          hashPermissionId('pass.wallet.spend'),
+          false,
+        );
+
+        const isActive = await permissionFactory.isPermissionActiveBatch([
+          hashPermissionId('pass.wallet.spend'),
+          hashPermissionId('pass.purchase.additional'),
+        ]);
+
+        expect(isActive).to.equal(false);
+
+        const isActiveByName =
+          await permissionFactory.isPermissionActiveByNameBatch([
+            'pass.wallet.spend',
+            'pass.purchase.additional',
           ]);
 
-          expect(isActive).to.equal(true);
+        expect(isActiveByName).to.equal(false);
+      });
 
-          const isActiveByName =
-            await permissionFactory.isPermissionActiveByNameBatch([
-              'pass.wallet.spend',
-              'pass.purchase.additional',
-            ]);
+      it('should revert if no permissions are provided', async () => {
+        const { permissionFactory } = await loadFixture(
+          deployPermissionFactory,
+        );
 
-          expect(isActiveByName).to.equal(true);
-        });
+        await expect(
+          permissionFactory.isPermissionActiveBatch([]),
+        ).to.be.revertedWith('No permissions provided');
 
-        it('should return false if permission is not active', async () => {
-          const { permissionFactory } = await loadFixture(
-            deployPermissionFactory,
-          );
-
-          await permissionFactory.setPermissionActive(
-            hashPermissionId('pass.wallet.spend'),
-            false,
-          );
-
-          const isActive = await permissionFactory.isPermissionActiveBatch([
-            hashPermissionId('pass.wallet.spend'),
-            hashPermissionId('pass.purchase.additional'),
-          ]);
-
-          expect(isActive).to.equal(false);
-
-          const isActiveByName =
-            await permissionFactory.isPermissionActiveByNameBatch([
-              'pass.wallet.spend',
-              'pass.purchase.additional',
-            ]);
-
-          expect(isActiveByName).to.equal(false);
-        });
+        await expect(
+          permissionFactory.isPermissionActiveByNameBatch([]),
+        ).to.be.revertedWith('No permission names provided');
       });
     });
   });
