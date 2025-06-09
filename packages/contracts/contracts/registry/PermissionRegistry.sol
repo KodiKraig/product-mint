@@ -36,9 +36,16 @@ import {PermissionUtils} from "../libs/PermissionUtils.sol";
  * Permissions are used to control access to various features of the system giving pass owners full control
  * over how organizations can charge their wallet for products and subscriptions minted on Product Passes.
  *
- * Only owners can grant and revoke permissions.
+ * Only owners can grant and revoke their own permissions.
  *
  * All permissions are derived from the PermissionFactory contract.
+ *
+ * Organizations can set initial permissions that will be granted to the purchaser
+ * of a product pass during the initial pass minting via the PurchaseManager.
+ *
+ * Organizations can add additional initial permissions to the pass minting process.
+ *
+ * Organizations can also exclude granting core permissions during the pass minting process.
  */
 contract PermissionRegistry is
     RegistryEnabled,
@@ -47,10 +54,20 @@ contract PermissionRegistry is
     IERC165
 {
     using EnumerableSet for EnumerableSet.Bytes32Set;
+    using PermissionUtils for string;
 
-    // Organization ID => Owner => Permissions
+    // Organization ID => Owner => Permission IDs
     mapping(uint256 => mapping(address => EnumerableSet.Bytes32Set))
-        private permissions;
+        private ownerPermissions;
+
+    // Organization ID => Permission IDs
+    mapping(uint256 => EnumerableSet.Bytes32Set) private orgPermissions;
+
+    // Organization ID => Exclude core permissions for org during initial purchase?
+    mapping(uint256 => bool) public excludeCorePermissions;
+
+    // Pass Owner => Have initial owner org permissions been set?
+    mapping(uint256 => mapping(address => bool)) public ownerPermissionsSet;
 
     IPermissionFactory public permissionFactory;
 
@@ -62,18 +79,18 @@ contract PermissionRegistry is
     }
 
     /**
-     * @dev View permissions
+     * @dev View owner permissions
      */
 
-    function hasPermission(
+    function hasOwnerPermission(
         uint256 _orgId,
         address _owner,
         bytes32 _permission
     ) external view activePermission(_permission) returns (bool) {
-        return permissions[_orgId][_owner].contains(_permission);
+        return ownerPermissions[_orgId][_owner].contains(_permission);
     }
 
-    function hasPermissions(
+    function hasOwnerPermissions(
         uint256 _orgId,
         address _owner,
         bytes32[] memory _permissions
@@ -85,23 +102,23 @@ contract PermissionRegistry is
     {
         _hasPermissions = new bool[](_permissions.length);
 
-        EnumerableSet.Bytes32Set storage _orgPermissions = permissions[_orgId][
-            _owner
-        ];
+        EnumerableSet.Bytes32Set storage _orgPermissions = ownerPermissions[
+            _orgId
+        ][_owner];
 
         for (uint256 i = 0; i < _permissions.length; i++) {
             _hasPermissions[i] = _orgPermissions.contains(_permissions[i]);
         }
     }
 
-    function getPermissions(
+    function getOwnerPermissions(
         uint256 _orgId,
         address _owner
     ) public view returns (bytes32[] memory) {
-        return permissions[_orgId][_owner].values();
+        return ownerPermissions[_orgId][_owner].values();
     }
 
-    function getPermissionsBatch(
+    function getOwnerPermissionsBatch(
         uint256[] memory _orgIds,
         address[] memory _owners
     ) external view returns (bytes32[][] memory _permissions) {
@@ -111,34 +128,136 @@ contract PermissionRegistry is
         _permissions = new bytes32[][](_owners.length);
 
         for (uint256 i = 0; i < _owners.length; i++) {
-            _permissions[i] = getPermissions(_orgIds[i], _owners[i]);
+            _permissions[i] = getOwnerPermissions(_orgIds[i], _owners[i]);
         }
     }
 
     /**
-     * @dev Grant and revoke permissions
+     * @dev Grant and revoke owner permissions
      */
 
-    function addPermissions(
-        uint256 _orgId,
-        bytes32[] memory _permissions
-    ) external activePermissions(_permissions) {
-        _orgOwner(_orgId);
-        address _owner = _msgSender();
-        for (uint256 i = 0; i < _permissions.length; i++) {
-            permissions[_orgId][_owner].add(_permissions[i]);
-        }
-    }
-
-    function removePermissions(
+    function addOwnerPermissions(
         uint256 _orgId,
         bytes32[] memory _permissions
     ) external {
-        _checkPermissionsProvided(_permissions);
         _orgOwner(_orgId);
-        address _owner = _msgSender();
+
+        _addOwnerPermissions(_orgId, _msgSender(), _permissions);
+    }
+
+    function removeOwnerPermissions(
+        uint256 _orgId,
+        bytes32[] memory _permissions
+    ) external {
+        _orgOwner(_orgId);
+
+        _removeOwnerPermissions(_orgId, _msgSender(), _permissions);
+    }
+
+    function _addOwnerPermissions(
+        uint256 _orgId,
+        address _owner,
+        bytes32[] memory _permissions
+    ) internal {
+        _checkActivePermissionBatch(_permissions);
+
         for (uint256 i = 0; i < _permissions.length; i++) {
-            permissions[_orgId][_owner].remove(_permissions[i]);
+            ownerPermissions[_orgId][_owner].add(_permissions[i]);
+        }
+
+        emit OwnerPermissionsUpdated(_orgId, _owner, true, _permissions);
+    }
+
+    function _removeOwnerPermissions(
+        uint256 _orgId,
+        address _owner,
+        bytes32[] memory _permissions
+    ) internal {
+        _checkPermissionsProvided(_permissions);
+
+        for (uint256 i = 0; i < _permissions.length; i++) {
+            ownerPermissions[_orgId][_owner].remove(_permissions[i]);
+        }
+
+        emit OwnerPermissionsUpdated(_orgId, _owner, false, _permissions);
+    }
+
+    /**
+     * @dev Initial organization permissions
+     */
+
+    function getInitialOrgPermissions(
+        uint256 _orgId
+    ) external view returns (bytes32[] memory) {
+        return orgPermissions[_orgId].values();
+    }
+
+    function setExcludeCorePermissions(
+        uint256 _orgId,
+        bool _exclude
+    ) external onlyOrgAdmin(_orgId) {
+        excludeCorePermissions[_orgId] = _exclude;
+
+        emit ExcludeCorePermissionsUpdated(_orgId, _exclude);
+    }
+
+    function updateInitialOrgPermissions(
+        uint256 _orgId,
+        bytes32[] memory _permissions,
+        bool[] memory _add
+    ) external onlyOrgAdmin(_orgId) activePermissions(_permissions) {
+        require(_permissions.length == _add.length, "Invalid input length");
+
+        for (uint256 i = 0; i < _permissions.length; i++) {
+            if (_add[i]) {
+                orgPermissions[_orgId].add(_permissions[i]);
+
+                emit InitialOrgPermissionUpdated(_orgId, _permissions[i], true);
+            } else {
+                orgPermissions[_orgId].remove(_permissions[i]);
+
+                emit InitialOrgPermissionUpdated(
+                    _orgId,
+                    _permissions[i],
+                    false
+                );
+            }
+        }
+    }
+
+    function setOwnerInitialPermissions(
+        uint256 _orgId,
+        address _owner
+    ) external onlyRegistry(registry.purchaseManager()) {
+        _setOwnerInitialPermissions(_orgId, _owner);
+    }
+
+    function _setOwnerInitialPermissions(
+        uint256 _orgId,
+        address _owner
+    ) internal {
+        if (ownerPermissionsSet[_orgId][_owner]) {
+            // Will only be set once per owner per org
+            return;
+        } else {
+            ownerPermissionsSet[_orgId][_owner] = true;
+        }
+
+        // Set core permissions if not excluded by org
+        if (!excludeCorePermissions[_orgId]) {
+            bytes32[] memory _corePermissions = PermissionUtils
+                .allCorePermissions();
+
+            _addOwnerPermissions(_orgId, _owner, _corePermissions);
+        }
+
+        // Set any additional initial org permissions
+        if (orgPermissions[_orgId].length() > 0) {
+            _addOwnerPermissions(
+                _orgId,
+                _owner,
+                orgPermissions[_orgId].values()
+            );
         }
     }
 
@@ -146,53 +265,45 @@ contract PermissionRegistry is
      * @dev Admin functions
      */
 
-    function adminUpdatePermissions(
+    function adminUpdateOwnerPermissions(
         AdminPermissionSetterParams[] memory _params
     ) external onlyOwner {
+        require(_params.length > 0, "No params provided");
+
         AdminPermissionSetterParams memory _param;
         for (uint256 i = 0; i < _params.length; i++) {
             _param = _params[i];
 
-            for (uint256 j = 0; j < _param.permissions.length; j++) {
-                _checkActivePermission(_param.permissions[j]);
-
-                if (_param.grantAccess) {
-                    permissions[_param.orgId][_param.owner].add(
-                        _param.permissions[j]
-                    );
-                } else {
-                    permissions[_param.orgId][_param.owner].remove(
-                        _param.permissions[j]
-                    );
-                }
+            if (_param.grantAccess) {
+                _addOwnerPermissions(
+                    _param.orgId,
+                    _param.owner,
+                    _param.permissions
+                );
+            } else {
+                _removeOwnerPermissions(
+                    _param.orgId,
+                    _param.owner,
+                    _param.permissions
+                );
             }
         }
     }
 
-    function adminGrantAllPermissions() external onlyOwner {
-        // This contract was deployed after the core system as an upgrade
-        // Backfill permissions for all current pass owners
+    function adminGrantInitialOwnerPermissions(
+        uint256[] calldata _passIds
+    ) external onlyOwner {
+        require(_passIds.length > 0, "No passIds provided");
 
-        address _owner;
-        EnumerableSet.Bytes32Set storage _permissions;
-        bytes32[] memory _allPermissions = permissionFactory
-            .getAllPermissionIds();
-        uint256 _totalPassSupply = IPurchaseManager(registry.purchaseManager())
-            .passSupply();
+        uint256 _orgId;
+        uint256 _passId;
 
-        for (uint256 i = 1; i <= _totalPassSupply; i++) {
-            _owner = _passOwner(i);
-            _permissions = permissions[
-                IPurchaseRegistry(registry.purchaseRegistry()).passOrganization(
-                    i
-                )
-            ][_owner];
+        for (uint256 i = 0; i <= _passIds.length; i++) {
+            _passId = _passIds[i];
+            _orgId = IPurchaseRegistry(registry.purchaseRegistry())
+                .passOrganization(_passId);
 
-            for (uint256 j = 0; j < _allPermissions.length; j++) {
-                if (permissionFactory.isPermissionActive(_allPermissions[j])) {
-                    _permissions.add(_allPermissions[j]);
-                }
-            }
+            _setOwnerInitialPermissions(_orgId, _passOwner(_passId));
         }
     }
 
@@ -222,6 +333,16 @@ contract PermissionRegistry is
         }
     }
 
+    function _checkActivePermissionBatch(
+        bytes32[] memory _permissions
+    ) internal view {
+        _checkPermissionsProvided(_permissions);
+
+        if (!permissionFactory.isPermissionActiveBatch(_permissions)) {
+            revert InactivePermissionBatch(_permissions);
+        }
+    }
+
     function _checkPermissionsProvided(
         bytes32[] memory _permissions
     ) internal pure {
@@ -238,10 +359,7 @@ contract PermissionRegistry is
     }
 
     modifier activePermissions(bytes32[] memory _permissions) {
-        _checkPermissionsProvided(_permissions);
-        for (uint256 i = 0; i < _permissions.length; i++) {
-            _checkActivePermission(_permissions[i]);
-        }
+        _checkActivePermissionBatch(_permissions);
         _;
     }
 

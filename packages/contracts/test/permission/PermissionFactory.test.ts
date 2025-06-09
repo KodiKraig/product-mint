@@ -79,10 +79,9 @@ describe('PermissionFactory', () => {
       expect(await permissionFactory.getAddress()).to.not.be.undefined;
 
       const allPermissionIds = await permissionFactory.getAllPermissionIds();
-      expect(allPermissionIds.length).to.equal(6);
+      expect(allPermissionIds.length).to.equal(5);
       expect(allPermissionIds).to.deep.equal([
         hashPermissionId('pass.wallet.spend'),
-        hashPermissionId('pass.purchase.mint'),
         hashPermissionId('pass.purchase.additional'),
         hashPermissionId('pass.subscription.renewal'),
         hashPermissionId('pass.subscription.pricing'),
@@ -90,7 +89,7 @@ describe('PermissionFactory', () => {
       ]);
 
       const allPermissions = await permissionFactory.getAllPermissions();
-      expect(allPermissions.length).to.equal(6);
+      expect(allPermissions.length).to.equal(5);
 
       assertPermission({
         test: allPermissions[0],
@@ -105,15 +104,6 @@ describe('PermissionFactory', () => {
       assertPermission({
         test: allPermissions[1],
         expected: {
-          name: 'pass.purchase.mint',
-          description: 'Mint a new Product Pass NFT',
-          isActive: true,
-          createdAt: deploymentTimestamp!,
-        },
-      });
-      assertPermission({
-        test: allPermissions[2],
-        expected: {
           name: 'pass.purchase.additional',
           description: 'Purchase additional products',
           isActive: true,
@@ -121,7 +111,7 @@ describe('PermissionFactory', () => {
         },
       });
       assertPermission({
-        test: allPermissions[3],
+        test: allPermissions[2],
         expected: {
           name: 'pass.subscription.renewal',
           description: 'Automatically renew expired subscriptions',
@@ -130,7 +120,7 @@ describe('PermissionFactory', () => {
         },
       });
       assertPermission({
-        test: allPermissions[4],
+        test: allPermissions[3],
         expected: {
           name: 'pass.subscription.pricing',
           description: 'Update or downgrade the pricing for a subscription',
@@ -139,7 +129,7 @@ describe('PermissionFactory', () => {
         },
       });
       assertPermission({
-        test: allPermissions[5],
+        test: allPermissions[4],
         expected: {
           name: 'pass.subscription.quantity',
           description: 'Change the quantity for a TIERED subscription',
@@ -165,10 +155,9 @@ describe('PermissionFactory', () => {
         );
 
       const allPermissionIds = await permissionFactory.getAllPermissionIds();
-      expect(allPermissionIds.length).to.equal(7);
+      expect(allPermissionIds.length).to.equal(6);
       expect(allPermissionIds).to.deep.equal([
         hashPermissionId('pass.wallet.spend'),
-        hashPermissionId('pass.purchase.mint'),
         hashPermissionId('pass.purchase.additional'),
         hashPermissionId('pass.subscription.renewal'),
         hashPermissionId('pass.subscription.pricing'),
@@ -341,12 +330,12 @@ describe('PermissionFactory', () => {
 
         const permissions = await permissionFactory.getPermissionBatch([
           hashPermissionId('pass.wallet.spend'),
-          hashPermissionId('pass.purchase.mint'),
+          hashPermissionId('pass.purchase.additional'),
         ]);
 
         expect(permissions.length).to.equal(2);
         expect(permissions[0].name).to.equal('pass.wallet.spend');
-        expect(permissions[1].name).to.equal('pass.purchase.mint');
+        expect(permissions[1].name).to.equal('pass.purchase.additional');
       });
 
       it('should revert if permission does not exist', async () => {
@@ -357,7 +346,7 @@ describe('PermissionFactory', () => {
         await expect(
           permissionFactory.getPermissionBatch([
             hashPermissionId('pass.wallet.spend'),
-            hashPermissionId('pass.purchase.mint'),
+            hashPermissionId('pass.purchase.additional'),
             hashPermissionId('test.permission'),
           ]),
         ).to.be.revertedWith('Permission does not exist');
@@ -403,12 +392,12 @@ describe('PermissionFactory', () => {
 
           const permissions = await permissionFactory.getPermissionByNameBatch([
             'pass.wallet.spend',
-            'pass.purchase.mint',
+            'pass.purchase.additional',
           ]);
 
           expect(permissions.length).to.equal(2);
           expect(permissions[0].name).to.equal('pass.wallet.spend');
-          expect(permissions[1].name).to.equal('pass.purchase.mint');
+          expect(permissions[1].name).to.equal('pass.purchase.additional');
 
           it('should revert if permission does not exist', async () => {
             const { permissionFactory } = await loadFixture(
@@ -418,7 +407,7 @@ describe('PermissionFactory', () => {
             await expect(
               permissionFactory.getPermissionByNameBatch([
                 'pass.wallet.spend',
-                'pass.purchase.mint',
+                'pass.purchase.additional',
                 'test.permission',
               ]),
             ).to.be.revertedWith('Permission does not exist');
@@ -475,22 +464,18 @@ describe('PermissionFactory', () => {
 
           const isActive = await permissionFactory.isPermissionActiveBatch([
             hashPermissionId('pass.wallet.spend'),
-            hashPermissionId('pass.purchase.mint'),
+            hashPermissionId('pass.purchase.additional'),
           ]);
 
-          expect(isActive.length).to.equal(2);
-          expect(isActive[0]).to.equal(true);
-          expect(isActive[1]).to.equal(true);
+          expect(isActive).to.equal(true);
 
           const isActiveByName =
             await permissionFactory.isPermissionActiveByNameBatch([
               'pass.wallet.spend',
-              'pass.purchase.mint',
+              'pass.purchase.additional',
             ]);
 
-          expect(isActiveByName.length).to.equal(2);
-          expect(isActiveByName[0]).to.equal(true);
-          expect(isActiveByName[1]).to.equal(true);
+          expect(isActiveByName).to.equal(true);
         });
 
         it('should return false if permission is not active', async () => {
@@ -505,22 +490,18 @@ describe('PermissionFactory', () => {
 
           const isActive = await permissionFactory.isPermissionActiveBatch([
             hashPermissionId('pass.wallet.spend'),
-            hashPermissionId('pass.purchase.mint'),
+            hashPermissionId('pass.purchase.additional'),
           ]);
 
-          expect(isActive.length).to.equal(2);
-          expect(isActive[0]).to.equal(false);
-          expect(isActive[1]).to.equal(true);
+          expect(isActive).to.equal(false);
 
           const isActiveByName =
             await permissionFactory.isPermissionActiveByNameBatch([
               'pass.wallet.spend',
-              'pass.purchase.mint',
+              'pass.purchase.additional',
             ]);
 
-          expect(isActiveByName.length).to.equal(2);
-          expect(isActiveByName[0]).to.equal(false);
-          expect(isActiveByName[1]).to.equal(true);
+          expect(isActiveByName).to.equal(false);
         });
       });
     });

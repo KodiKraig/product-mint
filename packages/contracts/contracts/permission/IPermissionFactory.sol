@@ -158,11 +158,11 @@ interface IPermissionFactory {
      * Check if a batch of permissions are active.
      *
      * @param _permissionIds The IDs of the permissions
-     * @return _isActive The active statuses of the permissions
+     * @return true if all permissions are active, false otherwise
      */
     function isPermissionActiveBatch(
         bytes32[] memory _permissionIds
-    ) external view returns (bool[] memory _isActive);
+    ) external view returns (bool);
 
     /**
      * Check if a permission is active by name.
@@ -178,9 +178,9 @@ interface IPermissionFactory {
      * Check if a batch of permissions are active by name.
      *
      * @param _names The names of the permissions in dot notation (e.g. ["pass.wallet.spend", "pass.purchase.mint"])
-     * @return _isActive The active statuses of the permissions
+     * @return true if all permissions are active, false otherwise
      */
     function isPermissionActiveByNameBatch(
         string[] memory _names
-    ) external view returns (bool[] memory _isActive);
+    ) external view returns (bool);
 }

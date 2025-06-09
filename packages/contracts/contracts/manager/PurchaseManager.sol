@@ -22,6 +22,7 @@ import {IPricingCalculator} from "../calculator/IPricingCalculator.sol";
 import {ICouponRegistry} from "../registry/ICouponRegistry.sol";
 import {IDiscountRegistry} from "../registry/IDiscountRegistry.sol";
 import {PermissionChecker} from "../abstract/PermissionChecker.sol";
+import {PermissionUtils} from "../libs/PermissionUtils.sol";
 
 /*
  ____                 _            _   __  __ _       _   
@@ -78,11 +79,10 @@ contract PurchaseManager is
 
         address purchaser = _msgSender();
 
-        // _assertPermission(
-        //     PermissionUtils.PASS_PURCHASE_MINT.id(),
-        //     params.organizationId,
-        //     purchaser
-        // );
+        permissionRegistry.setOwnerInitialPermissions(
+            params.organizationId,
+            purchaser
+        );
 
         if (params.discountIds.length > 0) {
             IDiscountRegistry(registry.discountRegistry()).mintDiscountsToPass(
@@ -122,11 +122,11 @@ contract PurchaseManager is
         uint256 orgId = IPurchaseRegistry(registry.purchaseRegistry())
             .passOrganization(params.productPassId);
 
-        // _assertPermission(
-        //     PermissionUtils.PASS_PURCHASE_ADDITIONAL.id(),
-        //     orgId,
-        //     passOwner
-        // );
+        _checkPermissionName(
+            PermissionUtils.PASS_PURCHASE_ADDITIONAL,
+            orgId,
+            passOwner
+        );
 
         _purchaseProducts(
             PurchaseProductsParams({
@@ -230,11 +230,11 @@ contract PurchaseManager is
 
         address passOwner = _passOwner(params.productPassId);
 
-        // _assertPermission(
-        //     PermissionUtils.PASS_SUBSCRIPTION_PRICING.id(),
-        //     params.orgId,
-        //     passOwner
-        // );
+        _checkPermissionName(
+            PermissionUtils.PASS_SUBSCRIPTION_PRICING,
+            params.orgId,
+            passOwner
+        );
 
         IPricingRegistry(registry.pricingRegistry()).validateCheckout(
             params.orgId,
@@ -309,11 +309,11 @@ contract PurchaseManager is
 
         address passOwner = _passOwner(productPassId);
 
-        // _assertPermission(
-        //     PermissionUtils.PASS_SUBSCRIPTION_RENEWAL.id(),
-        //     orgId,
-        //     passOwner
-        // );
+        _checkPermissionName(
+            PermissionUtils.PASS_SUBSCRIPTION_RENEWAL,
+            orgId,
+            passOwner
+        );
 
         if (price > 0) {
             _performPurchase(
@@ -348,11 +348,11 @@ contract PurchaseManager is
 
         address passOwner = _passOwner(productPassId);
 
-        // _assertPermission(
-        //     PermissionUtils.PASS_SUBSCRIPTION_QUANTITY.id(),
-        //     orgId,
-        //     passOwner
-        // );
+        _checkPermissionName(
+            PermissionUtils.PASS_SUBSCRIPTION_QUANTITY,
+            orgId,
+            passOwner
+        );
 
         if (amount > 0) {
             _performPurchase(
@@ -480,11 +480,11 @@ contract PurchaseManager is
 
         // Transfer funds
         if (params.totalAmount > 0) {
-            // _assertPermission(
-            //     PermissionUtils.PASS_WALLET_SPEND.id(),
-            //     params.orgId,
-            //     params.purchaser
-            // );
+            _checkPermissionName(
+                PermissionUtils.PASS_WALLET_SPEND,
+                params.orgId,
+                params.purchaser
+            );
 
             IPaymentEscrow(registry.paymentEscrow()).transferDirect{
                 value: msg.value

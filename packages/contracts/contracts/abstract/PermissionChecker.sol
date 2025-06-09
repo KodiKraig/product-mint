@@ -16,7 +16,7 @@ abstract contract PermissionChecker {
 
     error PermissionNotFound(bytes32 _id, address _caller);
 
-    IPermissionRegistry private permissionRegistry;
+    IPermissionRegistry public permissionRegistry;
 
     constructor(address _registry) {
         _setPermissionRegistry(_registry);
@@ -31,7 +31,9 @@ abstract contract PermissionChecker {
         uint256 _orgId,
         address _owner
     ) internal view virtual {
-        if (!permissionRegistry.hasPermission(_orgId, _owner, _permission)) {
+        if (
+            !permissionRegistry.hasOwnerPermission(_orgId, _owner, _permission)
+        ) {
             revert PermissionNotFound(_permission, _owner);
         }
     }

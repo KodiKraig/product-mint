@@ -27,12 +27,12 @@ describe('PermissionRegistry', () => {
     });
   });
 
-  describe('Has Permission', () => {
+  describe('Has Owner Permission', () => {
     it('returns false if the permission is not set', async () => {
       const { permissionRegistry, owner } = await loadWithDefaultProduct();
 
       expect(
-        await permissionRegistry.hasPermission(
+        await permissionRegistry.hasOwnerPermission(
           1,
           owner,
           hashPermissionId('pass.wallet.spend'),
@@ -44,7 +44,7 @@ describe('PermissionRegistry', () => {
       const { permissionRegistry, owner } = await loadWithDefaultProduct();
 
       await expect(
-        permissionRegistry.hasPermission(
+        permissionRegistry.hasOwnerPermission(
           1,
           owner,
           hashPermissionId('not a permission'),
@@ -62,7 +62,7 @@ describe('PermissionRegistry', () => {
       );
 
       await expect(
-        permissionRegistry.hasPermission(
+        permissionRegistry.hasOwnerPermission(
           1,
           owner,
           hashPermissionId('pass.wallet.spend'),
@@ -74,7 +74,7 @@ describe('PermissionRegistry', () => {
       const { permissionRegistry, owner } = await loadWithDefaultProduct();
 
       expect(
-        await permissionRegistry.hasPermission(
+        await permissionRegistry.hasOwnerPermission(
           0,
           owner,
           hashPermissionId('pass.wallet.spend'),
@@ -83,14 +83,14 @@ describe('PermissionRegistry', () => {
     });
   });
 
-  describe('Has Permissions', () => {
+  describe('Has Owner Permissions', () => {
     it('returns false when the permissions are not set', async () => {
       const { permissionRegistry, owner } = await loadWithDefaultProduct();
 
       expect(
-        await permissionRegistry.hasPermissions(1, owner, [
+        await permissionRegistry.hasOwnerPermissions(1, owner, [
           hashPermissionId('pass.wallet.spend'),
-          hashPermissionId('pass.purchase.mint'),
+          hashPermissionId('pass.purchase.additional'),
         ]),
       ).to.deep.equal([false, false]);
     });
@@ -98,14 +98,14 @@ describe('PermissionRegistry', () => {
     it('returns true for the correct permissions when the permissions are set for the owner', async () => {
       const { permissionRegistry, owner } = await loadWithDefaultProduct();
 
-      await permissionRegistry.addPermissions(1, [
+      await permissionRegistry.addOwnerPermissions(1, [
         hashPermissionId('pass.wallet.spend'),
       ]);
 
       expect(
-        await permissionRegistry.hasPermissions(1, owner, [
+        await permissionRegistry.hasOwnerPermissions(1, owner, [
           hashPermissionId('pass.wallet.spend'),
-          hashPermissionId('pass.purchase.mint'),
+          hashPermissionId('pass.purchase.additional'),
         ]),
       ).to.deep.equal([true, false]);
     });
@@ -120,71 +120,81 @@ describe('PermissionRegistry', () => {
       );
 
       await expect(
-        permissionRegistry.hasPermissions(1, owner, [
+        permissionRegistry.hasOwnerPermissions(1, owner, [
           hashPermissionId('pass.wallet.spend'),
         ]),
-      ).to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission');
+      ).to.be.revertedWithCustomError(
+        permissionRegistry,
+        'InactivePermissionBatch',
+      );
     });
 
     it('reverts if the permission does not exist', async () => {
       const { permissionRegistry, owner } = await loadWithDefaultProduct();
 
       await expect(
-        permissionRegistry.hasPermissions(1, owner, [
+        permissionRegistry.hasOwnerPermissions(1, owner, [
           hashPermissionId('not a permission'),
         ]),
-      ).to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission');
+      )
+        .to.be.revertedWithCustomError(
+          permissionRegistry,
+          'InactivePermissionBatch',
+        )
+        .withArgs([hashPermissionId('not a permission')]);
     });
 
     it('reverts if no permissions are provided', async () => {
       const { permissionRegistry, owner } = await loadWithDefaultProduct();
 
       await expect(
-        permissionRegistry.hasPermissions(1, owner, []),
+        permissionRegistry.hasOwnerPermissions(1, owner, []),
       ).to.be.revertedWith('No permissions provided');
     });
   });
 
-  describe('Get Permissions', () => {
+  describe('Get Owner Permissions', () => {
     it('returns the correct permissions for the org for multiple owners', async () => {
       const { permissionRegistry, owner, otherAccount } =
         await loadWithDefaultProduct();
 
       await permissionRegistry
         .connect(owner)
-        .addPermissions(1, [
+        .addOwnerPermissions(1, [
           hashPermissionId('pass.wallet.spend'),
-          hashPermissionId('pass.purchase.mint'),
+          hashPermissionId('pass.subscription.quantity'),
         ]);
 
       await permissionRegistry
         .connect(otherAccount)
-        .addPermissions(1, [
+        .addOwnerPermissions(1, [
           hashPermissionId('pass.wallet.spend'),
           hashPermissionId('pass.purchase.additional'),
         ]);
 
-      expect(await permissionRegistry.getPermissions(1, owner)).to.deep.equal([
+      expect(
+        await permissionRegistry.getOwnerPermissions(1, owner),
+      ).to.deep.equal([
         hashPermissionId('pass.wallet.spend'),
-        hashPermissionId('pass.purchase.mint'),
+        hashPermissionId('pass.subscription.quantity'),
       ]);
 
       expect(
-        await permissionRegistry.getPermissions(1, otherAccount),
+        await permissionRegistry.getOwnerPermissions(1, otherAccount),
       ).to.deep.equal([
         hashPermissionId('pass.wallet.spend'),
         hashPermissionId('pass.purchase.additional'),
       ]);
 
       expect(
-        await permissionRegistry.getPermissionsBatch(
+        await permissionRegistry.getOwnerPermissionsBatch(
           [1, 1],
           [owner, otherAccount],
         ),
       ).to.deep.equal([
         [
           hashPermissionId('pass.wallet.spend'),
-          hashPermissionId('pass.purchase.mint'),
+          hashPermissionId('pass.subscription.quantity'),
         ],
         [
           hashPermissionId('pass.wallet.spend'),
@@ -196,11 +206,11 @@ describe('PermissionRegistry', () => {
       const { permissionRegistry, owner, otherAccount } =
         await loadWithDefaultProduct();
 
-      expect(await permissionRegistry.getPermissions(0, owner)).to.deep.equal(
-        [],
-      );
       expect(
-        await permissionRegistry.getPermissionsBatch(
+        await permissionRegistry.getOwnerPermissions(0, owner),
+      ).to.deep.equal([]);
+      expect(
+        await permissionRegistry.getOwnerPermissionsBatch(
           [0, 0],
           [owner, otherAccount],
         ),
@@ -211,11 +221,11 @@ describe('PermissionRegistry', () => {
       const { permissionRegistry, owner, otherAccount } =
         await loadWithDefaultProduct();
 
-      expect(await permissionRegistry.getPermissions(1, owner)).to.deep.equal(
-        [],
-      );
       expect(
-        await permissionRegistry.getPermissionsBatch(
+        await permissionRegistry.getOwnerPermissions(1, owner),
+      ).to.deep.equal([]);
+      expect(
+        await permissionRegistry.getOwnerPermissionsBatch(
           [1, 1],
           [owner, otherAccount],
         ),
@@ -227,7 +237,7 @@ describe('PermissionRegistry', () => {
         await loadWithDefaultProduct();
 
       await expect(
-        permissionRegistry.getPermissionsBatch([], [owner, otherAccount]),
+        permissionRegistry.getOwnerPermissionsBatch([], [owner, otherAccount]),
       ).to.be.revertedWith('No orgIds provided');
     });
 
@@ -235,22 +245,22 @@ describe('PermissionRegistry', () => {
       const { permissionRegistry, owner } = await loadWithDefaultProduct();
 
       await expect(
-        permissionRegistry.getPermissionsBatch([1, 1], [owner]),
+        permissionRegistry.getOwnerPermissionsBatch([1, 1], [owner]),
       ).to.be.revertedWith('Invalid input length');
     });
   });
 
-  describe('Add Permissions', () => {
+  describe('Add Owner Permissions', () => {
     it('can add valid permissions', async () => {
       const { permissionRegistry, owner } = await loadWithDefaultProduct();
 
-      await permissionRegistry.addPermissions(1, [
+      await permissionRegistry.addOwnerPermissions(1, [
         hashPermissionId('pass.wallet.spend'),
-        hashPermissionId('pass.purchase.mint'),
+        hashPermissionId('pass.purchase.additional'),
       ]);
 
       expect(
-        await permissionRegistry.hasPermission(
+        await permissionRegistry.hasOwnerPermission(
           1,
           owner,
           hashPermissionId('pass.wallet.spend'),
@@ -258,9 +268,9 @@ describe('PermissionRegistry', () => {
       ).to.be.true;
 
       expect(
-        await permissionRegistry.hasPermissions(1, owner, [
+        await permissionRegistry.hasOwnerPermissions(1, owner, [
           hashPermissionId('pass.wallet.spend'),
-          hashPermissionId('pass.purchase.mint'),
+          hashPermissionId('pass.purchase.additional'),
         ]),
       ).to.deep.equal([true, true]);
     });
@@ -270,7 +280,7 @@ describe('PermissionRegistry', () => {
         await loadWithDefaultProduct();
 
       await expect(
-        permissionRegistry.addPermissions(0, [
+        permissionRegistry.addOwnerPermissions(0, [
           hashPermissionId('pass.wallet.spend'),
         ]),
       )
@@ -285,10 +295,15 @@ describe('PermissionRegistry', () => {
       const { permissionRegistry } = await loadWithDefaultProduct();
 
       await expect(
-        permissionRegistry.addPermissions(1, [
+        permissionRegistry.addOwnerPermissions(1, [
           hashPermissionId('not a permission'),
         ]),
-      ).to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission');
+      )
+        .to.be.revertedWithCustomError(
+          permissionRegistry,
+          'InactivePermissionBatch',
+        )
+        .withArgs([hashPermissionId('not a permission')]);
     });
 
     it('reverts if the permission is not active', async () => {
@@ -301,42 +316,49 @@ describe('PermissionRegistry', () => {
       );
 
       await expect(
-        permissionRegistry.addPermissions(1, [
+        permissionRegistry.addOwnerPermissions(1, [
           hashPermissionId('pass.wallet.spend'),
         ]),
-      ).to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission');
+      )
+        .to.be.revertedWithCustomError(
+          permissionRegistry,
+          'InactivePermissionBatch',
+        )
+        .withArgs([hashPermissionId('pass.wallet.spend')]);
     });
 
     it('reverts if no permissions are provided', async () => {
       const { permissionRegistry } = await loadWithDefaultProduct();
 
-      await expect(permissionRegistry.addPermissions(1, [])).to.be.revertedWith(
-        'No permissions provided',
-      );
+      await expect(
+        permissionRegistry.addOwnerPermissions(1, []),
+      ).to.be.revertedWith('No permissions provided');
     });
   });
 
-  describe('Remove Permissions', () => {
+  describe('Remove Owner Permissions', () => {
     it('can remove the correct permissions when multiple permissions are set', async () => {
       const { permissionRegistry, owner } = await loadWithDefaultProduct();
 
-      await permissionRegistry.addPermissions(1, [
+      await permissionRegistry.addOwnerPermissions(1, [
         hashPermissionId('pass.wallet.spend'),
-        hashPermissionId('pass.purchase.mint'),
+        hashPermissionId('pass.purchase.additional'),
       ]);
 
-      expect(await permissionRegistry.getPermissions(1, owner)).to.deep.equal([
+      expect(
+        await permissionRegistry.getOwnerPermissions(1, owner),
+      ).to.deep.equal([
         hashPermissionId('pass.wallet.spend'),
-        hashPermissionId('pass.purchase.mint'),
+        hashPermissionId('pass.purchase.additional'),
       ]);
 
-      await permissionRegistry.removePermissions(1, [
+      await permissionRegistry.removeOwnerPermissions(1, [
         hashPermissionId('pass.wallet.spend'),
       ]);
 
-      expect(await permissionRegistry.getPermissions(1, owner)).to.deep.equal([
-        hashPermissionId('pass.purchase.mint'),
-      ]);
+      expect(
+        await permissionRegistry.getOwnerPermissions(1, owner),
+      ).to.deep.equal([hashPermissionId('pass.purchase.additional')]);
     });
 
     it('reverts if the org does not exist', async () => {
@@ -344,7 +366,7 @@ describe('PermissionRegistry', () => {
         await loadWithDefaultProduct();
 
       await expect(
-        permissionRegistry.removePermissions(0, [
+        permissionRegistry.removeOwnerPermissions(0, [
           hashPermissionId('pass.wallet.spend'),
         ]),
       ).to.be.revertedWithCustomError(
@@ -357,7 +379,7 @@ describe('PermissionRegistry', () => {
       const { permissionRegistry } = await loadWithDefaultProduct();
 
       await expect(
-        permissionRegistry.removePermissions(1, []),
+        permissionRegistry.removeOwnerPermissions(1, []),
       ).to.be.revertedWith('No permissions provided');
     });
   });

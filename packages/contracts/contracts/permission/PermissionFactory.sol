@@ -50,7 +50,7 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
     mapping(string => bytes32) private permissionByName;
 
     constructor() Ownable(_msgSender()) {
-        _loadCorePermissions();
+        _setCorePermissions();
     }
 
     /**
@@ -169,11 +169,13 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
 
     function isPermissionActiveBatch(
         bytes32[] memory _permissionIds
-    ) external view returns (bool[] memory _isActive) {
-        _isActive = new bool[](_permissionIds.length);
+    ) external view returns (bool) {
         for (uint256 i = 0; i < _permissionIds.length; i++) {
-            _isActive[i] = isPermissionActive(_permissionIds[i]);
+            if (!isPermissionActive(_permissionIds[i])) {
+                return false;
+            }
         }
+        return true;
     }
 
     function isPermissionActiveByName(
@@ -185,25 +187,23 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
 
     function isPermissionActiveByNameBatch(
         string[] memory _names
-    ) external view returns (bool[] memory _isActive) {
-        _isActive = new bool[](_names.length);
+    ) external view returns (bool) {
         for (uint256 i = 0; i < _names.length; i++) {
-            _isActive[i] = isPermissionActiveByName(_names[i]);
+            if (!isPermissionActiveByName(_names[i])) {
+                return false;
+            }
         }
+        return true;
     }
 
     /**
-     * @dev Internal helpers
+     * @dev Initial core pass permissions
      */
 
-    function _loadCorePermissions() internal {
+    function _setCorePermissions() internal {
         createPermission(
             PermissionUtils.PASS_WALLET_SPEND,
             "Approve an organization to spend funds from your wallet"
-        );
-        createPermission(
-            PermissionUtils.PASS_PURCHASE_MINT,
-            "Mint a new Product Pass NFT"
         );
         createPermission(
             PermissionUtils.PASS_PURCHASE_ADDITIONAL,

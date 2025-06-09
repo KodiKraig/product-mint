@@ -10,57 +10,103 @@ interface IPermissionRegistry {
         bool grantAccess;
     }
 
-    error InactivePermission(bytes32 _id);
+    error InactivePermission(bytes32 _permission);
+    error InactivePermissionBatch(bytes32[] _permissions);
+
+    function excludeCorePermissions(uint256 _orgId) external returns (bool);
+
+    function ownerPermissionsSet(
+        uint256 _orgId,
+        address _owner
+    ) external view returns (bool);
 
     /**
-     * @dev View permissions
+     * @dev View owner permissions
      */
 
-    function hasPermission(
+    function hasOwnerPermission(
         uint256 _orgId,
         address _owner,
         bytes32 _permission
     ) external view returns (bool);
 
-    function hasPermissions(
+    function hasOwnerPermissions(
         uint256 _orgId,
         address _owner,
         bytes32[] memory _permissions
     ) external view returns (bool[] memory _hasPermissions);
 
-    function getPermissions(
+    function getOwnerPermissions(
         uint256 _orgId,
         address _owner
     ) external view returns (bytes32[] memory);
 
-    function getPermissionsBatch(
+    function getOwnerPermissionsBatch(
         uint256[] memory _orgIds,
         address[] memory _owners
     ) external view returns (bytes32[][] memory _permissions);
 
     /**
-     * @dev Grant and revoke permissions
+     * @dev Grant and revoke owner permissions
      */
 
-    function addPermissions(
+    event OwnerPermissionsUpdated(
+        uint256 indexed _orgId,
+        address indexed _owner,
+        bool indexed _grantAccess,
+        bytes32[] _permissions
+    );
+
+    function addOwnerPermissions(
         uint256 _orgId,
         bytes32[] memory _permissions
     ) external;
 
-    function removePermissions(
+    function removeOwnerPermissions(
         uint256 _orgId,
         bytes32[] memory _permissions
+    ) external;
+
+    /**
+     * @dev Initial organization permissions
+     */
+
+    function getInitialOrgPermissions(
+        uint256 _orgId
+    ) external view returns (bytes32[] memory);
+
+    event ExcludeCorePermissionsUpdated(uint256 indexed _orgId, bool _exclude);
+
+    function setExcludeCorePermissions(uint256 _orgId, bool _exclude) external;
+
+    event InitialOrgPermissionUpdated(
+        uint256 indexed _orgId,
+        bytes32 _permission,
+        bool _add
+    );
+
+    function updateInitialOrgPermissions(
+        uint256 _orgId,
+        bytes32[] memory _permissions,
+        bool[] memory _add
+    ) external;
+
+    function setOwnerInitialPermissions(
+        uint256 _orgId,
+        address _owner
     ) external;
 
     /**
      * @dev Admin functions
      */
 
-    function adminUpdatePermissions(
+    function adminUpdateOwnerPermissions(
         AdminPermissionSetterParams[] memory _params
     ) external;
 
-    function adminGrantAllPermissions() external;
+    function adminGrantInitialOwnerPermissions(
+        uint256[] calldata _passIds
+    ) external;
 
     function setPermissionFactory(address _permissionFactory) external;
 }
