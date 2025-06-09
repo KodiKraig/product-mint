@@ -66,7 +66,7 @@ contract PermissionRegistry is
     // Organization ID => Exclude core permissions for org during initial purchase?
     mapping(uint256 => bool) public excludeCorePermissions;
 
-    // Pass Owner => Have initial owner org permissions been set?
+    // Pass Owner => Have initial owner org permissions been set for the org?
     mapping(uint256 => mapping(address => bool)) public ownerPermissionsSet;
 
     IPermissionFactory public permissionFactory;
@@ -271,6 +271,7 @@ contract PermissionRegistry is
         require(_params.length > 0, "No params provided");
 
         AdminPermissionSetterParams memory _param;
+
         for (uint256 i = 0; i < _params.length; i++) {
             _param = _params[i];
 
@@ -295,15 +296,17 @@ contract PermissionRegistry is
     ) external onlyOwner {
         require(_passIds.length > 0, "No passIds provided");
 
-        uint256 _orgId;
         uint256 _passId;
 
         for (uint256 i = 0; i <= _passIds.length; i++) {
             _passId = _passIds[i];
-            _orgId = IPurchaseRegistry(registry.purchaseRegistry())
-                .passOrganization(_passId);
 
-            _setOwnerInitialPermissions(_orgId, _passOwner(_passId));
+            _setOwnerInitialPermissions(
+                IPurchaseRegistry(registry.purchaseRegistry()).passOrganization(
+                    _passId
+                ),
+                _passOwner(_passId)
+            );
         }
     }
 
