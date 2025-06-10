@@ -79,7 +79,7 @@ contract PurchaseManager is
 
         address purchaser = _msgSender();
 
-        permissionRegistry.setInitialOwnerPermissions(
+        permissionRegistry.grantInitialOwnerPermissions(
             params.organizationId,
             purchaser
         );

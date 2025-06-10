@@ -84,7 +84,7 @@ interface IPermissionRegistry {
         bool[] memory _add
     ) external;
 
-    function setInitialOwnerPermissions(
+    function grantInitialOwnerPermissions(
         uint256 _orgId,
         address _owner
     ) external;

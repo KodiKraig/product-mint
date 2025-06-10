@@ -617,7 +617,7 @@ describe('PermissionRegistry', () => {
         await loadWithDefaultProduct();
 
       await expect(
-        permissionRegistry.setInitialOwnerPermissions(1, otherAccount),
+        permissionRegistry.grantInitialOwnerPermissions(1, otherAccount),
       ).to.be.revertedWith('Caller not authorized');
     });
   });

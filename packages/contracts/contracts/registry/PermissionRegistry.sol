@@ -221,14 +221,14 @@ contract PermissionRegistry is
         }
     }
 
-    function setInitialOwnerPermissions(
+    function grantInitialOwnerPermissions(
         uint256 _orgId,
         address _owner
     ) external onlyRegistry(registry.purchaseManager()) {
-        _setInitialOwnerPermissions(_orgId, _owner);
+        _grantInitialOwnerPermissions(_orgId, _owner);
     }
 
-    function _setInitialOwnerPermissions(
+    function _grantInitialOwnerPermissions(
         uint256 _orgId,
         address _owner
     ) internal {
@@ -297,7 +297,7 @@ contract PermissionRegistry is
         for (uint256 i = 0; i <= _passIds.length; i++) {
             _passId = _passIds[i];
 
-            _setInitialOwnerPermissions(
+            _grantInitialOwnerPermissions(
                 IPurchaseRegistry(registry.purchaseRegistry()).passOrganization(
                     _passId
                 ),
