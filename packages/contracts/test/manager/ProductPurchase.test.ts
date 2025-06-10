@@ -2548,6 +2548,31 @@ describe('Purchase Manager', () => {
       ).to.be.revertedWithCustomError(purchaseRegistry, 'MintClosed');
     });
 
+    it('cannot purchase additional products if permission is not set for the pass owner', async () => {
+      const { purchaseManager, permissionRegistry, otherAccount } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      await permissionRegistry
+        .connect(otherAccount)
+        .removeOwnerPermissions(1, [
+          hashPermissionId('pass.purchase.additional'),
+        ]);
+
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseAdditionalProducts({
+          productPassId: 1,
+          productIds: [2],
+          pricingIds: [1],
+          quantities: [0],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      )
+        .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
+        .withArgs(otherAccount, hashPermissionId('pass.purchase.additional'));
+    });
+
     it('cannot change quantity if not admin or pass owner', async () => {
       const { purchaseManager, otherAccount2 } =
         await loadWithPurchasedFlatRateSubscription();
