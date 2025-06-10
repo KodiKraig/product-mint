@@ -3075,6 +3075,38 @@ describe('Purchase Manager', () => {
       );
     });
 
+    it('cannot set the unit quantity without quantity and wallet spend permission', async () => {
+      const { purchaseManager, permissionRegistry, otherAccount } =
+        await loadUnitQuantityUpdate();
+
+      await permissionRegistry
+        .connect(otherAccount)
+        .removeOwnerPermissions(1, [
+          hashPermissionId('pass.wallet.spend'),
+          hashPermissionId('pass.subscription.quantity'),
+        ]);
+
+      // No quantity permission
+      await expect(
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 20, false),
+      )
+        .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
+        .withArgs(otherAccount, hashPermissionId('pass.subscription.quantity'));
+
+      await permissionRegistry
+        .connect(otherAccount)
+        .addOwnerPermissions(1, [
+          hashPermissionId('pass.subscription.quantity'),
+        ]);
+
+      // No wallet spend permission
+      await expect(
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 20, false),
+      )
+        .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
+        .withArgs(otherAccount, hashPermissionId('pass.wallet.spend'));
+    });
+
     it('can airdrop a unit quantity increase', async () => {
       const { purchaseManager, mintToken, otherAccount, subscriptionEscrow } =
         await loadUnitQuantityUpdate();
