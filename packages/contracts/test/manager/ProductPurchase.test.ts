@@ -2559,7 +2559,7 @@ describe('Purchase Manager', () => {
       ).to.be.revertedWithCustomError(purchaseManager, 'NotAuthorized');
     });
 
-    it('cannot purchase products if the org has excluded core permissions and not added the wallet spend permission', async () => {
+    it('org permissions are set for owner when an org has excluded core permissions', async () => {
       const {
         purchaseManager,
         otherAccount2,
@@ -2569,6 +2569,15 @@ describe('Purchase Manager', () => {
       } = await loadWithPurchasedFlatRateSubscription();
 
       await permissionRegistry.setExcludeCorePermissions(1, true);
+
+      await permissionRegistry.updateOrgPermissions(
+        1,
+        [
+          hashPermissionId('pass.wallet.spend'),
+          hashPermissionId('pass.purchase.additional'),
+        ],
+        [true, true],
+      );
 
       await mintToken
         .connect(otherAccount2)
@@ -2590,8 +2599,23 @@ describe('Purchase Manager', () => {
           pause: false,
         }),
       )
-        .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
-        .withArgs(otherAccount2, hashPermissionId('pass.wallet.spend'));
+        .to.emit(permissionRegistry, 'OwnerPermissionsUpdated')
+        .withArgs(1, otherAccount2, true, [
+          hashPermissionId('pass.wallet.spend'),
+          hashPermissionId('pass.purchase.additional'),
+        ]);
+
+      const permissions = await permissionRegistry.getOwnerPermissions(
+        1,
+        otherAccount2,
+      );
+      expect(permissions).to.deep.equal([
+        hashPermissionId('pass.wallet.spend'),
+        hashPermissionId('pass.purchase.additional'),
+      ]);
+
+      expect(await permissionRegistry.ownerPermissionsSet(1, otherAccount2)).to
+        .be.true;
     });
   });
 });

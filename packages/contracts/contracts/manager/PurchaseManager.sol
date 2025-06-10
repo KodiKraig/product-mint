@@ -480,11 +480,13 @@ contract PurchaseManager is
 
         // Transfer funds
         if (params.totalAmount > 0) {
-            _checkPermissionName(
-                PermissionUtils.PASS_WALLET_SPEND,
-                params.orgId,
-                params.purchaser
-            );
+            if (!params.isInitialPurchase) {
+                _checkPermissionName(
+                    PermissionUtils.PASS_WALLET_SPEND,
+                    params.orgId,
+                    params.purchaser
+                );
+            }
 
             IPaymentEscrow(registry.paymentEscrow()).transferDirect{
                 value: msg.value

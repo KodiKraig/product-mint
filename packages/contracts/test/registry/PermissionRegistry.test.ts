@@ -787,7 +787,7 @@ describe('PermissionRegistry', () => {
       ]);
     });
 
-    it('exclude core permissions when setting the initial owner permissions', async () => {
+    it('can still mint a product pass even if the org has excluded core permissions when setting the initial owner permissions', async () => {
       const {
         permissionRegistry,
         otherAccount2,
@@ -798,13 +798,6 @@ describe('PermissionRegistry', () => {
 
       // Core permissions
       await permissionRegistry.setExcludeCorePermissions(1, true);
-
-      // Set minium permissions to mint (the wallet spend permission)
-      await permissionRegistry.updateOrgPermissions(
-        1,
-        [hashPermissionId('pass.wallet.spend')],
-        [true],
-      );
 
       await mintToken
         .connect(otherAccount2)
@@ -825,15 +818,11 @@ describe('PermissionRegistry', () => {
           airdrop: false,
           pause: false,
         }),
-      )
-        .to.emit(permissionRegistry, 'OwnerPermissionsUpdated')
-        .withArgs(1, otherAccount2, true, [
-          hashPermissionId('pass.wallet.spend'),
-        ]);
+      ).to.not.emit(permissionRegistry, 'OwnerPermissionsUpdated');
 
       expect(
         await permissionRegistry.getOwnerPermissions(1, otherAccount2),
-      ).to.deep.equal([hashPermissionId('pass.wallet.spend')]);
+      ).to.deep.equal([]);
       expect(await permissionRegistry.ownerPermissionsSet(1, otherAccount2)).to
         .be.true;
     });
