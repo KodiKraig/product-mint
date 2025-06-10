@@ -251,18 +251,20 @@ describe('PermissionRegistry', () => {
   });
 
   describe('Add Owner Permissions', () => {
-    it('can add valid permissions', async () => {
+    it('can add valid permissions even with duplicates', async () => {
       const { permissionRegistry, owner } = await loadWithDefaultProduct();
 
       await expect(
         permissionRegistry.addOwnerPermissions(1, [
           hashPermissionId('pass.wallet.spend'),
           hashPermissionId('pass.purchase.additional'),
+          hashPermissionId('pass.purchase.additional'),
         ]),
       )
         .to.emit(permissionRegistry, 'OwnerPermissionsUpdated')
         .withArgs(1, owner, true, [
           hashPermissionId('pass.wallet.spend'),
+          hashPermissionId('pass.purchase.additional'),
           hashPermissionId('pass.purchase.additional'),
         ]);
 
@@ -280,6 +282,15 @@ describe('PermissionRegistry', () => {
           hashPermissionId('pass.purchase.additional'),
         ]),
       ).to.deep.equal([true, true]);
+
+      const permissions = await permissionRegistry.getOwnerPermissions(
+        1,
+        owner,
+      );
+      expect(permissions).to.deep.equal([
+        hashPermissionId('pass.wallet.spend'),
+        hashPermissionId('pass.purchase.additional'),
+      ]);
     });
 
     it('reverts if the org does not exist', async () => {
@@ -344,7 +355,7 @@ describe('PermissionRegistry', () => {
   });
 
   describe('Remove Owner Permissions', () => {
-    it('can remove the correct permissions when multiple permissions are set', async () => {
+    it('can remove the correct permissions when multiple permissions are set even with duplicates', async () => {
       const { permissionRegistry, owner } = await loadWithDefaultProduct();
 
       await permissionRegistry.addOwnerPermissions(1, [
@@ -362,10 +373,14 @@ describe('PermissionRegistry', () => {
       await expect(
         permissionRegistry.removeOwnerPermissions(1, [
           hashPermissionId('pass.wallet.spend'),
+          hashPermissionId('pass.wallet.spend'),
         ]),
       )
         .to.emit(permissionRegistry, 'OwnerPermissionsUpdated')
-        .withArgs(1, owner, false, [hashPermissionId('pass.wallet.spend')]);
+        .withArgs(1, owner, false, [
+          hashPermissionId('pass.wallet.spend'),
+          hashPermissionId('pass.wallet.spend'),
+        ]);
 
       expect(
         await permissionRegistry.getOwnerPermissions(1, owner),
