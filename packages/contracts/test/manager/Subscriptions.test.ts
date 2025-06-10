@@ -320,6 +320,44 @@ describe('Purchase Manager', () => {
           .renewSubscriptionBatch(1, [1, 1], false),
       ).to.be.revertedWith('Subscription is not past due');
     });
+
+    it('revert if the pass owner does not have the wallet spend and renew permission', async () => {
+      const { purchaseManager, permissionRegistry, otherAccount } =
+        await loadBatchSubscriptionRenewal();
+
+      await permissionRegistry
+        .connect(otherAccount)
+        .removeOwnerPermissions(1, [
+          hashPermissionId('pass.wallet.spend'),
+          hashPermissionId('pass.subscription.renewal'),
+        ]);
+
+      await time.increase(getCycleDuration(1) + 1);
+
+      // No renew permission
+      await expect(
+        purchaseManager
+          .connect(otherAccount)
+          .renewSubscriptionBatch(1, [1], false),
+      )
+        .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
+        .withArgs(otherAccount, hashPermissionId('pass.subscription.renewal'));
+
+      await permissionRegistry
+        .connect(otherAccount)
+        .addOwnerPermissions(1, [
+          hashPermissionId('pass.subscription.renewal'),
+        ]);
+
+      // No wallet spend permission
+      await expect(
+        purchaseManager
+          .connect(otherAccount)
+          .renewSubscriptionBatch(1, [1], false),
+      )
+        .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
+        .withArgs(otherAccount, hashPermissionId('pass.wallet.spend'));
+    });
   });
 
   describe('Get Renewal Cost', () => {
