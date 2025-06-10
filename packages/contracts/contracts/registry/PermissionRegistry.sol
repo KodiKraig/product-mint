@@ -262,11 +262,11 @@ contract PermissionRegistry is
      */
 
     function adminUpdateOwnerPermissions(
-        AdminPermissionSetterParams[] memory _params
+        AdminPermissionParams[] calldata _params
     ) external onlyOwner {
         require(_params.length > 0, "No params provided");
 
-        AdminPermissionSetterParams memory _param;
+        AdminPermissionParams calldata _param;
 
         for (uint256 i = 0; i < _params.length; i++) {
             _param = _params[i];

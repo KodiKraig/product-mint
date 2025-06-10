@@ -3,13 +3,6 @@
 pragma solidity ^0.8.24;
 
 interface IPermissionRegistry {
-    struct AdminPermissionSetterParams {
-        address owner;
-        uint256 orgId;
-        bytes32[] permissions;
-        bool grantAccess;
-    }
-
     error InactivePermission(bytes32 _permission);
     error InactivePermissionBatch(bytes32[] _permissions);
 
@@ -100,8 +93,15 @@ interface IPermissionRegistry {
      * @dev Admin functions
      */
 
+    struct AdminPermissionParams {
+        address owner;
+        uint256 orgId;
+        bytes32[] permissions;
+        bool grantAccess;
+    }
+
     function adminUpdateOwnerPermissions(
-        AdminPermissionSetterParams[] memory _params
+        AdminPermissionParams[] calldata _params
     ) external;
 
     function adminGrantInitialOwnerPermissions(

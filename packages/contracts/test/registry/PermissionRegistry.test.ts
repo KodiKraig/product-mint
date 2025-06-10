@@ -621,4 +621,118 @@ describe('PermissionRegistry', () => {
       ).to.be.revertedWith('Caller not authorized');
     });
   });
+
+  describe('Admin Update Owner Permissions', () => {
+    it('can update the owner permissions', async () => {
+      const { permissionRegistry, owner, otherAccount } =
+        await loadWithDefaultProduct();
+
+      // Add permissions to the owner
+      await expect(
+        permissionRegistry.adminUpdateOwnerPermissions([
+          {
+            owner,
+            orgId: 1,
+            permissions: [
+              hashPermissionId('pass.wallet.spend'),
+              hashPermissionId('pass.purchase.additional'),
+            ],
+            grantAccess: true,
+          },
+          {
+            owner: otherAccount,
+            orgId: 1,
+            permissions: [hashPermissionId('pass.wallet.spend')],
+            grantAccess: true,
+          },
+        ]),
+      )
+        .to.emit(permissionRegistry, 'OwnerPermissionsUpdated')
+        .withArgs(1, owner, true, [
+          hashPermissionId('pass.wallet.spend'),
+          hashPermissionId('pass.purchase.additional'),
+        ])
+        .and.to.emit(permissionRegistry, 'OwnerPermissionsUpdated')
+        .withArgs(1, otherAccount, true, [
+          hashPermissionId('pass.wallet.spend'),
+        ]);
+
+      let ownerPermissions = await permissionRegistry.getOwnerPermissions(
+        1,
+        owner,
+      );
+      expect(ownerPermissions).to.deep.equal([
+        hashPermissionId('pass.wallet.spend'),
+        hashPermissionId('pass.purchase.additional'),
+      ]);
+
+      let otherAccountPermissions =
+        await permissionRegistry.getOwnerPermissions(1, otherAccount);
+      expect(otherAccountPermissions).to.deep.equal([
+        hashPermissionId('pass.wallet.spend'),
+      ]);
+
+      // Remove permissions from the owner
+      await expect(
+        permissionRegistry.adminUpdateOwnerPermissions([
+          {
+            owner,
+            orgId: 1,
+            permissions: [hashPermissionId('pass.wallet.spend')],
+            grantAccess: false,
+          },
+          {
+            owner: otherAccount,
+            orgId: 1,
+            permissions: [hashPermissionId('pass.wallet.spend')],
+            grantAccess: false,
+          },
+        ]),
+      )
+        .to.emit(permissionRegistry, 'OwnerPermissionsUpdated')
+        .withArgs(1, owner, false, [hashPermissionId('pass.wallet.spend')])
+        .and.to.emit(permissionRegistry, 'OwnerPermissionsUpdated')
+        .withArgs(1, otherAccount, false, [
+          hashPermissionId('pass.wallet.spend'),
+        ]);
+
+      ownerPermissions = await permissionRegistry.getOwnerPermissions(1, owner);
+      expect(ownerPermissions).to.deep.equal([
+        hashPermissionId('pass.purchase.additional'),
+      ]);
+
+      otherAccountPermissions = await permissionRegistry.getOwnerPermissions(
+        1,
+        otherAccount,
+      );
+      expect(otherAccountPermissions).to.deep.equal([]);
+    });
+
+    it('revert if not called by the owner', async () => {
+      const { permissionRegistry, otherAccount } =
+        await loadWithDefaultProduct();
+
+      await expect(
+        permissionRegistry.connect(otherAccount).adminUpdateOwnerPermissions([
+          {
+            owner: otherAccount,
+            orgId: 1,
+            permissions: [],
+            grantAccess: true,
+          },
+        ]),
+      ).to.be.revertedWithCustomError(
+        permissionRegistry,
+        'OwnableUnauthorizedAccount',
+      );
+    });
+
+    it('revert if no params are provided', async () => {
+      const { permissionRegistry } = await loadWithDefaultProduct();
+
+      await expect(
+        permissionRegistry.adminUpdateOwnerPermissions([]),
+      ).to.be.revertedWith('No params provided');
+    });
+  });
 });
