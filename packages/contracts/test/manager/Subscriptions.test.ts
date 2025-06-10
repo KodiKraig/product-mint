@@ -15,6 +15,7 @@ import {
 } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { getCycleDuration } from '../../utils/cycle-duration';
 import { assertMetadata, EMPTY_METADATA } from '../metadata/helpers';
+import { hashPermissionId } from '../permission/helpers';
 
 describe('Purchase Manager', () => {
   describe('Batch Subscription Renewal', () => {
@@ -1844,6 +1845,76 @@ describe('Purchase Manager', () => {
           airdrop: false,
         }),
       ).to.be.revertedWithCustomError(pricingCalculator, 'InvalidChargeStyle');
+    });
+
+    it('cannot change pricing if the pass owner has not set the pricing change and wallet spend permission', async () => {
+      const {
+        purchaseManager,
+        pricingRegistry,
+        productRegistry,
+        subscriptionEscrow,
+        permissionRegistry,
+        mintToken,
+        owner,
+        otherAccount,
+      } = await loadWithPurchasedFlatRateSubscription();
+
+      await subscriptionEscrow.connect(owner).setOwnerChangePricing(1, true);
+
+      await permissionRegistry
+        .connect(otherAccount)
+        .removeOwnerPermissions(1, [
+          hashPermissionId('pass.subscription.pricing'),
+          hashPermissionId('pass.wallet.spend'),
+        ]);
+
+      await pricingRegistry.createFlatRateSubscriptionPricing({
+        organizationId: 1,
+        flatPrice: ethers.parseUnits('50', 6),
+        token: await mintToken.getAddress(),
+        isRestricted: false,
+        chargeFrequency: 2,
+      });
+
+      await productRegistry.linkPricing(1, [2]);
+
+      expect(await mintToken.balanceOf(otherAccount)).to.equal(
+        ethers.parseUnits('90', 6),
+      );
+
+      await time.increase(getCycleDuration(1) / 2);
+
+      // No subscription pricing permission
+      await expect(
+        purchaseManager.connect(otherAccount).changeSubscriptionPricing({
+          orgId: 1,
+          productPassId: 1,
+          productId: 1,
+          newPricingId: 2,
+          airdrop: false,
+        }),
+      )
+        .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
+        .withArgs(otherAccount, hashPermissionId('pass.subscription.pricing'));
+
+      await permissionRegistry
+        .connect(otherAccount)
+        .addOwnerPermissions(1, [
+          hashPermissionId('pass.subscription.pricing'),
+        ]);
+
+      // No wallet spend permission
+      await expect(
+        purchaseManager.connect(otherAccount).changeSubscriptionPricing({
+          orgId: 1,
+          productPassId: 1,
+          productId: 1,
+          newPricingId: 2,
+          airdrop: false,
+        }),
+      )
+        .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
+        .withArgs(otherAccount, hashPermissionId('pass.wallet.spend'));
     });
 
     it('can change to another flat rate pricing model with a larger cycle duration', async () => {
