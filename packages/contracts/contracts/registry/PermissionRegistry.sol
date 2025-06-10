@@ -43,9 +43,9 @@ import {PermissionUtils} from "../libs/PermissionUtils.sol";
  * Organizations can set initial permissions that will be granted to the purchaser
  * of a product pass during the initial pass minting via the PurchaseManager.
  *
- * Organizations can add additional initial permissions to the pass minting process.
+ * Organizations can add additional permissions that get granted to the pass owner during the pass minting process.
  *
- * Organizations can also exclude granting core permissions during the pass minting process.
+ * Organizations can exclude granting core permissions during the pass minting process.
  */
 contract PermissionRegistry is
     RegistryEnabled,
@@ -183,7 +183,7 @@ contract PermissionRegistry is
     }
 
     /**
-     * @dev Initial organization permissions
+     * @dev Organization permissions
      */
 
     function setExcludeCorePermissions(
@@ -195,13 +195,13 @@ contract PermissionRegistry is
         emit ExcludeCorePermissionsUpdated(_orgId, _exclude);
     }
 
-    function getInitialOrgPermissions(
+    function getOrgPermissions(
         uint256 _orgId
     ) external view returns (bytes32[] memory) {
         return orgPermissions[_orgId].values();
     }
 
-    function updateInitialOrgPermissions(
+    function updateOrgPermissions(
         uint256 _orgId,
         bytes32[] memory _permissions,
         bool[] memory _add
@@ -212,27 +212,23 @@ contract PermissionRegistry is
             if (_add[i]) {
                 orgPermissions[_orgId].add(_permissions[i]);
 
-                emit InitialOrgPermissionUpdated(_orgId, _permissions[i], true);
+                emit OrgPermissionUpdated(_orgId, _permissions[i], true);
             } else {
                 orgPermissions[_orgId].remove(_permissions[i]);
 
-                emit InitialOrgPermissionUpdated(
-                    _orgId,
-                    _permissions[i],
-                    false
-                );
+                emit OrgPermissionUpdated(_orgId, _permissions[i], false);
             }
         }
     }
 
-    function setOwnerInitialPermissions(
+    function setInitialOwnerPermissions(
         uint256 _orgId,
         address _owner
     ) external onlyRegistry(registry.purchaseManager()) {
-        _setOwnerInitialPermissions(_orgId, _owner);
+        _setInitialOwnerPermissions(_orgId, _owner);
     }
 
-    function _setOwnerInitialPermissions(
+    function _setInitialOwnerPermissions(
         uint256 _orgId,
         address _owner
     ) internal {
@@ -301,7 +297,7 @@ contract PermissionRegistry is
         for (uint256 i = 0; i <= _passIds.length; i++) {
             _passId = _passIds[i];
 
-            _setOwnerInitialPermissions(
+            _setInitialOwnerPermissions(
                 IPurchaseRegistry(registry.purchaseRegistry()).passOrganization(
                     _passId
                 ),

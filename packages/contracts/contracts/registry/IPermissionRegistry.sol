@@ -68,30 +68,30 @@ interface IPermissionRegistry {
     ) external;
 
     /**
-     * @dev Initial organization permissions
+     * @dev Organization permissions
      */
 
     event ExcludeCorePermissionsUpdated(uint256 indexed _orgId, bool _exclude);
 
     function setExcludeCorePermissions(uint256 _orgId, bool _exclude) external;
 
-    function getInitialOrgPermissions(
+    function getOrgPermissions(
         uint256 _orgId
     ) external view returns (bytes32[] memory);
 
-    event InitialOrgPermissionUpdated(
+    event OrgPermissionUpdated(
         uint256 indexed _orgId,
         bytes32 _permission,
         bool _add
     );
 
-    function updateInitialOrgPermissions(
+    function updateOrgPermissions(
         uint256 _orgId,
         bytes32[] memory _permissions,
         bool[] memory _add
     ) external;
 
-    function setOwnerInitialPermissions(
+    function setInitialOwnerPermissions(
         uint256 _orgId,
         address _owner
     ) external;
