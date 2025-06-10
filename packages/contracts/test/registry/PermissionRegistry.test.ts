@@ -496,4 +496,129 @@ describe('PermissionRegistry', () => {
       ).to.be.revertedWith('Not an admin of the organization');
     });
   });
+
+  describe('Update Org Permissions', () => {
+    it('can update the org permissions with custom permissions', async () => {
+      const { permissionRegistry, permissionFactory } =
+        await loadWithDefaultProduct();
+
+      await permissionFactory.createPermission(
+        'custom.permission',
+        'Custom permission',
+      );
+
+      await expect(
+        permissionRegistry.updateOrgPermissions(
+          1,
+          [
+            hashPermissionId('pass.wallet.spend'),
+            hashPermissionId('custom.permission'),
+          ],
+          [true, true],
+        ),
+      )
+        .to.emit(permissionRegistry, 'OrgPermissionUpdated')
+        .withArgs(1, hashPermissionId('pass.wallet.spend'), true)
+        .and.to.emit(permissionRegistry, 'OrgPermissionUpdated')
+        .withArgs(1, hashPermissionId('custom.permission'), true);
+
+      let permissions = await permissionRegistry.getOrgPermissions(1);
+      expect(permissions).to.deep.equal([
+        hashPermissionId('pass.wallet.spend'),
+        hashPermissionId('custom.permission'),
+      ]);
+
+      await expect(
+        permissionRegistry.updateOrgPermissions(
+          1,
+          [hashPermissionId('pass.wallet.spend')],
+          [false],
+        ),
+      )
+        .to.emit(permissionRegistry, 'OrgPermissionUpdated')
+        .withArgs(1, hashPermissionId('pass.wallet.spend'), false);
+
+      permissions = await permissionRegistry.getOrgPermissions(1);
+      expect(permissions).to.deep.equal([
+        hashPermissionId('custom.permission'),
+      ]);
+    });
+
+    it('reverts if the org does not exist', async () => {
+      const { permissionRegistry, organizationNFT } =
+        await loadWithDefaultProduct();
+
+      await expect(
+        permissionRegistry.updateOrgPermissions(0, [], [true]),
+      ).to.be.revertedWithCustomError(
+        organizationNFT,
+        'ERC721NonexistentToken',
+      );
+    });
+
+    it('reverts if the caller is not the org admin', async () => {
+      const { permissionRegistry, otherAccount } =
+        await loadWithDefaultProduct();
+
+      await expect(
+        permissionRegistry
+          .connect(otherAccount)
+          .updateOrgPermissions(1, [], [true]),
+      ).to.be.revertedWith('Not an admin of the organization');
+    });
+
+    it('reverts if the permissions are not active', async () => {
+      const { permissionRegistry, permissionFactory } =
+        await loadWithDefaultProduct();
+
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.wallet.spend'),
+        false,
+      );
+
+      await expect(
+        permissionRegistry.updateOrgPermissions(
+          1,
+          [hashPermissionId('pass.wallet.spend')],
+          [true],
+        ),
+      )
+        .to.be.revertedWithCustomError(
+          permissionRegistry,
+          'InactivePermissionBatch',
+        )
+        .withArgs([hashPermissionId('pass.wallet.spend')]);
+    });
+
+    it('reverts if no permissions are provided', async () => {
+      const { permissionRegistry } = await loadWithDefaultProduct();
+
+      await expect(
+        permissionRegistry.updateOrgPermissions(1, [], [true]),
+      ).to.be.revertedWith('No permissions provided');
+    });
+
+    it('reverts if the permissions and add array are not the same length', async () => {
+      const { permissionRegistry } = await loadWithDefaultProduct();
+
+      await expect(
+        permissionRegistry.updateOrgPermissions(
+          1,
+          [hashPermissionId('pass.wallet.spend')],
+          [true, false],
+        ),
+      ).to.be.revertedWith('Invalid input length');
+    });
+  });
+
+  describe('Set Initial Owner Permissions', () => {
+    it('revert if not called by the purchase manager', async () => {
+      const { permissionRegistry, otherAccount } =
+        await loadWithDefaultProduct();
+
+      await expect(
+        permissionRegistry.setInitialOwnerPermissions(1, otherAccount),
+      ).to.be.revertedWith('Caller not authorized');
+    });
+  });
 });
