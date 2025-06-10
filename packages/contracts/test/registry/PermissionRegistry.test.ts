@@ -1,7 +1,11 @@
 import { expect } from 'chai';
-import { loadWithDefaultProduct } from '../manager/helpers';
+import {
+  loadWithDefaultProduct,
+  loadWithPurchasedFlatRateSubscription,
+} from '../manager/helpers';
 import { hashPermissionId } from '../permission/helpers';
 import hre from 'hardhat';
+import { parseUnits } from 'ethers';
 
 describe('PermissionRegistry', () => {
   describe('Deployment', () => {
@@ -733,6 +737,139 @@ describe('PermissionRegistry', () => {
       await expect(
         permissionRegistry.adminUpdateOwnerPermissions([]),
       ).to.be.revertedWith('No params provided');
+    });
+  });
+
+  describe('Admin Grant Initial Owner Permissions', () => {
+    it('core permissions are not re granted after the initial product pass mint for the org', async () => {
+      const { permissionRegistry, otherAccount } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      expect(await permissionRegistry.excludeCorePermissions(1)).to.be.false;
+      expect(await permissionRegistry.ownerPermissionsSet(1, otherAccount)).to
+        .be.true;
+
+      // Ensure the core permissions are set from mint
+      const currentPermissions = await permissionRegistry.getOwnerPermissions(
+        1,
+        otherAccount,
+      );
+      expect(currentPermissions).to.deep.equal([
+        hashPermissionId('pass.wallet.spend'),
+        hashPermissionId('pass.purchase.additional'),
+        hashPermissionId('pass.subscription.renewal'),
+        hashPermissionId('pass.subscription.pricing'),
+        hashPermissionId('pass.subscription.quantity'),
+      ]);
+
+      // Remove one of the core permissions
+      await permissionRegistry
+        .connect(otherAccount)
+        .removeOwnerPermissions(1, [
+          hashPermissionId('pass.subscription.renewal'),
+        ]);
+
+      // Grant permissions again
+      await expect(
+        permissionRegistry.adminGrantInitialOwnerPermissions([1]),
+      ).to.not.emit(permissionRegistry, 'OwnerPermissionsUpdated');
+
+      // Ensure the core permissions are not re granted
+      const newPermissions = await permissionRegistry.getOwnerPermissions(
+        1,
+        otherAccount,
+      );
+      expect(newPermissions).to.deep.equal([
+        hashPermissionId('pass.wallet.spend'),
+        hashPermissionId('pass.purchase.additional'),
+        hashPermissionId('pass.subscription.quantity'),
+        hashPermissionId('pass.subscription.pricing'),
+      ]);
+    });
+
+    it('exclude core permissions when setting the initial owner permissions', async () => {
+      const {
+        permissionRegistry,
+        otherAccount2,
+        paymentEscrow,
+        mintToken,
+        purchaseManager,
+      } = await loadWithPurchasedFlatRateSubscription();
+
+      // Core permissions
+      await permissionRegistry.setExcludeCorePermissions(1, true);
+
+      // Set minium permissions to mint (the wallet spend permission)
+      await permissionRegistry.updateOrgPermissions(
+        1,
+        [hashPermissionId('pass.wallet.spend')],
+        [true],
+      );
+
+      await mintToken
+        .connect(otherAccount2)
+        .mint(otherAccount2, parseUnits('100', 6));
+      await mintToken
+        .connect(otherAccount2)
+        .approve(await paymentEscrow.getAddress(), parseUnits('100', 6));
+
+      await expect(
+        purchaseManager.connect(otherAccount2).purchaseProducts({
+          to: otherAccount2,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      )
+        .to.emit(permissionRegistry, 'OwnerPermissionsUpdated')
+        .withArgs(1, otherAccount2, true, [
+          hashPermissionId('pass.wallet.spend'),
+        ]);
+
+      expect(
+        await permissionRegistry.getOwnerPermissions(1, otherAccount2),
+      ).to.deep.equal([hashPermissionId('pass.wallet.spend')]);
+      expect(await permissionRegistry.ownerPermissionsSet(1, otherAccount2)).to
+        .be.true;
+    });
+
+    it('revert if not called by the owner', async () => {
+      const { permissionRegistry, otherAccount } =
+        await loadWithDefaultProduct();
+
+      await expect(
+        permissionRegistry
+          .connect(otherAccount)
+          .adminGrantInitialOwnerPermissions([1]),
+      ).to.be.revertedWithCustomError(
+        permissionRegistry,
+        'OwnableUnauthorizedAccount',
+      );
+    });
+
+    it('revert if no passIds are provided', async () => {
+      const { permissionRegistry } = await loadWithDefaultProduct();
+
+      await expect(
+        permissionRegistry.adminGrantInitialOwnerPermissions([]),
+      ).to.be.revertedWith('No passIds provided');
+    });
+
+    it('revert if the passId does not exist', async () => {
+      const { permissionRegistry, organizationNFT } =
+        await loadWithDefaultProduct();
+
+      await expect(
+        permissionRegistry.adminGrantInitialOwnerPermissions([0]),
+      ).to.be.revertedWithCustomError(
+        organizationNFT,
+        'ERC721NonexistentToken',
+      );
     });
   });
 });

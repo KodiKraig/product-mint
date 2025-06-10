@@ -46,6 +46,8 @@ import {PermissionUtils} from "../libs/PermissionUtils.sol";
  * Organizations can add additional permissions that get granted to the pass owner during the pass minting process.
  *
  * Organizations can exclude granting core permissions during the pass minting process.
+ * NOTE: If the org has excluded core permissions, minters will not be able to mint passes. At a
+ * minimum, the wallet spend permission must be added by the org to mint passes.
  */
 contract PermissionRegistry is
     RegistryEnabled,
@@ -294,7 +296,7 @@ contract PermissionRegistry is
 
         uint256 _passId;
 
-        for (uint256 i = 0; i <= _passIds.length; i++) {
+        for (uint256 i = 0; i < _passIds.length; i++) {
             _passId = _passIds[i];
 
             _grantInitialOwnerPermissions(
