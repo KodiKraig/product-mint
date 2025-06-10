@@ -517,81 +517,81 @@ describe('Purchase Manager', () => {
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
         ethers.parseUnits('80', 6),
       );
+    });
 
-      it('can un cancel sub without renewing if sub is not passed due', async () => {
-        const {
-          purchaseManager,
-          otherAccount,
-          subscriptionEscrow,
-          mintToken,
+    it('can un cancel sub without renewing if sub is not passed due', async () => {
+      const {
+        purchaseManager,
+        otherAccount,
+        subscriptionEscrow,
+        mintToken,
+        purchaseTimeStamp,
+      } = await loadWithPurchasedFlatRateSubscription();
+
+      await purchaseManager
+        .connect(otherAccount)
+        .cancelSubscription(1, 1, true);
+
+      await assertSubscription(
+        subscriptionEscrow,
+        {
+          productPassId: 1,
+          productId: 1,
+        },
+        {
+          orgId: 1,
+          pricingId: 1,
+          startDate: purchaseTimeStamp,
+          endDate: purchaseTimeStamp + getCycleDuration(1),
+          timeRemaining: 0,
+          isCancelled: true,
+          isPaused: false,
+          status: 1,
+        },
+      );
+
+      await time.increase(getCycleDuration(1) - 10);
+
+      expect(await mintToken.balanceOf(otherAccount)).to.equal(
+        ethers.parseUnits('90', 6),
+      );
+
+      const cancelTx = await purchaseManager
+        .connect(otherAccount)
+        .cancelSubscription(1, 1, false);
+
+      await expect(cancelTx)
+        .to.emit(subscriptionEscrow, 'SubscriptionCycleUpdated')
+        .withArgs(
+          1,
+          1,
+          1,
+          0,
           purchaseTimeStamp,
-        } = await loadWithPurchasedFlatRateSubscription();
-
-        await purchaseManager
-          .connect(otherAccount)
-          .cancelSubscription(1, 1, true);
-
-        await assertSubscription(
-          subscriptionEscrow,
-          {
-            productPassId: 1,
-            productId: 1,
-          },
-          {
-            orgId: 1,
-            pricingId: 1,
-            startDate: purchaseTimeStamp,
-            endDate: purchaseTimeStamp + getCycleDuration(1),
-            timeRemaining: 0,
-            isCancelled: true,
-            isPaused: false,
-            status: 0,
-          },
+          purchaseTimeStamp + getCycleDuration(1),
         );
 
-        await time.increase(getCycleDuration(1));
+      await assertSubscription(
+        subscriptionEscrow,
+        {
+          productPassId: 1,
+          productId: 1,
+        },
+        {
+          orgId: 1,
+          pricingId: 1,
+          startDate: purchaseTimeStamp,
+          endDate: purchaseTimeStamp + getCycleDuration(1),
+          timeRemaining: 0,
+          isCancelled: false,
+          isPaused: false,
+          status: 0,
+        },
+      );
 
-        expect(await mintToken.balanceOf(otherAccount)).to.equal(
-          ethers.parseUnits('90', 6),
-        );
-
-        const cancelTx = await purchaseManager
-          .connect(otherAccount)
-          .cancelSubscription(1, 1, false);
-
-        await expect(cancelTx)
-          .to.emit(subscriptionEscrow, 'SubscriptionCycleUpdated')
-          .withArgs(
-            1,
-            1,
-            1,
-            0,
-            purchaseTimeStamp,
-            purchaseTimeStamp + getCycleDuration(1),
-          );
-
-        await assertSubscription(
-          subscriptionEscrow,
-          {
-            productPassId: 1,
-            productId: 1,
-          },
-          {
-            orgId: 1,
-            pricingId: 1,
-            startDate: purchaseTimeStamp,
-            endDate: purchaseTimeStamp + getCycleDuration(1),
-            timeRemaining: 0,
-            isCancelled: true,
-            isPaused: false,
-            status: 2,
-          },
-        );
-
-        expect(await mintToken.balanceOf(otherAccount)).to.equal(
-          ethers.parseUnits('90', 6),
-        );
-      });
+      expect(await mintToken.balanceOf(otherAccount)).to.equal(
+        ethers.parseUnits('90', 6),
+      );
     });
 
     it('cannot cancel subscription if sub does not exist', async () => {
