@@ -254,10 +254,17 @@ describe('PermissionRegistry', () => {
     it('can add valid permissions', async () => {
       const { permissionRegistry, owner } = await loadWithDefaultProduct();
 
-      await permissionRegistry.addOwnerPermissions(1, [
-        hashPermissionId('pass.wallet.spend'),
-        hashPermissionId('pass.purchase.additional'),
-      ]);
+      await expect(
+        permissionRegistry.addOwnerPermissions(1, [
+          hashPermissionId('pass.wallet.spend'),
+          hashPermissionId('pass.purchase.additional'),
+        ]),
+      )
+        .to.emit(permissionRegistry, 'OwnerPermissionsUpdated')
+        .withArgs(1, owner, true, [
+          hashPermissionId('pass.wallet.spend'),
+          hashPermissionId('pass.purchase.additional'),
+        ]);
 
       expect(
         await permissionRegistry.hasOwnerPermission(
@@ -352,9 +359,13 @@ describe('PermissionRegistry', () => {
         hashPermissionId('pass.purchase.additional'),
       ]);
 
-      await permissionRegistry.removeOwnerPermissions(1, [
-        hashPermissionId('pass.wallet.spend'),
-      ]);
+      await expect(
+        permissionRegistry.removeOwnerPermissions(1, [
+          hashPermissionId('pass.wallet.spend'),
+        ]),
+      )
+        .to.emit(permissionRegistry, 'OwnerPermissionsUpdated')
+        .withArgs(1, owner, false, [hashPermissionId('pass.wallet.spend')]);
 
       expect(
         await permissionRegistry.getOwnerPermissions(1, owner),
