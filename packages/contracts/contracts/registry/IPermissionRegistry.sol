@@ -71,13 +71,13 @@ interface IPermissionRegistry {
      * @dev Initial organization permissions
      */
 
-    function getInitialOrgPermissions(
-        uint256 _orgId
-    ) external view returns (bytes32[] memory);
-
     event ExcludeCorePermissionsUpdated(uint256 indexed _orgId, bool _exclude);
 
     function setExcludeCorePermissions(uint256 _orgId, bool _exclude) external;
+
+    function getInitialOrgPermissions(
+        uint256 _orgId
+    ) external view returns (bytes32[] memory);
 
     event InitialOrgPermissionUpdated(
         uint256 indexed _orgId,

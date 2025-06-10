@@ -453,4 +453,47 @@ describe('PermissionRegistry', () => {
       );
     });
   });
+
+  describe('Set Exclude Core Permissions', () => {
+    it('can set the exclude core permissions', async () => {
+      const { permissionRegistry } = await loadWithDefaultProduct();
+
+      expect(await permissionRegistry.excludeCorePermissions(1)).to.be.false;
+
+      await expect(permissionRegistry.setExcludeCorePermissions(1, true))
+        .to.emit(permissionRegistry, 'ExcludeCorePermissionsUpdated')
+        .withArgs(1, true);
+
+      expect(await permissionRegistry.excludeCorePermissions(1)).to.be.true;
+
+      await expect(permissionRegistry.setExcludeCorePermissions(1, false))
+        .to.emit(permissionRegistry, 'ExcludeCorePermissionsUpdated')
+        .withArgs(1, false);
+
+      expect(await permissionRegistry.excludeCorePermissions(1)).to.be.false;
+    });
+
+    it('reverts if the org does not exist', async () => {
+      const { permissionRegistry, organizationNFT } =
+        await loadWithDefaultProduct();
+
+      await expect(
+        permissionRegistry.setExcludeCorePermissions(0, true),
+      ).to.be.revertedWithCustomError(
+        organizationNFT,
+        'ERC721NonexistentToken',
+      );
+    });
+
+    it('reverts if the caller is not the org admin', async () => {
+      const { permissionRegistry, otherAccount } =
+        await loadWithDefaultProduct();
+
+      await expect(
+        permissionRegistry
+          .connect(otherAccount)
+          .setExcludeCorePermissions(1, true),
+      ).to.be.revertedWith('Not an admin of the organization');
+    });
+  });
 });

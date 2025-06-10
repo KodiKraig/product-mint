@@ -186,12 +186,6 @@ contract PermissionRegistry is
      * @dev Initial organization permissions
      */
 
-    function getInitialOrgPermissions(
-        uint256 _orgId
-    ) external view returns (bytes32[] memory) {
-        return orgPermissions[_orgId].values();
-    }
-
     function setExcludeCorePermissions(
         uint256 _orgId,
         bool _exclude
@@ -199,6 +193,12 @@ contract PermissionRegistry is
         excludeCorePermissions[_orgId] = _exclude;
 
         emit ExcludeCorePermissionsUpdated(_orgId, _exclude);
+    }
+
+    function getInitialOrgPermissions(
+        uint256 _orgId
+    ) external view returns (bytes32[] memory) {
+        return orgPermissions[_orgId].values();
     }
 
     function updateInitialOrgPermissions(
