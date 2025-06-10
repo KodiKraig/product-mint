@@ -16,6 +16,7 @@ import {
 } from '../metadata/helpers';
 import { assertMetadata } from '../metadata/helpers';
 import { assertCheckoutTotalCost } from '../calculator/helpers';
+import { hashPermissionId } from '../permission/helpers';
 
 describe('Purchase Manager', () => {
   describe('Successful Product Purchase', () => {
@@ -2556,6 +2557,41 @@ describe('Purchase Manager', () => {
           .connect(otherAccount2)
           .changeTieredSubscriptionUnitQuantity(1, 1, 10, false),
       ).to.be.revertedWithCustomError(purchaseManager, 'NotAuthorized');
+    });
+
+    it('cannot purchase products if the org has excluded core permissions and not added the wallet spend permission', async () => {
+      const {
+        purchaseManager,
+        otherAccount2,
+        permissionRegistry,
+        mintToken,
+        paymentEscrow,
+      } = await loadWithPurchasedFlatRateSubscription();
+
+      await permissionRegistry.setExcludeCorePermissions(1, true);
+
+      await mintToken
+        .connect(otherAccount2)
+        .mint(otherAccount2, ethers.parseUnits('100', 6));
+      await mintToken
+        .connect(otherAccount2)
+        .approve(await paymentEscrow.getAddress(), ethers.parseUnits('100', 6));
+
+      await expect(
+        purchaseManager.connect(otherAccount2).purchaseProducts({
+          to: otherAccount2,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      )
+        .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
+        .withArgs(otherAccount2, hashPermissionId('pass.wallet.spend'));
     });
   });
 });

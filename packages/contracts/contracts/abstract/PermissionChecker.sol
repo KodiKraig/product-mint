@@ -14,7 +14,8 @@ import {PermissionUtils} from "../libs/PermissionUtils.sol";
 abstract contract PermissionChecker {
     using PermissionUtils for string;
 
-    error PermissionNotFound(bytes32 _id, address _caller);
+    // @notice Revert if the owner does not have the permission
+    error PermissionNotFound(address _owner, bytes32 _id);
 
     IPermissionRegistry public permissionRegistry;
 
@@ -34,7 +35,7 @@ abstract contract PermissionChecker {
         if (
             !permissionRegistry.hasOwnerPermission(_orgId, _owner, _permission)
         ) {
-            revert PermissionNotFound(_permission, _owner);
+            revert PermissionNotFound(_owner, _permission);
         }
     }
 
