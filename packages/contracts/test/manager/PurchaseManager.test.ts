@@ -33,6 +33,55 @@ describe('PurchaseManager', () => {
     });
   });
 
+  describe('Set Permission Registry', () => {
+    it('should set a new permission registry', async () => {
+      const { purchaseManager, permissionFactory, contractRegistry } =
+        await loadFixture(deployPurchaseManager);
+
+      const PermissionRegistry = await ethers.getContractFactory(
+        'PermissionRegistry',
+      );
+      const newPermissionRegistry = await PermissionRegistry.deploy(
+        contractRegistry,
+        permissionFactory,
+      );
+
+      await purchaseManager.setPermissionRegistry(
+        await newPermissionRegistry.getAddress(),
+      );
+
+      expect(await purchaseManager.permissionRegistry()).to.equal(
+        await newPermissionRegistry.getAddress(),
+      );
+    });
+
+    it('revert if not the owner', async () => {
+      const { purchaseManager, permissionRegistry, otherAccount } =
+        await loadFixture(deployPurchaseManager);
+
+      await expect(
+        purchaseManager
+          .connect(otherAccount)
+          .setPermissionRegistry(await permissionRegistry.getAddress()),
+      ).to.be.revertedWithCustomError(
+        purchaseManager,
+        'OwnableUnauthorizedAccount',
+      );
+    });
+
+    it('revert if does not conform to the permission registry interface', async () => {
+      const { purchaseManager, organizationNFT } = await loadFixture(
+        deployPurchaseManager,
+      );
+
+      await expect(
+        purchaseManager.setPermissionRegistry(
+          await organizationNFT.getAddress(),
+        ),
+      ).to.be.revertedWith('Invalid permission registry');
+    });
+  });
+
   describe('Fee exemptions', () => {
     it('should be able to purchase product with fee exemption', async () => {
       const {
