@@ -45,8 +45,8 @@ import {PermissionUtils} from "../libs/PermissionUtils.sol";
  *
  * Organizations can add additional permissions that get granted to the pass owner during the pass minting process.
  *
- * Organizations can exclude granting core permissions during the pass minting process.
- * NOTE: If the org has excluded core permissions, minters will not be able to mint passes. At a
+ * Organizations can exclude granting default permissions during the pass minting process.
+ * NOTE: If the org has excluded default permissions, minters will not be able to mint passes. At a
  * minimum, the wallet spend permission must be added by the org to mint passes.
  */
 contract PermissionRegistry is
@@ -65,8 +65,8 @@ contract PermissionRegistry is
     // Organization ID => Permission IDs
     mapping(uint256 => EnumerableSet.Bytes32Set) private orgPermissions;
 
-    // Organization ID => Exclude core permissions for org during initial purchase?
-    mapping(uint256 => bool) public excludeCorePermissions;
+    // Organization ID => Exclude default permissions for org during initial purchase?
+    mapping(uint256 => bool) public excludeDefaultPermissions;
 
     // Pass Owner => Have initial owner org permissions been set for the org?
     mapping(uint256 => mapping(address => bool)) public ownerPermissionsSet;
@@ -188,13 +188,13 @@ contract PermissionRegistry is
      * @dev Organization permissions
      */
 
-    function setExcludeCorePermissions(
+    function setExcludeDefaultPermissions(
         uint256 _orgId,
         bool _exclude
     ) external onlyOrgAdmin(_orgId) {
-        excludeCorePermissions[_orgId] = _exclude;
+        excludeDefaultPermissions[_orgId] = _exclude;
 
-        emit ExcludeCorePermissionsUpdated(_orgId, _exclude);
+        emit ExcludeDefaultPermissionsUpdated(_orgId, _exclude);
     }
 
     function getOrgPermissions(
@@ -241,12 +241,12 @@ contract PermissionRegistry is
             ownerPermissionsSet[_orgId][_owner] = true;
         }
 
-        // Set core permissions if not excluded by org
-        if (!excludeCorePermissions[_orgId]) {
-            bytes32[] memory _corePermissions = PermissionUtils
-                .allCorePermissions();
+        // Set default permissions if not excluded by org
+        if (!excludeDefaultPermissions[_orgId]) {
+            bytes32[] memory _defaultPermissions = permissionFactory
+                .getDefaultPermissionIds();
 
-            _addOwnerPermissions(_orgId, _owner, _corePermissions);
+            _addOwnerPermissions(_orgId, _owner, _defaultPermissions);
         }
 
         // Set any additional initial org permissions

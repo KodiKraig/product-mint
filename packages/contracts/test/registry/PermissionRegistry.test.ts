@@ -458,23 +458,23 @@ describe('PermissionRegistry', () => {
     });
   });
 
-  describe('Set Exclude Core Permissions', () => {
-    it('can set the exclude core permissions', async () => {
+  describe('Set Exclude Default Permissions', () => {
+    it('can set the exclude default permissions', async () => {
       const { permissionRegistry } = await loadWithDefaultProduct();
 
-      expect(await permissionRegistry.excludeCorePermissions(1)).to.be.false;
+      expect(await permissionRegistry.excludeDefaultPermissions(1)).to.be.false;
 
-      await expect(permissionRegistry.setExcludeCorePermissions(1, true))
-        .to.emit(permissionRegistry, 'ExcludeCorePermissionsUpdated')
+      await expect(permissionRegistry.setExcludeDefaultPermissions(1, true))
+        .to.emit(permissionRegistry, 'ExcludeDefaultPermissionsUpdated')
         .withArgs(1, true);
 
-      expect(await permissionRegistry.excludeCorePermissions(1)).to.be.true;
+      expect(await permissionRegistry.excludeDefaultPermissions(1)).to.be.true;
 
-      await expect(permissionRegistry.setExcludeCorePermissions(1, false))
-        .to.emit(permissionRegistry, 'ExcludeCorePermissionsUpdated')
+      await expect(permissionRegistry.setExcludeDefaultPermissions(1, false))
+        .to.emit(permissionRegistry, 'ExcludeDefaultPermissionsUpdated')
         .withArgs(1, false);
 
-      expect(await permissionRegistry.excludeCorePermissions(1)).to.be.false;
+      expect(await permissionRegistry.excludeDefaultPermissions(1)).to.be.false;
     });
 
     it('reverts if the org does not exist', async () => {
@@ -482,7 +482,7 @@ describe('PermissionRegistry', () => {
         await loadWithDefaultProduct();
 
       await expect(
-        permissionRegistry.setExcludeCorePermissions(0, true),
+        permissionRegistry.setExcludeDefaultPermissions(0, true),
       ).to.be.revertedWithCustomError(
         organizationNFT,
         'ERC721NonexistentToken',
@@ -496,7 +496,7 @@ describe('PermissionRegistry', () => {
       await expect(
         permissionRegistry
           .connect(otherAccount)
-          .setExcludeCorePermissions(1, true),
+          .setExcludeDefaultPermissions(1, true),
       ).to.be.revertedWith('Not an admin of the organization');
     });
   });
@@ -509,6 +509,7 @@ describe('PermissionRegistry', () => {
       await permissionFactory.createPermission(
         'custom.permission',
         'Custom permission',
+        false,
       );
 
       await expect(
@@ -741,15 +742,15 @@ describe('PermissionRegistry', () => {
   });
 
   describe('Admin Grant Initial Owner Permissions', () => {
-    it('core permissions are not re granted after the initial product pass mint for the org', async () => {
+    it('default permissions are not re granted after the initial product pass mint for the org', async () => {
       const { permissionRegistry, otherAccount } =
         await loadWithPurchasedFlatRateSubscription();
 
-      expect(await permissionRegistry.excludeCorePermissions(1)).to.be.false;
+      expect(await permissionRegistry.excludeDefaultPermissions(1)).to.be.false;
       expect(await permissionRegistry.ownerPermissionsSet(1, otherAccount)).to
         .be.true;
 
-      // Ensure the core permissions are set from mint
+      // Ensure the default permissions are set from mint
       const currentPermissions = await permissionRegistry.getOwnerPermissions(
         1,
         otherAccount,
@@ -762,7 +763,7 @@ describe('PermissionRegistry', () => {
         hashPermissionId('pass.subscription.quantity'),
       ]);
 
-      // Remove one of the core permissions
+      // Remove one of the default permissions
       await permissionRegistry
         .connect(otherAccount)
         .removeOwnerPermissions(1, [
@@ -774,7 +775,7 @@ describe('PermissionRegistry', () => {
         permissionRegistry.adminGrantInitialOwnerPermissions([1]),
       ).to.not.emit(permissionRegistry, 'OwnerPermissionsUpdated');
 
-      // Ensure the core permissions are not re granted
+      // Ensure the default permissions are not re granted
       const newPermissions = await permissionRegistry.getOwnerPermissions(
         1,
         otherAccount,
@@ -787,7 +788,7 @@ describe('PermissionRegistry', () => {
       ]);
     });
 
-    it('can still mint a product pass even if the org has excluded core permissions when setting the initial owner permissions', async () => {
+    it('can still mint a product pass even if the org has excluded default permissions when setting the initial owner permissions', async () => {
       const {
         permissionRegistry,
         otherAccount2,
@@ -796,8 +797,8 @@ describe('PermissionRegistry', () => {
         purchaseManager,
       } = await loadWithPurchasedFlatRateSubscription();
 
-      // Core permissions
-      await permissionRegistry.setExcludeCorePermissions(1, true);
+      // Default permissions
+      await permissionRegistry.setExcludeDefaultPermissions(1, true);
 
       await mintToken
         .connect(otherAccount2)

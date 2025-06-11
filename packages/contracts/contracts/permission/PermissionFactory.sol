@@ -34,6 +34,8 @@ import {PermissionUtils} from "../libs/PermissionUtils.sol";
  *
  * Only the contract owner can add new permissions and update existing permissions.
  *
+ * Default permissions are permissions that should always be active and granted to all owners in an org during mint.
+ *
  * Permission names follow the dot notation format. ex: "pass.purchase.mint"
  */
 contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
@@ -43,6 +45,9 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
     // All permissions created by the factory
     EnumerableSet.Bytes32Set private allPermissions;
 
+    // Default permissions
+    EnumerableSet.Bytes32Set private defaultPermissions;
+
     // Permission ID => Permission
     mapping(bytes32 => Permission) private permissions;
 
@@ -50,7 +55,7 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
     mapping(string => bytes32) private permissionByName;
 
     constructor() Ownable(_msgSender()) {
-        _setCorePermissions();
+        _setInitialDefaultPermissions();
     }
 
     /**
@@ -59,7 +64,8 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
 
     function createPermission(
         string memory _name,
-        string memory _description
+        string memory _description,
+        bool _isDefault
     ) public onlyOwner {
         require(bytes(_name).length > 0, "Name cannot be empty");
         require(
@@ -80,7 +86,13 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
         allPermissions.add(permissionId);
         permissionByName[_name] = permissionId;
 
-        emit PermissionCreated(permissionId, _name, _description);
+        if (_isDefault) {
+            defaultPermissions.add(permissionId);
+
+            emit DefaultPermissionAdded(permissionId);
+        }
+
+        emit PermissionCreated(permissionId, _name, _description, _isDefault);
     }
 
     /**
@@ -207,29 +219,74 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
     }
 
     /**
-     * @dev Initial core pass permissions
+     * @dev Default permissions
      */
 
-    function _setCorePermissions() internal {
+    function getDefaultPermissionIds()
+        external
+        view
+        returns (bytes32[] memory)
+    {
+        return defaultPermissions.values();
+    }
+
+    function isDefaultPermission(
+        bytes32 _permissionId
+    ) external view returns (bool) {
+        return defaultPermissions.contains(_permissionId);
+    }
+
+    function addDefaultPermission(
+        bytes32 _permissionId
+    ) external permissionExists(_permissionId) onlyOwner {
+        require(
+            !defaultPermissions.contains(_permissionId),
+            "Permission already added"
+        );
+
+        defaultPermissions.add(_permissionId);
+
+        emit DefaultPermissionAdded(_permissionId);
+    }
+
+    function removeDefaultPermission(
+        bytes32 _permissionId
+    ) external permissionExists(_permissionId) onlyOwner {
+        require(
+            defaultPermissions.contains(_permissionId),
+            "Permission not added"
+        );
+
+        defaultPermissions.remove(_permissionId);
+
+        emit DefaultPermissionRemoved(_permissionId);
+    }
+
+    function _setInitialDefaultPermissions() internal {
         createPermission(
             PermissionUtils.PASS_WALLET_SPEND,
-            "Approve an organization to spend funds from your wallet"
+            "Approve an organization to spend funds from your wallet",
+            true
         );
         createPermission(
             PermissionUtils.PASS_PURCHASE_ADDITIONAL,
-            "Purchase additional products"
+            "Purchase additional products",
+            true
         );
         createPermission(
             PermissionUtils.PASS_SUBSCRIPTION_RENEWAL,
-            "Automatically renew expired subscriptions"
+            "Automatically renew expired subscriptions",
+            true
         );
         createPermission(
             PermissionUtils.PASS_SUBSCRIPTION_PRICING,
-            "Update or downgrade the pricing for a subscription"
+            "Update or downgrade the pricing for a subscription",
+            true
         );
         createPermission(
             PermissionUtils.PASS_SUBSCRIPTION_QUANTITY,
-            "Change the quantity for a TIERED subscription"
+            "Change the quantity for a TIERED subscription",
+            true
         );
     }
 

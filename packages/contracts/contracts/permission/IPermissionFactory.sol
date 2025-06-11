@@ -31,11 +31,13 @@ interface IPermissionFactory {
      * @param permissionId The ID of the permission
      * @param name The name of the permission
      * @param description The description of the permission
+     * @param isDefault True if the permission is a default permission
      */
     event PermissionCreated(
         bytes32 indexed permissionId,
         string name,
-        string description
+        string description,
+        bool isDefault
     );
 
     /**
@@ -48,10 +50,12 @@ interface IPermissionFactory {
      * @dev only owner can create permissions
      * @param _name The name of the permission in dot notation (e.g. "pass.wallet.spend")
      * @param _description The description of the permission
+     * @param _isDefault Should the permission be a default permission
      */
     function createPermission(
         string memory _name,
-        string memory _description
+        string memory _description,
+        bool _isDefault
     ) external;
 
     /**
@@ -183,4 +187,55 @@ interface IPermissionFactory {
     function isPermissionActiveByNameBatch(
         string[] memory _names
     ) external view returns (bool);
+
+    /**
+     * @dev Default permissions
+     */
+
+    /**
+     * Get all default permissions.
+     *
+     * @return The IDs of all default permissions
+     */
+    function getDefaultPermissionIds() external view returns (bytes32[] memory);
+
+    /**
+     * Check if a permission is a default permission.
+     *
+     * @param _permissionId The ID of the permission
+     * @return True if the permission is a default permission, false otherwise
+     */
+    function isDefaultPermission(
+        bytes32 _permissionId
+    ) external view returns (bool);
+
+    /**
+     * @dev Default permission addition
+     * Emitted when a new default permission is added.
+     *
+     * @param permissionId The ID of the permission
+     */
+    event DefaultPermissionAdded(bytes32 indexed permissionId);
+
+    /**
+     * Add a permission as a default permission.
+     *
+     * @param _permissionId The ID of the permission
+     */
+    function addDefaultPermission(bytes32 _permissionId) external;
+
+    /**
+     * @dev Default permission removal
+     * Emitted when a default permission is removed.
+     *
+     * @param permissionId The ID of the permission
+     */
+    event DefaultPermissionRemoved(bytes32 indexed permissionId);
+
+    /**
+     * Remove a permission as a default permission.
+     *
+     * @param _permissionId The ID of the permission
+     */
+    function removeDefaultPermission(bytes32 _permissionId) external;
 }

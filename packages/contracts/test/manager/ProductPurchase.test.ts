@@ -2583,64 +2583,113 @@ describe('Purchase Manager', () => {
           .changeTieredSubscriptionUnitQuantity(1, 1, 10, false),
       ).to.be.revertedWithCustomError(purchaseManager, 'NotAuthorized');
     });
+  });
 
-    it('org permissions are set for owner when an org has excluded core permissions', async () => {
-      const {
-        purchaseManager,
-        otherAccount2,
-        permissionRegistry,
-        mintToken,
-        paymentEscrow,
-      } = await loadWithPurchasedFlatRateSubscription();
+  it('org permissions are set for owner when an org has excluded default permissions', async () => {
+    const {
+      purchaseManager,
+      otherAccount2,
+      permissionRegistry,
+      mintToken,
+      paymentEscrow,
+    } = await loadWithPurchasedFlatRateSubscription();
 
-      await permissionRegistry.setExcludeCorePermissions(1, true);
+    await permissionRegistry.setExcludeDefaultPermissions(1, true);
 
-      await permissionRegistry.updateOrgPermissions(
-        1,
-        [
-          hashPermissionId('pass.wallet.spend'),
-          hashPermissionId('pass.purchase.additional'),
-        ],
-        [true, true],
-      );
+    await permissionRegistry.updateOrgPermissions(
+      1,
+      [
+        hashPermissionId('pass.wallet.spend'),
+        hashPermissionId('pass.purchase.additional'),
+      ],
+      [true, true],
+    );
 
-      await mintToken
-        .connect(otherAccount2)
-        .mint(otherAccount2, ethers.parseUnits('100', 6));
-      await mintToken
-        .connect(otherAccount2)
-        .approve(await paymentEscrow.getAddress(), ethers.parseUnits('100', 6));
+    await mintToken
+      .connect(otherAccount2)
+      .mint(otherAccount2, ethers.parseUnits('100', 6));
+    await mintToken
+      .connect(otherAccount2)
+      .approve(await paymentEscrow.getAddress(), ethers.parseUnits('100', 6));
 
-      await expect(
-        purchaseManager.connect(otherAccount2).purchaseProducts({
-          to: otherAccount2,
-          organizationId: 1,
-          productIds: [1],
-          pricingIds: [1],
-          quantities: [0],
-          discountIds: [],
-          couponCode: '',
-          airdrop: false,
-          pause: false,
-        }),
-      )
-        .to.emit(permissionRegistry, 'OwnerPermissionsUpdated')
-        .withArgs(1, otherAccount2, true, [
-          hashPermissionId('pass.wallet.spend'),
-          hashPermissionId('pass.purchase.additional'),
-        ]);
-
-      const permissions = await permissionRegistry.getOwnerPermissions(
-        1,
-        otherAccount2,
-      );
-      expect(permissions).to.deep.equal([
+    await expect(
+      purchaseManager.connect(otherAccount2).purchaseProducts({
+        to: otherAccount2,
+        organizationId: 1,
+        productIds: [1],
+        pricingIds: [1],
+        quantities: [0],
+        discountIds: [],
+        couponCode: '',
+        airdrop: false,
+        pause: false,
+      }),
+    )
+      .to.emit(permissionRegistry, 'OwnerPermissionsUpdated')
+      .withArgs(1, otherAccount2, true, [
         hashPermissionId('pass.wallet.spend'),
         hashPermissionId('pass.purchase.additional'),
       ]);
 
-      expect(await permissionRegistry.ownerPermissionsSet(1, otherAccount2)).to
-        .be.true;
+    const permissions = await permissionRegistry.getOwnerPermissions(
+      1,
+      otherAccount2,
+    );
+    expect(permissions).to.deep.equal([
+      hashPermissionId('pass.wallet.spend'),
+      hashPermissionId('pass.purchase.additional'),
+    ]);
+
+    expect(await permissionRegistry.ownerPermissionsSet(1, otherAccount2)).to.be
+      .true;
+  });
+
+  it('new default permission is granted to owner on mint when not excluded', async () => {
+    const {
+      purchaseManager,
+      mintToken,
+      paymentEscrow,
+      permissionRegistry,
+      permissionFactory,
+      otherAccount2,
+    } = await loadWithPurchasedFlatRateSubscription();
+
+    await mintToken
+      .connect(otherAccount2)
+      .mint(otherAccount2, ethers.parseUnits('100', 6));
+    await mintToken
+      .connect(otherAccount2)
+      .approve(await paymentEscrow.getAddress(), ethers.parseUnits('100', 6));
+
+    await permissionFactory.createPermission('test.permission', 'test', true);
+
+    expect(
+      await permissionRegistry.getOwnerPermissions(1, otherAccount2),
+    ).to.deep.equal([]);
+
+    await purchaseManager.connect(otherAccount2).purchaseProducts({
+      to: otherAccount2,
+      organizationId: 1,
+      productIds: [1],
+      pricingIds: [1],
+      quantities: [0],
+      discountIds: [],
+      couponCode: '',
+      airdrop: false,
+      pause: false,
     });
+
+    const permissions = await permissionRegistry.getOwnerPermissions(
+      1,
+      otherAccount2,
+    );
+    expect(permissions).to.deep.equal([
+      hashPermissionId('pass.wallet.spend'),
+      hashPermissionId('pass.purchase.additional'),
+      hashPermissionId('pass.subscription.renewal'),
+      hashPermissionId('pass.subscription.pricing'),
+      hashPermissionId('pass.subscription.quantity'),
+      hashPermissionId('test.permission'),
+    ]);
   });
 });

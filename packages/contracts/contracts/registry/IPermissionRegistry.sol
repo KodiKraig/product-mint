@@ -6,8 +6,6 @@ interface IPermissionRegistry {
     error InactivePermission(bytes32 _permission);
     error InactivePermissionBatch(bytes32[] _permissions);
 
-    function excludeCorePermissions(uint256 _orgId) external returns (bool);
-
     function ownerPermissionsSet(
         uint256 _orgId,
         address _owner
@@ -64,9 +62,19 @@ interface IPermissionRegistry {
      * @dev Organization permissions
      */
 
-    event ExcludeCorePermissionsUpdated(uint256 indexed _orgId, bool _exclude);
+    function excludeDefaultPermissions(
+        uint256 _orgId
+    ) external view returns (bool);
 
-    function setExcludeCorePermissions(uint256 _orgId, bool _exclude) external;
+    event ExcludeDefaultPermissionsUpdated(
+        uint256 indexed _orgId,
+        bool _exclude
+    );
+
+    function setExcludeDefaultPermissions(
+        uint256 _orgId,
+        bool _exclude
+    ) external;
 
     function getOrgPermissions(
         uint256 _orgId
