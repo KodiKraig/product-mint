@@ -35,6 +35,7 @@ describe('PermissionFactory', () => {
 
       const interfaceId = calculateInterfaceId([
         'createPermission(string,string,bool)',
+        'setPermissionDescription(bytes32,string)',
         'setPermissionActive(bytes32,bool)',
         'getPermissionIdByName(string)',
         'getAllPermissionIds()',
@@ -324,6 +325,55 @@ describe('PermissionFactory', () => {
         permissionFactory
           .connect(otherAccount)
           .setPermissionActive(hashPermissionId('pass.wallet.spend'), true),
+      ).to.be.revertedWithCustomError(
+        permissionFactory,
+        'OwnableUnauthorizedAccount',
+      );
+    });
+  });
+
+  describe('Set Permission Description', () => {
+    it('should set the description of a permission', async () => {
+      const { permissionFactory } = await loadFixture(deployPermissionFactory);
+
+      await expect(
+        permissionFactory.setPermissionDescription(
+          hashPermissionId('pass.wallet.spend'),
+          'Updated description',
+        ),
+      )
+        .to.emit(permissionFactory, 'PermissionDescriptionSet')
+        .withArgs(hashPermissionId('pass.wallet.spend'), 'Updated description');
+
+      const test = await permissionFactory.getPermissionByName(
+        'pass.wallet.spend',
+      );
+      expect(test.description).to.equal('Updated description');
+    });
+
+    it('revert if permission does not exist', async () => {
+      const { permissionFactory } = await loadFixture(deployPermissionFactory);
+
+      await expect(
+        permissionFactory.setPermissionDescription(
+          hashPermissionId('test.permission'),
+          'test',
+        ),
+      ).to.be.revertedWith('Permission does not exist');
+    });
+
+    it('revert if not owner', async () => {
+      const { permissionFactory, otherAccount } = await loadFixture(
+        deployPermissionFactory,
+      );
+
+      await expect(
+        permissionFactory
+          .connect(otherAccount)
+          .setPermissionDescription(
+            hashPermissionId('pass.wallet.spend'),
+            'Updated description',
+          ),
       ).to.be.revertedWithCustomError(
         permissionFactory,
         'OwnableUnauthorizedAccount',

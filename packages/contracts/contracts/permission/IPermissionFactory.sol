@@ -59,6 +59,26 @@ interface IPermissionFactory {
     ) external;
 
     /**
+     * @dev Permission description
+     */
+
+    event PermissionDescriptionSet(
+        bytes32 indexed permissionId,
+        string description
+    );
+
+    /**
+     * Set the description of a permission.
+     *
+     * @param _permissionId The ID of the permission
+     * @param _description The description of the permission
+     */
+    function setPermissionDescription(
+        bytes32 _permissionId,
+        string memory _description
+    ) external;
+
+    /**
      * @dev Permission status
      */
 

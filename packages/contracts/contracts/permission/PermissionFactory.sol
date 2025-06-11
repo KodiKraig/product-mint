@@ -96,6 +96,19 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
     }
 
     /**
+     * @dev Permission description
+     */
+
+    function setPermissionDescription(
+        bytes32 _permissionId,
+        string memory _description
+    ) external onlyOwner permissionExists(_permissionId) {
+        permissions[_permissionId].description = _description;
+
+        emit PermissionDescriptionSet(_permissionId, _description);
+    }
+
+    /**
      * @dev Permission status
      */
 
@@ -238,7 +251,7 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
 
     function addDefaultPermission(
         bytes32 _permissionId
-    ) external permissionExists(_permissionId) onlyOwner {
+    ) external onlyOwner permissionExists(_permissionId) {
         require(
             !defaultPermissions.contains(_permissionId),
             "Permission already added"
@@ -251,7 +264,7 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
 
     function removeDefaultPermission(
         bytes32 _permissionId
-    ) external permissionExists(_permissionId) onlyOwner {
+    ) external onlyOwner permissionExists(_permissionId) {
         require(
             defaultPermissions.contains(_permissionId),
             "Permission not added"
