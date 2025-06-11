@@ -36,7 +36,7 @@ import {PermissionUtils} from "../libs/PermissionUtils.sol";
  *
  * Default permissions are permissions that should always be active and granted to all owners in an org during mint.
  *
- * Permission names follow the dot notation format. ex: "pass.purchase.mint"
+ * Permission names should follow the dot notation format. ex: "pass.wallet.spend"
  */
 contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
     using EnumerableSet for EnumerableSet.Bytes32Set;

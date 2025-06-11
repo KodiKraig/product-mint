@@ -45,7 +45,7 @@ interface IPermissionFactory {
      *
      * The ID is set to the keccak256 of the name.
      *
-     * The permission is set to active by default.
+     * The permission is set to active.
      *
      * @dev only owner can create permissions
      * @param _name The name of the permission in dot notation (e.g. "pass.wallet.spend")
@@ -70,6 +70,7 @@ interface IPermissionFactory {
     /**
      * Set the description of a permission.
      *
+     * @dev only owner can set the description of a permission
      * @param _permissionId The ID of the permission
      * @param _description The description of the permission
      */
@@ -161,7 +162,7 @@ interface IPermissionFactory {
     /**
      * Get a batch of permissions by name.
      *
-     * @param _names The names of the permissions in dot notation (e.g. ["pass.wallet.spend", "pass.purchase.mint"])
+     * @param _names The names of the permissions in dot notation (e.g. ["pass.wallet.spend", "pass.purchase.additional"])
      * @return _permissions The permissions
      */
     function getPermissionByNameBatch(
@@ -201,7 +202,7 @@ interface IPermissionFactory {
     /**
      * Check if a batch of permissions are active by name.
      *
-     * @param _names The names of the permissions in dot notation (e.g. ["pass.wallet.spend", "pass.purchase.mint"])
+     * @param _names The names of the permissions in dot notation (e.g. ["pass.wallet.spend", "pass.purchase.additional"])
      * @return true if all permissions are active, false otherwise
      */
     function isPermissionActiveByNameBatch(
