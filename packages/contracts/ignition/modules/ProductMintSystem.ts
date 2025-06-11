@@ -2,6 +2,7 @@
 // Learn more about it at https://hardhat.org/ignition
 
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules';
+import { ethers } from 'hardhat';
 
 const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
   // Registry
@@ -90,6 +91,7 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
   const purchaseManager = m.contract('PurchaseManager', [
     contractRegistry,
     permissionRegistry,
+    ethers.ZeroAddress,
   ]);
 
   // Usage recorder

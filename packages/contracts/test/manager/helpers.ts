@@ -155,6 +155,7 @@ export async function deployPurchaseManager() {
   const purchaseManager = await PurchaseManager.deploy(
     contractRegistry,
     permissionRegistry,
+    ethers.ZeroAddress,
   );
   await contractRegistry.setPurchaseManager(purchaseManager);
 

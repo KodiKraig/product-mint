@@ -2,7 +2,11 @@ import { loadFixture } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import calculateInterfaceId from '../../utils/calculate-interface-id';
-import { deployPurchaseManager, loadWithDefaultProduct } from './helpers';
+import {
+  deployPurchaseManager,
+  loadWithDefaultProduct,
+  loadWithPurchasedFlatRateSubscription,
+} from './helpers';
 
 describe('PurchaseManager', () => {
   describe('Deployment', () => {
@@ -137,6 +141,26 @@ describe('PurchaseManager', () => {
       expect(await paymentEscrow.getFeeBalance(ethers.ZeroAddress)).to.equal(
         ethers.parseEther('0'),
       );
+    });
+  });
+
+  describe('Upgrade and migration', () => {
+    it('should set the initial pass supply to the pass supply of the old purchase manager if one is provided', async () => {
+      const { purchaseManager, contractRegistry, permissionRegistry } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      expect(await purchaseManager.passSupply()).to.equal(1);
+
+      const PurchaseManager = await ethers.getContractFactory(
+        'PurchaseManager',
+      );
+      const newPurchaseManager = await PurchaseManager.deploy(
+        contractRegistry,
+        permissionRegistry,
+        purchaseManager,
+      );
+
+      expect(await newPurchaseManager.passSupply()).to.equal(1);
     });
   });
 });

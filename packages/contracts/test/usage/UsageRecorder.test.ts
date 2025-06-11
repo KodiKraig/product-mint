@@ -1,6 +1,6 @@
 import { loadFixture } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
-import hre from 'hardhat';
+import hre, { ethers } from 'hardhat';
 import calculateInterfaceId from '../../utils/calculate-interface-id';
 
 describe('UsageRecorder', () => {
@@ -31,6 +31,7 @@ describe('UsageRecorder', () => {
     const purchaseManager = await PurchaseManager.deploy(
       contractRegistry,
       permissionRegistry,
+      ethers.ZeroAddress,
     );
 
     const OrganizationAttributeProvider = await hre.ethers.getContractFactory(

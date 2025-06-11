@@ -59,14 +59,19 @@ contract PurchaseManager is
 
     constructor(
         address _contractRegistry,
-        address _permissionRegistry
+        address _permissionRegistry,
+        address _oldPurchaseManager
     )
         Ownable(_msgSender())
         RegistryEnabled(_contractRegistry)
         ReentrancyGuard()
         Pausable()
         PermissionChecker(_permissionRegistry)
-    {}
+    {
+        if (_oldPurchaseManager != address(0)) {
+            passSupply = IPurchaseManager(_oldPurchaseManager).passSupply();
+        }
+    }
 
     /**
      * Purchase Products

@@ -153,4 +153,10 @@ describe('ProductMintSystemModule', () => {
     expect(await permissionFactory.getAddress()).to.not.be.undefined;
     expect(await permissionRegistry.getAddress()).to.not.be.undefined;
   });
+
+  it('should set the initial pass supply to zero if no old purchase manager is provided', async () => {
+    const { purchaseManager } = await loadFixture(deployProductMintSystem);
+
+    expect(await purchaseManager.passSupply()).to.equal(0);
+  });
 });
