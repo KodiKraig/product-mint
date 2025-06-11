@@ -358,6 +358,49 @@ describe('Purchase Manager', () => {
         .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
         .withArgs(otherAccount, hashPermissionId('pass.wallet.spend'));
     });
+
+    it('revert if either the wallet spend or renew permission is inactive', async () => {
+      const {
+        purchaseManager,
+        permissionFactory,
+        permissionRegistry,
+        otherAccount,
+      } = await loadBatchSubscriptionRenewal();
+
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.subscription.renewal'),
+        false,
+      );
+
+      await time.increase(getCycleDuration(1) + 1);
+
+      // Inactive renew permission
+      await expect(
+        purchaseManager
+          .connect(otherAccount)
+          .renewSubscriptionBatch(1, [1], false),
+      )
+        .to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission')
+        .withArgs(hashPermissionId('pass.subscription.renewal'));
+
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.wallet.spend'),
+        false,
+      );
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.subscription.renewal'),
+        true,
+      );
+
+      // Inactive wallet spend permission
+      await expect(
+        purchaseManager
+          .connect(otherAccount)
+          .renewSubscriptionBatch(1, [1], false),
+      )
+        .to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission')
+        .withArgs(hashPermissionId('pass.wallet.spend'));
+    });
   });
 
   describe('Get Renewal Cost', () => {
@@ -1955,6 +1998,78 @@ describe('Purchase Manager', () => {
         .withArgs(otherAccount, hashPermissionId('pass.wallet.spend'));
     });
 
+    it('cannot change pricing if the pass owner if the pricing change or wallet spend permission is inactive', async () => {
+      const {
+        purchaseManager,
+        pricingRegistry,
+        productRegistry,
+        subscriptionEscrow,
+        permissionRegistry,
+        permissionFactory,
+        mintToken,
+        owner,
+        otherAccount,
+      } = await loadWithPurchasedFlatRateSubscription();
+
+      await subscriptionEscrow.connect(owner).setOwnerChangePricing(1, true);
+
+      await pricingRegistry.createFlatRateSubscriptionPricing({
+        organizationId: 1,
+        flatPrice: ethers.parseUnits('50', 6),
+        token: await mintToken.getAddress(),
+        isRestricted: false,
+        chargeFrequency: 2,
+      });
+
+      await productRegistry.linkPricing(1, [2]);
+
+      expect(await mintToken.balanceOf(otherAccount)).to.equal(
+        ethers.parseUnits('90', 6),
+      );
+
+      await time.increase(getCycleDuration(1) / 2);
+
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.subscription.pricing'),
+        false,
+      );
+
+      // Inactive subscription pricing permission
+      await expect(
+        purchaseManager.connect(otherAccount).changeSubscriptionPricing({
+          orgId: 1,
+          productPassId: 1,
+          productId: 1,
+          newPricingId: 2,
+          airdrop: false,
+        }),
+      )
+        .to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission')
+        .withArgs(hashPermissionId('pass.subscription.pricing'));
+
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.wallet.spend'),
+        false,
+      );
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.subscription.pricing'),
+        true,
+      );
+
+      // Inactive wallet spend permission
+      await expect(
+        purchaseManager.connect(otherAccount).changeSubscriptionPricing({
+          orgId: 1,
+          productPassId: 1,
+          productId: 1,
+          newPricingId: 2,
+          airdrop: false,
+        }),
+      )
+        .to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission')
+        .withArgs(hashPermissionId('pass.wallet.spend'));
+    });
+
     it('can change to another flat rate pricing model with a larger cycle duration', async () => {
       const {
         purchaseManager,
@@ -3105,6 +3220,39 @@ describe('Purchase Manager', () => {
       )
         .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
         .withArgs(otherAccount, hashPermissionId('pass.wallet.spend'));
+    });
+
+    it('cannot set the unit quantity if the quantity permission or wallet spend permission is inactive', async () => {
+      const { purchaseManager, permissionFactory, permissionRegistry } =
+        await loadUnitQuantityUpdate();
+
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.subscription.quantity'),
+        false,
+      );
+
+      // Inactive quantity permission
+      await expect(
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 20, false),
+      )
+        .to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission')
+        .withArgs(hashPermissionId('pass.subscription.quantity'));
+
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.subscription.quantity'),
+        true,
+      );
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.wallet.spend'),
+        false,
+      );
+
+      // Inactive wallet spend permission
+      await expect(
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 20, false),
+      )
+        .to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission')
+        .withArgs(hashPermissionId('pass.wallet.spend'));
     });
 
     it('can airdrop a unit quantity increase', async () => {

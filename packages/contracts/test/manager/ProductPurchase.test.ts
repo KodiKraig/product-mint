@@ -2573,6 +2573,42 @@ describe('Purchase Manager', () => {
         .withArgs(otherAccount, hashPermissionId('pass.purchase.additional'));
     });
 
+    it('cannot purchase additional products if permission is inactive', async () => {
+      const {
+        purchaseManager,
+        permissionFactory,
+        permissionRegistry,
+        otherAccount,
+      } = await loadWithPurchasedFlatRateSubscription();
+
+      expect(
+        await permissionRegistry.hasOwnerPermission(
+          1,
+          otherAccount,
+          hashPermissionId('pass.purchase.additional'),
+        ),
+      ).to.be.true;
+
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.purchase.additional'),
+        false,
+      );
+
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseAdditionalProducts({
+          productPassId: 1,
+          productIds: [2],
+          pricingIds: [1],
+          quantities: [0],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      )
+        .to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission')
+        .withArgs(hashPermissionId('pass.purchase.additional'));
+    });
+
     it('cannot change quantity if not admin or pass owner', async () => {
       const { purchaseManager, otherAccount2 } =
         await loadWithPurchasedFlatRateSubscription();
