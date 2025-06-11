@@ -40,14 +40,11 @@ import {PermissionUtils} from "../libs/PermissionUtils.sol";
  *
  * All permissions are derived from the PermissionFactory contract.
  *
- * Organizations can set initial permissions that will be granted to the purchaser
- * of a product pass during the initial pass minting via the PurchaseManager.
- *
  * Organizations can add additional permissions that get granted to the pass owner during the pass minting process.
  *
- * Organizations can exclude granting default permissions during the pass minting process.
- * NOTE: If the org has excluded default permissions, minters will not be able to mint passes. At a
- * minimum, the wallet spend permission must be added by the org to mint passes.
+ * Organizations can optionally exclude granting default permissions during the pass minting process.
+ * NOTE: If the org has excluded default permissions, subscriptions will not be able to be renewed without
+ * the pass owner adding the permissions back in themselves.
  */
 contract PermissionRegistry is
     RegistryEnabled,
@@ -68,7 +65,7 @@ contract PermissionRegistry is
     // Organization ID => Exclude default permissions for org during initial purchase?
     mapping(uint256 => bool) public excludeDefaultPermissions;
 
-    // Pass Owner => Have initial owner org permissions been set for the org?
+    // Organization ID => Pass Owner => Have initial owner org permissions been set for the org?
     mapping(uint256 => mapping(address => bool)) public ownerPermissionsSet;
 
     IPermissionFactory public permissionFactory;
