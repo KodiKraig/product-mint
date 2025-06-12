@@ -12,9 +12,7 @@ import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
 import {IPermissionRegistry} from "./IPermissionRegistry.sol";
 import {IPurchaseRegistry} from "./IPurchaseRegistry.sol";
-import {IPurchaseManager} from "../manager/IPurchaseManager.sol";
 import {IPermissionFactory} from "../permission/IPermissionFactory.sol";
-import {PermissionUtils} from "../libs/PermissionUtils.sol";
 
 /*
  ____                 _            _   __  __ _       _   
@@ -53,7 +51,6 @@ contract PermissionRegistry is
     IERC165
 {
     using EnumerableSet for EnumerableSet.Bytes32Set;
-    using PermissionUtils for string;
 
     // Organization ID => Owner => Permission IDs
     mapping(uint256 => mapping(address => EnumerableSet.Bytes32Set))
