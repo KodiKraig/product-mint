@@ -27,6 +27,13 @@ abstract contract PermissionChecker {
      * @dev Assert a permission
      */
 
+    /**
+     * @notice Assert a permission
+     * @dev Reverts if the owner does not have the permission or the permission is inactive
+     * @param _permission The permission to check
+     * @param _orgId The organization ID
+     * @param _owner The owner to check
+     */
     function _checkPermission(
         bytes32 _permission,
         uint256 _orgId,
@@ -39,6 +46,13 @@ abstract contract PermissionChecker {
         }
     }
 
+    /**
+     * @notice Assert a permission by name
+     * @dev Reverts if the owner does not have the permission or the permission is inactive
+     * @param _permissionName The permission name to check
+     * @param _orgId The organization ID
+     * @param _owner The owner to check
+     */
     function _checkPermissionName(
         string memory _permissionName,
         uint256 _orgId,
@@ -51,6 +65,11 @@ abstract contract PermissionChecker {
      * @dev Set the permission registry
      */
 
+    /**
+     * @notice Set the permission registry
+     * @dev Reverts if the registry does not support the IPermissionRegistry interface
+     * @param _registry The address of the new permission registry
+     */
     function _setPermissionRegistry(address _registry) internal virtual {
         require(
             IERC165(_registry).supportsInterface(
