@@ -146,12 +146,15 @@ describe('ProductMintSystemModule', () => {
   });
 
   it('should deploy the permission factory and registry with the correct contracts', async () => {
-    const { permissionFactory, permissionRegistry } = await loadFixture(
-      deployProductMintSystem,
-    );
+    const { permissionFactory, permissionRegistry, purchaseManager } =
+      await loadFixture(deployProductMintSystem);
 
     expect(await permissionFactory.getAddress()).to.not.be.undefined;
     expect(await permissionRegistry.getAddress()).to.not.be.undefined;
+
+    expect(await purchaseManager.permissionRegistry()).to.equal(
+      await permissionRegistry.getAddress(),
+    );
   });
 
   it('should set the initial pass supply to zero if no old purchase manager is provided', async () => {
