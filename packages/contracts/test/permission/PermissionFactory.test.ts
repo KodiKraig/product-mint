@@ -342,7 +342,7 @@ describe('PermissionFactory', () => {
           'Updated description',
         ),
       )
-        .to.emit(permissionFactory, 'PermissionDescriptionSet')
+        .to.emit(permissionFactory, 'PermissionDescriptionUpdated')
         .withArgs(hashPermissionId('pass.wallet.spend'), 'Updated description');
 
       const test = await permissionFactory.getPermissionByName(

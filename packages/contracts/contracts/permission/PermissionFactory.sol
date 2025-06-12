@@ -105,7 +105,7 @@ contract PermissionFactory is Ownable2Step, IPermissionFactory, IERC165 {
     ) external onlyOwner permissionExists(_permissionId) {
         permissions[_permissionId].description = _description;
 
-        emit PermissionDescriptionSet(_permissionId, _description);
+        emit PermissionDescriptionUpdated(_permissionId, _description);
     }
 
     /**

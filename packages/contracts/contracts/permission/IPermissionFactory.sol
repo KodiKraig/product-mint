@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 
 interface IPermissionFactory {
     /**
-     * @dev Permission struct
+     * @notice Permission struct
      *
      * @param id The ID of the permission. Hash of the name.
      * @param name The name of the permission. In dot notation (e.g. "pass.wallet.spend")
@@ -25,8 +25,7 @@ interface IPermissionFactory {
      */
 
     /**
-     * @dev Permission creation
-     * Emitted when a new permission is created.
+     * @notice Emitted when a new permission is created.
      *
      * @param permissionId The ID of the permission
      * @param name The name of the permission
@@ -41,7 +40,7 @@ interface IPermissionFactory {
     );
 
     /**
-     * Create a new permission.
+     * @notice Create a new permission.
      *
      * The ID is set to the keccak256 of the name.
      *
@@ -62,13 +61,19 @@ interface IPermissionFactory {
      * @dev Permission description
      */
 
-    event PermissionDescriptionSet(
+    /**
+     * @notice Emitted when the description of a permission is updated.
+     *
+     * @param permissionId The ID of the permission
+     * @param description The description of the permission
+     */
+    event PermissionDescriptionUpdated(
         bytes32 indexed permissionId,
         string description
     );
 
     /**
-     * Set the description of a permission.
+     * @notice Set the description of a permission.
      *
      * @dev only owner can set the description of a permission
      * @param _permissionId The ID of the permission
@@ -84,13 +89,15 @@ interface IPermissionFactory {
      */
 
     /**
-     * @dev Permission activation
-     * Emitted when a permission is activated or deactivated.
+     * @notice Emitted when a permission is activated or deactivated.
+     *
+     * @param permissionId The ID of the permission
+     * @param isActive The active status of the permission
      */
     event PermissionActivation(bytes32 indexed permissionId, bool isActive);
 
     /**
-     * Set the active status of a permission.
+     * @notice Set the active status of a permission.
      *
      * @dev only owner can set the active status of a permission
      * @param _permissionId The ID of the permission
@@ -106,7 +113,7 @@ interface IPermissionFactory {
      */
 
     /**
-     * Get the ID of a permission by name.
+     * @notice Get the ID of a permission by name.
      *
      * @param _name The name of the permission in dot notation (e.g. "pass.wallet.spend")
      * @return The ID of the permission
@@ -116,21 +123,21 @@ interface IPermissionFactory {
     ) external view returns (bytes32);
 
     /**
-     * Get all permission IDs.
+     * @notice Get all permission IDs.
      *
      * @return The IDs of all permissions
      */
     function getAllPermissionIds() external view returns (bytes32[] memory);
 
     /**
-     * Get all permissions.
+     * @notice Get all permissions.
      *
      * @return The permissions
      */
     function getAllPermissions() external view returns (Permission[] memory);
 
     /**
-     * Get a permission by ID.
+     * @notice Get a permission by ID.
      *
      * @param _permissionId The ID of the permission
      * @return The permission
@@ -140,7 +147,7 @@ interface IPermissionFactory {
     ) external view returns (Permission memory);
 
     /**
-     * Get a batch of permissions by ID.
+     * @notice Get a batch of permissions by ID.
      *
      * @param _permissionIds The IDs of the permissions
      * @return _permissions The permissions
@@ -150,7 +157,7 @@ interface IPermissionFactory {
     ) external view returns (Permission[] memory _permissions);
 
     /**
-     * Get a permission by name.
+     * @notice Get a permission by name.
      *
      * @param _name The name of the permission in dot notation (e.g. "pass.wallet.spend")
      * @return The permission
@@ -160,7 +167,7 @@ interface IPermissionFactory {
     ) external view returns (Permission memory);
 
     /**
-     * Get a batch of permissions by name.
+     * @notice Get a batch of permissions by name.
      *
      * @param _names The names of the permissions in dot notation (e.g. ["pass.wallet.spend", "pass.purchase.additional"])
      * @return _permissions The permissions
@@ -170,7 +177,7 @@ interface IPermissionFactory {
     ) external view returns (Permission[] memory _permissions);
 
     /**
-     * Check if a permission is active.
+     * @notice Check if a permission is active.
      *
      * @param _permissionId The ID of the permission
      * @return The active status of the permission
@@ -180,7 +187,7 @@ interface IPermissionFactory {
     ) external view returns (bool);
 
     /**
-     * Check if a batch of permissions are active.
+     * @notice Check if a batch of permissions are active.
      *
      * @param _permissionIds The IDs of the permissions
      * @return true if all permissions are active, false otherwise
@@ -190,7 +197,7 @@ interface IPermissionFactory {
     ) external view returns (bool);
 
     /**
-     * Check if a permission is active by name.
+     * @notice Check if a permission is active by name.
      *
      * @param _name The name of the permission in dot notation (e.g. "pass.wallet.spend")
      * @return The active status of the permission
@@ -200,7 +207,7 @@ interface IPermissionFactory {
     ) external view returns (bool);
 
     /**
-     * Check if a batch of permissions are active by name.
+     * @notice Check if a batch of permissions are active by name.
      *
      * @param _names The names of the permissions in dot notation (e.g. ["pass.wallet.spend", "pass.purchase.additional"])
      * @return true if all permissions are active, false otherwise
@@ -214,14 +221,14 @@ interface IPermissionFactory {
      */
 
     /**
-     * Get all default permissions.
+     * @notice Get all default permissions.
      *
      * @return The IDs of all default permissions
      */
     function getDefaultPermissionIds() external view returns (bytes32[] memory);
 
     /**
-     * Check if a permission is a default permission.
+     * @notice Check if a permission is a default permission.
      *
      * @param _permissionId The ID of the permission
      * @return True if the permission is a default permission, false otherwise
@@ -231,30 +238,28 @@ interface IPermissionFactory {
     ) external view returns (bool);
 
     /**
-     * @dev Default permission addition
-     * Emitted when a new default permission is added.
+     * @notice Emitted when a new default permission is added.
      *
      * @param permissionId The ID of the permission
      */
     event DefaultPermissionAdded(bytes32 indexed permissionId);
 
     /**
-     * Add a permission as a default permission.
+     * @notice Add a permission as a default permission.
      *
      * @param _permissionId The ID of the permission
      */
     function addDefaultPermission(bytes32 _permissionId) external;
 
     /**
-     * @dev Default permission removal
-     * Emitted when a default permission is removed.
+     * @notice Emitted when a default permission is removed.
      *
      * @param permissionId The ID of the permission
      */
     event DefaultPermissionRemoved(bytes32 indexed permissionId);
 
     /**
-     * Remove a permission as a default permission.
+     * @notice Remove a permission as a default permission.
      *
      * @param _permissionId The ID of the permission
      */
