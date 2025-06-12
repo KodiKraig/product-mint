@@ -9,7 +9,7 @@
     "test:coverage:watch": "nodemon -e js,ts,sol --watch contracts --watch test --watch ignition/modules --exec 'hardhat coverage'",
     "compile": "hardhat compile",
     "clean": "hardhat clean",
-    "visualize": "hardhat ignition visualize ./ignition/modules/RenewalProcessor.ts",
+    "visualize": "hardhat ignition visualize ./ignition/modules/MigrateManagerPermissions.ts",
     "node:local": "hardhat node",
     "deploy:local": "hardhat ignition deploy ./ignition/modules/ProductMintSystem.ts --network localhost",
     "deploy:base-sepolia": "hardhat ignition deploy ./ignition/modules/ProductMintSystem.ts --network baseSepolia",
@@ -19,7 +19,9 @@
     "deploy:pass-metadata-v2:base-sepolia": "hardhat ignition deploy ./ignition/modules/UpgradePassMetadata.ts --network baseSepolia",
     "deploy:pass-metadata-v2:base-mainnet": "hardhat ignition deploy ./ignition/modules/UpgradePassMetadata.ts --network base",
     "deploy:renewal-processor:base-sepolia": "hardhat ignition deploy ./ignition/modules/RenewalProcessor.ts --network baseSepolia",
-    "deploy:renewal-processor:base-mainnet": "hardhat ignition deploy ./ignition/modules/RenewalProcessor.ts --network base"
+    "deploy:renewal-processor:base-mainnet": "hardhat ignition deploy ./ignition/modules/RenewalProcessor.ts --network base",
+    "deploy:permissions:base-sepolia": "hardhat ignition deploy ./ignition/modules/MigrateManagerPermissions.ts --network baseSepolia --parameters ./ignition/parameters/base-sepolia.json",
+    "deploy:permissions:base-mainnet": "hardhat ignition deploy ./ignition/modules/MigrateManagerPermissions.ts --network base --parameters ./ignition/parameters/base-mainnet.json"
   },
   "keywords": [
     "productmint",

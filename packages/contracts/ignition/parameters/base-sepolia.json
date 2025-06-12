@@ -1,0 +1,6 @@
+{
+  "MigrateManagerPermissions": {
+    "contractRegistryAddress": "0xe495E460649166B5d49Aac122198172DC07f31e0",
+    "oldPurchaseManagerAddress": "0x0da94511236963A849aDd2D7BE97B143F1b126Bd"
+  }
+}
