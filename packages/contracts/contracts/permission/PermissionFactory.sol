@@ -34,7 +34,7 @@ import {PermissionUtils} from "../libs/PermissionUtils.sol";
  *
  * Only the contract owner can add new permissions and update existing permissions.
  *
- * Default permissions are permissions that should always be active and granted to all owners in an org during mint.
+ * Default permissions should always be active and granted to all owners in an org during mint.
  *
  * Permission names should follow the dot notation format. ex: "pass.wallet.spend"
  */
