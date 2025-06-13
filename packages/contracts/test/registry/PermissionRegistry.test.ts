@@ -6,6 +6,7 @@ import {
 import { hashPermissionId } from '../permission/helpers';
 import hre from 'hardhat';
 import { parseUnits } from 'ethers';
+import calculateInterfaceId from '../../utils/calculate-interface-id';
 
 describe('PermissionRegistry', () => {
   describe('Deployment', () => {
@@ -27,6 +28,31 @@ describe('PermissionRegistry', () => {
     it('returns true for the IERC165 interface', async () => {
       const { permissionRegistry } = await loadWithDefaultProduct();
       expect(await permissionRegistry.supportsInterface('0x01ffc9a7')).to.be
+        .true;
+    });
+
+    it('returns true for the IPermissionRegistry interface', async () => {
+      const { permissionRegistry } = await loadWithDefaultProduct();
+
+      const interfaceId = calculateInterfaceId([
+        'ownerPermissionsSet(uint256,address)',
+        'hasOwnerPermission(uint256,address,bytes32)',
+        'hasOwnerPermissionBatch(uint256,address,bytes32[])',
+        'getOwnerPermissions(uint256,address)',
+        'getOwnerPermissionsBatch(uint256[],address[])',
+        'addOwnerPermissions(uint256,bytes32[])',
+        'removeOwnerPermissions(uint256,bytes32[])',
+        'excludeDefaultPermissions(uint256)',
+        'setExcludeDefaultPermissions(uint256,bool)',
+        'getOrgPermissions(uint256)',
+        'updateOrgPermissions(uint256,bytes32[],bool[])',
+        'grantInitialOwnerPermissions(uint256,address)',
+        'adminUpdateOwnerPermissions((address,uint256,bytes32[],bool)[])',
+        'adminGrantInitialOwnerPermissions(uint256[])',
+        'setPermissionFactory(address)',
+      ]);
+
+      expect(await permissionRegistry.supportsInterface(interfaceId)).to.be
         .true;
     });
   });
