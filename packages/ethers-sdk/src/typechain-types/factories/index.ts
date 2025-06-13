@@ -8,6 +8,7 @@ export * as escrow from "./escrow";
 export * as manager from "./manager";
 export * as metadata from "./metadata";
 export * as oracle from "./oracle";
+export * as permission from "./permission";
 export * as registry from "./registry";
 export * as renewal from "./renewal";
 export * as tokens from "./tokens";

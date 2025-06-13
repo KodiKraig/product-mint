@@ -24,7 +24,7 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     enabled: false,
-    gasPrice: 10, // gwei (L2)
+    gasPrice: 1, // gwei (L2)
     currency: 'USD',
     token: 'ETH',
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,

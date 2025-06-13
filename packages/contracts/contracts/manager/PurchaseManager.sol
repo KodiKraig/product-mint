@@ -21,6 +21,8 @@ import {IPurchaseRegistry} from "../registry/IPurchaseRegistry.sol";
 import {IPricingCalculator} from "../calculator/IPricingCalculator.sol";
 import {ICouponRegistry} from "../registry/ICouponRegistry.sol";
 import {IDiscountRegistry} from "../registry/IDiscountRegistry.sol";
+import {PermissionChecker} from "../abstract/PermissionChecker.sol";
+import {PermissionUtils} from "../libs/PermissionUtils.sol";
 
 /*
  ____                 _            _   __  __ _       _   
@@ -49,19 +51,27 @@ contract PurchaseManager is
     ReentrancyGuard,
     Pausable,
     IPurchaseManager,
-    IERC165
+    IERC165,
+    PermissionChecker
 {
     // Total number of product pass tokens minted
     uint256 public passSupply;
 
     constructor(
-        address _contractRegistry
+        address _contractRegistry,
+        address _permissionRegistry,
+        address _oldPurchaseManager
     )
         Ownable(_msgSender())
         RegistryEnabled(_contractRegistry)
         ReentrancyGuard()
         Pausable()
-    {}
+        PermissionChecker(_permissionRegistry)
+    {
+        if (_oldPurchaseManager != address(0)) {
+            passSupply = IPurchaseManager(_oldPurchaseManager).passSupply();
+        }
+    }
 
     /**
      * Purchase Products
@@ -73,6 +83,11 @@ contract PurchaseManager is
         passSupply++;
 
         address purchaser = _msgSender();
+
+        permissionRegistry.grantInitialOwnerPermissions(
+            params.organizationId,
+            purchaser
+        );
 
         if (params.discountIds.length > 0) {
             IDiscountRegistry(registry.discountRegistry()).mintDiscountsToPass(
@@ -109,12 +124,20 @@ contract PurchaseManager is
     ) external payable onlyPassOwnerOrAdmin(params.productPassId) nonReentrant {
         address passOwner = _passOwner(params.productPassId);
 
+        uint256 orgId = IPurchaseRegistry(registry.purchaseRegistry())
+            .passOrganization(params.productPassId);
+
+        _checkPermissionName(
+            PermissionUtils.PASS_PURCHASE_ADDITIONAL,
+            orgId,
+            passOwner
+        );
+
         _purchaseProducts(
             PurchaseProductsParams({
                 passOwner: passOwner,
                 purchaser: passOwner,
-                orgId: IPurchaseRegistry(registry.purchaseRegistry())
-                    .passOrganization(params.productPassId),
+                orgId: orgId,
                 productPassId: params.productPassId,
                 productIds: params.productIds,
                 pricingIds: params.pricingIds,
@@ -212,6 +235,12 @@ contract PurchaseManager is
 
         address passOwner = _passOwner(params.productPassId);
 
+        _checkPermissionName(
+            PermissionUtils.PASS_SUBSCRIPTION_PRICING,
+            params.orgId,
+            passOwner
+        );
+
         IPricingRegistry(registry.pricingRegistry()).validateCheckout(
             params.orgId,
             passOwner,
@@ -285,6 +314,12 @@ contract PurchaseManager is
 
         address passOwner = _passOwner(productPassId);
 
+        _checkPermissionName(
+            PermissionUtils.PASS_SUBSCRIPTION_RENEWAL,
+            orgId,
+            passOwner
+        );
+
         if (price > 0) {
             _performPurchase(
                 PerformPurchaseParams({
@@ -317,6 +352,12 @@ contract PurchaseManager is
         ).changeSubscriptionUnitQuantity(productPassId, productId, quantity);
 
         address passOwner = _passOwner(productPassId);
+
+        _checkPermissionName(
+            PermissionUtils.PASS_SUBSCRIPTION_QUANTITY,
+            orgId,
+            passOwner
+        );
 
         if (amount > 0) {
             _performPurchase(
@@ -444,6 +485,14 @@ contract PurchaseManager is
 
         // Transfer funds
         if (params.totalAmount > 0) {
+            if (!params.isInitialPurchase) {
+                _checkPermissionName(
+                    PermissionUtils.PASS_WALLET_SPEND,
+                    params.orgId,
+                    params.purchaser
+                );
+            }
+
             IPaymentEscrow(registry.paymentEscrow()).transferDirect{
                 value: msg.value
             }(
@@ -523,6 +572,16 @@ contract PurchaseManager is
 
     function unpausePurchases() external onlyOwner {
         _unpause();
+    }
+
+    /**
+     * Permission Registry
+     */
+
+    function setPermissionRegistry(
+        address _permissionRegistry
+    ) external onlyOwner {
+        _setPermissionRegistry(_permissionRegistry);
     }
 
     /**

@@ -55,3 +55,11 @@ export const parseBooleanValue = (value: string): boolean | null => {
 
   return null;
 };
+
+export const parseOnChainDate = (value: string | bigint): Date | null => {
+  if (!value || value === '') {
+    return null;
+  }
+
+  return new Date(Number(value) * 1000);
+};
