@@ -128,6 +128,7 @@ export default function registerManagerCommand(program: Command): Command {
     );
 
   registerEventsCommand(managerCommand);
+  registerPauseCommands(managerCommand);
 
   return managerCommand;
 }
@@ -145,5 +146,33 @@ const registerEventsCommand = (command: Command) => {
       events.forEach((event) => {
         console.log(event);
       });
+    });
+};
+
+const registerPauseCommands = (command: Command) => {
+  const pauseCommand = command
+    .command('pausing')
+    .description('Check manager pausing status and enable/disable pausing');
+
+  pauseCommand
+    .command('isPaused')
+    .description('Check the pause status of the purchase manager')
+    .action(async () => {
+      const isPaused = await purchaseManager.paused();
+      console.log(`Is paused: ${isPaused}`);
+    });
+
+  pauseCommand
+    .command('enable')
+    .description('Enable pausing for the purchase manager')
+    .action(async () => {
+      await waitTx(purchaseManager.connect(signerWallet).pausePurchases());
+    });
+
+  pauseCommand
+    .command('disable')
+    .description('Disable pausing for the purchase manager')
+    .action(async () => {
+      await waitTx(purchaseManager.connect(signerWallet).unpausePurchases());
     });
 };

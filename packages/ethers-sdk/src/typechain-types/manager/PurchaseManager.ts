@@ -124,12 +124,14 @@ export interface PurchaseManagerInterface extends Interface {
       | "pauseSubscriptionBatch"
       | "paused"
       | "pendingOwner"
+      | "permissionRegistry"
       | "purchaseAdditionalProducts"
       | "purchaseProducts"
       | "registry"
       | "renewSubscription"
       | "renewSubscriptionBatch"
       | "renounceOwnership"
+      | "setPermissionRegistry"
       | "supportsInterface"
       | "transferOwnership"
       | "unpausePurchases"
@@ -188,6 +190,10 @@ export interface PurchaseManagerInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "permissionRegistry",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "purchaseAdditionalProducts",
     values: [IPurchaseManager.AdditionalPurchaseParamsStruct]
   ): string;
@@ -207,6 +213,10 @@ export interface PurchaseManagerInterface extends Interface {
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setPermissionRegistry",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
@@ -261,6 +271,10 @@ export interface PurchaseManagerInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "permissionRegistry",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "purchaseAdditionalProducts",
     data: BytesLike
   ): Result;
@@ -279,6 +293,10 @@ export interface PurchaseManagerInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setPermissionRegistry",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -510,6 +528,8 @@ export interface PurchaseManager extends BaseContract {
 
   pendingOwner: TypedContractMethod<[], [string], "view">;
 
+  permissionRegistry: TypedContractMethod<[], [string], "view">;
+
   purchaseAdditionalProducts: TypedContractMethod<
     [params: IPurchaseManager.AdditionalPurchaseParamsStruct],
     [void],
@@ -537,6 +557,12 @@ export interface PurchaseManager extends BaseContract {
   >;
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+
+  setPermissionRegistry: TypedContractMethod<
+    [_permissionRegistry: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
   supportsInterface: TypedContractMethod<
     [interfaceId: BytesLike],
@@ -626,6 +652,9 @@ export interface PurchaseManager extends BaseContract {
     nameOrSignature: "pendingOwner"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "permissionRegistry"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "purchaseAdditionalProducts"
   ): TypedContractMethod<
     [params: IPurchaseManager.AdditionalPurchaseParamsStruct],
@@ -659,6 +688,13 @@ export interface PurchaseManager extends BaseContract {
   getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setPermissionRegistry"
+  ): TypedContractMethod<
+    [_permissionRegistry: AddressLike],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "supportsInterface"
   ): TypedContractMethod<[interfaceId: BytesLike], [boolean], "view">;

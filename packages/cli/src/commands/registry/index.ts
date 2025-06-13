@@ -4,6 +4,7 @@ import registerProductCommand from './product';
 import registerPurchaseCommand from './purchase';
 import registerCouponCommand from './coupon';
 import registerDiscountCommand from './discount';
+import registerPermissionCommand from './permission';
 
 export default function registerRegistryCommands(program: Command) {
   const registry = program
@@ -17,4 +18,5 @@ export default function registerRegistryCommands(program: Command) {
   registerPurchaseCommand(registry);
   registerCouponCommand(registry);
   registerDiscountCommand(registry);
+  registerPermissionCommand(registry);
 }
