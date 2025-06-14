@@ -164,14 +164,14 @@ const registerPauseCommands = (command: Command) => {
 
   pauseCommand
     .command('enable')
-    .description('Enable pausing for the purchase manager')
+    .description('Pause purchase manager')
     .action(async () => {
       await waitTx(purchaseManager.connect(signerWallet).pausePurchases());
     });
 
   pauseCommand
     .command('disable')
-    .description('Disable pausing for the purchase manager')
+    .description('Unpause purchase manager')
     .action(async () => {
       await waitTx(purchaseManager.connect(signerWallet).unpausePurchases());
     });
