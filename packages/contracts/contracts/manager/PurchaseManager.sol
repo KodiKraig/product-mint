@@ -44,6 +44,9 @@ import {PermissionUtils} from "../libs/PermissionUtils.sol";
  *
  * The PurchaseManager is also responsible for renewing subscriptions, pausing and cancelling subscriptions, and
  * changing the pricing model for an existing subscription.
+ *
+ * Upon minting a product pass, the user is granted initial owner permissions to the organization enabling the
+ * organization to charge renewals, change pricing, and pause and cancel subscriptions.
  */
 contract PurchaseManager is
     RegistryEnabled,
