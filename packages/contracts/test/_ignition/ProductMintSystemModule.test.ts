@@ -155,6 +155,9 @@ describe('ProductMintSystemModule', () => {
     expect(await purchaseManager.permissionRegistry()).to.equal(
       await permissionRegistry.getAddress(),
     );
+    expect(await permissionRegistry.permissionFactory()).to.equal(
+      await permissionFactory.getAddress(),
+    );
   });
 
   it('should set the initial pass supply to zero if no old purchase manager is provided', async () => {
