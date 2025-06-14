@@ -230,6 +230,33 @@ describe('Purchase Manager', () => {
           0,
           renewalTimeStamp,
           renewalTimeStamp + getCycleDuration(3),
+        )
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
+        )
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          2,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('2.5', 6),
+        )
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          3,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('14.5', 6),
         );
 
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
@@ -457,7 +484,8 @@ describe('Purchase Manager', () => {
           1,
           purchaseTimeStamp,
           purchaseTimeStamp + getCycleDuration(1),
-        );
+        )
+        .and.not.to.emit(purchaseManager, 'SubscriptionRenewed');
     });
 
     it('can cancel subscription as an org admin if sub is not paused', async () => {
@@ -475,7 +503,8 @@ describe('Purchase Manager', () => {
           1,
           purchaseTimeStamp,
           purchaseTimeStamp + getCycleDuration(1),
-        );
+        )
+        .and.not.to.emit(purchaseManager, 'SubscriptionRenewed');
     });
 
     it('can un cancel sub and renew in the same tx if sub is passed due', async () => {
@@ -576,6 +605,15 @@ describe('Purchase Manager', () => {
           0,
           cancelTimeStamp,
           cancelTimeStamp + getCycleDuration(1),
+        )
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
         );
 
       await assertSubscription(
@@ -651,7 +689,8 @@ describe('Purchase Manager', () => {
           0,
           purchaseTimeStamp,
           purchaseTimeStamp + getCycleDuration(1),
-        );
+        )
+        .and.not.to.emit(purchaseManager, 'SubscriptionRenewed');
 
       await assertSubscription(
         subscriptionEscrow,
@@ -964,7 +1003,8 @@ describe('Purchase Manager', () => {
           1,
           additionalProductsTimeStamp,
           additionalProductsTimeStamp + getCycleDuration(3),
-        );
+        )
+        .and.not.to.emit(purchaseManager, 'SubscriptionRenewed');
 
       // INCREASE TIME TO END OF ALL SUBSCRIPTIONS
       await time.increase(getCycleDuration(3) + 1);
@@ -1050,7 +1090,34 @@ describe('Purchase Manager', () => {
         .to.emit(usageRecorder, 'MeterUsageSet')
         .withArgs(1, 1, 1, 0)
         .to.emit(usageRecorder, 'MeterPaymentProcessed')
-        .withArgs(1, 1, 1, 15);
+        .withArgs(1, 1, 1, 15)
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
+        )
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          2,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('5.5', 6),
+        )
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          3,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('7.5', 6),
+        );
 
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
         ethers.parseUnits('61.5', 6),
@@ -1576,7 +1643,8 @@ describe('Purchase Manager', () => {
 
       await expect(tx)
         .to.emit(subscriptionEscrow, 'SubscriptionCycleUpdated')
-        .withArgs(1, 1, 3, 3, 0, pauseTimeStamp);
+        .withArgs(1, 1, 3, 3, 0, pauseTimeStamp)
+        .and.not.to.emit(purchaseManager, 'SubscriptionRenewed');
 
       // Check subscription status
 
@@ -2181,7 +2249,8 @@ describe('Purchase Manager', () => {
           0,
           purchaseTimeStamp,
           purchaseTimeStamp + getCycleDuration(2),
-        );
+        )
+        .and.not.to.emit(purchaseManager, 'SubscriptionRenewed');
 
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
         ethers.parseUnits('90', 6),
@@ -2341,7 +2410,8 @@ describe('Purchase Manager', () => {
           0,
           purchaseTimeStamp,
           purchaseTimeStamp + getCycleDuration(1),
-        );
+        )
+        .and.not.to.emit(purchaseManager, 'SubscriptionRenewed');
 
       await assertSubscription(
         subscriptionEscrow,
@@ -2437,7 +2507,8 @@ describe('Purchase Manager', () => {
           0,
           purchaseTimeStamp,
           purchaseTimeStamp + getCycleDuration(2),
-        );
+        )
+        .and.not.to.emit(purchaseManager, 'SubscriptionRenewed');
 
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
         ethers.parseUnits('90', 6),

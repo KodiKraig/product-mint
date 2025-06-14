@@ -6,6 +6,8 @@ import {
 import { DiscountRegistry } from '../../typechain-types';
 import { ethers } from 'hardhat';
 import { assertCheckoutTotalCost } from '../calculator/helpers';
+import { time } from '@nomicfoundation/hardhat-toolbox/network-helpers';
+import { getCycleDuration } from '../../utils/cycle-duration';
 
 interface CreateDiscountParams {
   orgId?: number;
@@ -785,6 +787,38 @@ describe('DiscountRegistry', () => {
 
       expect(await discountRegistry.hasPassDiscount(1, 1)).to.be.true;
       expect(await discountRegistry.hasPassDiscount(2, 1)).to.be.true;
+    });
+
+    it('subscription renewal with discounts', async () => {
+      const { discountRegistry, otherAccount, mintToken, purchaseManager } =
+        await loadWithDefaultDiscountAndPass();
+
+      await discountRegistry.mintDiscountsToPassByOrg(1, [1], [1]);
+
+      await time.increase(getCycleDuration(2));
+
+      await expect(
+        purchaseManager
+          .connect(otherAccount)
+          .renewSubscriptionBatch(1, [1], false),
+      )
+        .to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
+        )
+        .and.to.emit(purchaseManager, 'PerformPurchase')
+        .withArgs(
+          1,
+          otherAccount,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('9', 6),
+        );
     });
 
     it('minting a restricted discount removes restricted access for pass owner once minted', async () => {

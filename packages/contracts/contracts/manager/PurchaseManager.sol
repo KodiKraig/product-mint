@@ -335,7 +335,34 @@ contract PurchaseManager is
                 })
             );
         }
+
+        emit SubscriptionRenewed(
+            orgId,
+            productPassId,
+            productId,
+            passOwner,
+            token,
+            price
+        );
     }
+
+    /**
+     * @notice Emitted when a subscription is renewed via the purchase manager
+     * @param orgId The organization ID
+     * @param productPassId The product pass ID
+     * @param productId The product ID
+     * @param purchaser The purchaser address
+     * @param token The token address used for the renewal purchase
+     * @param subtotalAmount The subtotal amount
+     */
+    event SubscriptionRenewed(
+        uint256 indexed orgId,
+        uint256 indexed productPassId,
+        uint256 indexed productId,
+        address purchaser,
+        address token,
+        uint256 subtotalAmount
+    );
 
     /**
      * Tiered Subscription Unit Quantity

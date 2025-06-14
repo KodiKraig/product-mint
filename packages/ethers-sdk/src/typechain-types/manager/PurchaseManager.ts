@@ -144,6 +144,7 @@ export interface PurchaseManagerInterface extends Interface {
       | "Paused"
       | "PerformPurchase"
       | "ProductsPurchased"
+      | "SubscriptionRenewed"
       | "Unpaused"
   ): EventFragment;
 
@@ -409,6 +410,37 @@ export namespace ProductsPurchasedEvent {
     quantities: bigint[];
     token: string;
     amountPaid: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace SubscriptionRenewedEvent {
+  export type InputTuple = [
+    orgId: BigNumberish,
+    productPassId: BigNumberish,
+    productId: BigNumberish,
+    purchaser: AddressLike,
+    token: AddressLike,
+    subtotalAmount: BigNumberish
+  ];
+  export type OutputTuple = [
+    orgId: bigint,
+    productPassId: bigint,
+    productId: bigint,
+    purchaser: string,
+    token: string,
+    subtotalAmount: bigint
+  ];
+  export interface OutputObject {
+    orgId: bigint;
+    productPassId: bigint;
+    productId: bigint;
+    purchaser: string;
+    token: string;
+    subtotalAmount: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -741,6 +773,13 @@ export interface PurchaseManager extends BaseContract {
     ProductsPurchasedEvent.OutputObject
   >;
   getEvent(
+    key: "SubscriptionRenewed"
+  ): TypedContractEvent<
+    SubscriptionRenewedEvent.InputTuple,
+    SubscriptionRenewedEvent.OutputTuple,
+    SubscriptionRenewedEvent.OutputObject
+  >;
+  getEvent(
     key: "Unpaused"
   ): TypedContractEvent<
     UnpausedEvent.InputTuple,
@@ -802,6 +841,17 @@ export interface PurchaseManager extends BaseContract {
       ProductsPurchasedEvent.InputTuple,
       ProductsPurchasedEvent.OutputTuple,
       ProductsPurchasedEvent.OutputObject
+    >;
+
+    "SubscriptionRenewed(uint256,uint256,uint256,address,address,uint256)": TypedContractEvent<
+      SubscriptionRenewedEvent.InputTuple,
+      SubscriptionRenewedEvent.OutputTuple,
+      SubscriptionRenewedEvent.OutputObject
+    >;
+    SubscriptionRenewed: TypedContractEvent<
+      SubscriptionRenewedEvent.InputTuple,
+      SubscriptionRenewedEvent.OutputTuple,
+      SubscriptionRenewedEvent.OutputObject
     >;
 
     "Unpaused(address)": TypedContractEvent<

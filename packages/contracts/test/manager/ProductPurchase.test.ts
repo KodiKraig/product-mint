@@ -867,6 +867,15 @@ describe('Purchase Manager', () => {
           0,
           renewalTimestamp,
           renewalTimestamp + cycleDuration,
+        )
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
         );
 
       // RENEWAL ASSERTIONS
@@ -1062,6 +1071,15 @@ describe('Purchase Manager', () => {
           0,
           renewalTimestamp,
           renewalTimestamp + getCycleDuration(2),
+        )
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('184', 6),
         );
 
       // RENEWAL ASSERTIONS
