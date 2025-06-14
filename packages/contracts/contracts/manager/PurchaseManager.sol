@@ -46,13 +46,13 @@ import {PermissionUtils} from "../libs/PermissionUtils.sol";
  * changing the pricing model for an existing subscription.
  */
 contract PurchaseManager is
-    Ownable2Step,
     RegistryEnabled,
     ReentrancyGuard,
     Pausable,
-    IPurchaseManager,
     IERC165,
-    PermissionChecker
+    IPurchaseManager,
+    PermissionChecker,
+    Ownable2Step
 {
     // Total number of product pass tokens minted
     uint256 public passSupply;
