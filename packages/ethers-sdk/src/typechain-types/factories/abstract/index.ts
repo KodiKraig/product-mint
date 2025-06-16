@@ -6,5 +6,6 @@ export { ExternalMetadataERC721__factory } from "./ExternalMetadataERC721__facto
 export { IMetadataProvider__factory } from "./IMetadataProvider__factory";
 export { IRestrictedAccess__factory } from "./IRestrictedAccess__factory";
 export { MetadataProvider__factory } from "./MetadataProvider__factory";
+export { PermissionChecker__factory } from "./PermissionChecker__factory";
 export { RegistryEnabled__factory } from "./RegistryEnabled__factory";
 export { RestrictedAccess__factory } from "./RestrictedAccess__factory";

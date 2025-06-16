@@ -124,12 +124,14 @@ export interface PurchaseManagerInterface extends Interface {
       | "pauseSubscriptionBatch"
       | "paused"
       | "pendingOwner"
+      | "permissionRegistry"
       | "purchaseAdditionalProducts"
       | "purchaseProducts"
       | "registry"
       | "renewSubscription"
       | "renewSubscriptionBatch"
       | "renounceOwnership"
+      | "setPermissionRegistry"
       | "supportsInterface"
       | "transferOwnership"
       | "unpausePurchases"
@@ -142,6 +144,7 @@ export interface PurchaseManagerInterface extends Interface {
       | "Paused"
       | "PerformPurchase"
       | "ProductsPurchased"
+      | "SubscriptionRenewed"
       | "Unpaused"
   ): EventFragment;
 
@@ -188,6 +191,10 @@ export interface PurchaseManagerInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "permissionRegistry",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "purchaseAdditionalProducts",
     values: [IPurchaseManager.AdditionalPurchaseParamsStruct]
   ): string;
@@ -207,6 +214,10 @@ export interface PurchaseManagerInterface extends Interface {
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setPermissionRegistry",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
@@ -261,6 +272,10 @@ export interface PurchaseManagerInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "permissionRegistry",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "purchaseAdditionalProducts",
     data: BytesLike
   ): Result;
@@ -279,6 +294,10 @@ export interface PurchaseManagerInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setPermissionRegistry",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -398,6 +417,37 @@ export namespace ProductsPurchasedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace SubscriptionRenewedEvent {
+  export type InputTuple = [
+    orgId: BigNumberish,
+    productPassId: BigNumberish,
+    productId: BigNumberish,
+    purchaser: AddressLike,
+    token: AddressLike,
+    subtotalAmount: BigNumberish
+  ];
+  export type OutputTuple = [
+    orgId: bigint,
+    productPassId: bigint,
+    productId: bigint,
+    purchaser: string,
+    token: string,
+    subtotalAmount: bigint
+  ];
+  export interface OutputObject {
+    orgId: bigint;
+    productPassId: bigint;
+    productId: bigint;
+    purchaser: string;
+    token: string;
+    subtotalAmount: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace UnpausedEvent {
   export type InputTuple = [account: AddressLike];
   export type OutputTuple = [account: string];
@@ -510,6 +560,8 @@ export interface PurchaseManager extends BaseContract {
 
   pendingOwner: TypedContractMethod<[], [string], "view">;
 
+  permissionRegistry: TypedContractMethod<[], [string], "view">;
+
   purchaseAdditionalProducts: TypedContractMethod<
     [params: IPurchaseManager.AdditionalPurchaseParamsStruct],
     [void],
@@ -537,6 +589,12 @@ export interface PurchaseManager extends BaseContract {
   >;
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+
+  setPermissionRegistry: TypedContractMethod<
+    [_permissionRegistry: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
   supportsInterface: TypedContractMethod<
     [interfaceId: BytesLike],
@@ -626,6 +684,9 @@ export interface PurchaseManager extends BaseContract {
     nameOrSignature: "pendingOwner"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "permissionRegistry"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "purchaseAdditionalProducts"
   ): TypedContractMethod<
     [params: IPurchaseManager.AdditionalPurchaseParamsStruct],
@@ -659,6 +720,13 @@ export interface PurchaseManager extends BaseContract {
   getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setPermissionRegistry"
+  ): TypedContractMethod<
+    [_permissionRegistry: AddressLike],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "supportsInterface"
   ): TypedContractMethod<[interfaceId: BytesLike], [boolean], "view">;
@@ -703,6 +771,13 @@ export interface PurchaseManager extends BaseContract {
     ProductsPurchasedEvent.InputTuple,
     ProductsPurchasedEvent.OutputTuple,
     ProductsPurchasedEvent.OutputObject
+  >;
+  getEvent(
+    key: "SubscriptionRenewed"
+  ): TypedContractEvent<
+    SubscriptionRenewedEvent.InputTuple,
+    SubscriptionRenewedEvent.OutputTuple,
+    SubscriptionRenewedEvent.OutputObject
   >;
   getEvent(
     key: "Unpaused"
@@ -766,6 +841,17 @@ export interface PurchaseManager extends BaseContract {
       ProductsPurchasedEvent.InputTuple,
       ProductsPurchasedEvent.OutputTuple,
       ProductsPurchasedEvent.OutputObject
+    >;
+
+    "SubscriptionRenewed(uint256,uint256,uint256,address,address,uint256)": TypedContractEvent<
+      SubscriptionRenewedEvent.InputTuple,
+      SubscriptionRenewedEvent.OutputTuple,
+      SubscriptionRenewedEvent.OutputObject
+    >;
+    SubscriptionRenewed: TypedContractEvent<
+      SubscriptionRenewedEvent.InputTuple,
+      SubscriptionRenewedEvent.OutputTuple,
+      SubscriptionRenewedEvent.OutputObject
     >;
 
     "Unpaused(address)": TypedContractEvent<

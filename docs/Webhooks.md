@@ -45,6 +45,8 @@ The following are the list of contract events that can be used directly with a w
 
 - `ProductsPurchased`
     - When a product is purchased and minted onto a pass.
+- `SubscriptionRenewed`
+    - When a subscription is successfully renewed through the purchase manager.
 
 ### [SubscriptionEscrow](../packages/contracts/contracts/escrow/SubscriptionEscrow.sol)
 

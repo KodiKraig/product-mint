@@ -16,6 +16,7 @@ import {
 } from '../metadata/helpers';
 import { assertMetadata } from '../metadata/helpers';
 import { assertCheckoutTotalCost } from '../calculator/helpers';
+import { hashPermissionId } from '../permission/helpers';
 
 describe('Purchase Manager', () => {
   describe('Successful Product Purchase', () => {
@@ -866,6 +867,15 @@ describe('Purchase Manager', () => {
           0,
           renewalTimestamp,
           renewalTimestamp + cycleDuration,
+        )
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
         );
 
       // RENEWAL ASSERTIONS
@@ -1061,6 +1071,15 @@ describe('Purchase Manager', () => {
           0,
           renewalTimestamp,
           renewalTimestamp + getCycleDuration(2),
+        )
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('184', 6),
         );
 
       // RENEWAL ASSERTIONS
@@ -2547,6 +2566,67 @@ describe('Purchase Manager', () => {
       ).to.be.revertedWithCustomError(purchaseRegistry, 'MintClosed');
     });
 
+    it('cannot purchase additional products if permission is not set for the pass owner', async () => {
+      const { purchaseManager, permissionRegistry, otherAccount } =
+        await loadWithPurchasedFlatRateSubscription();
+
+      await permissionRegistry
+        .connect(otherAccount)
+        .removeOwnerPermissions(1, [
+          hashPermissionId('pass.purchase.additional'),
+        ]);
+
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseAdditionalProducts({
+          productPassId: 1,
+          productIds: [2],
+          pricingIds: [1],
+          quantities: [0],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      )
+        .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
+        .withArgs(otherAccount, hashPermissionId('pass.purchase.additional'));
+    });
+
+    it('cannot purchase additional products if permission is inactive', async () => {
+      const {
+        purchaseManager,
+        permissionFactory,
+        permissionRegistry,
+        otherAccount,
+      } = await loadWithPurchasedFlatRateSubscription();
+
+      expect(
+        await permissionRegistry.hasOwnerPermission(
+          1,
+          otherAccount,
+          hashPermissionId('pass.purchase.additional'),
+        ),
+      ).to.be.true;
+
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.purchase.additional'),
+        false,
+      );
+
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseAdditionalProducts({
+          productPassId: 1,
+          productIds: [2],
+          pricingIds: [1],
+          quantities: [0],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      )
+        .to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission')
+        .withArgs(hashPermissionId('pass.purchase.additional'));
+    });
+
     it('cannot change quantity if not admin or pass owner', async () => {
       const { purchaseManager, otherAccount2 } =
         await loadWithPurchasedFlatRateSubscription();
@@ -2557,5 +2637,113 @@ describe('Purchase Manager', () => {
           .changeTieredSubscriptionUnitQuantity(1, 1, 10, false),
       ).to.be.revertedWithCustomError(purchaseManager, 'NotAuthorized');
     });
+  });
+
+  it('org permissions are set for owner when an org has excluded default permissions', async () => {
+    const {
+      purchaseManager,
+      otherAccount2,
+      permissionRegistry,
+      mintToken,
+      paymentEscrow,
+    } = await loadWithPurchasedFlatRateSubscription();
+
+    await permissionRegistry.setExcludeDefaultPermissions(1, true);
+
+    await permissionRegistry.updateOrgPermissions(
+      1,
+      [
+        hashPermissionId('pass.wallet.spend'),
+        hashPermissionId('pass.purchase.additional'),
+      ],
+      [true, true],
+    );
+
+    await mintToken
+      .connect(otherAccount2)
+      .mint(otherAccount2, ethers.parseUnits('100', 6));
+    await mintToken
+      .connect(otherAccount2)
+      .approve(await paymentEscrow.getAddress(), ethers.parseUnits('100', 6));
+
+    await expect(
+      purchaseManager.connect(otherAccount2).purchaseProducts({
+        to: otherAccount2,
+        organizationId: 1,
+        productIds: [1],
+        pricingIds: [1],
+        quantities: [0],
+        discountIds: [],
+        couponCode: '',
+        airdrop: false,
+        pause: false,
+      }),
+    )
+      .to.emit(permissionRegistry, 'OwnerPermissionsUpdated')
+      .withArgs(1, otherAccount2, true, [
+        hashPermissionId('pass.wallet.spend'),
+        hashPermissionId('pass.purchase.additional'),
+      ]);
+
+    const permissions = await permissionRegistry.getOwnerPermissions(
+      1,
+      otherAccount2,
+    );
+    expect(permissions).to.deep.equal([
+      hashPermissionId('pass.wallet.spend'),
+      hashPermissionId('pass.purchase.additional'),
+    ]);
+
+    expect(await permissionRegistry.ownerPermissionsSet(1, otherAccount2)).to.be
+      .true;
+  });
+
+  it('new default permission is granted to owner on mint when not excluded', async () => {
+    const {
+      purchaseManager,
+      mintToken,
+      paymentEscrow,
+      permissionRegistry,
+      permissionFactory,
+      otherAccount2,
+    } = await loadWithPurchasedFlatRateSubscription();
+
+    await mintToken
+      .connect(otherAccount2)
+      .mint(otherAccount2, ethers.parseUnits('100', 6));
+    await mintToken
+      .connect(otherAccount2)
+      .approve(await paymentEscrow.getAddress(), ethers.parseUnits('100', 6));
+
+    await permissionFactory.createPermission('test.permission', 'test', true);
+
+    expect(
+      await permissionRegistry.getOwnerPermissions(1, otherAccount2),
+    ).to.deep.equal([]);
+
+    await purchaseManager.connect(otherAccount2).purchaseProducts({
+      to: otherAccount2,
+      organizationId: 1,
+      productIds: [1],
+      pricingIds: [1],
+      quantities: [0],
+      discountIds: [],
+      couponCode: '',
+      airdrop: false,
+      pause: false,
+    });
+
+    const permissions = await permissionRegistry.getOwnerPermissions(
+      1,
+      otherAccount2,
+    );
+    expect(permissions).to.deep.equal([
+      hashPermissionId('pass.wallet.spend'),
+      hashPermissionId('pass.purchase.additional'),
+      hashPermissionId('pass.subscription.renewal'),
+      hashPermissionId('pass.subscription.pricing'),
+      hashPermissionId('pass.subscription.quantity'),
+      hashPermissionId('test.permission'),
+    ]);
   });
 });

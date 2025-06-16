@@ -144,4 +144,25 @@ describe('ProductMintSystemModule', () => {
     expect(await renewalProcessor.getAddress()).to.not.be.undefined;
     expect(await renewalProcessor.registry()).to.equal(contractRegistry);
   });
+
+  it('should deploy the permission factory and registry with the correct contracts', async () => {
+    const { permissionFactory, permissionRegistry, purchaseManager } =
+      await loadFixture(deployProductMintSystem);
+
+    expect(await permissionFactory.getAddress()).to.not.be.undefined;
+    expect(await permissionRegistry.getAddress()).to.not.be.undefined;
+
+    expect(await purchaseManager.permissionRegistry()).to.equal(
+      await permissionRegistry.getAddress(),
+    );
+    expect(await permissionRegistry.permissionFactory()).to.equal(
+      await permissionFactory.getAddress(),
+    );
+  });
+
+  it('should set the initial pass supply to zero if no old purchase manager is provided', async () => {
+    const { purchaseManager } = await loadFixture(deployProductMintSystem);
+
+    expect(await purchaseManager.passSupply()).to.equal(0);
+  });
 });

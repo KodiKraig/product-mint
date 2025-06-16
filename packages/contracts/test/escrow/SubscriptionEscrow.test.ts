@@ -1,6 +1,6 @@
 import { loadFixture } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
-import hre from 'hardhat';
+import hre, { ethers } from 'hardhat';
 import calculateInterfaceId from '../../utils/calculate-interface-id';
 
 describe('SubscriptionEscrow', () => {
@@ -41,10 +41,27 @@ describe('SubscriptionEscrow', () => {
     );
     const organizationAdmin = await OrganizationAdmin.deploy(contractRegistry);
 
+    const PermissionFactory = await hre.ethers.getContractFactory(
+      'PermissionFactory',
+    );
+    const permissionFactory = await PermissionFactory.deploy();
+
+    const PermissionRegistry = await hre.ethers.getContractFactory(
+      'PermissionRegistry',
+    );
+    const permissionRegistry = await PermissionRegistry.deploy(
+      contractRegistry,
+      permissionFactory,
+    );
+
     const PurchaseManager = await hre.ethers.getContractFactory(
       'PurchaseManager',
     );
-    const purchaseManager = await PurchaseManager.deploy(contractRegistry);
+    const purchaseManager = await PurchaseManager.deploy(
+      contractRegistry,
+      permissionRegistry,
+      ethers.ZeroAddress,
+    );
 
     const SubscriptionEscrow = await hre.ethers.getContractFactory(
       'SubscriptionEscrow',

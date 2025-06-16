@@ -15,6 +15,7 @@ import {
 } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { getCycleDuration } from '../../utils/cycle-duration';
 import { assertMetadata, EMPTY_METADATA } from '../metadata/helpers';
+import { hashPermissionId } from '../permission/helpers';
 
 describe('Purchase Manager', () => {
   describe('Batch Subscription Renewal', () => {
@@ -229,6 +230,33 @@ describe('Purchase Manager', () => {
           0,
           renewalTimeStamp,
           renewalTimeStamp + getCycleDuration(3),
+        )
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
+        )
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          2,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('2.5', 6),
+        )
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          3,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('14.5', 6),
         );
 
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
@@ -319,6 +347,87 @@ describe('Purchase Manager', () => {
           .renewSubscriptionBatch(1, [1, 1], false),
       ).to.be.revertedWith('Subscription is not past due');
     });
+
+    it('revert if the pass owner does not have the wallet spend and renew permission', async () => {
+      const { purchaseManager, permissionRegistry, otherAccount } =
+        await loadBatchSubscriptionRenewal();
+
+      await permissionRegistry
+        .connect(otherAccount)
+        .removeOwnerPermissions(1, [
+          hashPermissionId('pass.wallet.spend'),
+          hashPermissionId('pass.subscription.renewal'),
+        ]);
+
+      await time.increase(getCycleDuration(1) + 1);
+
+      // No renew permission
+      await expect(
+        purchaseManager
+          .connect(otherAccount)
+          .renewSubscriptionBatch(1, [1], false),
+      )
+        .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
+        .withArgs(otherAccount, hashPermissionId('pass.subscription.renewal'));
+
+      await permissionRegistry
+        .connect(otherAccount)
+        .addOwnerPermissions(1, [
+          hashPermissionId('pass.subscription.renewal'),
+        ]);
+
+      // No wallet spend permission
+      await expect(
+        purchaseManager
+          .connect(otherAccount)
+          .renewSubscriptionBatch(1, [1], false),
+      )
+        .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
+        .withArgs(otherAccount, hashPermissionId('pass.wallet.spend'));
+    });
+
+    it('revert if either the wallet spend or renew permission is inactive', async () => {
+      const {
+        purchaseManager,
+        permissionFactory,
+        permissionRegistry,
+        otherAccount,
+      } = await loadBatchSubscriptionRenewal();
+
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.subscription.renewal'),
+        false,
+      );
+
+      await time.increase(getCycleDuration(1) + 1);
+
+      // Inactive renew permission
+      await expect(
+        purchaseManager
+          .connect(otherAccount)
+          .renewSubscriptionBatch(1, [1], false),
+      )
+        .to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission')
+        .withArgs(hashPermissionId('pass.subscription.renewal'));
+
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.wallet.spend'),
+        false,
+      );
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.subscription.renewal'),
+        true,
+      );
+
+      // Inactive wallet spend permission
+      await expect(
+        purchaseManager
+          .connect(otherAccount)
+          .renewSubscriptionBatch(1, [1], false),
+      )
+        .to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission')
+        .withArgs(hashPermissionId('pass.wallet.spend'));
+    });
   });
 
   describe('Get Renewal Cost', () => {
@@ -375,7 +484,8 @@ describe('Purchase Manager', () => {
           1,
           purchaseTimeStamp,
           purchaseTimeStamp + getCycleDuration(1),
-        );
+        )
+        .and.not.to.emit(purchaseManager, 'SubscriptionRenewed');
     });
 
     it('can cancel subscription as an org admin if sub is not paused', async () => {
@@ -393,7 +503,8 @@ describe('Purchase Manager', () => {
           1,
           purchaseTimeStamp,
           purchaseTimeStamp + getCycleDuration(1),
-        );
+        )
+        .and.not.to.emit(purchaseManager, 'SubscriptionRenewed');
     });
 
     it('can un cancel sub and renew in the same tx if sub is passed due', async () => {
@@ -494,6 +605,15 @@ describe('Purchase Manager', () => {
           0,
           cancelTimeStamp,
           cancelTimeStamp + getCycleDuration(1),
+        )
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
         );
 
       await assertSubscription(
@@ -517,81 +637,82 @@ describe('Purchase Manager', () => {
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
         ethers.parseUnits('80', 6),
       );
+    });
 
-      it('can un cancel sub without renewing if sub is not passed due', async () => {
-        const {
-          purchaseManager,
-          otherAccount,
-          subscriptionEscrow,
-          mintToken,
+    it('can un cancel sub without renewing if sub is not passed due', async () => {
+      const {
+        purchaseManager,
+        otherAccount,
+        subscriptionEscrow,
+        mintToken,
+        purchaseTimeStamp,
+      } = await loadWithPurchasedFlatRateSubscription();
+
+      await purchaseManager
+        .connect(otherAccount)
+        .cancelSubscription(1, 1, true);
+
+      await assertSubscription(
+        subscriptionEscrow,
+        {
+          productPassId: 1,
+          productId: 1,
+        },
+        {
+          orgId: 1,
+          pricingId: 1,
+          startDate: purchaseTimeStamp,
+          endDate: purchaseTimeStamp + getCycleDuration(1),
+          timeRemaining: 0,
+          isCancelled: true,
+          isPaused: false,
+          status: 1,
+        },
+      );
+
+      await time.increase(getCycleDuration(1) - 10);
+
+      expect(await mintToken.balanceOf(otherAccount)).to.equal(
+        ethers.parseUnits('90', 6),
+      );
+
+      const cancelTx = await purchaseManager
+        .connect(otherAccount)
+        .cancelSubscription(1, 1, false);
+
+      await expect(cancelTx)
+        .to.emit(subscriptionEscrow, 'SubscriptionCycleUpdated')
+        .withArgs(
+          1,
+          1,
+          1,
+          0,
           purchaseTimeStamp,
-        } = await loadWithPurchasedFlatRateSubscription();
+          purchaseTimeStamp + getCycleDuration(1),
+        )
+        .and.not.to.emit(purchaseManager, 'SubscriptionRenewed');
 
-        await purchaseManager
-          .connect(otherAccount)
-          .cancelSubscription(1, 1, true);
+      await assertSubscription(
+        subscriptionEscrow,
+        {
+          productPassId: 1,
+          productId: 1,
+        },
+        {
+          orgId: 1,
+          pricingId: 1,
+          startDate: purchaseTimeStamp,
+          endDate: purchaseTimeStamp + getCycleDuration(1),
+          timeRemaining: 0,
+          isCancelled: false,
+          isPaused: false,
+          status: 0,
+        },
+      );
 
-        await assertSubscription(
-          subscriptionEscrow,
-          {
-            productPassId: 1,
-            productId: 1,
-          },
-          {
-            orgId: 1,
-            pricingId: 1,
-            startDate: purchaseTimeStamp,
-            endDate: purchaseTimeStamp + getCycleDuration(1),
-            timeRemaining: 0,
-            isCancelled: true,
-            isPaused: false,
-            status: 0,
-          },
-        );
-
-        await time.increase(getCycleDuration(1));
-
-        expect(await mintToken.balanceOf(otherAccount)).to.equal(
-          ethers.parseUnits('90', 6),
-        );
-
-        const cancelTx = await purchaseManager
-          .connect(otherAccount)
-          .cancelSubscription(1, 1, false);
-
-        await expect(cancelTx)
-          .to.emit(subscriptionEscrow, 'SubscriptionCycleUpdated')
-          .withArgs(
-            1,
-            1,
-            1,
-            0,
-            purchaseTimeStamp,
-            purchaseTimeStamp + getCycleDuration(1),
-          );
-
-        await assertSubscription(
-          subscriptionEscrow,
-          {
-            productPassId: 1,
-            productId: 1,
-          },
-          {
-            orgId: 1,
-            pricingId: 1,
-            startDate: purchaseTimeStamp,
-            endDate: purchaseTimeStamp + getCycleDuration(1),
-            timeRemaining: 0,
-            isCancelled: true,
-            isPaused: false,
-            status: 2,
-          },
-        );
-
-        expect(await mintToken.balanceOf(otherAccount)).to.equal(
-          ethers.parseUnits('90', 6),
-        );
-      });
+      expect(await mintToken.balanceOf(otherAccount)).to.equal(
+        ethers.parseUnits('90', 6),
+      );
     });
 
     it('cannot cancel subscription if sub does not exist', async () => {
@@ -882,7 +1003,8 @@ describe('Purchase Manager', () => {
           1,
           additionalProductsTimeStamp,
           additionalProductsTimeStamp + getCycleDuration(3),
-        );
+        )
+        .and.not.to.emit(purchaseManager, 'SubscriptionRenewed');
 
       // INCREASE TIME TO END OF ALL SUBSCRIPTIONS
       await time.increase(getCycleDuration(3) + 1);
@@ -968,7 +1090,34 @@ describe('Purchase Manager', () => {
         .to.emit(usageRecorder, 'MeterUsageSet')
         .withArgs(1, 1, 1, 0)
         .to.emit(usageRecorder, 'MeterPaymentProcessed')
-        .withArgs(1, 1, 1, 15);
+        .withArgs(1, 1, 1, 15)
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('10', 6),
+        )
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          2,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('5.5', 6),
+        )
+        .and.to.emit(purchaseManager, 'SubscriptionRenewed')
+        .withArgs(
+          1,
+          1,
+          3,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('7.5', 6),
+        );
 
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
         ethers.parseUnits('61.5', 6),
@@ -1494,7 +1643,8 @@ describe('Purchase Manager', () => {
 
       await expect(tx)
         .to.emit(subscriptionEscrow, 'SubscriptionCycleUpdated')
-        .withArgs(1, 1, 3, 3, 0, pauseTimeStamp);
+        .withArgs(1, 1, 3, 3, 0, pauseTimeStamp)
+        .and.not.to.emit(purchaseManager, 'SubscriptionRenewed');
 
       // Check subscription status
 
@@ -1846,6 +1996,148 @@ describe('Purchase Manager', () => {
       ).to.be.revertedWithCustomError(pricingCalculator, 'InvalidChargeStyle');
     });
 
+    it('cannot change pricing if the pass owner has not set the pricing change and wallet spend permission', async () => {
+      const {
+        purchaseManager,
+        pricingRegistry,
+        productRegistry,
+        subscriptionEscrow,
+        permissionRegistry,
+        mintToken,
+        owner,
+        otherAccount,
+      } = await loadWithPurchasedFlatRateSubscription();
+
+      await subscriptionEscrow.connect(owner).setOwnerChangePricing(1, true);
+
+      await permissionRegistry
+        .connect(otherAccount)
+        .removeOwnerPermissions(1, [
+          hashPermissionId('pass.subscription.pricing'),
+          hashPermissionId('pass.wallet.spend'),
+        ]);
+
+      await pricingRegistry.createFlatRateSubscriptionPricing({
+        organizationId: 1,
+        flatPrice: ethers.parseUnits('50', 6),
+        token: await mintToken.getAddress(),
+        isRestricted: false,
+        chargeFrequency: 2,
+      });
+
+      await productRegistry.linkPricing(1, [2]);
+
+      expect(await mintToken.balanceOf(otherAccount)).to.equal(
+        ethers.parseUnits('90', 6),
+      );
+
+      await time.increase(getCycleDuration(1) / 2);
+
+      // No subscription pricing permission
+      await expect(
+        purchaseManager.connect(otherAccount).changeSubscriptionPricing({
+          orgId: 1,
+          productPassId: 1,
+          productId: 1,
+          newPricingId: 2,
+          airdrop: false,
+        }),
+      )
+        .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
+        .withArgs(otherAccount, hashPermissionId('pass.subscription.pricing'));
+
+      await permissionRegistry
+        .connect(otherAccount)
+        .addOwnerPermissions(1, [
+          hashPermissionId('pass.subscription.pricing'),
+        ]);
+
+      // No wallet spend permission
+      await expect(
+        purchaseManager.connect(otherAccount).changeSubscriptionPricing({
+          orgId: 1,
+          productPassId: 1,
+          productId: 1,
+          newPricingId: 2,
+          airdrop: false,
+        }),
+      )
+        .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
+        .withArgs(otherAccount, hashPermissionId('pass.wallet.spend'));
+    });
+
+    it('cannot change pricing if the pass owner if the pricing change or wallet spend permission is inactive', async () => {
+      const {
+        purchaseManager,
+        pricingRegistry,
+        productRegistry,
+        subscriptionEscrow,
+        permissionRegistry,
+        permissionFactory,
+        mintToken,
+        owner,
+        otherAccount,
+      } = await loadWithPurchasedFlatRateSubscription();
+
+      await subscriptionEscrow.connect(owner).setOwnerChangePricing(1, true);
+
+      await pricingRegistry.createFlatRateSubscriptionPricing({
+        organizationId: 1,
+        flatPrice: ethers.parseUnits('50', 6),
+        token: await mintToken.getAddress(),
+        isRestricted: false,
+        chargeFrequency: 2,
+      });
+
+      await productRegistry.linkPricing(1, [2]);
+
+      expect(await mintToken.balanceOf(otherAccount)).to.equal(
+        ethers.parseUnits('90', 6),
+      );
+
+      await time.increase(getCycleDuration(1) / 2);
+
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.subscription.pricing'),
+        false,
+      );
+
+      // Inactive subscription pricing permission
+      await expect(
+        purchaseManager.connect(otherAccount).changeSubscriptionPricing({
+          orgId: 1,
+          productPassId: 1,
+          productId: 1,
+          newPricingId: 2,
+          airdrop: false,
+        }),
+      )
+        .to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission')
+        .withArgs(hashPermissionId('pass.subscription.pricing'));
+
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.wallet.spend'),
+        false,
+      );
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.subscription.pricing'),
+        true,
+      );
+
+      // Inactive wallet spend permission
+      await expect(
+        purchaseManager.connect(otherAccount).changeSubscriptionPricing({
+          orgId: 1,
+          productPassId: 1,
+          productId: 1,
+          newPricingId: 2,
+          airdrop: false,
+        }),
+      )
+        .to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission')
+        .withArgs(hashPermissionId('pass.wallet.spend'));
+    });
+
     it('can change to another flat rate pricing model with a larger cycle duration', async () => {
       const {
         purchaseManager,
@@ -1957,7 +2249,8 @@ describe('Purchase Manager', () => {
           0,
           purchaseTimeStamp,
           purchaseTimeStamp + getCycleDuration(2),
-        );
+        )
+        .and.not.to.emit(purchaseManager, 'SubscriptionRenewed');
 
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
         ethers.parseUnits('90', 6),
@@ -2117,7 +2410,8 @@ describe('Purchase Manager', () => {
           0,
           purchaseTimeStamp,
           purchaseTimeStamp + getCycleDuration(1),
-        );
+        )
+        .and.not.to.emit(purchaseManager, 'SubscriptionRenewed');
 
       await assertSubscription(
         subscriptionEscrow,
@@ -2213,7 +2507,8 @@ describe('Purchase Manager', () => {
           0,
           purchaseTimeStamp,
           purchaseTimeStamp + getCycleDuration(2),
-        );
+        )
+        .and.not.to.emit(purchaseManager, 'SubscriptionRenewed');
 
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
         ethers.parseUnits('90', 6),
@@ -2964,6 +3259,71 @@ describe('Purchase Manager', () => {
         pricingCalculator,
         'UnitQuantityIsTheSame',
       );
+    });
+
+    it('cannot set the unit quantity without quantity and wallet spend permission', async () => {
+      const { purchaseManager, permissionRegistry, otherAccount } =
+        await loadUnitQuantityUpdate();
+
+      await permissionRegistry
+        .connect(otherAccount)
+        .removeOwnerPermissions(1, [
+          hashPermissionId('pass.wallet.spend'),
+          hashPermissionId('pass.subscription.quantity'),
+        ]);
+
+      // No quantity permission
+      await expect(
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 20, false),
+      )
+        .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
+        .withArgs(otherAccount, hashPermissionId('pass.subscription.quantity'));
+
+      await permissionRegistry
+        .connect(otherAccount)
+        .addOwnerPermissions(1, [
+          hashPermissionId('pass.subscription.quantity'),
+        ]);
+
+      // No wallet spend permission
+      await expect(
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 20, false),
+      )
+        .to.be.revertedWithCustomError(purchaseManager, 'PermissionNotFound')
+        .withArgs(otherAccount, hashPermissionId('pass.wallet.spend'));
+    });
+
+    it('cannot set the unit quantity if the quantity permission or wallet spend permission is inactive', async () => {
+      const { purchaseManager, permissionFactory, permissionRegistry } =
+        await loadUnitQuantityUpdate();
+
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.subscription.quantity'),
+        false,
+      );
+
+      // Inactive quantity permission
+      await expect(
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 20, false),
+      )
+        .to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission')
+        .withArgs(hashPermissionId('pass.subscription.quantity'));
+
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.subscription.quantity'),
+        true,
+      );
+      await permissionFactory.setPermissionActive(
+        hashPermissionId('pass.wallet.spend'),
+        false,
+      );
+
+      // Inactive wallet spend permission
+      await expect(
+        purchaseManager.changeTieredSubscriptionUnitQuantity(1, 1, 20, false),
+      )
+        .to.be.revertedWithCustomError(permissionRegistry, 'InactivePermission')
+        .withArgs(hashPermissionId('pass.wallet.spend'));
     });
 
     it('can airdrop a unit quantity increase', async () => {

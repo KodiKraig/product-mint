@@ -132,12 +132,31 @@ export async function deployPurchaseManager() {
   const paymentEscrow = await PaymentEscrow.deploy(contractRegistry);
   await contractRegistry.setPaymentEscrow(paymentEscrow);
 
+  // Permission
+
+  const PermissionFactory = await hre.ethers.getContractFactory(
+    'PermissionFactory',
+  );
+  const permissionFactory = await PermissionFactory.deploy();
+
+  const PermissionRegistry = await hre.ethers.getContractFactory(
+    'PermissionRegistry',
+  );
+  const permissionRegistry = await PermissionRegistry.deploy(
+    contractRegistry,
+    permissionFactory,
+  );
+
   // Manager
 
   const PurchaseManager = await hre.ethers.getContractFactory(
     'PurchaseManager',
   );
-  const purchaseManager = await PurchaseManager.deploy(contractRegistry);
+  const purchaseManager = await PurchaseManager.deploy(
+    contractRegistry,
+    permissionRegistry,
+    ethers.ZeroAddress,
+  );
   await contractRegistry.setPurchaseManager(purchaseManager);
 
   return {
@@ -158,6 +177,8 @@ export async function deployPurchaseManager() {
     pricingCalculator,
     paymentEscrow,
     purchaseManager,
+    permissionRegistry,
+    permissionFactory,
     mintToken,
     owner,
     otherAccount,

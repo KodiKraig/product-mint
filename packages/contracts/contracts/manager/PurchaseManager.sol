@@ -21,6 +21,8 @@ import {IPurchaseRegistry} from "../registry/IPurchaseRegistry.sol";
 import {IPricingCalculator} from "../calculator/IPricingCalculator.sol";
 import {ICouponRegistry} from "../registry/ICouponRegistry.sol";
 import {IDiscountRegistry} from "../registry/IDiscountRegistry.sol";
+import {PermissionChecker} from "../abstract/PermissionChecker.sol";
+import {PermissionUtils} from "../libs/PermissionUtils.sol";
 
 /*
  ____                 _            _   __  __ _       _   
@@ -42,26 +44,37 @@ import {IDiscountRegistry} from "../registry/IDiscountRegistry.sol";
  *
  * The PurchaseManager is also responsible for renewing subscriptions, pausing and cancelling subscriptions, and
  * changing the pricing model for an existing subscription.
+ *
+ * Upon minting a product pass, the user is granted initial owner permissions to the organization enabling the
+ * organization to charge renewals, change pricing, and pause and cancel subscriptions.
  */
 contract PurchaseManager is
-    Ownable2Step,
     RegistryEnabled,
     ReentrancyGuard,
     Pausable,
+    IERC165,
     IPurchaseManager,
-    IERC165
+    PermissionChecker,
+    Ownable2Step
 {
     // Total number of product pass tokens minted
     uint256 public passSupply;
 
     constructor(
-        address _contractRegistry
+        address _contractRegistry,
+        address _permissionRegistry,
+        address _oldPurchaseManager
     )
         Ownable(_msgSender())
         RegistryEnabled(_contractRegistry)
         ReentrancyGuard()
         Pausable()
-    {}
+        PermissionChecker(_permissionRegistry)
+    {
+        if (_oldPurchaseManager != address(0)) {
+            passSupply = IPurchaseManager(_oldPurchaseManager).passSupply();
+        }
+    }
 
     /**
      * Purchase Products
@@ -73,6 +86,11 @@ contract PurchaseManager is
         passSupply++;
 
         address purchaser = _msgSender();
+
+        permissionRegistry.grantInitialOwnerPermissions(
+            params.organizationId,
+            purchaser
+        );
 
         if (params.discountIds.length > 0) {
             IDiscountRegistry(registry.discountRegistry()).mintDiscountsToPass(
@@ -109,12 +127,20 @@ contract PurchaseManager is
     ) external payable onlyPassOwnerOrAdmin(params.productPassId) nonReentrant {
         address passOwner = _passOwner(params.productPassId);
 
+        uint256 orgId = IPurchaseRegistry(registry.purchaseRegistry())
+            .passOrganization(params.productPassId);
+
+        _checkPermissionName(
+            PermissionUtils.PASS_PURCHASE_ADDITIONAL,
+            orgId,
+            passOwner
+        );
+
         _purchaseProducts(
             PurchaseProductsParams({
                 passOwner: passOwner,
                 purchaser: passOwner,
-                orgId: IPurchaseRegistry(registry.purchaseRegistry())
-                    .passOrganization(params.productPassId),
+                orgId: orgId,
                 productPassId: params.productPassId,
                 productIds: params.productIds,
                 pricingIds: params.pricingIds,
@@ -212,6 +238,12 @@ contract PurchaseManager is
 
         address passOwner = _passOwner(params.productPassId);
 
+        _checkPermissionName(
+            PermissionUtils.PASS_SUBSCRIPTION_PRICING,
+            params.orgId,
+            passOwner
+        );
+
         IPricingRegistry(registry.pricingRegistry()).validateCheckout(
             params.orgId,
             passOwner,
@@ -285,6 +317,12 @@ contract PurchaseManager is
 
         address passOwner = _passOwner(productPassId);
 
+        _checkPermissionName(
+            PermissionUtils.PASS_SUBSCRIPTION_RENEWAL,
+            orgId,
+            passOwner
+        );
+
         if (price > 0) {
             _performPurchase(
                 PerformPurchaseParams({
@@ -300,7 +338,34 @@ contract PurchaseManager is
                 })
             );
         }
+
+        emit SubscriptionRenewed(
+            orgId,
+            productPassId,
+            productId,
+            passOwner,
+            token,
+            price
+        );
     }
+
+    /**
+     * @notice Emitted when a subscription is renewed via the purchase manager
+     * @param orgId The organization ID
+     * @param productPassId The product pass ID
+     * @param productId The product ID
+     * @param purchaser The purchaser address
+     * @param token The token address used for the renewal purchase
+     * @param subtotalAmount The subtotal amount
+     */
+    event SubscriptionRenewed(
+        uint256 indexed orgId,
+        uint256 indexed productPassId,
+        uint256 indexed productId,
+        address purchaser,
+        address token,
+        uint256 subtotalAmount
+    );
 
     /**
      * Tiered Subscription Unit Quantity
@@ -317,6 +382,12 @@ contract PurchaseManager is
         ).changeSubscriptionUnitQuantity(productPassId, productId, quantity);
 
         address passOwner = _passOwner(productPassId);
+
+        _checkPermissionName(
+            PermissionUtils.PASS_SUBSCRIPTION_QUANTITY,
+            orgId,
+            passOwner
+        );
 
         if (amount > 0) {
             _performPurchase(
@@ -444,6 +515,14 @@ contract PurchaseManager is
 
         // Transfer funds
         if (params.totalAmount > 0) {
+            if (!params.isInitialPurchase) {
+                _checkPermissionName(
+                    PermissionUtils.PASS_WALLET_SPEND,
+                    params.orgId,
+                    params.purchaser
+                );
+            }
+
             IPaymentEscrow(registry.paymentEscrow()).transferDirect{
                 value: msg.value
             }(
@@ -523,6 +602,16 @@ contract PurchaseManager is
 
     function unpausePurchases() external onlyOwner {
         _unpause();
+    }
+
+    /**
+     * Permission Registry
+     */
+
+    function setPermissionRegistry(
+        address _permissionRegistry
+    ) external onlyOwner {
+        _setPermissionRegistry(_permissionRegistry);
     }
 
     /**
