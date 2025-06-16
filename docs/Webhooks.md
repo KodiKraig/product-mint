@@ -1,6 +1,6 @@
-# ProductMint Webhooks - IN-PROGRESS 🚀
+# ProductMint - Webhooks
 
-ProductMint webhooks are a way to notify you when certain events happen in the ProductMint ecosystem. They are in-progress and coming soon!
+ProductMint webhooks are a way to notify you when certain events happen in the ProductMint ecosystem. They are currently in development!
 
 You can also listen to the contract events directly with a web3 provider. For more information on how to do this check below.
 
