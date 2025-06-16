@@ -63,7 +63,7 @@ _* Additional settings configurable by the product owner_
         <td>❌</td>
     </tr>
     <tr>
-        <td style="text-align: left;">Full user control over subscriptions</td>
+        <td style="text-align: left;"><a href="./docs/Permissions.md">Full user control over subscriptions</a></td>
         <td>✅</td>
         <td>❌</td>
     </tr>
