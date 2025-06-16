@@ -441,3 +441,115 @@ dataSources:
         - event: RenewalProcessed(indexed uint256,indexed uint256,indexed uint256,uint8)
           handler: handleRenewalProcessed
       file: ./src/renewal-processor.ts
+  - kind: ethereum
+    name: PermissionFactory
+    network: base
+    source:
+      abi: PermissionFactory
+      address: "0x2e6D61D1FaA9a77625562afB3A17b614Aadca362"
+      startBlock: 31608833
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - DefaultPermissionAdded
+        - DefaultPermissionRemoved
+        - PermissionFactoryOwnershipTransferStarted
+        - PermissionFactoryOwnershipTransferred
+        - PermissionActivation
+        - PermissionCreated
+        - PermissionDescriptionUpdated
+      abis:
+        - name: PermissionFactory
+          file: ./abis/PermissionFactory.json
+      eventHandlers:
+        - event: DefaultPermissionAdded(indexed bytes32)
+          handler: handleDefaultPermissionAdded
+        - event: DefaultPermissionRemoved(indexed bytes32)
+          handler: handleDefaultPermissionRemoved
+        - event: OwnershipTransferStarted(indexed address,indexed address)
+          handler: handleOwnershipTransferStarted
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: PermissionActivation(indexed bytes32,bool)
+          handler: handlePermissionActivation
+        - event: PermissionCreated(indexed bytes32,string,string,bool)
+          handler: handlePermissionCreated
+        - event: PermissionDescriptionUpdated(indexed bytes32,string)
+          handler: handlePermissionDescriptionUpdated
+      file: ./src/permission-factory.ts
+  - kind: ethereum
+    name: PermissionRegistry
+    network: base
+    source:
+      abi: PermissionRegistry
+      address: "0x1cbCe3b5a74a967672864b4dE5740Dbca53D6958"
+      startBlock: 31608840
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - ExcludeDefaultPermissionsUpdated
+        - OrgPermissionUpdated
+        - OwnerPermissionsUpdated
+        - PermissionRegistryOwnershipTransferStarted
+        - PermissionRegistryOwnershipTransferred
+      abis:
+        - name: PermissionRegistry
+          file: ./abis/PermissionRegistry.json
+      eventHandlers:
+        - event: ExcludeDefaultPermissionsUpdated(indexed uint256,bool)
+          handler: handleExcludeDefaultPermissionsUpdated
+        - event: OrgPermissionUpdated(indexed uint256,bytes32,bool)
+          handler: handleOrgPermissionUpdated
+        - event: OwnerPermissionsUpdated(indexed uint256,indexed address,indexed
+            bool,bytes32[])
+          handler: handleOwnerPermissionsUpdated
+        - event: OwnershipTransferStarted(indexed address,indexed address)
+          handler: handleOwnershipTransferStarted
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+      file: ./src/permission-registry.ts
+  - kind: ethereum
+    name: PurchaseManagerWithPermissions
+    network: base
+    source:
+      abi: PurchaseManagerWithPermissions
+      address: "0xCAb385EA250814948A24928B840348f2832459Df"
+      startBlock: 31608847
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - PurchaseManagerWithPermissionsOwnershipTransferStarted
+        - PurchaseManagerWithPermissionsOwnershipTransferred
+        - PurchaseManagerWithPermissionsPaused
+        - PurchaseManagerWithPermissionsPerformPurchase
+        - PurchaseManagerWithPermissionsProductsPurchased
+        - SubscriptionRenewed
+        - PurchaseManagerWithPermissionsUnpaused
+      abis:
+        - name: PurchaseManagerWithPermissions
+          file: ./abis/PurchaseManagerWithPermissions.json
+      eventHandlers:
+        - event: OwnershipTransferStarted(indexed address,indexed address)
+          handler: handleOwnershipTransferStarted
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Paused(address)
+          handler: handlePaused
+        - event: PerformPurchase(indexed uint256,indexed address,indexed
+            address,address,uint256)
+          handler: handlePerformPurchase
+        - event: ProductsPurchased(indexed uint256,indexed uint256,indexed
+            address,uint256[],uint256[],uint256[],address,uint256)
+          handler: handleProductsPurchased
+        - event: SubscriptionRenewed(indexed uint256,indexed uint256,indexed
+            uint256,address,address,uint256)
+          handler: handleSubscriptionRenewed
+        - event: Unpaused(address)
+          handler: handleUnpaused
+      file: ./src/purchase-manager-with-permissions.ts

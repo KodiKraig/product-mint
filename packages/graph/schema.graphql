@@ -661,3 +661,187 @@ type RenewalProcessed @entity(immutable: true) {
   transactionHash: Bytes!
   from: Bytes! # address
 }
+type DefaultPermissionAdded @entity(immutable: true) {
+  id: Bytes!
+  permissionId: Bytes! # bytes32
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type DefaultPermissionRemoved @entity(immutable: true) {
+  id: Bytes!
+  permissionId: Bytes! # bytes32
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PermissionFactoryOwnershipTransferStarted @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PermissionFactoryOwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PermissionActivation @entity(immutable: true) {
+  id: Bytes!
+  permissionId: Bytes! # bytes32
+  isActive: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PermissionCreated @entity(immutable: true) {
+  id: Bytes!
+  permissionId: Bytes! # bytes32
+  name: String! # string
+  description: String! # string
+  isDefault: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PermissionDescriptionUpdated @entity(immutable: true) {
+  id: Bytes!
+  permissionId: Bytes! # bytes32
+  description: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+type ExcludeDefaultPermissionsUpdated @entity(immutable: true) {
+  id: Bytes!
+  _orgId: BigInt! # uint256
+  _exclude: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OrgPermissionUpdated @entity(immutable: true) {
+  id: Bytes!
+  _orgId: BigInt! # uint256
+  _permission: Bytes! # bytes32
+  _add: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnerPermissionsUpdated @entity(immutable: true) {
+  id: Bytes!
+  _orgId: BigInt! # uint256
+  _owner: Bytes! # address
+  _grantAccess: Boolean! # bool
+  _permissions: [Bytes!]! # bytes32[]
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PermissionRegistryOwnershipTransferStarted @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PermissionRegistryOwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+type PurchaseManagerWithPermissionsOwnershipTransferStarted
+  @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PurchaseManagerWithPermissionsOwnershipTransferred
+  @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PurchaseManagerWithPermissionsPaused @entity(immutable: true) {
+  id: Bytes!
+  account: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PurchaseManagerWithPermissionsPerformPurchase @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  passOwner: Bytes! # address
+  purchaser: Bytes! # address
+  token: Bytes! # address
+  amountPaid: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PurchaseManagerWithPermissionsProductsPurchased @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  productPassId: BigInt! # uint256
+  passOwner: Bytes! # address
+  productIds: [BigInt!]! # uint256[]
+  pricingIds: [BigInt!]! # uint256[]
+  quantities: [BigInt!]! # uint256[]
+  token: Bytes! # address
+  amountPaid: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SubscriptionRenewed @entity(immutable: true) {
+  id: Bytes!
+  orgId: BigInt! # uint256
+  productPassId: BigInt! # uint256
+  productId: BigInt! # uint256
+  purchaser: Bytes! # address
+  token: Bytes! # address
+  subtotalAmount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PurchaseManagerWithPermissionsUnpaused @entity(immutable: true) {
+  id: Bytes!
+  account: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

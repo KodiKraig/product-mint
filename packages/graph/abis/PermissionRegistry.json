@@ -1,0 +1,423 @@
+[
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_registry", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "_permissionFactory",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "_permission", "type": "bytes32" }
+    ],
+    "name": "InactivePermission",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "_permissions",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "InactivePermissionBatch",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "owner", "type": "address" }
+    ],
+    "name": "OwnableInvalidOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "account", "type": "address" }
+    ],
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_orgId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "_exclude",
+        "type": "bool"
+      }
+    ],
+    "name": "ExcludeDefaultPermissionsUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_orgId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "_permission",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "_add",
+        "type": "bool"
+      }
+    ],
+    "name": "OrgPermissionUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_orgId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bool",
+        "name": "_grantAccess",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32[]",
+        "name": "_permissions",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "OwnerPermissionsUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferStarted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "acceptOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_orgId", "type": "uint256" },
+      {
+        "internalType": "bytes32[]",
+        "name": "_permissions",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "addOwnerPermissions",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256[]", "name": "_passIds", "type": "uint256[]" }
+    ],
+    "name": "adminGrantInitialOwnerPermissions",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "uint256", "name": "orgId", "type": "uint256" },
+          {
+            "internalType": "bytes32[]",
+            "name": "permissions",
+            "type": "bytes32[]"
+          },
+          { "internalType": "bool", "name": "grantAccess", "type": "bool" }
+        ],
+        "internalType": "struct IPermissionRegistry.AdminPermissionParams[]",
+        "name": "_params",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "adminUpdateOwnerPermissions",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "excludeDefaultPermissions",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_orgId", "type": "uint256" }
+    ],
+    "name": "getOrgPermissions",
+    "outputs": [
+      { "internalType": "bytes32[]", "name": "", "type": "bytes32[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_orgId", "type": "uint256" },
+      { "internalType": "address", "name": "_owner", "type": "address" }
+    ],
+    "name": "getOwnerPermissions",
+    "outputs": [
+      { "internalType": "bytes32[]", "name": "", "type": "bytes32[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256[]", "name": "_orgIds", "type": "uint256[]" },
+      { "internalType": "address[]", "name": "_owners", "type": "address[]" }
+    ],
+    "name": "getOwnerPermissionsBatch",
+    "outputs": [
+      {
+        "internalType": "bytes32[][]",
+        "name": "_permissions",
+        "type": "bytes32[][]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_orgId", "type": "uint256" },
+      { "internalType": "address", "name": "_owner", "type": "address" }
+    ],
+    "name": "grantInitialOwnerPermissions",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_orgId", "type": "uint256" },
+      { "internalType": "address", "name": "_owner", "type": "address" },
+      { "internalType": "bytes32", "name": "_permission", "type": "bytes32" }
+    ],
+    "name": "hasOwnerPermission",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_orgId", "type": "uint256" },
+      { "internalType": "address", "name": "_owner", "type": "address" },
+      {
+        "internalType": "bytes32[]",
+        "name": "_permissions",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "hasOwnerPermissionBatch",
+    "outputs": [
+      { "internalType": "bool[]", "name": "_hasPermissions", "type": "bool[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "address", "name": "", "type": "address" }
+    ],
+    "name": "ownerPermissionsSet",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "pendingOwner",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "permissionFactory",
+    "outputs": [
+      {
+        "internalType": "contract IPermissionFactory",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "registry",
+    "outputs": [
+      {
+        "internalType": "contract IContractRegistry",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_orgId", "type": "uint256" },
+      {
+        "internalType": "bytes32[]",
+        "name": "_permissions",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "removeOwnerPermissions",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_orgId", "type": "uint256" },
+      { "internalType": "bool", "name": "_exclude", "type": "bool" }
+    ],
+    "name": "setExcludeDefaultPermissions",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_permissionFactory",
+        "type": "address"
+      }
+    ],
+    "name": "setPermissionFactory",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }
+    ],
+    "name": "supportsInterface",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "newOwner", "type": "address" }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_orgId", "type": "uint256" },
+      {
+        "internalType": "bytes32[]",
+        "name": "_permissions",
+        "type": "bytes32[]"
+      },
+      { "internalType": "bool[]", "name": "_add", "type": "bool[]" }
+    ],
+    "name": "updateOrgPermissions",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

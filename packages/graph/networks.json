@@ -51,6 +51,18 @@
     "RenewalProcessor": {
       "address": "0x596e8467451e6eF9F381E97957EbFe4D4F073CBD",
       "startBlock": 28078314
+    },
+    "PermissionFactory": {
+      "address": "0x2e6D61D1FaA9a77625562afB3A17b614Aadca362",
+      "startBlock": 31608833
+    },
+    "PermissionRegistry": {
+      "address": "0x1cbCe3b5a74a967672864b4dE5740Dbca53D6958",
+      "startBlock": 31608840
+    },
+    "PurchaseManagerWithPermissions": {
+      "address": "0xCAb385EA250814948A24928B840348f2832459Df",
+      "startBlock": 31608847
     }
   },
   "base-sepolia": {
@@ -105,6 +117,18 @@
     "RenewalProcessor": {
       "address": "0x98ffecB049695349ed448b7F9A5636c417BE4220",
       "startBlock": 23551825
+    },
+    "PermissionFactory": {
+      "address": "0x3460f12BFa2b4b0D7BcA39f566B0583B515Ec251",
+      "startBlock": 27084382
+    },
+    "PermissionRegistry": {
+      "address": "0x0b1165FbB06560fE40f6764A74Ae8ee31655318b",
+      "startBlock": 27084388
+    },
+    "PurchaseManagerWithPermissions": {
+      "address": "0x0Ed5dd012eDbB169D47eA8A2ec3A53BD507db469",
+      "startBlock": 27084394
     }
   }
 }
