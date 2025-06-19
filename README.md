@@ -275,8 +275,8 @@ _The purchaser must approve the [PaymentEscrow contract](./packages/contracts/co
 </a>
 
 **Deployed Contract Addresses**
-- [Base - _Mainnet_](../cli/src/contract-address/base-mainnet.json)
-- [Base - _Sepolia_](../cli/src/contract-address/base-sepolia.json)
+- [Base - _Mainnet_](./packages/cli/src/contract-address/base-mainnet.json)
+- [Base - _Sepolia_](./packages/cli/src/contract-address/base-sepolia.json)
 
 _More chains coming soon!_
 
