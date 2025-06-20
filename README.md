@@ -10,7 +10,9 @@ Stop risking your revenue to centralized payment processors and wasting time set
 
 We guarantee you will love the simplicity and flexibility of ProductMint. You will save time and keep more of your revenue! 💰💰💰
 
-Check out the [DeepWiki](https://deepwiki.com/KodiKraig/product-mint) to chat with an AI agent about ProductMint.
+Check out the DeepWiki to chat with an AI agent about ProductMint!
+
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/KodiKraig/product-mint)
 
 ## Features
 
