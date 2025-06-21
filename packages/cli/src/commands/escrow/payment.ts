@@ -5,6 +5,7 @@ import { getContractAddress } from '../../contract-address';
 import { waitTx } from '../../utils/tx';
 import { ethers, formatUnits } from 'ethers';
 import { getTokenDecimals } from '../../utils/tokens';
+import { parseBooleanValue } from '../../utils/parsing';
 
 const paymentEscrow = PaymentEscrow__factory.connect(
   getContractAddress('paymentEscrow'),
@@ -41,7 +42,7 @@ export default function registerPaymentCommand(program: Command): Command {
       await waitTx(
         paymentEscrow
           .connect(signerWallet)
-          .setWhitelistedToken(token, whitelisted),
+          .setWhitelistedToken(token, parseBooleanValue(whitelisted)!),
       );
     });
 

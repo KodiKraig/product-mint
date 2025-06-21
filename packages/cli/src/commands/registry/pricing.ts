@@ -76,6 +76,17 @@ function registerUpdatePricingCommand(program: Command) {
           .setPricingUsageMeterId(pricingId, usageMeterId),
       );
     });
+
+  update
+    .command('token')
+    .description('Set a new token')
+    .argument('<pricingId>', 'The pricing ID')
+    .argument('<token>', 'The token address')
+    .action(async (pricingId, token) => {
+      await waitTx(
+        pricingRegistry.connect(signerWallet).setPricingToken(pricingId, token),
+      );
+    });
 }
 
 function registerCreatePricingCommand(program: Command): Command {
