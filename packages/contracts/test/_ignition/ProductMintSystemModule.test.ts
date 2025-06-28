@@ -165,4 +165,14 @@ describe('ProductMintSystemModule', () => {
 
     expect(await purchaseManager.passSupply()).to.equal(0);
   });
+
+  it('should set the dynamic price registry in the purchase manager', async () => {
+    const { purchaseManager, dynamicPriceRegistry } = await loadFixture(
+      deployProductMintSystem,
+    );
+
+    expect(await purchaseManager.dynamicPriceRegistry()).to.equal(
+      dynamicPriceRegistry,
+    );
+  });
 });

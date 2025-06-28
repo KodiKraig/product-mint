@@ -147,6 +147,13 @@ export async function deployPurchaseManager() {
     permissionFactory,
   );
 
+  // Dynamic price registry
+
+  const DynamicPriceRegistry = await hre.ethers.getContractFactory(
+    'DynamicPriceRegistry',
+  );
+  const dynamicPriceRegistry = await DynamicPriceRegistry.deploy();
+
   // Manager
 
   const PurchaseManager = await hre.ethers.getContractFactory(
@@ -156,6 +163,7 @@ export async function deployPurchaseManager() {
     contractRegistry,
     permissionRegistry,
     ethers.ZeroAddress,
+    dynamicPriceRegistry,
   );
   await contractRegistry.setPurchaseManager(purchaseManager);
 
@@ -179,6 +187,7 @@ export async function deployPurchaseManager() {
     purchaseManager,
     permissionRegistry,
     permissionFactory,
+    dynamicPriceRegistry,
     mintToken,
     owner,
     otherAccount,
