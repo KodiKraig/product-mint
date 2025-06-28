@@ -17,15 +17,4 @@ interface ICustomUniswapV2Router {
         uint amountIn,
         address[] calldata path
     ) external view returns (uint[] memory amounts);
-
-    /**
-     * @notice Returns the amounts needed for a swap along a path given an output amount.
-     * @param amountOut The desired output amount of the last token.
-     * @param path An array of token addresses representing the swap path.
-     * @return amounts An array of amounts for each step of the path.
-     */
-    function getAmountsIn(
-        uint amountOut,
-        address[] calldata path
-    ) external view returns (uint[] memory amounts);
 }

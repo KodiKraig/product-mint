@@ -29,11 +29,6 @@ abstract contract DynamicPriceRouter is
         address _quoteToken
     ) external view virtual returns (uint256);
 
-    function getQuoteTokenPrice(
-        address _baseToken,
-        address _quoteToken
-    ) external view virtual returns (uint256);
-
     function getBaseTokenAmount(
         address _baseToken,
         address _quoteToken,
@@ -70,8 +65,8 @@ abstract contract DynamicPriceRouter is
         _checkInputAmount(_amount);
     }
 
-    function _checkInputAmount(uint256 _amount) internal pure {
-        require(_amount > 0, "Amount must be greater than 0");
+    function _checkInputAmount(uint256 _amountIn) internal pure {
+        require(_amountIn > 0, "Amount in must be greater than 0");
     }
 
     /**

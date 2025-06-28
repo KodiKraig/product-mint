@@ -81,10 +81,6 @@ contract DynamicERC20 is ERC20, ERC165, Ownable2Step, IDynamicERC20 {
         return dynamicPriceRouter.getBaseTokenPrice(baseToken, quoteToken);
     }
 
-    function getQuoteTokenPrice() external view returns (uint256) {
-        return dynamicPriceRouter.getQuoteTokenPrice(baseToken, quoteToken);
-    }
-
     function getBaseTokenAmount(
         uint256 _quoteTokenAmount
     ) external view returns (address, uint256) {

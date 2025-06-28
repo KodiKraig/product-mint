@@ -19,11 +19,6 @@ interface IDynamicERC20 {
     function getBaseTokenPrice() external view returns (uint256);
 
     /**
-     * @notice Get the current swap price of the quote token in terms of the base token
-     */
-    function getQuoteTokenPrice() external view returns (uint256);
-
-    /**
      * @notice Get the amount of base tokens that would be received for a given amount of quote tokens
      * @param _quoteTokenAmount The amount of quote tokens to convert to base tokens
      * @return _baseToken The address of the base token

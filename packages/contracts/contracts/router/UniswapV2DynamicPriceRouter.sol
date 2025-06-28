@@ -26,34 +26,13 @@ contract UniswapV2DynamicPriceRouter is DynamicPriceRouter {
     ) external view override returns (uint256) {
         _checkTokenAddresses(_baseToken, _quoteToken);
 
-        address[] memory path = new address[](2);
-        path[0] = _baseToken;
-        path[1] = _quoteToken;
-
-        uint256 amountIn = 10 ** IERC20Metadata(_baseToken).decimals();
-        uint256[] memory amounts = uniswapRouter.getAmountsOut(amountIn, path);
-
-        _checkOutputAmount(amounts[1]);
-
-        return amounts[1];
-    }
-
-    function getQuoteTokenPrice(
-        address _baseToken,
-        address _quoteToken
-    ) external view override returns (uint256) {
-        _checkTokenAddresses(_baseToken, _quoteToken);
-
-        address[] memory path = new address[](2);
-        path[0] = _quoteToken;
-        path[1] = _baseToken;
-
-        uint256 amountOut = 10 ** IERC20Metadata(_quoteToken).decimals();
-        uint256[] memory amounts = uniswapRouter.getAmountsIn(amountOut, path);
-
-        _checkOutputAmount(amounts[0]);
-
-        return amounts[0];
+        // Returned in quote token decimals
+        return
+            _getAmountsOut(
+                _baseToken,
+                _quoteToken,
+                10 ** IERC20Metadata(_baseToken).decimals()
+            );
     }
 
     function getBaseTokenAmount(
@@ -63,18 +42,8 @@ contract UniswapV2DynamicPriceRouter is DynamicPriceRouter {
     ) external view override returns (uint256) {
         _checkTokenAddressesAmount(_baseToken, _quoteToken, _quoteTokenAmount);
 
-        address[] memory path = new address[](2);
-        path[0] = _quoteToken;
-        path[1] = _baseToken;
-
-        uint256[] memory amounts = uniswapRouter.getAmountsOut(
-            _quoteTokenAmount,
-            path
-        );
-
-        _checkOutputAmount(amounts[1]);
-
-        return amounts[1];
+        // Returned in base token decimals
+        return _getAmountsOut(_quoteToken, _baseToken, _quoteTokenAmount);
     }
 
     function getQuoteTokenAmount(
@@ -84,18 +53,24 @@ contract UniswapV2DynamicPriceRouter is DynamicPriceRouter {
     ) external view override returns (uint256) {
         _checkTokenAddressesAmount(_baseToken, _quoteToken, _baseTokenAmount);
 
+        // Returned in quote token decimals
+        return _getAmountsOut(_baseToken, _quoteToken, _baseTokenAmount);
+    }
+
+    function _getAmountsOut(
+        address _path1,
+        address _path2,
+        uint256 _amountIn
+    ) internal view returns (uint256) {
         address[] memory path = new address[](2);
-        path[0] = _quoteToken;
-        path[1] = _baseToken;
+        path[0] = _path1;
+        path[1] = _path2;
 
-        uint256[] memory amounts = uniswapRouter.getAmountsIn(
-            _baseTokenAmount,
-            path
-        );
+        uint256[] memory amounts = uniswapRouter.getAmountsOut(_amountIn, path);
 
-        _checkOutputAmount(amounts[0]);
+        _checkOutputAmount(amounts[1]);
 
-        return amounts[0];
+        return amounts[1];
     }
 
     /**
@@ -103,7 +78,7 @@ contract UniswapV2DynamicPriceRouter is DynamicPriceRouter {
      */
 
     function _checkOutputAmount(uint256 _amount) internal pure {
-        require(_amount > 0, "Invalid amount from Uniswap");
+        require(_amount > 0, "Invalid amount out from Uniswap");
     }
 
     /**
