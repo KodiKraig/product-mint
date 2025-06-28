@@ -3,7 +3,6 @@
 pragma solidity >=0.6.2;
 
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {
     IERC20Metadata
 } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
@@ -13,7 +12,7 @@ import {ICustomUniswapV2Router} from "./ICustomUniswapV2Router.sol";
 /**
  * @title MockUniswapV2Router
  * @notice A mock implementation of the custom Uniswap V2 router for testing with decimal handling.
- * @dev Simulates getAmountsOut and getAmountsIn with a fixed price ratio, adjusted for token decimals. Not for production use.
+ * @dev Simulates uniswap v2 router with a fixed price, adjusted for token decimals. Not for production use.
  */
 contract MockUniswapV2Router is AccessControl, ICustomUniswapV2Router {
     // Token => Price
@@ -63,6 +62,13 @@ contract MockUniswapV2Router is AccessControl, ICustomUniswapV2Router {
     }
 
     /**
+     * @notice Emitted when the price for a token is set or updated.
+     * @param token The token address
+     * @param price The price (quote token amount per base token amount, unscaled)
+     */
+    event MockTokenPriceSet(address indexed token, uint256 price);
+
+    /**
      * @notice Set or update the price for a token (for testing purposes).
      * @param _token The token address
      * @param _price The price (quote token amount per base token amount, unscaled)
@@ -72,6 +78,9 @@ contract MockUniswapV2Router is AccessControl, ICustomUniswapV2Router {
         uint256 _price
     ) external onlyRole(PRICE_SETTER_ROLE) {
         require(_token != address(0), "Invalid token address");
+
         prices[_token] = _price;
+
+        emit MockTokenPriceSet(_token, _price);
     }
 }

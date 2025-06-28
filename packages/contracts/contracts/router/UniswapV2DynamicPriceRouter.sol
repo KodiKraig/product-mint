@@ -85,8 +85,16 @@ contract UniswapV2DynamicPriceRouter is DynamicPriceRouter {
      * Update the Uniswap V2 router address
      */
 
+    /**
+     * @notice Emitted when the Uniswap V2 router address is updated.
+     * @param _uniswapRouter The new Uniswap V2 router address
+     */
     event UniswapRouterUpdated(address indexed _uniswapRouter);
 
+    /**
+     * @notice Update the Uniswap V2 router address
+     * @param _uniswapRouter The new Uniswap V2 router address
+     */
     function updateUniswapRouter(address _uniswapRouter) external onlyOwner {
         _updateUniswapRouter(_uniswapRouter);
     }
