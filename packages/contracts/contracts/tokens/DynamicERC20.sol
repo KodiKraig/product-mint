@@ -30,7 +30,7 @@ import {IDynamicPriceRouter} from "../router/IDynamicPriceRouter.sol";
 
 /**
  * @title DynamicERC20
- * @notice A dynamic ERC20 token that can be used to charge for payment
+ * @notice A dynamic ERC20 token is composed of a base token and a quote token.
  * @dev A DynamicERC20 cannot be minted, burned, or transferred
  *
  * Used within the ProductMint system to act as a proxy for the base token against the quote token.

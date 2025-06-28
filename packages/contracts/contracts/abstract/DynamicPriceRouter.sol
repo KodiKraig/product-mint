@@ -20,6 +20,10 @@ abstract contract DynamicPriceRouter is
 {
     constructor() Ownable(_msgSender()) {}
 
+    /**
+     * IDynamicPriceRouter
+     */
+
     function getBaseTokenPrice(
         address _baseToken,
         address _quoteToken
@@ -41,6 +45,38 @@ abstract contract DynamicPriceRouter is
         address _quoteToken,
         uint256 _baseTokenAmount
     ) external view virtual returns (uint256);
+
+    /**
+     * Checks
+     */
+
+    function _checkTokenAddresses(
+        address _baseToken,
+        address _quoteToken
+    ) internal pure {
+        require(
+            _baseToken != address(0) && _quoteToken != address(0),
+            "Invalid token address"
+        );
+        require(_baseToken != _quoteToken, "Base and quote tokens must differ");
+    }
+
+    function _checkTokenAddressesAmount(
+        address _baseToken,
+        address _quoteToken,
+        uint256 _amount
+    ) internal pure {
+        _checkTokenAddresses(_baseToken, _quoteToken);
+        _checkInputAmount(_amount);
+    }
+
+    function _checkInputAmount(uint256 _amount) internal pure {
+        require(_amount > 0, "Amount must be greater than 0");
+    }
+
+    /**
+     * ERC165
+     */
 
     function supportsInterface(
         bytes4 interfaceId
