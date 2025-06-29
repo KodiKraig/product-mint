@@ -126,11 +126,7 @@ contract DynamicERC20 is ERC20, ERC165, Ownable2Step, IDynamicERC20 {
     }
 
     function decimals() public view override returns (uint8) {
-        try IERC20Metadata(quoteToken).decimals() returns (uint8 _decimals) {
-            return _decimals;
-        } catch {
-            return 18;
-        }
+        return IERC20Metadata(quoteToken).decimals();
     }
 
     function allowance(
