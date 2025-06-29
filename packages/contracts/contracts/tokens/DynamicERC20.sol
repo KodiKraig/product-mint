@@ -89,7 +89,7 @@ contract DynamicERC20 is ERC20, ERC165, Ownable2Step, IDynamicERC20 {
 
     function getQuoteTokenAmount(
         uint256 _baseTokenAmount
-    ) public view returns (address, uint256) {
+    ) external view returns (address, uint256) {
         return (quoteToken, _getQuoteTokenAmount(_baseTokenAmount));
     }
 
