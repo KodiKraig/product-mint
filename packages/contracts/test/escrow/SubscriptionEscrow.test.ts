@@ -54,6 +54,11 @@ describe('SubscriptionEscrow', () => {
       permissionFactory,
     );
 
+    const DynamicPriceRegistry = await hre.ethers.getContractFactory(
+      'DynamicPriceRegistry',
+    );
+    const dynamicPriceRegistry = await DynamicPriceRegistry.deploy();
+
     const PurchaseManager = await hre.ethers.getContractFactory(
       'PurchaseManager',
     );
@@ -61,6 +66,7 @@ describe('SubscriptionEscrow', () => {
       contractRegistry,
       permissionRegistry,
       ethers.ZeroAddress,
+      dynamicPriceRegistry,
     );
 
     const SubscriptionEscrow = await hre.ethers.getContractFactory(

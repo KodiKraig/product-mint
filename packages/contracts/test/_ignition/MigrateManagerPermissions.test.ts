@@ -1,94 +1,96 @@
-import { expect } from 'chai';
-import { ethers } from 'hardhat';
-import { hashPermissionId } from '../permission/helpers';
-import MigrateManagerPermissions from '../../ignition/modules/MigrateManagerPermissions';
-import { loadWithPurchasedFlatRateSubscription } from '../manager/helpers';
-import hre from 'hardhat';
-import { PurchaseManager } from '../../typechain-types';
+// TODO: Remove all permission migration as all migrations are completed
 
-describe('MigrateManagerPermissions', () => {
-  it('should migrate permissions and maintain functionality', async () => {
-    // First deploy the old system and make a purchase
-    const {
-      purchaseManager: oldPurchaseManager,
-      contractRegistry,
-      permissionRegistry: oldPermissionRegistry,
-      otherAccount,
-      productPassNFT,
-    } = await loadWithPurchasedFlatRateSubscription();
+// import { expect } from 'chai';
+// import { ethers } from 'hardhat';
+// import { hashPermissionId } from '../permission/helpers';
+// import MigrateManagerPermissions from '../../ignition/modules/MigrateManagerPermissions';
+// import { loadWithPurchasedFlatRateSubscription } from '../manager/helpers';
+// import hre from 'hardhat';
+// import { PurchaseManager } from '../../typechain-types';
 
-    // Verify initial state
-    expect(await oldPurchaseManager.passSupply()).to.equal(1);
-    expect(await contractRegistry.purchaseManager()).to.equal(
-      await oldPurchaseManager.getAddress(),
-    );
-    expect(
-      await oldPermissionRegistry.getOwnerPermissions(1, otherAccount),
-    ).to.deep.equal([
-      hashPermissionId('pass.wallet.spend'),
-      hashPermissionId('pass.purchase.additional'),
-      hashPermissionId('pass.subscription.renewal'),
-      hashPermissionId('pass.subscription.pricing'),
-      hashPermissionId('pass.subscription.quantity'),
-    ]);
+// describe('MigrateManagerPermissions', () => {
+//   it('should migrate permissions and maintain functionality', async () => {
+//     // First deploy the old system and make a purchase
+//     const {
+//       purchaseManager: oldPurchaseManager,
+//       contractRegistry,
+//       permissionRegistry: oldPermissionRegistry,
+//       otherAccount,
+//       productPassNFT,
+//     } = await loadWithPurchasedFlatRateSubscription();
 
-    // Deploy new system through the migration module
-    const { purchaseManager: newPurchaseManager } = await hre.ignition.deploy(
-      MigrateManagerPermissions,
-      {
-        parameters: {
-          MigrateManagerPermissions: {
-            contractRegistryAddress: await contractRegistry.getAddress(),
-            oldPurchaseManagerAddress: await oldPurchaseManager.getAddress(),
-          },
-        },
-      },
-    );
+//     // Verify initial state
+//     expect(await oldPurchaseManager.passSupply()).to.equal(1);
+//     expect(await contractRegistry.purchaseManager()).to.equal(
+//       await oldPurchaseManager.getAddress(),
+//     );
+//     expect(
+//       await oldPermissionRegistry.getOwnerPermissions(1, otherAccount),
+//     ).to.deep.equal([
+//       hashPermissionId('pass.wallet.spend'),
+//       hashPermissionId('pass.purchase.additional'),
+//       hashPermissionId('pass.subscription.renewal'),
+//       hashPermissionId('pass.subscription.pricing'),
+//       hashPermissionId('pass.subscription.quantity'),
+//     ]);
 
-    // Verify migration state
-    expect(await newPurchaseManager.passSupply()).to.equal(1);
-    expect(await contractRegistry.purchaseManager()).to.equal(
-      await newPurchaseManager.getAddress(),
-    );
+//     // Deploy new system through the migration module
+//     const { purchaseManager: newPurchaseManager } = await hre.ignition.deploy(
+//       MigrateManagerPermissions,
+//       {
+//         parameters: {
+//           MigrateManagerPermissions: {
+//             contractRegistryAddress: await contractRegistry.getAddress(),
+//             oldPurchaseManagerAddress: await oldPurchaseManager.getAddress(),
+//           },
+//         },
+//       },
+//     );
 
-    // Get the new permission registry from the new purchase manager
-    const newPermissionRegistry = await ethers.getContractAt(
-      'PermissionRegistry',
-      await newPurchaseManager.permissionRegistry(),
-    );
+//     // Verify migration state
+//     expect(await newPurchaseManager.passSupply()).to.equal(1);
+//     expect(await contractRegistry.purchaseManager()).to.equal(
+//       await newPurchaseManager.getAddress(),
+//     );
 
-    // Confirm granting initial owner permissions works correctly
-    expect(
-      await newPermissionRegistry.getOwnerPermissions(1, otherAccount),
-    ).to.deep.equal([]);
+//     // Get the new permission registry from the new purchase manager
+//     const newPermissionRegistry = await ethers.getContractAt(
+//       'PermissionRegistry',
+//       await newPurchaseManager.permissionRegistry(),
+//     );
 
-    // Verify functionality still works by attempting to purchase a new product pass
-    await (newPurchaseManager as unknown as PurchaseManager)
-      .connect(otherAccount)
-      .purchaseProducts({
-        to: otherAccount,
-        organizationId: 1,
-        productIds: [1],
-        pricingIds: [1],
-        quantities: [0],
-        discountIds: [],
-        couponCode: '',
-        airdrop: false,
-        pause: false,
-      });
+//     // Confirm granting initial owner permissions works correctly
+//     expect(
+//       await newPermissionRegistry.getOwnerPermissions(1, otherAccount),
+//     ).to.deep.equal([]);
 
-    // Verify the purchase was successful with the migration
-    expect(await oldPurchaseManager.passSupply()).to.equal(1);
-    expect(await newPurchaseManager.passSupply()).to.equal(2);
-    expect(await productPassNFT.ownerOf(2)).to.equal(otherAccount);
-    expect(
-      await newPermissionRegistry.getOwnerPermissions(1, otherAccount),
-    ).to.deep.equal([
-      hashPermissionId('pass.wallet.spend'),
-      hashPermissionId('pass.purchase.additional'),
-      hashPermissionId('pass.subscription.renewal'),
-      hashPermissionId('pass.subscription.pricing'),
-      hashPermissionId('pass.subscription.quantity'),
-    ]);
-  });
-});
+//     // Verify functionality still works by attempting to purchase a new product pass
+//     await (newPurchaseManager as unknown as PurchaseManager)
+//       .connect(otherAccount)
+//       .purchaseProducts({
+//         to: otherAccount,
+//         organizationId: 1,
+//         productIds: [1],
+//         pricingIds: [1],
+//         quantities: [0],
+//         discountIds: [],
+//         couponCode: '',
+//         airdrop: false,
+//         pause: false,
+//       });
+
+//     // Verify the purchase was successful with the migration
+//     expect(await oldPurchaseManager.passSupply()).to.equal(1);
+//     expect(await newPurchaseManager.passSupply()).to.equal(2);
+//     expect(await productPassNFT.ownerOf(2)).to.equal(otherAccount);
+//     expect(
+//       await newPermissionRegistry.getOwnerPermissions(1, otherAccount),
+//     ).to.deep.equal([
+//       hashPermissionId('pass.wallet.spend'),
+//       hashPermissionId('pass.purchase.additional'),
+//       hashPermissionId('pass.subscription.renewal'),
+//       hashPermissionId('pass.subscription.pricing'),
+//       hashPermissionId('pass.subscription.quantity'),
+//     ]);
+//   });
+// });

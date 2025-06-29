@@ -146,8 +146,12 @@ describe('PurchaseManager', () => {
 
   describe('Upgrade and migration', () => {
     it('should set the initial pass supply to the pass supply of the old purchase manager if one is provided', async () => {
-      const { purchaseManager, contractRegistry, permissionRegistry } =
-        await loadWithPurchasedFlatRateSubscription();
+      const {
+        purchaseManager,
+        contractRegistry,
+        permissionRegistry,
+        dynamicPriceRegistry,
+      } = await loadWithPurchasedFlatRateSubscription();
 
       expect(await purchaseManager.passSupply()).to.equal(1);
 
@@ -158,6 +162,7 @@ describe('PurchaseManager', () => {
         contractRegistry,
         permissionRegistry,
         purchaseManager,
+        dynamicPriceRegistry,
       );
 
       expect(await newPurchaseManager.passSupply()).to.equal(1);
