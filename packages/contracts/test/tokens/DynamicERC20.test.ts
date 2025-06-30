@@ -42,7 +42,7 @@ describe('DynamicERC20', () => {
 
     // Set prices
 
-    await mockUniswapV2Router.connect(owner).setPrice(mintToken, 1000);
+    await mockUniswapV2Router.connect(owner).setPrice(mintToken, 20);
 
     await mockUniswapV2Router.connect(owner).setPrice(mintStableToken, 1);
 
@@ -127,6 +127,55 @@ describe('DynamicERC20', () => {
           await mintStableToken.getAddress(),
         ),
       ).to.be.revertedWith('Invalid dynamic price router');
+    });
+  });
+
+  describe('Router pricing', () => {
+    it('should return the base token price', async () => {
+      const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
+      expect(await dynamicERC20.getBaseTokenPrice()).to.equal(
+        parseUnits('20', 6),
+      );
+    });
+
+    it('should return the correct base token amount', async () => {
+      const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
+
+      const [baseToken, baseTokenAmount] =
+        await dynamicERC20.getBaseTokenAmount(parseUnits('100', 6));
+
+      expect(baseToken).to.equal(await dynamicERC20.baseToken());
+      expect(baseTokenAmount).to.equal(parseUnits('100', 18));
+    });
+
+    it('should return the correct base token amount when the amount is zero', async () => {
+      const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
+
+      const [baseToken, baseTokenAmount] =
+        await dynamicERC20.getBaseTokenAmount(parseUnits('0', 6));
+
+      expect(baseToken).to.equal(await dynamicERC20.baseToken());
+      expect(baseTokenAmount).to.equal(0);
+    });
+
+    it('should return the correct quote token amount', async () => {
+      const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
+
+      const [quoteToken, quoteTokenAmount] =
+        await dynamicERC20.getQuoteTokenAmount(parseUnits('20', 18));
+
+      expect(quoteToken).to.equal(await dynamicERC20.quoteToken());
+      expect(quoteTokenAmount).to.equal(parseUnits('400', 6));
+    });
+
+    it('should return the correct quote token amount when the amount is zero', async () => {
+      const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
+
+      const [quoteToken, quoteTokenAmount] =
+        await dynamicERC20.getQuoteTokenAmount(parseUnits('0', 18));
+
+      expect(quoteToken).to.equal(await dynamicERC20.quoteToken());
+      expect(quoteTokenAmount).to.equal(0);
     });
   });
 
@@ -286,7 +335,7 @@ describe('DynamicERC20', () => {
         .approve(otherAccount, parseUnits('1000', 18));
 
       expect(await dynamicERC20.allowance(otherAccount, otherAccount)).to.equal(
-        parseUnits('1000000', 6),
+        parseUnits('20000', 6),
       );
     });
 
@@ -306,7 +355,7 @@ describe('DynamicERC20', () => {
       await mintToken.mint(otherAccount, parseUnits('1000', 18));
 
       expect(await dynamicERC20.balanceOf(otherAccount)).to.equal(
-        parseUnits('1000000', 6),
+        parseUnits('20000', 6),
       );
     });
   });
