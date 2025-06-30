@@ -27,7 +27,7 @@ import {IDynamicPriceRegistry} from "./IDynamicPriceRegistry.sol";
 /**
  * @title Dynamic Price Registry
  * @notice Manages the dynamic price tokens for the ProductMint system.
- * The registry is used to store the dynamic token contract addresses
+ * The registry is used to store the dynamic token contract addresses.
  */
 contract DynamicPriceRegistry is AccessControl, IDynamicPriceRegistry {
     using EnumerableSet for EnumerableSet.AddressSet;
