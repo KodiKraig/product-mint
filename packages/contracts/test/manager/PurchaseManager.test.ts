@@ -168,4 +168,55 @@ describe('PurchaseManager', () => {
       expect(await newPurchaseManager.passSupply()).to.equal(1);
     });
   });
+
+  describe('Set Dynamic Price Registry', () => {
+    it('should set a new dynamic price registry', async () => {
+      const { purchaseManager } = await loadFixture(deployPurchaseManager);
+
+      const DynamicPriceRegistry = await ethers.getContractFactory(
+        'DynamicPriceRegistry',
+      );
+      const newDynamicPriceRegistry = await DynamicPriceRegistry.deploy();
+
+      await expect(
+        purchaseManager.setDynamicPriceRegistry(
+          await newDynamicPriceRegistry.getAddress(),
+        ),
+      )
+        .to.emit(purchaseManager, 'DynamicPriceRegistryUpdated')
+        .withArgs(await newDynamicPriceRegistry.getAddress());
+
+      expect(await purchaseManager.dynamicPriceRegistry()).to.equal(
+        await newDynamicPriceRegistry.getAddress(),
+      );
+    });
+
+    it('revert if not the owner', async () => {
+      const { purchaseManager, dynamicPriceRegistry, otherAccount } =
+        await loadFixture(deployPurchaseManager);
+
+      await expect(
+        purchaseManager
+          .connect(otherAccount)
+          .setDynamicPriceRegistry(await dynamicPriceRegistry.getAddress()),
+      )
+        .to.be.revertedWithCustomError(
+          purchaseManager,
+          'OwnableUnauthorizedAccount',
+        )
+        .withArgs(otherAccount);
+    });
+
+    it('revert if does not conform to the dynamic price registry interface', async () => {
+      const { purchaseManager, organizationNFT } = await loadFixture(
+        deployPurchaseManager,
+      );
+
+      await expect(
+        purchaseManager.setDynamicPriceRegistry(
+          await organizationNFT.getAddress(),
+        ),
+      ).to.be.revertedWith('IDynamicPriceRegistry not supported');
+    });
+  });
 });

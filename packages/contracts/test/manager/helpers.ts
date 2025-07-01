@@ -108,10 +108,45 @@ export async function deployPurchaseManager() {
 
   await organizationNFT.setMintOpen(true);
 
+  // Dynamic price registry
+
+  const DynamicPriceRegistry = await hre.ethers.getContractFactory(
+    'DynamicPriceRegistry',
+  );
+  const dynamicPriceRegistry = await DynamicPriceRegistry.deploy();
+
+  // Dynamic Price Router
+
+  const MockUniswapV2Router = await hre.ethers.getContractFactory(
+    'MockUniswapV2Router',
+  );
+  const mockUniswapV2Router = await MockUniswapV2Router.deploy();
+
+  const UniswapV2DynamicPriceRouter = await hre.ethers.getContractFactory(
+    'UniswapV2DynamicPriceRouter',
+  );
+  const uniswapV2DynamicPriceRouter = await UniswapV2DynamicPriceRouter.deploy(
+    mockUniswapV2Router,
+  );
+
   // ERC20
 
   const MintToken = await hre.ethers.getContractFactory('MintToken');
   const mintToken = await MintToken.deploy();
+
+  const MintStableToken = await hre.ethers.getContractFactory(
+    'MintStableToken',
+  );
+  const mintStableToken = await MintStableToken.deploy();
+
+  const DynamicERC20 = await hre.ethers.getContractFactory('DynamicERC20');
+  const dynamicERC20 = await DynamicERC20.deploy(
+    'Dynamic Mint/USDC coin',
+    'MINTusdc',
+    await mintToken.getAddress(),
+    await mintStableToken.getAddress(),
+    await uniswapV2DynamicPriceRouter.getAddress(),
+  );
 
   // Usage recorder
 
@@ -146,13 +181,6 @@ export async function deployPurchaseManager() {
     contractRegistry,
     permissionFactory,
   );
-
-  // Dynamic price registry
-
-  const DynamicPriceRegistry = await hre.ethers.getContractFactory(
-    'DynamicPriceRegistry',
-  );
-  const dynamicPriceRegistry = await DynamicPriceRegistry.deploy();
 
   // Manager
 
@@ -189,6 +217,10 @@ export async function deployPurchaseManager() {
     permissionFactory,
     dynamicPriceRegistry,
     mintToken,
+    mintStableToken,
+    dynamicERC20,
+    mockUniswapV2Router,
+    uniswapV2DynamicPriceRouter,
     owner,
     otherAccount,
     otherAccount2,
@@ -200,10 +232,40 @@ export async function deployPurchaseManager() {
 export async function loadWithDefaultProduct() {
   const results = await loadFixture(deployPurchaseManager);
 
-  const { productRegistry, organizationNFT, owner, paymentEscrow, mintToken } =
-    results;
+  const {
+    productRegistry,
+    organizationNFT,
+    owner,
+    paymentEscrow,
+    mintToken,
+    mockUniswapV2Router,
+    mintStableToken,
+    dynamicPriceRegistry,
+    dynamicERC20,
+  } = results;
 
   await paymentEscrow.setWhitelistedToken(await mintToken.getAddress(), true);
+  await paymentEscrow.setWhitelistedToken(
+    await dynamicERC20.getAddress(),
+    true,
+  );
+  await paymentEscrow.setWhitelistedToken(
+    await mintStableToken.getAddress(),
+    true,
+  );
+
+  // Set dynamic price
+  await mockUniswapV2Router
+    .connect(owner)
+    .setPrice(await mintToken.getAddress(), 10);
+  await mockUniswapV2Router
+    .connect(owner)
+    .setPrice(await mintStableToken.getAddress(), 1);
+
+  // Register dynamic token in registry
+  await dynamicPriceRegistry
+    .connect(owner)
+    .registerToken(await dynamicERC20.getAddress());
 
   await organizationNFT.connect(owner).mint(owner);
 

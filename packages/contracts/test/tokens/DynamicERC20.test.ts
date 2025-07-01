@@ -128,6 +128,21 @@ describe('DynamicERC20', () => {
         ),
       ).to.be.revertedWith('Invalid dynamic price router');
     });
+
+    it('revert if the base token is the same as the quote token', async () => {
+      const { DynamicERC20, mintToken, uniswapV2DynamicPriceRouter } =
+        await loadFixture(deployDynamicERC20);
+
+      await expect(
+        DynamicERC20.deploy(
+          'DynamicERC20',
+          'DYN',
+          await mintToken.getAddress(),
+          await mintToken.getAddress(),
+          await uniswapV2DynamicPriceRouter.getAddress(),
+        ),
+      ).to.be.revertedWith('Base and quote token cannot be the same');
+    });
   });
 
   describe('Router pricing', () => {
@@ -302,9 +317,11 @@ describe('DynamicERC20', () => {
     });
 
     it('should return the total supply of the base token when it is not zero', async () => {
-      const { dynamicERC20, mintToken } = await loadFixture(deployDynamicERC20);
+      const { dynamicERC20, mintToken, otherAccount } = await loadFixture(
+        deployDynamicERC20,
+      );
 
-      await mintToken.mint(await dynamicERC20.getAddress(), 100);
+      await mintToken.connect(otherAccount).mint(otherAccount, 100);
 
       expect(await dynamicERC20.totalSupply()).to.equal(100);
     });

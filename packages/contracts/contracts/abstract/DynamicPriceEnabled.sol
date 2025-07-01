@@ -50,7 +50,7 @@ abstract contract DynamicPriceEnabled {
             IERC165(_dynamicPriceRegistry).supportsInterface(
                 type(IDynamicPriceRegistry).interfaceId
             ),
-            "DynamicPriceRegistry not supported"
+            "IDynamicPriceRegistry not supported"
         );
 
         dynamicPriceRegistry = IDynamicPriceRegistry(_dynamicPriceRegistry);
