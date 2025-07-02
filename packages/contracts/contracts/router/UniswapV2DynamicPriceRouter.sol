@@ -21,7 +21,7 @@ contract UniswapV2DynamicPriceRouter is DynamicPriceRouter {
      */
 
     function routerName() external pure override returns (string memory) {
-        return "UniswapV2";
+        return "uniswap-v2";
     }
 
     function getBaseTokenPrice(

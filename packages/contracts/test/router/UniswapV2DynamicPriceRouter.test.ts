@@ -68,7 +68,7 @@ describe('UniswapV2DynamicPriceRouter', () => {
         loadUniswapV2DynamicPriceRouter,
       );
       expect(await uniswapV2DynamicPriceRouter.routerName()).to.equal(
-        'UniswapV2',
+        'uniswap-v2',
       );
     });
   });

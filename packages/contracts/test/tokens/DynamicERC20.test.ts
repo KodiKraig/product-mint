@@ -148,7 +148,7 @@ describe('DynamicERC20', () => {
   describe('Router pricing', () => {
     it('should return the router name', async () => {
       const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
-      expect(await dynamicERC20.routerName()).to.equal('UniswapV2');
+      expect(await dynamicERC20.routerName()).to.equal('uniswap-v2');
     });
 
     it('should return the router address', async () => {
