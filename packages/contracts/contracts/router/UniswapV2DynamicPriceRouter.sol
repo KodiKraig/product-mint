@@ -10,7 +10,7 @@ import {DynamicPriceRouter} from "../abstract/DynamicPriceRouter.sol";
 import {ICustomUniswapV2Router} from "./ICustomUniswapV2Router.sol";
 
 contract UniswapV2DynamicPriceRouter is DynamicPriceRouter {
-    ICustomUniswapV2Router public uniswapRouter;
+    ICustomUniswapV2Router public uniswapV2Router;
 
     constructor(address _uniswapRouter) DynamicPriceRouter() {
         _updateUniswapRouter(_uniswapRouter);
@@ -19,6 +19,10 @@ contract UniswapV2DynamicPriceRouter is DynamicPriceRouter {
     /**
      * IDynamicPriceRouter
      */
+
+    function routerName() external pure override returns (string memory) {
+        return "UniswapV2";
+    }
 
     function getBaseTokenPrice(
         address _baseToken,
@@ -66,7 +70,10 @@ contract UniswapV2DynamicPriceRouter is DynamicPriceRouter {
         path[0] = _path1;
         path[1] = _path2;
 
-        uint256[] memory amounts = uniswapRouter.getAmountsOut(_amountIn, path);
+        uint256[] memory amounts = uniswapV2Router.getAmountsOut(
+            _amountIn,
+            path
+        );
 
         _checkOutputAmount(amounts[1]);
 
@@ -105,7 +112,7 @@ contract UniswapV2DynamicPriceRouter is DynamicPriceRouter {
             "Uniswap router cannot be zero address"
         );
 
-        uniswapRouter = ICustomUniswapV2Router(_uniswapRouter);
+        uniswapV2Router = ICustomUniswapV2Router(_uniswapRouter);
 
         emit UniswapRouterUpdated(_uniswapRouter);
     }

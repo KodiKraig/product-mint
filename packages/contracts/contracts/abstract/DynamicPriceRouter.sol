@@ -24,6 +24,8 @@ abstract contract DynamicPriceRouter is
      * IDynamicPriceRouter
      */
 
+    function routerName() external view virtual returns (string memory);
+
     function getBaseTokenPrice(
         address _baseToken,
         address _quoteToken

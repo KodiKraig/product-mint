@@ -146,6 +146,18 @@ describe('DynamicERC20', () => {
   });
 
   describe('Router pricing', () => {
+    it('should return the router name', async () => {
+      const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
+      expect(await dynamicERC20.routerName()).to.equal('UniswapV2');
+    });
+
+    it('should return the router address', async () => {
+      const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
+      expect(await dynamicERC20.routerAddress()).to.equal(
+        await dynamicERC20.dynamicPriceRouter(),
+      );
+    });
+
     it('should return the base token price', async () => {
       const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
       expect(await dynamicERC20.getBaseTokenPrice()).to.equal(
@@ -259,6 +271,8 @@ describe('DynamicERC20', () => {
       const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
 
       const interfaceId = calculateInterfaceId([
+        'routerName()',
+        'routerAddress()',
         'baseToken()',
         'quoteToken()',
         'getBaseTokenPrice()',

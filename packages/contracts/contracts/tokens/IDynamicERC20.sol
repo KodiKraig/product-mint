@@ -4,17 +4,32 @@ pragma solidity ^0.8.24;
 
 interface IDynamicERC20 {
     /**
+     * @notice Get the name of the dynamic price router
+     * @return The name of the dynamic price router
+     */
+    function routerName() external view returns (string memory);
+
+    /**
+     * @notice Get the address of the dynamic price router
+     * @return The address of the dynamic price router
+     */
+    function routerAddress() external view returns (address);
+
+    /**
      * @notice The ERC20 token used to charge for payment
+     * @return The contract address of the base token
      */
     function baseToken() external view returns (address);
 
     /**
      * @dev The ERC20 token used for price targeting
+     * @return The contract address of the quote token
      */
     function quoteToken() external view returns (address);
 
     /**
      * @notice Get the current swap price of the base token in terms of the quote token
+     * @return The amount of quote token per base token
      */
     function getBaseTokenPrice() external view returns (uint256);
 

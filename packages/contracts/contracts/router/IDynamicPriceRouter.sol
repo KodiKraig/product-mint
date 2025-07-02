@@ -4,6 +4,12 @@ pragma solidity ^0.8.24;
 
 interface IDynamicPriceRouter {
     /**
+     * @notice Get the name of the underlying price router.
+     * @return The name of the underlying price router. i.e. "UniswapV2"
+     */
+    function routerName() external view returns (string memory);
+
+    /**
      * @notice Get the current price of the base token in terms of the quote token.
      * @param _baseToken The base token of the dynamic ERC20 token
      * @param _quoteToken The quote token of the dynamic ERC20 token

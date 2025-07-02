@@ -58,8 +58,17 @@ describe('UniswapV2DynamicPriceRouter', () => {
     it('should set the Uniswap V2 router', async () => {
       const { uniswapV2DynamicPriceRouter, mockUniswapV2Router } =
         await loadFixture(loadUniswapV2DynamicPriceRouter);
-      expect(await uniswapV2DynamicPriceRouter.uniswapRouter()).to.equal(
+      expect(await uniswapV2DynamicPriceRouter.uniswapV2Router()).to.equal(
         mockUniswapV2Router,
+      );
+    });
+
+    it('should return the correct name', async () => {
+      const { uniswapV2DynamicPriceRouter } = await loadFixture(
+        loadUniswapV2DynamicPriceRouter,
+      );
+      expect(await uniswapV2DynamicPriceRouter.routerName()).to.equal(
+        'UniswapV2',
       );
     });
   });
@@ -80,7 +89,7 @@ describe('UniswapV2DynamicPriceRouter', () => {
         .to.emit(uniswapV2DynamicPriceRouter, 'UniswapRouterUpdated')
         .withArgs(await newMockUniswapV2Router.getAddress());
 
-      expect(await uniswapV2DynamicPriceRouter.uniswapRouter()).to.equal(
+      expect(await uniswapV2DynamicPriceRouter.uniswapV2Router()).to.equal(
         newMockUniswapV2Router,
       );
     });
@@ -103,6 +112,7 @@ describe('UniswapV2DynamicPriceRouter', () => {
       );
 
       const interfaceId = calculateInterfaceId([
+        'routerName()',
         'getBaseTokenPrice(address,address)',
         'getBaseTokenAmount(address,address,uint256)',
         'getQuoteTokenAmount(address,address,uint256)',
