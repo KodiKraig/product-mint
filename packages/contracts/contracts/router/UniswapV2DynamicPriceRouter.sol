@@ -48,7 +48,7 @@ contract UniswapV2DynamicPriceRouter is
     // The denominator for the scaler
     uint256 public constant SCALER_DENOMINATOR = 1000000;
 
-    // The name of the router
+    // The name of the underlying swap router
     string public constant ROUTER_NAME = "uniswap-v2";
 
     constructor(address _uniswapRouter) Ownable(_msgSender()) {

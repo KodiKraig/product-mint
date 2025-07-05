@@ -71,6 +71,19 @@ describe('UniswapV2DynamicPriceRouter', () => {
         'uniswap-v2',
       );
     });
+
+    it('should return the correct fee constants', async () => {
+      const { uniswapV2DynamicPriceRouter } = await loadFixture(
+        loadUniswapV2DynamicPriceRouter,
+      );
+      expect(await uniswapV2DynamicPriceRouter.FEE_FACTOR()).to.equal(997);
+      expect(await uniswapV2DynamicPriceRouter.FEE_DENOMINATOR()).to.equal(
+        1000,
+      );
+      expect(await uniswapV2DynamicPriceRouter.SCALER_DENOMINATOR()).to.equal(
+        1000000,
+      );
+    });
   });
 
   describe('Update Uniswap V2 Router', () => {
