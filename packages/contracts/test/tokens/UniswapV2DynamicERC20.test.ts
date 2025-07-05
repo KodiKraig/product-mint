@@ -39,9 +39,9 @@ describe('UniswapV2DynamicERC20', () => {
       'WETHusdc',
       await mintToken.getAddress(),
       await mintStableToken.getAddress(),
+      await uniswapV2DynamicPriceRouter.getAddress(),
       [await mintToken.getAddress(), await mintStableToken.getAddress()],
       [await mintStableToken.getAddress(), await mintToken.getAddress()],
-      await uniswapV2DynamicPriceRouter.getAddress(),
     );
 
     // Set prices
@@ -115,9 +115,9 @@ describe('UniswapV2DynamicERC20', () => {
           'WETHusdc',
           ZeroAddress,
           await mintStableToken.getAddress(),
+          await uniswapV2DynamicPriceRouter.getAddress(),
           [await mintToken.getAddress(), await mintStableToken.getAddress()],
           [await mintStableToken.getAddress(), await mintToken.getAddress()],
-          await uniswapV2DynamicPriceRouter.getAddress(),
         ),
       ).to.be.revertedWith('Base token cannot be zero address');
     });
@@ -136,9 +136,9 @@ describe('UniswapV2DynamicERC20', () => {
           'WETHusdc',
           await mintToken.getAddress(),
           ZeroAddress,
+          await uniswapV2DynamicPriceRouter.getAddress(),
           [await mintToken.getAddress(), await mintStableToken.getAddress()],
           [await mintStableToken.getAddress(), await mintToken.getAddress()],
-          await uniswapV2DynamicPriceRouter.getAddress(),
         ),
       ).to.be.revertedWith('Quote token cannot be zero address');
     });
@@ -153,11 +153,11 @@ describe('UniswapV2DynamicERC20', () => {
           'WETHusdc',
           await mintToken.getAddress(),
           await mintStableToken.getAddress(),
+          await mintToken.getAddress(),
           [await mintToken.getAddress(), await mintStableToken.getAddress()],
           [await mintStableToken.getAddress(), await mintToken.getAddress()],
-          await mintToken.getAddress(),
         ),
-      ).to.be.revertedWith('Invalid dynamic price router');
+      ).to.be.revertedWith('Does not implement IUniswapV2DynamicPriceRouter');
     });
 
     it('revert if the base token is the same as the quote token', async () => {
@@ -174,9 +174,9 @@ describe('UniswapV2DynamicERC20', () => {
           'WETHusdc',
           await mintToken.getAddress(),
           await mintToken.getAddress(),
+          await uniswapV2DynamicPriceRouter.getAddress(),
           [await mintToken.getAddress(), await mintStableToken.getAddress()],
           [await mintStableToken.getAddress(), await mintToken.getAddress()],
-          await uniswapV2DynamicPriceRouter.getAddress(),
         ),
       ).to.be.revertedWith('Base and quote token cannot be the same');
     });
@@ -190,7 +190,7 @@ describe('UniswapV2DynamicERC20', () => {
 
     it('should return the router address', async () => {
       const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
-      expect(await dynamicERC20.routerAddress()).to.equal(
+      expect(await dynamicERC20.dynamicPriceRouter()).to.equal(
         await dynamicERC20.dynamicPriceRouter(),
       );
     });
@@ -313,7 +313,7 @@ describe('UniswapV2DynamicERC20', () => {
 
       await expect(
         dynamicERC20.setDynamicPriceRouter(await mintToken.getAddress()),
-      ).to.be.revertedWith('Invalid dynamic price router');
+      ).to.be.revertedWith('Does not implement IUniswapV2DynamicPriceRouter');
     });
   });
 
@@ -350,7 +350,7 @@ describe('UniswapV2DynamicERC20', () => {
 
       const interfaceId = calculateInterfaceId([
         'routerName()',
-        'routerAddress()',
+        'dynamicPriceRouter()',
         'baseToken()',
         'quoteToken()',
         'getBaseTokenPrice()',

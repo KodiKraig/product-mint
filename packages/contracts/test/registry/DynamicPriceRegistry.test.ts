@@ -45,9 +45,9 @@ describe('DynamicPriceRegistry', () => {
       'WETHusdc',
       await mintToken.getAddress(),
       await mintStableToken.getAddress(),
+      await uniswapV2DynamicPriceRouter.getAddress(),
       [await mintToken.getAddress(), await mintStableToken.getAddress()],
       [await mintStableToken.getAddress(), await mintToken.getAddress()],
-      await uniswapV2DynamicPriceRouter.getAddress(),
     );
 
     const dynamicERC20_2 = await UniswapV2DynamicERC20.deploy(
@@ -55,9 +55,9 @@ describe('DynamicPriceRegistry', () => {
       'WETHusdc',
       await mintToken.getAddress(),
       await mintStableToken.getAddress(),
+      await uniswapV2DynamicPriceRouter.getAddress(),
       [await mintToken.getAddress(), await mintStableToken.getAddress()],
       [await mintStableToken.getAddress(), await mintToken.getAddress()],
-      await uniswapV2DynamicPriceRouter.getAddress(),
     );
 
     // Set prices

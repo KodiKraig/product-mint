@@ -147,9 +147,9 @@ export async function deployPurchaseManager() {
     'WETHusdc',
     await mintToken.getAddress(),
     await mintStableToken.getAddress(),
+    await uniswapV2DynamicPriceRouter.getAddress(),
     [await mintToken.getAddress(), await mintStableToken.getAddress()],
     [await mintStableToken.getAddress(), await mintToken.getAddress()],
-    await uniswapV2DynamicPriceRouter.getAddress(),
   );
 
   // Usage recorder

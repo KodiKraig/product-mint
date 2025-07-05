@@ -17,7 +17,7 @@ interface IDynamicERC20 {
      * @notice Get the address of the dynamic price router
      * @return The address of the dynamic price router
      */
-    function routerAddress() external view returns (address);
+    function dynamicPriceRouter() external view returns (address);
 
     /**
      * @notice The ERC20 token used to charge for payment
