@@ -87,11 +87,15 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
     permissionFactory,
   ]);
 
+  // Dynamic price registry
+  const dynamicPriceRegistry = m.contract('DynamicPriceRegistry');
+
   // Purchase manager
   const purchaseManager = m.contract('PurchaseManager', [
     contractRegistry,
     permissionRegistry,
     ethers.ZeroAddress,
+    dynamicPriceRegistry,
   ]);
 
   // Usage recorder
@@ -145,6 +149,7 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
     renewalProcessor,
     permissionFactory,
     permissionRegistry,
+    dynamicPriceRegistry,
   };
 });
 

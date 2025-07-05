@@ -25,6 +25,11 @@ describe('UsageRecorder', () => {
       permissionFactory,
     );
 
+    const DynamicPriceRegistry = await hre.ethers.getContractFactory(
+      'DynamicPriceRegistry',
+    );
+    const dynamicPriceRegistry = await DynamicPriceRegistry.deploy();
+
     const PurchaseManager = await hre.ethers.getContractFactory(
       'PurchaseManager',
     );
@@ -32,6 +37,7 @@ describe('UsageRecorder', () => {
       contractRegistry,
       permissionRegistry,
       ethers.ZeroAddress,
+      dynamicPriceRegistry,
     );
 
     const OrganizationAttributeProvider = await hre.ethers.getContractFactory(
