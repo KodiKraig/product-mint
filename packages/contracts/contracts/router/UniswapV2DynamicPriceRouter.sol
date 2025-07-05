@@ -2,87 +2,120 @@
 
 pragma solidity ^0.8.24;
 
-import {
-    IERC20Metadata
-} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
+import {ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
-import {DynamicPriceRouter} from "../abstract/DynamicPriceRouter.sol";
+import {IUniswapV2DynamicPriceRouter} from "./IUniswapV2DynamicPriceRouter.sol";
+import {IDynamicPriceRouter} from "./IDynamicPriceRouter.sol";
 import {ICustomUniswapV2Router} from "./ICustomUniswapV2Router.sol";
 
-contract UniswapV2DynamicPriceRouter is DynamicPriceRouter {
+/*
+ ____                 _            _   __  __ _       _   
+|  _ \ _ __ ___   __| |_   _  ___| |_|  \/  (_)_ __ | |_ 
+| |_) | '__/ _ \ / _` | | | |/ __| __| |\/| | | '_ \| __|
+|  __/| | | (_) | (_| | |_| | (__| |_| |  | | | | | | |_ 
+|_|   |_|  \___/ \__,_|\__,_|\___|\__|_|  |_|_|_| |_|\__|
+ 
+ NFT based payment system to mint products onchain with one-time payments and 
+ recurring permissionless subscriptions.
+
+ https://productmint.io
+*/
+
+/**
+ * @title UniswapV2DynamicPriceRouter
+ * @notice A dynamic price router that uses Uniswap V2 to get the current swap price.
+ * @dev The router will calculate the price with fees included or excluded.
+ *
+ * When removing the fee, if the fee is 0.3% per hop and there are 2 hops, the router will return the price with 0.6% fees removed.
+ */
+contract UniswapV2DynamicPriceRouter is
+    Ownable2Step,
+    ERC165,
+    IUniswapV2DynamicPriceRouter
+{
+    // The Uniswap V2 router used to check swap prices
     ICustomUniswapV2Router public uniswapV2Router;
 
-    constructor(address _uniswapRouter) DynamicPriceRouter() {
-        _updateUniswapRouter(_uniswapRouter);
+    // The fee per hop in basis points
+    // Fixed for all Uniswap V2 pools
+    uint256 public constant FEE_FACTOR = 997;
+
+    // The denominator for the fee
+    uint256 public constant FEE_DENOMINATOR = 1000;
+
+    // The denominator for the scaler
+    uint256 public constant SCALER_DENOMINATOR = 1000000;
+
+    // The name of the router
+    string public constant ROUTER_NAME = "uniswap-v2";
+
+    constructor(address _uniswapRouter) Ownable(_msgSender()) {
+        _setUniswapV2Router(_uniswapRouter);
     }
 
     /**
-     * IDynamicPriceRouter
+     * IUniswapV2DynamicPriceRouter
      */
 
-    function routerName() external pure override returns (string memory) {
-        return "uniswap-v2";
+    function getPrice(
+        uint256 _amountIn,
+        address[] calldata _path
+    ) external view returns (uint256) {
+        return _getPrice(_amountIn, _path);
     }
 
-    function getBaseTokenPrice(
-        address _baseToken,
-        address _quoteToken
-    ) external view override returns (uint256) {
-        _checkTokenAddresses(_baseToken, _quoteToken);
+    function getPriceWithoutFees(
+        uint256 _amountIn,
+        address[] calldata _path
+    ) external view returns (uint256) {
+        uint256 amountOutWithFee = _getPrice(_amountIn, _path);
 
-        // Returned in quote token decimals
-        return
-            _getAmountsOut(
-                _baseToken,
-                _quoteToken,
-                10 ** IERC20Metadata(_baseToken).decimals()
-            );
+        // Remove the fees from the amount out based on the number of hops
+        // NOTE: This is a best approximation of the price without fees.
+
+        uint256 feeProduct = FEE_FACTOR;
+
+        // Remove the fee for multiple hops
+        for (uint256 i = 1; i < _path.length - 1; i++) {
+            feeProduct = (feeProduct * FEE_FACTOR) / FEE_DENOMINATOR;
+        }
+
+        uint256 feeFreeScaler = (SCALER_DENOMINATOR * FEE_DENOMINATOR) /
+            feeProduct;
+
+        return (amountOutWithFee * feeFreeScaler) / SCALER_DENOMINATOR;
     }
 
-    function getBaseTokenAmount(
-        address _baseToken,
-        address _quoteToken,
-        uint256 _quoteTokenAmount
-    ) external view override returns (uint256) {
-        _checkTokenAddressesAmount(_baseToken, _quoteToken, _quoteTokenAmount);
-
-        // Returned in base token decimals
-        return _getAmountsOut(_quoteToken, _baseToken, _quoteTokenAmount);
-    }
-
-    function getQuoteTokenAmount(
-        address _baseToken,
-        address _quoteToken,
-        uint256 _baseTokenAmount
-    ) external view override returns (uint256) {
-        _checkTokenAddressesAmount(_baseToken, _quoteToken, _baseTokenAmount);
-
-        // Returned in quote token decimals
-        return _getAmountsOut(_baseToken, _quoteToken, _baseTokenAmount);
-    }
-
-    function _getAmountsOut(
-        address _path1,
-        address _path2,
-        uint256 _amountIn
+    function _getPrice(
+        uint256 _amountIn,
+        address[] calldata _path
     ) internal view returns (uint256) {
-        address[] memory path = new address[](2);
-        path[0] = _path1;
-        path[1] = _path2;
+        _checkAmountIn(_amountIn);
+        _checkPath(_path);
 
-        uint256[] memory amounts = uniswapV2Router.getAmountsOut(
+        uint256 amountOutWithFee = uniswapV2Router.getAmountsOut(
             _amountIn,
-            path
-        );
+            _path
+        )[_path.length - 1];
 
-        _checkOutputAmount(amounts[1]);
+        _checkOutputAmount(amountOutWithFee);
 
-        return amounts[1];
+        return amountOutWithFee;
     }
 
     /**
      * Checks
      */
+
+    function _checkPath(address[] calldata _path) internal pure {
+        require(_path.length > 1, "Path must have at least 2 tokens");
+    }
+
+    function _checkAmountIn(uint256 _amountIn) internal pure {
+        require(_amountIn > 0, "Amount in must be greater than zero");
+    }
 
     function _checkOutputAmount(uint256 _amount) internal pure {
         require(_amount > 0, "Invalid amount out from Uniswap");
@@ -96,17 +129,17 @@ contract UniswapV2DynamicPriceRouter is DynamicPriceRouter {
      * @notice Emitted when the Uniswap V2 router address is updated.
      * @param _uniswapRouter The new Uniswap V2 router address
      */
-    event UniswapRouterUpdated(address indexed _uniswapRouter);
+    event UniswapV2RouterSet(address indexed _uniswapRouter);
 
     /**
      * @notice Update the Uniswap V2 router address
      * @param _uniswapRouter The new Uniswap V2 router address
      */
-    function updateUniswapRouter(address _uniswapRouter) external onlyOwner {
-        _updateUniswapRouter(_uniswapRouter);
+    function setUniswapV2Router(address _uniswapRouter) external onlyOwner {
+        _setUniswapV2Router(_uniswapRouter);
     }
 
-    function _updateUniswapRouter(address _uniswapRouter) internal {
+    function _setUniswapV2Router(address _uniswapRouter) internal {
         require(
             _uniswapRouter != address(0),
             "Uniswap router cannot be zero address"
@@ -114,6 +147,19 @@ contract UniswapV2DynamicPriceRouter is DynamicPriceRouter {
 
         uniswapV2Router = ICustomUniswapV2Router(_uniswapRouter);
 
-        emit UniswapRouterUpdated(_uniswapRouter);
+        emit UniswapV2RouterSet(_uniswapRouter);
+    }
+
+    /**
+     * ERC165
+     */
+
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override returns (bool) {
+        return
+            interfaceId == type(IUniswapV2DynamicPriceRouter).interfaceId ||
+            interfaceId == type(IDynamicPriceRouter).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 }

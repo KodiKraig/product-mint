@@ -123,7 +123,7 @@ describe('Dynamic Subscriptions', () => {
 
       // Check balance of base token
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
-        ethers.parseUnits('1990', 18),
+        ethers.parseUnits('1989.96991', 18),
       );
 
       // Upgrade to yearly subscription
@@ -153,12 +153,12 @@ describe('Dynamic Subscriptions', () => {
           otherAccount,
           otherAccount,
           await mintToken.getAddress(),
-          ethers.parseUnits('47.945203', 18),
+          ethers.parseUnits('48.089470115827', 18),
         );
 
       // Check balance of base token
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
-        ethers.parseUnits('1942.054797', 18),
+        ethers.parseUnits('1941.880439884173', 18),
       );
     });
   });
@@ -184,7 +184,7 @@ describe('Dynamic Subscriptions', () => {
           1,
           otherAccount,
           await mintToken.getAddress(),
-          ethers.parseUnits('10', 18),
+          ethers.parseUnits('10.03009', 18),
         )
         .and.to.emit(subscriptionEscrow, 'SubscriptionCycleUpdated')
         .withArgs(
@@ -201,11 +201,11 @@ describe('Dynamic Subscriptions', () => {
           otherAccount,
           otherAccount,
           await mintToken.getAddress(),
-          ethers.parseUnits('10', 18),
+          ethers.parseUnits('10.03009', 18),
         );
 
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
-        ethers.parseUnits('1980', 18),
+        ethers.parseUnits('1979.93982', 18),
       );
     });
 
@@ -247,7 +247,7 @@ describe('Dynamic Subscriptions', () => {
         .and.not.to.emit(purchaseManager, 'PerformPurchase');
 
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
-        ethers.parseUnits('1990', 18),
+        ethers.parseUnits('1989.96991', 18),
       );
     });
 
@@ -279,7 +279,7 @@ describe('Dynamic Subscriptions', () => {
           1,
           otherAccount,
           await mintToken.getAddress(),
-          ethers.parseUnits('10', 18),
+          ethers.parseUnits('10.03009', 18),
         )
         .and.to.emit(subscriptionEscrow, 'SubscriptionCycleUpdated')
         .withArgs(
@@ -296,7 +296,7 @@ describe('Dynamic Subscriptions', () => {
           otherAccount,
           otherAccount,
           await mintToken.getAddress(),
-          ethers.parseUnits('10', 18),
+          ethers.parseUnits('10.03009', 18),
         );
 
       // Check second usage based subscription renewal
@@ -308,7 +308,7 @@ describe('Dynamic Subscriptions', () => {
           2,
           otherAccount,
           await mintToken.getAddress(),
-          ethers.parseUnits('2', 18),
+          ethers.parseUnits('2.006018', 18),
         )
         .and.to.emit(subscriptionEscrow, 'SubscriptionCycleUpdated')
         .withArgs(
@@ -329,12 +329,12 @@ describe('Dynamic Subscriptions', () => {
           otherAccount,
           otherAccount,
           await mintToken.getAddress(),
-          ethers.parseUnits('2', 18),
+          ethers.parseUnits('2.006018', 18),
         );
 
       // Check balance of base token
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
-        ethers.parseUnits('1978', 18),
+        ethers.parseUnits('1977.933802', 18),
       );
     });
   });
@@ -413,7 +413,7 @@ describe('Dynamic Subscriptions', () => {
 
       // Check initial balance
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
-        ethers.parseUnits('1989.5', 18),
+        ethers.parseUnits('1989.4684055', 18),
       );
 
       // Increase quantity to 10
@@ -429,12 +429,12 @@ describe('Dynamic Subscriptions', () => {
           otherAccount,
           otherAccount,
           await mintToken.getAddress(),
-          ethers.parseUnits('0.249999', 18),
+          ethers.parseUnits('0.250751246991', 18),
         );
 
       // Check balance after change
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
-        ethers.parseUnits('1989.250001', 18),
+        ethers.parseUnits('1989.217654253009', 18),
       );
     });
 
@@ -457,7 +457,7 @@ describe('Dynamic Subscriptions', () => {
 
       // Check balance after change
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
-        ethers.parseUnits('1989.5', 18),
+        ethers.parseUnits('1989.4684055', 18),
       );
     });
   });

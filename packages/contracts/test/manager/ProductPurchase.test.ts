@@ -2853,30 +2853,30 @@ describe('Purchase Manager', () => {
           [1],
           [0],
           await mintToken.getAddress(),
-          ethers.parseUnits('100', 18),
+          ethers.parseUnits('100.3009', 18),
         )
         .and.to.emit(paymentEscrow, 'TransferAmount')
         .withArgs(
           1,
           otherAccount,
           await mintToken.getAddress(),
-          ethers.parseUnits('100', 18),
-          ethers.parseUnits('92', 18),
+          ethers.parseUnits('100.3009', 18),
+          ethers.parseUnits('92.276828', 18),
         );
 
       // Check that the purchase was successful
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
-        ethers.parseUnits('900', 18),
+        ethers.parseUnits('899.6991', 18),
       );
       expect(await productPassNFT.ownerOf(1)).to.equal(otherAccount);
 
       // Check that the payment escrow balances are correct
       expect(
         await paymentEscrow.orgBalances(1, await mintToken.getAddress()),
-      ).to.equal(ethers.parseUnits('92', 18));
+      ).to.equal(ethers.parseUnits('92.276828', 18));
       expect(
         await paymentEscrow.getFeeBalance(await mintToken.getAddress()),
-      ).to.equal(ethers.parseUnits('8', 18));
+      ).to.equal(ethers.parseUnits('8.024072', 18));
     });
 
     it('should purchase products with dynamic price equal to 0', async () => {
@@ -2926,8 +2926,8 @@ describe('Purchase Manager', () => {
         await loadWithDynamicPriceToken();
 
       // Purchase initial product
-      expect(
-        await purchaseManager.connect(otherAccount).purchaseProducts({
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseProducts({
           to: otherAccount,
           organizationId: 1,
           productIds: [1],
@@ -2948,19 +2948,25 @@ describe('Purchase Manager', () => {
           [1],
           [0],
           await mintToken.getAddress(),
-          ethers.parseUnits('100', 18),
+          ethers.parseUnits('100.3009', 18),
         )
         .and.to.emit(paymentEscrow, 'TransferAmount')
-        .withArgs(1);
+        .withArgs(
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('100.3009', 18),
+          ethers.parseUnits('92.276828', 18),
+        );
 
       // Check that the purchase was successful
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
-        ethers.parseUnits('900', 18),
+        ethers.parseUnits('899.6991', 18),
       );
 
       // Purchase additional product
-      expect(
-        await purchaseManager.connect(otherAccount).purchaseAdditionalProducts({
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseAdditionalProducts({
           productPassId: 1,
           productIds: [2],
           pricingIds: [3],
@@ -2975,16 +2981,16 @@ describe('Purchase Manager', () => {
           1,
           1,
           otherAccount,
-          [1],
+          [2],
           [3],
           [0],
           await mintToken.getAddress(),
-          ethers.parseUnits('200', 18),
+          ethers.parseUnits('200.6018', 18),
         );
 
       // Check that the purchase was successful
       expect(await mintToken.balanceOf(otherAccount)).to.equal(
-        ethers.parseUnits('700', 18),
+        ethers.parseUnits('699.0973', 18),
       );
     });
   });

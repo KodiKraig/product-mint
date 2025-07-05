@@ -36,24 +36,24 @@ contract MockUniswapV2Router is AccessControl, ICustomUniswapV2Router {
         uint amountIn,
         address[] calldata path
     ) external view override returns (uint[] memory amounts) {
-        require(path.length == 2, "Path must have exactly 2 tokens");
+        require(path.length > 1, "Path must have at least 2 tokens");
         require(amountIn > 0, "Amount in must be greater than 0");
 
-        amounts = new uint[](2);
+        amounts = new uint[](path.length);
         amounts[0] = amountIn;
 
         address baseToken = path[0];
-        address quoteToken = path[1];
+        address quoteToken = path[path.length - 1];
 
         uint8 baseDecimals = IERC20Metadata(baseToken).decimals();
         uint8 quoteDecimals = IERC20Metadata(quoteToken).decimals();
 
         if (baseDecimals > quoteDecimals) {
-            amounts[1] =
+            amounts[path.length - 1] =
                 (amountIn * prices[baseToken]) /
                 10 ** (baseDecimals - quoteDecimals);
         } else {
-            amounts[1] =
+            amounts[path.length - 1] =
                 (amountIn * prices[baseToken]) *
                 10 ** (quoteDecimals - baseDecimals);
         }

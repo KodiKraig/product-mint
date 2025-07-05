@@ -67,7 +67,7 @@ describe('UniswapV2DynamicPriceRouter', () => {
       const { uniswapV2DynamicPriceRouter } = await loadFixture(
         loadUniswapV2DynamicPriceRouter,
       );
-      expect(await uniswapV2DynamicPriceRouter.routerName()).to.equal(
+      expect(await uniswapV2DynamicPriceRouter.ROUTER_NAME()).to.equal(
         'uniswap-v2',
       );
     });
@@ -84,9 +84,9 @@ describe('UniswapV2DynamicPriceRouter', () => {
       const newMockUniswapV2Router = await MockUniswapV2Router.deploy();
 
       await expect(
-        uniswapV2DynamicPriceRouter.updateUniswapRouter(newMockUniswapV2Router),
+        uniswapV2DynamicPriceRouter.setUniswapV2Router(newMockUniswapV2Router),
       )
-        .to.emit(uniswapV2DynamicPriceRouter, 'UniswapRouterUpdated')
+        .to.emit(uniswapV2DynamicPriceRouter, 'UniswapV2RouterSet')
         .withArgs(await newMockUniswapV2Router.getAddress());
 
       expect(await uniswapV2DynamicPriceRouter.uniswapV2Router()).to.equal(
@@ -100,8 +100,23 @@ describe('UniswapV2DynamicPriceRouter', () => {
       );
 
       await expect(
-        uniswapV2DynamicPriceRouter.updateUniswapRouter(ZeroAddress),
+        uniswapV2DynamicPriceRouter.setUniswapV2Router(ZeroAddress),
       ).to.be.revertedWith('Uniswap router cannot be zero address');
+    });
+
+    it('revert if the caller is not the owner', async () => {
+      const { uniswapV2DynamicPriceRouter, otherAccount } = await loadFixture(
+        loadUniswapV2DynamicPriceRouter,
+      );
+
+      await expect(
+        uniswapV2DynamicPriceRouter
+          .connect(otherAccount)
+          .setUniswapV2Router(ZeroAddress),
+      ).to.be.revertedWithCustomError(
+        uniswapV2DynamicPriceRouter,
+        'OwnableUnauthorizedAccount',
+      );
     });
   });
 
@@ -111,12 +126,7 @@ describe('UniswapV2DynamicPriceRouter', () => {
         loadUniswapV2DynamicPriceRouter,
       );
 
-      const interfaceId = calculateInterfaceId([
-        'routerName()',
-        'getBaseTokenPrice(address,address)',
-        'getBaseTokenAmount(address,address,uint256)',
-        'getQuoteTokenAmount(address,address,uint256)',
-      ]);
+      const interfaceId = calculateInterfaceId(['ROUTER_NAME()']);
 
       expect(await uniswapV2DynamicPriceRouter.supportsInterface(interfaceId))
         .to.be.true;
@@ -131,6 +141,20 @@ describe('UniswapV2DynamicPriceRouter', () => {
         .to.be.true;
     });
 
+    it('should return true for the IUniswapV2DynamicPriceRouter interface', async () => {
+      const { uniswapV2DynamicPriceRouter } = await loadFixture(
+        loadUniswapV2DynamicPriceRouter,
+      );
+
+      const interfaceId = calculateInterfaceId([
+        'getPrice(uint256,address[])',
+        'getPriceWithoutFees(uint256,address[])',
+      ]);
+
+      expect(await uniswapV2DynamicPriceRouter.supportsInterface(interfaceId))
+        .to.be.true;
+    });
+
     it('should return false for an unknown interface', async () => {
       const { uniswapV2DynamicPriceRouter } = await loadFixture(
         loadUniswapV2DynamicPriceRouter,
@@ -141,52 +165,42 @@ describe('UniswapV2DynamicPriceRouter', () => {
     });
   });
 
-  describe('Get Base Token Price', () => {
-    it('should return the correct price', async () => {
+  describe('Get Price', () => {
+    it('revert if no path is provided', async () => {
+      const { uniswapV2DynamicPriceRouter } = await loadFixture(
+        loadUniswapV2DynamicPriceRouter,
+      );
+
+      await expect(
+        uniswapV2DynamicPriceRouter.getPrice(1000, []),
+      ).to.be.revertedWith('Path must have at least 2 tokens');
+    });
+
+    it('revert if the path is too short', async () => {
+      const { uniswapV2DynamicPriceRouter, mintToken } = await loadFixture(
+        loadUniswapV2DynamicPriceRouter,
+      );
+
+      await expect(
+        uniswapV2DynamicPriceRouter.getPrice(1000, [
+          await mintToken.getAddress(),
+        ]),
+      ).to.be.revertedWith('Path must have at least 2 tokens');
+    });
+
+    it('revert if the amount in is zero', async () => {
       const { uniswapV2DynamicPriceRouter, mintToken, mintStableToken } =
         await loadFixture(loadUniswapV2DynamicPriceRouter);
 
-      expect(
-        await uniswapV2DynamicPriceRouter.getBaseTokenPrice(
-          mintToken,
-          mintStableToken,
-        ),
-      ).to.equal(parseUnits('1000', 6));
-    });
-
-    it('revert if the base token is the same as the quote token', async () => {
-      const { uniswapV2DynamicPriceRouter, mintToken } = await loadFixture(
-        loadUniswapV2DynamicPriceRouter,
-      );
-
       await expect(
-        uniswapV2DynamicPriceRouter.getBaseTokenPrice(mintToken, mintToken),
-      ).to.be.revertedWith('Base and quote tokens must differ');
+        uniswapV2DynamicPriceRouter.getPrice(0, [
+          await mintToken.getAddress(),
+          await mintStableToken.getAddress(),
+        ]),
+      ).to.be.revertedWith('Amount in must be greater than zero');
     });
 
-    it('revert if the base token is the zero address', async () => {
-      const { uniswapV2DynamicPriceRouter, mintStableToken } =
-        await loadFixture(loadUniswapV2DynamicPriceRouter);
-
-      await expect(
-        uniswapV2DynamicPriceRouter.getBaseTokenPrice(
-          ZeroAddress,
-          mintStableToken,
-        ),
-      ).to.be.revertedWith('Invalid token address');
-    });
-
-    it('revert if the quote token is the zero address', async () => {
-      const { uniswapV2DynamicPriceRouter, mintToken } = await loadFixture(
-        loadUniswapV2DynamicPriceRouter,
-      );
-
-      await expect(
-        uniswapV2DynamicPriceRouter.getBaseTokenPrice(mintToken, ZeroAddress),
-      ).to.be.revertedWith('Invalid token address');
-    });
-
-    it('revert if uniswap returns an invalid amount', async () => {
+    it('revert if the amount out is zero', async () => {
       const {
         uniswapV2DynamicPriceRouter,
         mockUniswapV2Router,
@@ -194,190 +208,180 @@ describe('UniswapV2DynamicPriceRouter', () => {
         mintStableToken,
       } = await loadFixture(loadUniswapV2DynamicPriceRouter);
 
-      await mockUniswapV2Router.setPrice(mintToken, 0);
+      const mintTokenAddress = await mintToken.getAddress();
+      const mintStableTokenAddress = await mintStableToken.getAddress();
+
+      await mockUniswapV2Router.setPrice(mintTokenAddress, 0);
+      await mockUniswapV2Router.setPrice(mintStableTokenAddress, 0);
 
       await expect(
-        uniswapV2DynamicPriceRouter.getBaseTokenPrice(
-          mintToken,
-          mintStableToken,
-        ),
+        uniswapV2DynamicPriceRouter.getPrice(1000, [
+          mintTokenAddress,
+          mintStableTokenAddress,
+        ]),
       ).to.be.revertedWith('Invalid amount out from Uniswap');
     });
   });
 
-  describe('Get Base Token Amount', () => {
-    it('should return the correct amount', async () => {
+  describe('Get Price Without Fees', () => {
+    it('single hop with stable token', async () => {
       const { uniswapV2DynamicPriceRouter, mintToken, mintStableToken } =
         await loadFixture(loadUniswapV2DynamicPriceRouter);
 
-      expect(
-        await uniswapV2DynamicPriceRouter.getBaseTokenAmount(
-          mintToken,
-          mintStableToken,
-          parseUnits('2000', 6),
-        ),
-      ).to.equal(parseUnits('2000', 18));
+      const price = await uniswapV2DynamicPriceRouter.getPriceWithoutFees(
+        parseUnits('100', 6),
+        [await mintStableToken.getAddress(), await mintToken.getAddress()],
+      );
+
+      expect(price).to.equal(parseUnits('100.3009', 18));
     });
 
-    it('revert if the base token is the same as the quote token', async () => {
-      const { uniswapV2DynamicPriceRouter, mintToken } = await loadFixture(
+    it('two hops with stable token', async () => {
+      const { uniswapV2DynamicPriceRouter, mintToken, mintStableToken } =
+        await loadFixture(loadUniswapV2DynamicPriceRouter);
+
+      const MintToken = await hre.ethers.getContractFactory('MintToken');
+      const mintToken2 = await MintToken.deploy();
+
+      const price = await uniswapV2DynamicPriceRouter.getPriceWithoutFees(
+        parseUnits('100', 6),
+        [
+          await mintStableToken.getAddress(),
+          await mintToken2.getAddress(),
+          await mintToken.getAddress(),
+        ],
+      );
+
+      expect(price).to.equal(parseUnits('100.6036', 18));
+    });
+
+    it('three hops with stable token', async () => {
+      const { uniswapV2DynamicPriceRouter, mintToken, mintStableToken } =
+        await loadFixture(loadUniswapV2DynamicPriceRouter);
+
+      const MintToken = await hre.ethers.getContractFactory('MintToken');
+      const mintToken2 = await MintToken.deploy();
+      const mintToken3 = await MintToken.deploy();
+
+      const price = await uniswapV2DynamicPriceRouter.getPriceWithoutFees(
+        parseUnits('100', 6),
+        [
+          await mintStableToken.getAddress(),
+          await mintToken2.getAddress(),
+          await mintToken3.getAddress(),
+          await mintToken.getAddress(),
+        ],
+      );
+
+      expect(price).to.equal(parseUnits('100.9081', 18));
+    });
+
+    it('four hops with stable token', async () => {
+      const { uniswapV2DynamicPriceRouter, mintToken, mintStableToken } =
+        await loadFixture(loadUniswapV2DynamicPriceRouter);
+
+      const MintToken = await hre.ethers.getContractFactory('MintToken');
+      const mintToken2 = await MintToken.deploy();
+      const mintToken3 = await MintToken.deploy();
+      const mintToken4 = await MintToken.deploy();
+
+      const price = await uniswapV2DynamicPriceRouter.getPriceWithoutFees(
+        parseUnits('100', 6),
+        [
+          await mintStableToken.getAddress(),
+          await mintToken2.getAddress(),
+          await mintToken3.getAddress(),
+          await mintToken4.getAddress(),
+          await mintToken.getAddress(),
+        ],
+      );
+
+      expect(price).to.equal(parseUnits('101.2145', 18));
+    });
+
+    it('single hop with token', async () => {
+      const { uniswapV2DynamicPriceRouter, mintToken, mintStableToken } =
+        await loadFixture(loadUniswapV2DynamicPriceRouter);
+
+      const price = await uniswapV2DynamicPriceRouter.getPriceWithoutFees(
+        parseUnits('100', 18),
+        [await mintToken.getAddress(), await mintStableToken.getAddress()],
+      );
+
+      expect(price).to.equal(parseUnits('100300.9', 6));
+    });
+
+    it('two hops with token', async () => {
+      const { uniswapV2DynamicPriceRouter, mintToken, mintStableToken } =
+        await loadFixture(loadUniswapV2DynamicPriceRouter);
+
+      const MintToken = await hre.ethers.getContractFactory('MintToken');
+      const mintToken2 = await MintToken.deploy();
+
+      const price = await uniswapV2DynamicPriceRouter.getPriceWithoutFees(
+        parseUnits('100', 18),
+        [
+          await mintToken.getAddress(),
+          await mintToken2.getAddress(),
+          await mintStableToken.getAddress(),
+        ],
+      );
+
+      expect(price).to.equal(parseUnits('100603.6', 6));
+    });
+
+    it('three hops with token', async () => {
+      const { uniswapV2DynamicPriceRouter, mintToken, mintStableToken } =
+        await loadFixture(loadUniswapV2DynamicPriceRouter);
+
+      const MintToken = await hre.ethers.getContractFactory('MintToken');
+      const mintToken2 = await MintToken.deploy();
+      const mintToken3 = await MintToken.deploy();
+
+      const price = await uniswapV2DynamicPriceRouter.getPriceWithoutFees(
+        parseUnits('100', 18),
+        [
+          await mintToken.getAddress(),
+          await mintToken2.getAddress(),
+          await mintToken3.getAddress(),
+          await mintStableToken.getAddress(),
+        ],
+      );
+
+      expect(price).to.equal(parseUnits('100908.1', 6));
+    });
+
+    it('four hops with token', async () => {
+      const { uniswapV2DynamicPriceRouter, mintToken, mintStableToken } =
+        await loadFixture(loadUniswapV2DynamicPriceRouter);
+
+      const MintToken = await hre.ethers.getContractFactory('MintToken');
+      const mintToken2 = await MintToken.deploy();
+      const mintToken3 = await MintToken.deploy();
+      const mintToken4 = await MintToken.deploy();
+
+      const price = await uniswapV2DynamicPriceRouter.getPriceWithoutFees(
+        parseUnits('100', 18),
+        [
+          await mintToken.getAddress(),
+          await mintToken2.getAddress(),
+          await mintToken3.getAddress(),
+          await mintToken4.getAddress(),
+          await mintStableToken.getAddress(),
+        ],
+      );
+
+      expect(price).to.equal(parseUnits('101214.5', 6));
+    });
+
+    it('revert if no path is provided', async () => {
+      const { uniswapV2DynamicPriceRouter } = await loadFixture(
         loadUniswapV2DynamicPriceRouter,
       );
 
       await expect(
-        uniswapV2DynamicPriceRouter.getBaseTokenAmount(
-          mintToken,
-          mintToken,
-          parseUnits('1', 18),
-        ),
-      ).to.be.revertedWith('Base and quote tokens must differ');
-    });
-
-    it('revert if the base token is the zero address', async () => {
-      const { uniswapV2DynamicPriceRouter, mintStableToken } =
-        await loadFixture(loadUniswapV2DynamicPriceRouter);
-
-      await expect(
-        uniswapV2DynamicPriceRouter.getBaseTokenAmount(
-          ZeroAddress,
-          mintStableToken,
-          parseUnits('1', 18),
-        ),
-      ).to.be.revertedWith('Invalid token address');
-    });
-
-    it('revert if the quote token is the zero address', async () => {
-      const { uniswapV2DynamicPriceRouter, mintToken } = await loadFixture(
-        loadUniswapV2DynamicPriceRouter,
-      );
-
-      await expect(
-        uniswapV2DynamicPriceRouter.getBaseTokenAmount(
-          mintToken,
-          ZeroAddress,
-          parseUnits('1', 18),
-        ),
-      ).to.be.revertedWith('Invalid token address');
-    });
-
-    it('revert if uniswap returns an invalid amount', async () => {
-      const {
-        uniswapV2DynamicPriceRouter,
-        mockUniswapV2Router,
-        mintToken,
-        mintStableToken,
-      } = await loadFixture(loadUniswapV2DynamicPriceRouter);
-
-      await mockUniswapV2Router.setPrice(mintStableToken, 0);
-
-      await expect(
-        uniswapV2DynamicPriceRouter.getBaseTokenAmount(
-          mintToken,
-          mintStableToken,
-          parseUnits('1', 18),
-        ),
-      ).to.be.revertedWith('Invalid amount out from Uniswap');
-    });
-
-    it('revert if the quote token amount is zero', async () => {
-      const { uniswapV2DynamicPriceRouter, mintToken, mintStableToken } =
-        await loadFixture(loadUniswapV2DynamicPriceRouter);
-
-      await expect(
-        uniswapV2DynamicPriceRouter.getBaseTokenAmount(
-          mintToken,
-          mintStableToken,
-          parseUnits('0', 18),
-        ),
-      ).to.be.revertedWith('Amount in must be greater than 0');
-    });
-  });
-
-  describe('Get Quote Token Amount', () => {
-    it('should return the correct amount', async () => {
-      const { uniswapV2DynamicPriceRouter, mintToken, mintStableToken } =
-        await loadFixture(loadUniswapV2DynamicPriceRouter);
-
-      expect(
-        await uniswapV2DynamicPriceRouter.getQuoteTokenAmount(
-          mintToken,
-          mintStableToken,
-          parseUnits('2', 18),
-        ),
-      ).to.equal(parseUnits('2000', 6));
-    });
-
-    it('revert if the base token is the same as the quote token', async () => {
-      const { uniswapV2DynamicPriceRouter, mintToken } = await loadFixture(
-        loadUniswapV2DynamicPriceRouter,
-      );
-
-      await expect(
-        uniswapV2DynamicPriceRouter.getQuoteTokenAmount(
-          mintToken,
-          mintToken,
-          parseUnits('1', 18),
-        ),
-      ).to.be.revertedWith('Base and quote tokens must differ');
-    });
-
-    it('revert if the base token is the zero address', async () => {
-      const { uniswapV2DynamicPriceRouter, mintStableToken } =
-        await loadFixture(loadUniswapV2DynamicPriceRouter);
-
-      await expect(
-        uniswapV2DynamicPriceRouter.getQuoteTokenAmount(
-          ZeroAddress,
-          mintStableToken,
-          parseUnits('1', 18),
-        ),
-      ).to.be.revertedWith('Invalid token address');
-    });
-
-    it('revert if the quote token is the zero address', async () => {
-      const { uniswapV2DynamicPriceRouter, mintToken } = await loadFixture(
-        loadUniswapV2DynamicPriceRouter,
-      );
-
-      await expect(
-        uniswapV2DynamicPriceRouter.getQuoteTokenAmount(
-          mintToken,
-          ZeroAddress,
-          parseUnits('1', 18),
-        ),
-      ).to.be.revertedWith('Invalid token address');
-    });
-
-    it('revert if uniswap returns an invalid amount', async () => {
-      const {
-        uniswapV2DynamicPriceRouter,
-        mockUniswapV2Router,
-        mintToken,
-        mintStableToken,
-      } = await loadFixture(loadUniswapV2DynamicPriceRouter);
-
-      await mockUniswapV2Router.setPrice(mintToken, 0);
-
-      await expect(
-        uniswapV2DynamicPriceRouter.getQuoteTokenAmount(
-          mintToken,
-          mintStableToken,
-          parseUnits('1', 18),
-        ),
-      ).to.be.revertedWith('Invalid amount out from Uniswap');
-    });
-
-    it('revert if the base token amount is zero', async () => {
-      const { uniswapV2DynamicPriceRouter, mintToken, mintStableToken } =
-        await loadFixture(loadUniswapV2DynamicPriceRouter);
-
-      await expect(
-        uniswapV2DynamicPriceRouter.getQuoteTokenAmount(
-          mintToken,
-          mintStableToken,
-          parseUnits('0', 18),
-        ),
-      ).to.be.revertedWith('Amount in must be greater than 0');
+        uniswapV2DynamicPriceRouter.getPriceWithoutFees(1000, []),
+      ).to.be.revertedWith('Path must have at least 2 tokens');
     });
   });
 });

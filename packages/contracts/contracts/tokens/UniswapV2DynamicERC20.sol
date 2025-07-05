@@ -3,17 +3,19 @@
 pragma solidity ^0.8.24;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
-import {ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import {
     IERC20Metadata
 } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
 
-import {IDynamicERC20} from "./IDynamicERC20.sol";
-import {IDynamicPriceRouter} from "../router/IDynamicPriceRouter.sol";
+import {
+    IUniswapV2DynamicPriceRouter
+} from "../router/IUniswapV2DynamicPriceRouter.sol";
+import {IDynamicERC20} from "../tokens/IDynamicERC20.sol";
 
 /*
  ____                 _            _   __  __ _       _   
@@ -29,9 +31,9 @@ import {IDynamicPriceRouter} from "../router/IDynamicPriceRouter.sol";
 */
 
 /**
- * @title DynamicERC20
- * @notice A dynamic ERC20 token is composed of a base token and a quote token.
- * @dev A DynamicERC20 cannot be minted, burned, or transferred
+ * @title UniswapV2DynamicERC20
+ * @notice A dynamic ERC20 token that uses Uniswap V2 to get the current swap price.
+ * @dev A UniswapV2DynamicERC20 cannot be minted, burned, or transferred
  *
  * Used within the ProductMint system to act as a proxy for the base token against the quote token.
  * The base token is used to charge for payment.
@@ -42,26 +44,35 @@ import {IDynamicPriceRouter} from "../router/IDynamicPriceRouter.sol";
  * An organization can use the DynamicERC20 to create a pricing model that targets a price of 100 USDC.
  * Then, when a user purchases a product, 100 USDC worth of WETH will be transferred to the organization.
  */
-contract DynamicERC20 is ERC20, ERC165, Ownable2Step, IDynamicERC20 {
-    // The token used for payment
+contract UniswapV2DynamicERC20 is ERC20, ERC165, Ownable2Step, IDynamicERC20 {
+    // Token used for payment
     address public immutable baseToken;
 
-    // The token used for price targeting
+    // Token used for price targeting
     address public immutable quoteToken;
 
-    // The router used to get the current swap prices
-    IDynamicPriceRouter public dynamicPriceRouter;
+    // Path used to convert the base token to the quote token
+    address[] internal baseToQuotePath;
+
+    // Path used to convert the quote token to the base token
+    address[] internal quoteToBasePath;
+
+    // Dynamic price router to interact with Uniswap V2
+    IUniswapV2DynamicPriceRouter public dynamicPriceRouter;
 
     constructor(
         string memory _name,
         string memory _symbol,
         address _baseToken,
         address _quoteToken,
+        address[] memory _baseToQuotePath,
+        address[] memory _quoteToBasePath,
         address _dynamicPriceRouter
     ) ERC20(_name, _symbol) Ownable(_msgSender()) {
+        require(_baseToken != address(0), "Base token cannot be zero address");
         require(
-            _baseToken != address(0) && _quoteToken != address(0),
-            "Tokens cannot be zero address"
+            _quoteToken != address(0),
+            "Quote token cannot be zero address"
         );
         require(
             _baseToken != _quoteToken,
@@ -70,15 +81,19 @@ contract DynamicERC20 is ERC20, ERC165, Ownable2Step, IDynamicERC20 {
 
         baseToken = _baseToken;
         quoteToken = _quoteToken;
+
+        _setBaseToQuotePath(_baseToQuotePath);
+        _setQuoteToBasePath(_quoteToBasePath);
+
         _setDynamicPriceRouter(_dynamicPriceRouter);
     }
 
     /**
-     * Router
+     * IDynamicERC20
      */
 
     function routerName() external view returns (string memory) {
-        return dynamicPriceRouter.routerName();
+        return dynamicPriceRouter.ROUTER_NAME();
     }
 
     function routerAddress() external view returns (address) {
@@ -86,7 +101,7 @@ contract DynamicERC20 is ERC20, ERC165, Ownable2Step, IDynamicERC20 {
     }
 
     function getBaseTokenPrice() external view returns (uint256) {
-        return dynamicPriceRouter.getBaseTokenPrice(baseToken, quoteToken);
+        return _getQuoteTokenAmount(10 ** IERC20Metadata(baseToken).decimals());
     }
 
     function getBaseTokenAmount(
@@ -105,24 +120,14 @@ contract DynamicERC20 is ERC20, ERC165, Ownable2Step, IDynamicERC20 {
         uint256 _amount
     ) internal view returns (uint256) {
         if (_amount == 0) return 0;
-        return
-            dynamicPriceRouter.getBaseTokenAmount(
-                baseToken,
-                quoteToken,
-                _amount
-            );
+        return dynamicPriceRouter.getPriceWithoutFees(_amount, quoteToBasePath);
     }
 
     function _getQuoteTokenAmount(
         uint256 _amount
     ) internal view returns (uint256) {
         if (_amount == 0) return 0;
-        return
-            dynamicPriceRouter.getQuoteTokenAmount(
-                baseToken,
-                quoteToken,
-                _amount
-            );
+        return dynamicPriceRouter.getPriceWithoutFees(_amount, baseToQuotePath);
     }
 
     /**
@@ -173,10 +178,89 @@ contract DynamicERC20 is ERC20, ERC165, Ownable2Step, IDynamicERC20 {
     }
 
     /**
-     * Update the dynamic price router
+     * Base to quote
      */
 
-    event DynamicPriceRouterUpdated(address indexed _dynamicPriceRouter);
+    /**
+     * @dev Emitted when the base to quote path is set
+     */
+    event BaseToQuotePathSet(address[] _baseToQuotePath);
+
+    function getBaseToQuotePath() external view returns (address[] memory) {
+        return baseToQuotePath;
+    }
+
+    function setBaseToQuotePath(
+        address[] calldata _baseToQuotePath
+    ) external onlyOwner {
+        _setBaseToQuotePath(_baseToQuotePath);
+    }
+
+    function _setBaseToQuotePath(address[] memory _baseToQuotePath) internal {
+        require(
+            _baseToQuotePath.length > 1,
+            "Path must have at least 2 tokens"
+        );
+        require(
+            _baseToQuotePath[0] == baseToken,
+            "Base token must be first in path"
+        );
+        require(
+            _baseToQuotePath[_baseToQuotePath.length - 1] == quoteToken,
+            "Quote token must be last in path"
+        );
+
+        baseToQuotePath = _baseToQuotePath;
+
+        emit BaseToQuotePathSet(_baseToQuotePath);
+    }
+
+    /**
+     * Quote to base
+     */
+
+    /**
+     * @dev Emitted when the quote to base path is set
+     */
+    event QuoteToBasePathSet(address[] _quoteToBasePath);
+
+    function getQuoteToBasePath() external view returns (address[] memory) {
+        return quoteToBasePath;
+    }
+
+    function setQuoteToBasePath(
+        address[] calldata _quoteToBasePath
+    ) external onlyOwner {
+        _setQuoteToBasePath(_quoteToBasePath);
+    }
+
+    function _setQuoteToBasePath(address[] memory _quoteToBasePath) internal {
+        require(
+            _quoteToBasePath.length > 1,
+            "Path must have at least 2 tokens"
+        );
+        require(
+            _quoteToBasePath[0] == quoteToken,
+            "Quote token must be first in path"
+        );
+        require(
+            _quoteToBasePath[_quoteToBasePath.length - 1] == baseToken,
+            "Base token must be last in path"
+        );
+
+        quoteToBasePath = _quoteToBasePath;
+
+        emit QuoteToBasePathSet(_quoteToBasePath);
+    }
+
+    /**
+     * Dynamic price router updates
+     */
+
+    /**
+     * @dev Emitted when the dynamic price router is set
+     */
+    event DynamicPriceRouterSet(address _dynamicPriceRouter);
 
     function setDynamicPriceRouter(
         address _dynamicPriceRouter
@@ -187,26 +271,27 @@ contract DynamicERC20 is ERC20, ERC165, Ownable2Step, IDynamicERC20 {
     function _setDynamicPriceRouter(address _dynamicPriceRouter) internal {
         require(
             IERC165(_dynamicPriceRouter).supportsInterface(
-                type(IDynamicPriceRouter).interfaceId
+                type(IUniswapV2DynamicPriceRouter).interfaceId
             ),
             "Invalid dynamic price router"
         );
 
-        dynamicPriceRouter = IDynamicPriceRouter(_dynamicPriceRouter);
+        dynamicPriceRouter = IUniswapV2DynamicPriceRouter(_dynamicPriceRouter);
 
-        emit DynamicPriceRouterUpdated(_dynamicPriceRouter);
+        emit DynamicPriceRouterSet(_dynamicPriceRouter);
     }
 
     /**
-     * ERC165 interface support
+     * ERC165
      */
 
     function supportsInterface(
         bytes4 interfaceId
     ) public view override returns (bool) {
         return
-            interfaceId == type(IERC20).interfaceId ||
             interfaceId == type(IDynamicERC20).interfaceId ||
+            interfaceId == type(IERC20).interfaceId ||
+            interfaceId == type(IERC20Metadata).interfaceId ||
             super.supportsInterface(interfaceId);
     }
 }

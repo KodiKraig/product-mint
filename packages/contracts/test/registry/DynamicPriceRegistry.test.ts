@@ -37,20 +37,26 @@ describe('DynamicPriceRegistry', () => {
     );
     const mintStableToken = await MintStableToken.deploy();
 
-    const DynamicERC20 = await hre.ethers.getContractFactory('DynamicERC20');
-    const dynamicERC20 = await DynamicERC20.deploy(
-      'DynamicERC20',
-      'DYN',
+    const UniswapV2DynamicERC20 = await hre.ethers.getContractFactory(
+      'UniswapV2DynamicERC20',
+    );
+    const dynamicERC20 = await UniswapV2DynamicERC20.deploy(
+      'Dynamic WETH vs USDC',
+      'WETHusdc',
       await mintToken.getAddress(),
       await mintStableToken.getAddress(),
+      [await mintToken.getAddress(), await mintStableToken.getAddress()],
+      [await mintStableToken.getAddress(), await mintToken.getAddress()],
       await uniswapV2DynamicPriceRouter.getAddress(),
     );
 
-    const dynamicERC20_2 = await DynamicERC20.deploy(
-      'DynamicERC20_2',
-      'DYN2',
+    const dynamicERC20_2 = await UniswapV2DynamicERC20.deploy(
+      'Dynamic WETH vs USDC',
+      'WETHusdc',
       await mintToken.getAddress(),
       await mintStableToken.getAddress(),
+      [await mintToken.getAddress(), await mintStableToken.getAddress()],
+      [await mintStableToken.getAddress(), await mintToken.getAddress()],
       await uniswapV2DynamicPriceRouter.getAddress(),
     );
 

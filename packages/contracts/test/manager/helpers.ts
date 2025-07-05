@@ -139,12 +139,16 @@ export async function deployPurchaseManager() {
   );
   const mintStableToken = await MintStableToken.deploy();
 
-  const DynamicERC20 = await hre.ethers.getContractFactory('DynamicERC20');
-  const dynamicERC20 = await DynamicERC20.deploy(
-    'Dynamic Mint/USDC coin',
-    'MINTusdc',
+  const UniswapV2DynamicERC20 = await hre.ethers.getContractFactory(
+    'UniswapV2DynamicERC20',
+  );
+  const dynamicERC20 = await UniswapV2DynamicERC20.deploy(
+    'Dynamic WETH vs USDC',
+    'WETHusdc',
     await mintToken.getAddress(),
     await mintStableToken.getAddress(),
+    [await mintToken.getAddress(), await mintStableToken.getAddress()],
+    [await mintStableToken.getAddress(), await mintToken.getAddress()],
     await uniswapV2DynamicPriceRouter.getAddress(),
   );
 
