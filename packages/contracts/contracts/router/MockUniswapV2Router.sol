@@ -13,6 +13,8 @@ import {ICustomUniswapV2Router} from "./ICustomUniswapV2Router.sol";
  * @title MockUniswapV2Router
  * @notice A mock implementation of the custom Uniswap V2 router for testing with decimal handling.
  * @dev Simulates uniswap v2 router with a fixed price, adjusted for token decimals. Not for production use.
+ *
+ * Does not include any fees.
  */
 contract MockUniswapV2Router is AccessControl, ICustomUniswapV2Router {
     // Token => Price
@@ -82,5 +84,17 @@ contract MockUniswapV2Router is AccessControl, ICustomUniswapV2Router {
         prices[_token] = _price;
 
         emit MockTokenPriceSet(_token, _price);
+    }
+
+    /**
+     * Supports Interface
+     */
+
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override returns (bool) {
+        return
+            interfaceId == type(ICustomUniswapV2Router).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 }

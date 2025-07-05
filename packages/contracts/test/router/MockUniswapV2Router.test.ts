@@ -2,6 +2,7 @@ import { loadFixture } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import hre, { ethers } from 'hardhat';
 import { expect } from 'chai';
 import { ZeroAddress } from 'ethers';
+import calculateInterfaceId from '../../utils/calculate-interface-id';
 
 describe('MockUniswapV2Router', () => {
   async function deployMockUniswapV2Router() {
@@ -38,6 +39,60 @@ describe('MockUniswapV2Router', () => {
           owner,
         ),
       ).to.be.true;
+    });
+  });
+
+  describe('Supports Interface', () => {
+    it('should return true for the ICustomUniswapV2Router interface', async () => {
+      const { mockUniswapV2Router } = await loadFixture(
+        deployMockUniswapV2Router,
+      );
+
+      const interfaceId = calculateInterfaceId([
+        'getAmountsOut(uint256,address[])',
+      ]);
+
+      expect(await mockUniswapV2Router.supportsInterface(interfaceId)).to.be
+        .true;
+    });
+
+    it('should return true for the IERC165 interface', async () => {
+      const { mockUniswapV2Router } = await loadFixture(
+        deployMockUniswapV2Router,
+      );
+      expect(await mockUniswapV2Router.supportsInterface('0x01ffc9a7')).to.be
+        .true;
+    });
+
+    it('should return false for an unknown interface', async () => {
+      const { mockUniswapV2Router } = await loadFixture(
+        deployMockUniswapV2Router,
+      );
+
+      expect(await mockUniswapV2Router.supportsInterface('0xffffffff')).to.be
+        .false;
+    });
+  });
+
+  describe('Get Amounts Out', () => {
+    it('revert if the path is too short', async () => {
+      const { mockUniswapV2Router } = await loadFixture(
+        deployMockUniswapV2Router,
+      );
+
+      await expect(
+        mockUniswapV2Router.getAmountsOut(1, [ZeroAddress]),
+      ).to.be.revertedWith('Path must have at least 2 tokens');
+    });
+
+    it('revert if the amount in is zero', async () => {
+      const { mockUniswapV2Router } = await loadFixture(
+        deployMockUniswapV2Router,
+      );
+
+      await expect(
+        mockUniswapV2Router.getAmountsOut(0, [ZeroAddress, ZeroAddress]),
+      ).to.be.revertedWith('Amount in must be greater than 0');
     });
   });
 

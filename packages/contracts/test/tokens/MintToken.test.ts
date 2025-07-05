@@ -1,6 +1,7 @@
 import { loadFixture } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import hre, { ethers } from 'hardhat';
 import { expect } from 'chai';
+import calculateInterfaceId from '../../utils/calculate-interface-id';
 
 describe('MintToken', () => {
   async function deployMintToken() {
@@ -39,11 +40,32 @@ describe('MintToken', () => {
     });
   });
 
-  describe('Implements IERC165', () => {
-    it('should return true for supportsInterface', async () => {
+  describe('Supports Interface', () => {
+    it('should return true for the IERC165 interface', async () => {
       const { mintToken } = await loadFixture(deployMintToken);
 
       expect(await mintToken.supportsInterface('0x01ffc9a7')).to.be.true;
+    });
+
+    it('should return true for the IERC20 interface', async () => {
+      const { mintToken } = await loadFixture(deployMintToken);
+
+      const interfaceId = calculateInterfaceId([
+        'totalSupply()',
+        'balanceOf(address)',
+        'transfer(address,uint256)',
+        'transferFrom(address,address,uint256)',
+        'approve(address,uint256)',
+        'allowance(address,address)',
+      ]);
+
+      expect(await mintToken.supportsInterface(interfaceId)).to.be.true;
+    });
+
+    it('should return false for an unknown interface', async () => {
+      const { mintToken } = await loadFixture(deployMintToken);
+
+      expect(await mintToken.supportsInterface('0xffffffff')).to.be.false;
     });
   });
 });
