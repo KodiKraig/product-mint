@@ -2,6 +2,10 @@
 
 pragma solidity ^0.8.24;
 
+/**
+ * @title IDynamicERC20
+ * @notice An interface for a DynamicERC20 contract allowing for targeted pricing against a quote token.
+ */
 interface IDynamicERC20 {
     /**
      * @notice Get the name of the dynamic price router
@@ -31,7 +35,7 @@ interface IDynamicERC20 {
      * @notice Get the current swap price of the base token in terms of the quote token
      * @return The amount of quote token per base token
      */
-    function getBaseTokenPrice() external view returns (uint256);
+    function getBaseTokenPrice() external returns (uint256);
 
     /**
      * @notice Get the amount of base tokens that would be received for a given amount of quote tokens
@@ -41,7 +45,7 @@ interface IDynamicERC20 {
      */
     function getBaseTokenAmount(
         uint256 _quoteTokenAmount
-    ) external view returns (address _baseToken, uint256 _baseTokenAmount);
+    ) external returns (address _baseToken, uint256 _baseTokenAmount);
 
     /**
      * @notice Get the amount of quote tokens that would be received for a given amount of base tokens
@@ -51,5 +55,5 @@ interface IDynamicERC20 {
      */
     function getQuoteTokenAmount(
         uint256 _baseTokenAmount
-    ) external view returns (address _quoteToken, uint256 _quoteTokenAmount);
+    ) external returns (address _quoteToken, uint256 _quoteTokenAmount);
 }
