@@ -66,7 +66,7 @@ contract UniswapV2DynamicPriceRouter is
         return _getPrice(_amountIn, _path);
     }
 
-    function getPriceWithoutFees(
+    function getPriceFeesRemoved(
         uint256 _amountIn,
         address[] calldata _path
     ) external view returns (uint256) {

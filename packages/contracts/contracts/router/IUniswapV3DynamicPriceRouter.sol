@@ -10,6 +10,10 @@ import {IDynamicPriceRouter} from "./IDynamicPriceRouter.sol";
  */
 interface IUniswapV3DynamicPriceRouter is IDynamicPriceRouter {
     /**
+     * Pricing
+     */
+
+    /**
      * @notice Get the swap price for the final token in the given path with Uniswap fees included.
      * @param _amountIn The amount of token to convert.
      * @param _path The path to use for the conversion.
@@ -28,9 +32,31 @@ interface IUniswapV3DynamicPriceRouter is IDynamicPriceRouter {
      * @param _fees The fees for each pool in the path. Used to calculate the fee-free price.
      * @return The amount of token at the end of the path received.
      */
-    function getPriceWithoutFees(
+    function getPriceFeesRemoved(
         uint256 _amountIn,
         bytes calldata _path,
-        uint256[] calldata _fees
+        Fee[] calldata _fees
     ) external returns (uint256);
+
+    /**
+     * Fees
+     */
+
+    /**
+     * @notice The Uniswap V3 fee options.
+     */
+    enum Fee {
+        LOWEST_001, // 0.01%
+        LOW_005, // 0.05%
+        MEDIUM_03, // 0.3%
+        HIGH_1 // 1%
+    }
+
+    /**
+     * @notice Get the Uniswap V3 fee for a given fee option.
+     * @param _fee The fee option.
+     * @return The fee as a percentage of the amount out.
+     * @dev 0.01% = 100, 0.05% = 500, 0.3% = 3000, 1% = 10000.
+     */
+    function getFee(Fee _fee) external pure returns (uint256);
 }

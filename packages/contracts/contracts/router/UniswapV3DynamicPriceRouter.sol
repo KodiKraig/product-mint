@@ -66,10 +66,10 @@ contract UniswapV3DynamicPriceRouter is
         return _getPrice(_amountIn, _path);
     }
 
-    function getPriceWithoutFees(
+    function getPriceFeesRemoved(
         uint256 _amountIn,
         bytes calldata _path,
-        uint256[] calldata _fees
+        Fee[] calldata _fees
     ) external returns (uint256) {
         _checkFees(_fees);
 
@@ -78,12 +78,12 @@ contract UniswapV3DynamicPriceRouter is
         // Remove the fees from the amount out based on the number of fees
         // NOTE: This is a best approximation of the price without fees.
 
-        uint256 feeProduct = FEE_DENOMINATOR - _fees[0];
+        uint256 feeProduct = _getFeeMinusDenominator(_fees[0]);
 
         // Remove the fee for multiple hops
         for (uint256 i = 1; i < _fees.length; i++) {
             feeProduct =
-                (feeProduct * (FEE_DENOMINATOR - _fees[i])) /
+                (feeProduct * _getFeeMinusDenominator(_fees[i])) /
                 FEE_DENOMINATOR;
         }
 
@@ -126,8 +126,30 @@ contract UniswapV3DynamicPriceRouter is
         require(_amount > 0, "Invalid amount out from Uniswap");
     }
 
-    function _checkFees(uint256[] calldata _fees) internal pure {
+    function _checkFees(Fee[] calldata _fees) internal pure {
         require(_fees.length > 0, "Fees cannot be empty");
+    }
+
+    /**
+     * Fees
+     */
+
+    function getFee(Fee _fee) external pure returns (uint256) {
+        return FEE_DENOMINATOR - _getFeeMinusDenominator(_fee);
+    }
+
+    function _getFeeMinusDenominator(Fee _fee) internal pure returns (uint256) {
+        if (_fee == Fee.LOWEST_001) {
+            return 999900;
+        } else if (_fee == Fee.LOW_005) {
+            return 999500;
+        } else if (_fee == Fee.MEDIUM_03) {
+            return 997000;
+        } else if (_fee == Fee.HIGH_1) {
+            return 990000;
+        } else {
+            revert("Invalid fee");
+        }
     }
 
     /**

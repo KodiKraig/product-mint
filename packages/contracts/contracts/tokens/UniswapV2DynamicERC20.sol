@@ -120,14 +120,14 @@ contract UniswapV2DynamicERC20 is ERC20, ERC165, Ownable2Step, IDynamicERC20 {
         uint256 _amount
     ) internal view returns (uint256) {
         if (_amount == 0) return 0;
-        return dynamicPriceRouter.getPriceWithoutFees(_amount, quoteToBasePath);
+        return dynamicPriceRouter.getPriceFeesRemoved(_amount, quoteToBasePath);
     }
 
     function _getQuoteTokenAmount(
         uint256 _amount
     ) internal view returns (uint256) {
         if (_amount == 0) return 0;
-        return dynamicPriceRouter.getPriceWithoutFees(_amount, baseToQuotePath);
+        return dynamicPriceRouter.getPriceFeesRemoved(_amount, baseToQuotePath);
     }
 
     /**

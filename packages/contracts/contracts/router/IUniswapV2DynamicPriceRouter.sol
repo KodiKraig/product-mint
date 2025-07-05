@@ -27,7 +27,7 @@ interface IUniswapV2DynamicPriceRouter is IDynamicPriceRouter {
      * @param _path The path to use for the conversion.
      * @return The amount of token at the end of the path received.
      */
-    function getPriceWithoutFees(
+    function getPriceFeesRemoved(
         uint256 _amountIn,
         address[] calldata _path
     ) external view returns (uint256);

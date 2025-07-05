@@ -148,7 +148,7 @@ describe('UniswapV2DynamicPriceRouter', () => {
 
       const interfaceId = calculateInterfaceId([
         'getPrice(uint256,address[])',
-        'getPriceWithoutFees(uint256,address[])',
+        'getPriceFeesRemoved(uint256,address[])',
       ]);
 
       expect(await uniswapV2DynamicPriceRouter.supportsInterface(interfaceId))
@@ -228,7 +228,7 @@ describe('UniswapV2DynamicPriceRouter', () => {
       const { uniswapV2DynamicPriceRouter, mintToken, mintStableToken } =
         await loadFixture(loadUniswapV2DynamicPriceRouter);
 
-      const price = await uniswapV2DynamicPriceRouter.getPriceWithoutFees(
+      const price = await uniswapV2DynamicPriceRouter.getPriceFeesRemoved(
         parseUnits('100', 6),
         [await mintStableToken.getAddress(), await mintToken.getAddress()],
       );
@@ -243,7 +243,7 @@ describe('UniswapV2DynamicPriceRouter', () => {
       const MintToken = await hre.ethers.getContractFactory('MintToken');
       const mintToken2 = await MintToken.deploy();
 
-      const price = await uniswapV2DynamicPriceRouter.getPriceWithoutFees(
+      const price = await uniswapV2DynamicPriceRouter.getPriceFeesRemoved(
         parseUnits('100', 6),
         [
           await mintStableToken.getAddress(),
@@ -263,7 +263,7 @@ describe('UniswapV2DynamicPriceRouter', () => {
       const mintToken2 = await MintToken.deploy();
       const mintToken3 = await MintToken.deploy();
 
-      const price = await uniswapV2DynamicPriceRouter.getPriceWithoutFees(
+      const price = await uniswapV2DynamicPriceRouter.getPriceFeesRemoved(
         parseUnits('100', 6),
         [
           await mintStableToken.getAddress(),
@@ -285,7 +285,7 @@ describe('UniswapV2DynamicPriceRouter', () => {
       const mintToken3 = await MintToken.deploy();
       const mintToken4 = await MintToken.deploy();
 
-      const price = await uniswapV2DynamicPriceRouter.getPriceWithoutFees(
+      const price = await uniswapV2DynamicPriceRouter.getPriceFeesRemoved(
         parseUnits('100', 6),
         [
           await mintStableToken.getAddress(),
@@ -303,7 +303,7 @@ describe('UniswapV2DynamicPriceRouter', () => {
       const { uniswapV2DynamicPriceRouter, mintToken, mintStableToken } =
         await loadFixture(loadUniswapV2DynamicPriceRouter);
 
-      const price = await uniswapV2DynamicPriceRouter.getPriceWithoutFees(
+      const price = await uniswapV2DynamicPriceRouter.getPriceFeesRemoved(
         parseUnits('100', 18),
         [await mintToken.getAddress(), await mintStableToken.getAddress()],
       );
@@ -318,7 +318,7 @@ describe('UniswapV2DynamicPriceRouter', () => {
       const MintToken = await hre.ethers.getContractFactory('MintToken');
       const mintToken2 = await MintToken.deploy();
 
-      const price = await uniswapV2DynamicPriceRouter.getPriceWithoutFees(
+      const price = await uniswapV2DynamicPriceRouter.getPriceFeesRemoved(
         parseUnits('100', 18),
         [
           await mintToken.getAddress(),
@@ -338,7 +338,7 @@ describe('UniswapV2DynamicPriceRouter', () => {
       const mintToken2 = await MintToken.deploy();
       const mintToken3 = await MintToken.deploy();
 
-      const price = await uniswapV2DynamicPriceRouter.getPriceWithoutFees(
+      const price = await uniswapV2DynamicPriceRouter.getPriceFeesRemoved(
         parseUnits('100', 18),
         [
           await mintToken.getAddress(),
@@ -360,7 +360,7 @@ describe('UniswapV2DynamicPriceRouter', () => {
       const mintToken3 = await MintToken.deploy();
       const mintToken4 = await MintToken.deploy();
 
-      const price = await uniswapV2DynamicPriceRouter.getPriceWithoutFees(
+      const price = await uniswapV2DynamicPriceRouter.getPriceFeesRemoved(
         parseUnits('100', 18),
         [
           await mintToken.getAddress(),
@@ -380,7 +380,7 @@ describe('UniswapV2DynamicPriceRouter', () => {
       );
 
       await expect(
-        uniswapV2DynamicPriceRouter.getPriceWithoutFees(1000, []),
+        uniswapV2DynamicPriceRouter.getPriceFeesRemoved(1000, []),
       ).to.be.revertedWith('Path must have at least 2 tokens');
     });
   });
