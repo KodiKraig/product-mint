@@ -60,13 +60,18 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
         string memory _symbol,
         address _baseToken,
         address _quoteToken,
-        address _dynamicPriceRouter
+        address _dynamicPriceRouter,
+        address[] memory _baseToQuotePath,
+        address[] memory _quoteToBasePath,
+        IUniswapV3DynamicPriceRouter.Fee[] memory _baseToQuoteFees,
+        IUniswapV3DynamicPriceRouter.Fee[] memory _quoteToBaseFees
     )
         ERC20(_name, _symbol)
         DynamicERC20(_baseToken, _quoteToken, _dynamicPriceRouter)
         Ownable(_msgSender())
     {
-        // TODO: Implement paths and fees
+        _setBaseToQuotePath(_baseToQuotePath, _baseToQuoteFees);
+        _setQuoteToBasePath(_quoteToBasePath, _quoteToBaseFees);
     }
 
     /**
@@ -138,13 +143,11 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
         address[] memory _path,
         IUniswapV3DynamicPriceRouter.Fee[] memory _fees
     ) internal {
-        require(_path.length >= 2, "Path must have at least 2 tokens");
-        require(
-            _fees.length == _path.length - 1,
-            "Fees length must match hops"
-        );
+        _checkBaseToQuotePath(_path);
+        _checkFees(_path, _fees);
 
         baseToQuotePathEncoded = _encodePath(_path, _fees);
+        baseToQuotePath = _path;
         baseToQuoteFees = _fees;
 
         emit BaseToQuotePathSet(_path, _fees, baseToQuotePathEncoded);
@@ -177,13 +180,11 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
         address[] memory _path,
         IUniswapV3DynamicPriceRouter.Fee[] memory _fees
     ) internal {
-        require(_path.length >= 2, "Path must have at least 2 tokens");
-        require(
-            _fees.length == _path.length - 1,
-            "Fees length must match hops"
-        );
+        _checkQuoteToBasePath(_path);
+        _checkFees(_path, _fees);
 
         quoteToBasePathEncoded = _encodePath(_path, _fees);
+        quoteToBasePath = _path;
         quoteToBaseFees = _fees;
 
         emit QuoteToBasePathSet(_path, _fees, quoteToBasePathEncoded);
@@ -228,6 +229,16 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
         }
 
         return pathEncoded;
+    }
+
+    function _checkFees(
+        address[] memory _path,
+        IUniswapV3DynamicPriceRouter.Fee[] memory _fees
+    ) internal pure {
+        require(
+            _fees.length == _path.length - 1,
+            "Fees length must match hops"
+        );
     }
 
     /**

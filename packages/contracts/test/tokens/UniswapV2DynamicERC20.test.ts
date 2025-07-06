@@ -351,6 +351,8 @@ describe('UniswapV2DynamicERC20', () => {
         'dynamicPriceRouter()',
         'baseToken()',
         'quoteToken()',
+        'getBaseToQuotePath()',
+        'getQuoteToBasePath()',
         'getBaseTokenPrice()',
         'getBaseTokenAmount(uint256)',
         'getQuoteTokenAmount(uint256)',

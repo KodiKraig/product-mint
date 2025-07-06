@@ -50,12 +50,6 @@ contract UniswapV2DynamicERC20 is
     Ownable2Step,
     IDynamicERC20View
 {
-    // Path used to convert the base token to the quote token
-    address[] internal baseToQuotePath;
-
-    // Path used to convert the quote token to the base token
-    address[] internal quoteToBasePath;
-
     constructor(
         string memory _name,
         string memory _symbol,
@@ -165,10 +159,6 @@ contract UniswapV2DynamicERC20 is
      */
     event BaseToQuotePathSet(address[] _baseToQuotePath);
 
-    function getBaseToQuotePath() external view returns (address[] memory) {
-        return baseToQuotePath;
-    }
-
     function setBaseToQuotePath(
         address[] calldata _baseToQuotePath
     ) external onlyOwner {
@@ -176,18 +166,7 @@ contract UniswapV2DynamicERC20 is
     }
 
     function _setBaseToQuotePath(address[] memory _baseToQuotePath) internal {
-        require(
-            _baseToQuotePath.length > 1,
-            "Path must have at least 2 tokens"
-        );
-        require(
-            _baseToQuotePath[0] == baseToken,
-            "Base token must be first in path"
-        );
-        require(
-            _baseToQuotePath[_baseToQuotePath.length - 1] == quoteToken,
-            "Quote token must be last in path"
-        );
+        _checkBaseToQuotePath(_baseToQuotePath);
 
         try
             IUniswapV2DynamicPriceRouter(dynamicPriceRouter)
@@ -213,10 +192,6 @@ contract UniswapV2DynamicERC20 is
      */
     event QuoteToBasePathSet(address[] _quoteToBasePath);
 
-    function getQuoteToBasePath() external view returns (address[] memory) {
-        return quoteToBasePath;
-    }
-
     function setQuoteToBasePath(
         address[] calldata _quoteToBasePath
     ) external onlyOwner {
@@ -224,18 +199,7 @@ contract UniswapV2DynamicERC20 is
     }
 
     function _setQuoteToBasePath(address[] memory _quoteToBasePath) internal {
-        require(
-            _quoteToBasePath.length > 1,
-            "Path must have at least 2 tokens"
-        );
-        require(
-            _quoteToBasePath[0] == quoteToken,
-            "Quote token must be first in path"
-        );
-        require(
-            _quoteToBasePath[_quoteToBasePath.length - 1] == baseToken,
-            "Base token must be last in path"
-        );
+        _checkQuoteToBasePath(_quoteToBasePath);
 
         try
             IUniswapV2DynamicPriceRouter(dynamicPriceRouter)

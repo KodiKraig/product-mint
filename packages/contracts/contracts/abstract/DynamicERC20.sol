@@ -20,6 +20,12 @@ abstract contract DynamicERC20 is ERC20, ERC165, IDynamicERC20 {
     // Token used for price targeting
     address public immutable quoteToken;
 
+    // Path used to convert the base token to the quote token
+    address[] internal baseToQuotePath;
+
+    // Path used to convert the quote token to the base token
+    address[] internal quoteToBasePath;
+
     // Dynamic price router to interact with the dex
     address public dynamicPriceRouter;
 
@@ -53,11 +59,48 @@ abstract contract DynamicERC20 is ERC20, ERC165, IDynamicERC20 {
     }
 
     /**
-     * ERC20 view overrides
+     * Paths
      */
 
-    error AllowanceNotAllowed();
-    error BalanceNotAllowed();
+    function getBaseToQuotePath()
+        external
+        view
+        virtual
+        returns (address[] memory)
+    {
+        return baseToQuotePath;
+    }
+
+    function _checkBaseToQuotePath(address[] memory _path) internal virtual {
+        require(_path.length > 1, "Path must have at least 2 tokens");
+        require(_path[0] == baseToken, "Base token must be first in path");
+        require(
+            _path[_path.length - 1] == quoteToken,
+            "Quote token must be last in path"
+        );
+    }
+
+    function getQuoteToBasePath()
+        external
+        view
+        virtual
+        returns (address[] memory)
+    {
+        return quoteToBasePath;
+    }
+
+    function _checkQuoteToBasePath(address[] memory _path) internal virtual {
+        require(_path.length > 1, "Path must have at least 2 tokens");
+        require(_path[0] == quoteToken, "Quote token must be first in path");
+        require(
+            _path[_path.length - 1] == baseToken,
+            "Base token must be last in path"
+        );
+    }
+
+    /**
+     * ERC20 view overrides
+     */
 
     function totalSupply() public view virtual override returns (uint256) {
         return IERC20(baseToken).totalSupply();
@@ -65,23 +108,6 @@ abstract contract DynamicERC20 is ERC20, ERC165, IDynamicERC20 {
 
     function decimals() public view virtual override returns (uint8) {
         return IERC20Metadata(quoteToken).decimals();
-    }
-
-    /**
-     * @dev Parent contracts should implement if possible and return the allowance in the quote token
-     */
-    function allowance(
-        address,
-        address
-    ) public view virtual override returns (uint256) {
-        revert AllowanceNotAllowed();
-    }
-
-    /**
-     * @dev Parent contracts should implement if possible and return the balance in the quote token
-     */
-    function balanceOf(address) public view virtual override returns (uint256) {
-        revert BalanceNotAllowed();
     }
 
     /**

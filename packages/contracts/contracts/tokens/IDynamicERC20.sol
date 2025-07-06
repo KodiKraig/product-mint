@@ -32,6 +32,18 @@ interface IDynamicERC20 {
     function quoteToken() external view returns (address);
 
     /**
+     * @notice Get the path used to convert the base token to the quote token
+     * @return The path used to pass through the dex
+     */
+    function getBaseToQuotePath() external view returns (address[] memory);
+
+    /**
+     * @notice Get the path used to convert the quote token to the base token
+     * @return The path used to pass through the dex
+     */
+    function getQuoteToBasePath() external view returns (address[] memory);
+
+    /**
      * @notice Get the current swap price of the base token in terms of the quote token
      * @return The amount of quote token per base token
      */
