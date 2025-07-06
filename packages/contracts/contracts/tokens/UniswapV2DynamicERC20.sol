@@ -148,7 +148,16 @@ contract UniswapV2DynamicERC20 is
     }
 
     /**
-     * Base to quote
+     * Path updates
+     */
+
+    /**
+     * @dev Error when attempting to set an invalid path
+     */
+    error InvalidPath(address[] _path);
+
+    /**
+     * Base to quote path
      */
 
     /**
@@ -180,13 +189,23 @@ contract UniswapV2DynamicERC20 is
             "Quote token must be last in path"
         );
 
+        try
+            IUniswapV2DynamicPriceRouter(dynamicPriceRouter)
+                .getPriceFeesRemoved(
+                    10 ** IERC20Metadata(_baseToQuotePath[0]).decimals(),
+                    _baseToQuotePath
+                )
+        {} catch {
+            revert InvalidPath(_baseToQuotePath);
+        }
+
         baseToQuotePath = _baseToQuotePath;
 
         emit BaseToQuotePathSet(_baseToQuotePath);
     }
 
     /**
-     * Quote to base
+     * Quote to base path
      */
 
     /**
@@ -217,6 +236,16 @@ contract UniswapV2DynamicERC20 is
             _quoteToBasePath[_quoteToBasePath.length - 1] == baseToken,
             "Base token must be last in path"
         );
+
+        try
+            IUniswapV2DynamicPriceRouter(dynamicPriceRouter)
+                .getPriceFeesRemoved(
+                    10 ** IERC20Metadata(_quoteToBasePath[0]).decimals(),
+                    _quoteToBasePath
+                )
+        {} catch {
+            revert InvalidPath(_quoteToBasePath);
+        }
 
         quoteToBasePath = _quoteToBasePath;
 

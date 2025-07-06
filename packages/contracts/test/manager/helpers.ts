@@ -139,6 +139,9 @@ export async function deployPurchaseManager() {
   );
   const mintStableToken = await MintStableToken.deploy();
 
+  await mockUniswapV2Router.setPrice(await mintToken.getAddress(), 100);
+  await mockUniswapV2Router.setPrice(await mintStableToken.getAddress(), 1);
+
   const UniswapV2DynamicERC20 = await hre.ethers.getContractFactory(
     'UniswapV2DynamicERC20',
   );

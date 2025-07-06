@@ -31,6 +31,9 @@ describe('UniswapV2DynamicERC20', () => {
     );
     const mintStableToken = await MintStableToken.deploy();
 
+    await mockUniswapV2Router.connect(owner).setPrice(mintToken, 20);
+    await mockUniswapV2Router.connect(owner).setPrice(mintStableToken, 1);
+
     const UniswapV2DynamicERC20 = await hre.ethers.getContractFactory(
       'UniswapV2DynamicERC20',
     );
@@ -44,12 +47,6 @@ describe('UniswapV2DynamicERC20', () => {
       [await mintStableToken.getAddress(), await mintToken.getAddress()],
     );
 
-    // Set prices
-
-    await mockUniswapV2Router.connect(owner).setPrice(mintToken, 20);
-
-    await mockUniswapV2Router.connect(owner).setPrice(mintStableToken, 1);
-
     return {
       UniswapV2DynamicERC20,
       dynamicERC20,
@@ -58,6 +55,7 @@ describe('UniswapV2DynamicERC20', () => {
       mintToken,
       mintStableToken,
       uniswapV2DynamicPriceRouter,
+      mockUniswapV2Router,
     };
   }
   describe('Deployment', () => {
@@ -561,6 +559,23 @@ describe('UniswapV2DynamicERC20', () => {
         'OwnableUnauthorizedAccount',
       );
     });
+
+    it('revert if the path is invalid', async () => {
+      const { dynamicERC20, mintToken, mintStableToken, mockUniswapV2Router } =
+        await loadFixture(deployDynamicERC20);
+
+      await mockUniswapV2Router.setPrice(await mintToken.getAddress(), 0);
+      await mockUniswapV2Router.setPrice(await mintStableToken.getAddress(), 0);
+
+      const path = [
+        await mintToken.getAddress(),
+        await mintStableToken.getAddress(),
+      ];
+
+      await expect(dynamicERC20.setBaseToQuotePath(path))
+        .to.be.revertedWithCustomError(dynamicERC20, 'InvalidPath')
+        .withArgs(path);
+    });
   });
 
   describe('Quote to base path', () => {
@@ -637,6 +652,23 @@ describe('UniswapV2DynamicERC20', () => {
         dynamicERC20,
         'OwnableUnauthorizedAccount',
       );
+    });
+
+    it('revert if the path is invalid', async () => {
+      const { dynamicERC20, mintToken, mintStableToken, mockUniswapV2Router } =
+        await loadFixture(deployDynamicERC20);
+
+      await mockUniswapV2Router.setPrice(await mintToken.getAddress(), 0);
+      await mockUniswapV2Router.setPrice(await mintStableToken.getAddress(), 0);
+
+      const path = [
+        await mintStableToken.getAddress(),
+        await mintToken.getAddress(),
+      ];
+
+      await expect(dynamicERC20.setQuoteToBasePath(path))
+        .to.be.revertedWithCustomError(dynamicERC20, 'InvalidPath')
+        .withArgs(path);
     });
   });
 });

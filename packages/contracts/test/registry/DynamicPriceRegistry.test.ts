@@ -37,6 +37,9 @@ describe('DynamicPriceRegistry', () => {
     );
     const mintStableToken = await MintStableToken.deploy();
 
+    await mockUniswapV2Router.connect(owner).setPrice(mintToken, 20);
+    await mockUniswapV2Router.connect(owner).setPrice(mintStableToken, 1);
+
     const UniswapV2DynamicERC20 = await hre.ethers.getContractFactory(
       'UniswapV2DynamicERC20',
     );
@@ -59,12 +62,6 @@ describe('DynamicPriceRegistry', () => {
       [await mintToken.getAddress(), await mintStableToken.getAddress()],
       [await mintStableToken.getAddress(), await mintToken.getAddress()],
     );
-
-    // Set prices
-
-    await mockUniswapV2Router.connect(owner).setPrice(mintToken, 20);
-
-    await mockUniswapV2Router.connect(owner).setPrice(mintStableToken, 1);
 
     return {
       dynamicPriceRegistry,

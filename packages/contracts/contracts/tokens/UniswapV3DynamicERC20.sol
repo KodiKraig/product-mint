@@ -44,16 +44,16 @@ import {
  */
 contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
     // Path used to convert the base token to the quote token
-    bytes internal baseToQuotePathEncoded;
+    bytes public baseToQuotePathEncoded;
 
     // Path used to convert the quote token to the base token
-    bytes internal quoteToBasePathEncoded;
+    bytes public quoteToBasePathEncoded;
 
     // Fees for each pool in the base to quote path
-    IUniswapV3DynamicPriceRouter.Fee[] internal baseToQuoteFees;
+    IUniswapV3DynamicPriceRouter.Fee[] public baseToQuoteFees;
 
     // Fees for each pool in the quote to base path
-    IUniswapV3DynamicPriceRouter.Fee[] internal quoteToBaseFees;
+    IUniswapV3DynamicPriceRouter.Fee[] public quoteToBaseFees;
 
     constructor(
         string memory _name,
@@ -109,6 +109,125 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
                     baseToQuotePathEncoded,
                     baseToQuoteFees
                 );
+    }
+
+    /**
+     * Base to quote path
+     */
+
+    /**
+     * @notice Emitted when the base to quote path is set
+     * @param _path The path used to convert the base token to the quote token
+     * @param _fees The fees for each pool in the path
+     * @param _pathEncoded The encoded path
+     */
+    event BaseToQuotePathSet(
+        address[] _path,
+        IUniswapV3DynamicPriceRouter.Fee[] _fees,
+        bytes _pathEncoded
+    );
+
+    function setBaseToQuotePath(
+        address[] memory _path,
+        IUniswapV3DynamicPriceRouter.Fee[] memory _fees
+    ) external onlyOwner {
+        _setBaseToQuotePath(_path, _fees);
+    }
+
+    function _setBaseToQuotePath(
+        address[] memory _path,
+        IUniswapV3DynamicPriceRouter.Fee[] memory _fees
+    ) internal {
+        require(_path.length >= 2, "Path must have at least 2 tokens");
+        require(
+            _fees.length == _path.length - 1,
+            "Fees length must match hops"
+        );
+
+        baseToQuotePathEncoded = _encodePath(_path, _fees);
+        baseToQuoteFees = _fees;
+
+        emit BaseToQuotePathSet(_path, _fees, baseToQuotePathEncoded);
+    }
+
+    /**
+     * Quote to base path
+     */
+
+    /**
+     * @notice Emitted when the quote to base path is set
+     * @param _path The path used to convert the quote token to the base token
+     * @param _fees The fees for each pool in the path
+     * @param _pathEncoded The encoded path
+     */
+    event QuoteToBasePathSet(
+        address[] _path,
+        IUniswapV3DynamicPriceRouter.Fee[] _fees,
+        bytes _pathEncoded
+    );
+
+    function setQuoteToBasePath(
+        address[] memory _path,
+        IUniswapV3DynamicPriceRouter.Fee[] memory _fees
+    ) external onlyOwner {
+        _setQuoteToBasePath(_path, _fees);
+    }
+
+    function _setQuoteToBasePath(
+        address[] memory _path,
+        IUniswapV3DynamicPriceRouter.Fee[] memory _fees
+    ) internal {
+        require(_path.length >= 2, "Path must have at least 2 tokens");
+        require(
+            _fees.length == _path.length - 1,
+            "Fees length must match hops"
+        );
+
+        quoteToBasePathEncoded = _encodePath(_path, _fees);
+        quoteToBaseFees = _fees;
+
+        emit QuoteToBasePathSet(_path, _fees, quoteToBasePathEncoded);
+    }
+
+    /**
+     * Path updates
+     */
+
+    /**
+     * @dev Error when attempting to set an invalid path
+     */
+    error InvalidPath(address[] _path);
+
+    function _encodePath(
+        address[] memory _path,
+        IUniswapV3DynamicPriceRouter.Fee[] memory _fees
+    ) internal returns (bytes memory) {
+        IUniswapV3DynamicPriceRouter _router = IUniswapV3DynamicPriceRouter(
+            dynamicPriceRouter
+        );
+        bytes memory pathEncoded;
+
+        for (uint256 i = 0; i < _path.length - 1; i++) {
+            pathEncoded = abi.encodePacked(
+                pathEncoded,
+                _path[i],
+                uint24(_router.getFee(_fees[i]))
+            );
+        }
+
+        pathEncoded = abi.encodePacked(pathEncoded, _path[_path.length - 1]);
+
+        try
+            _router.getPriceFeesRemoved(
+                10 ** IERC20Metadata(_path[0]).decimals(),
+                pathEncoded,
+                _fees
+            )
+        {} catch {
+            revert InvalidPath(_path);
+        }
+
+        return pathEncoded;
     }
 
     /**
