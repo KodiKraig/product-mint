@@ -158,9 +158,9 @@ contract UniswapV3DynamicPriceRouter is
 
     /**
      * @notice Emitted when the Uniswap V3 router address is updated.
-     * @param _uniswapRouter The new Uniswap V3 router address
+     * @param uniswapRouter The new Uniswap V3 router address
      */
-    event UniswapV3RouterSet(address indexed _uniswapRouter);
+    event UniswapV3RouterSet(address indexed uniswapRouter);
 
     function setUniswapV3Router(address _uniswapRouter) external onlyOwner {
         _setUniswapV3Router(_uniswapRouter);

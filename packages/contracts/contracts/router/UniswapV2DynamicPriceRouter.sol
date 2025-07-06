@@ -127,9 +127,9 @@ contract UniswapV2DynamicPriceRouter is
 
     /**
      * @notice Emitted when the Uniswap V2 router address is updated.
-     * @param _uniswapRouter The new Uniswap V2 router address
+     * @param uniswapRouter The new Uniswap V2 router address
      */
-    event UniswapV2RouterSet(address indexed _uniswapRouter);
+    event UniswapV2RouterSet(address indexed uniswapRouter);
 
     /**
      * @notice Update the Uniswap V2 router address

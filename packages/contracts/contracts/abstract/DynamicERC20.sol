@@ -138,16 +138,21 @@ abstract contract DynamicERC20 is ERC20, ERC165, IDynamicERC20 {
      */
 
     /**
-     * @dev Emitted when the dynamic price router is set
+     * @notice Emitted when the dynamic price router is set
+     * @param dynamicERC20 The address of the current dynamic ERC20 contract
+     * @param dynamicPriceRouter The address of the dynamic price router
      */
-    event DynamicPriceRouterSet(address _dynamicPriceRouter);
+    event DynamicPriceRouterSet(
+        address indexed dynamicERC20,
+        address indexed dynamicPriceRouter
+    );
 
     function _setDynamicPriceRouter(
         address _dynamicPriceRouter
     ) internal virtual {
         dynamicPriceRouter = _dynamicPriceRouter;
 
-        emit DynamicPriceRouterSet(_dynamicPriceRouter);
+        emit DynamicPriceRouterSet(address(this), _dynamicPriceRouter);
     }
 
     /**
