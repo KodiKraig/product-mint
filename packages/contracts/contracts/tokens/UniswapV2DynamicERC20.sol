@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.24;
 
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
@@ -59,8 +58,13 @@ contract UniswapV2DynamicERC20 is
         address[] memory _baseToQuotePath,
         address[] memory _quoteToBasePath
     )
-        ERC20(_name, _symbol)
-        DynamicERC20(_baseToken, _quoteToken, _dynamicPriceRouter)
+        DynamicERC20(
+            _name,
+            _symbol,
+            _baseToken,
+            _quoteToken,
+            _dynamicPriceRouter
+        )
         Ownable(_msgSender())
     {
         _setBaseToQuotePath(_baseToQuotePath);
@@ -126,8 +130,12 @@ contract UniswapV2DynamicERC20 is
     }
 
     /**
-     * ERC20 view overrides
+     * IERC20
      */
+
+    function balanceOf(address account) public view override returns (uint256) {
+        return _getQuoteTokenAmount(IERC20(baseToken).balanceOf(account));
+    }
 
     function allowance(
         address owner,
@@ -135,10 +143,6 @@ contract UniswapV2DynamicERC20 is
     ) public view override returns (uint256) {
         return
             _getQuoteTokenAmount(IERC20(baseToken).allowance(owner, spender));
-    }
-
-    function balanceOf(address account) public view override returns (uint256) {
-        return _getQuoteTokenAmount(IERC20(baseToken).balanceOf(account));
     }
 
     /**

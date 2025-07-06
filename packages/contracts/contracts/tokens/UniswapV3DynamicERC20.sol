@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.24;
 
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
@@ -66,8 +65,13 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
         IUniswapV3DynamicPriceRouter.Fee[] memory _baseToQuoteFees,
         IUniswapV3DynamicPriceRouter.Fee[] memory _quoteToBaseFees
     )
-        ERC20(_name, _symbol)
-        DynamicERC20(_baseToken, _quoteToken, _dynamicPriceRouter)
+        DynamicERC20(
+            _name,
+            _symbol,
+            _baseToken,
+            _quoteToken,
+            _dynamicPriceRouter
+        )
         Ownable(_msgSender())
     {
         _setBaseToQuotePath(_baseToQuotePath, _baseToQuoteFees);

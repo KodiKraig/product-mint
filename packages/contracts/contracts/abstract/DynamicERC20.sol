@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.24;
 
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
@@ -13,7 +12,18 @@ import {
 import {IDynamicERC20} from "../tokens/IDynamicERC20.sol";
 import {IDynamicPriceRouter} from "../router/IDynamicPriceRouter.sol";
 
-abstract contract DynamicERC20 is ERC20, ERC165, IDynamicERC20 {
+abstract contract DynamicERC20 is
+    ERC165,
+    IERC20,
+    IERC20Metadata,
+    IDynamicERC20
+{
+    // Name for the token
+    string private _name;
+
+    // Symbol for the token
+    string private _symbol;
+
     // Token used for payment
     address public immutable baseToken;
 
@@ -30,6 +40,8 @@ abstract contract DynamicERC20 is ERC20, ERC165, IDynamicERC20 {
     address public dynamicPriceRouter;
 
     constructor(
+        string memory name_,
+        string memory symbol_,
         address _baseToken,
         address _quoteToken,
         address _dynamicPriceRouter
@@ -43,6 +55,9 @@ abstract contract DynamicERC20 is ERC20, ERC165, IDynamicERC20 {
             _baseToken != _quoteToken,
             "Base and quote token cannot be the same"
         );
+
+        _name = name_;
+        _symbol = symbol_;
 
         baseToken = _baseToken;
         quoteToken = _quoteToken;
@@ -58,10 +73,6 @@ abstract contract DynamicERC20 is ERC20, ERC165, IDynamicERC20 {
         return IDynamicPriceRouter(dynamicPriceRouter).ROUTER_NAME();
     }
 
-    /**
-     * Paths
-     */
-
     function getBaseToQuotePath()
         external
         view
@@ -69,15 +80,6 @@ abstract contract DynamicERC20 is ERC20, ERC165, IDynamicERC20 {
         returns (address[] memory)
     {
         return baseToQuotePath;
-    }
-
-    function _checkBaseToQuotePath(address[] memory _path) internal virtual {
-        require(_path.length > 1, "Path must have at least 2 tokens");
-        require(_path[0] == baseToken, "Base token must be first in path");
-        require(
-            _path[_path.length - 1] == quoteToken,
-            "Quote token must be last in path"
-        );
     }
 
     function getQuoteToBasePath()
@@ -89,48 +91,77 @@ abstract contract DynamicERC20 is ERC20, ERC165, IDynamicERC20 {
         return quoteToBasePath;
     }
 
-    function _checkQuoteToBasePath(address[] memory _path) internal virtual {
-        require(_path.length > 1, "Path must have at least 2 tokens");
-        require(_path[0] == quoteToken, "Quote token must be first in path");
-        require(
-            _path[_path.length - 1] == baseToken,
-            "Base token must be last in path"
-        );
-    }
-
     /**
-     * ERC20 view overrides
+     * IERC20Metadata
      */
 
-    function totalSupply() public view virtual override returns (uint256) {
-        return IERC20(baseToken).totalSupply();
+    function name() external view virtual returns (string memory) {
+        return _name;
     }
 
-    function decimals() public view virtual override returns (uint8) {
+    function symbol() external view virtual returns (string memory) {
+        return _symbol;
+    }
+
+    function decimals() external view virtual returns (uint8) {
         return IERC20Metadata(quoteToken).decimals();
     }
 
     /**
-     * @dev State changing functions are not allowed
+     * IERC20
      */
 
+    error BalanceOfNotAllowed();
+    error AllowanceNotAllowed();
     error TransferNotAllowed();
     error ApproveNotAllowed();
 
-    function transfer(address, uint256) public pure override returns (bool) {
+    function totalSupply() external view virtual returns (uint256) {
+        return IERC20(baseToken).totalSupply();
+    }
+
+    /**
+     * @dev Not allowed to get the balance of the token.
+     * Parent contracts should implement if possible and return the quote token of the base token balance.
+     */
+    function balanceOf(address) external view virtual returns (uint256) {
+        revert BalanceOfNotAllowed();
+    }
+
+    /**
+     * @dev Not allowed to transfer the token.
+     */
+    function transfer(address, uint256) external pure returns (bool) {
         revert TransferNotAllowed();
     }
 
+    /**
+     * @dev Not allowed to get the allowance of the token.
+     * Parent contracts should implement if possible and return the quote token of the base token allowance.
+     */
+    function allowance(
+        address,
+        address
+    ) external view virtual returns (uint256) {
+        revert AllowanceNotAllowed();
+    }
+
+    /**
+     * @dev Not allowed to approve the token.
+     */
+    function approve(address, uint256) external pure returns (bool) {
+        revert ApproveNotAllowed();
+    }
+
+    /**
+     * @dev Not allowed to transfer the token.
+     */
     function transferFrom(
         address,
         address,
         uint256
-    ) public pure override returns (bool) {
+    ) external pure returns (bool) {
         revert TransferNotAllowed();
-    }
-
-    function approve(address, uint256) public pure override returns (bool) {
-        revert ApproveNotAllowed();
     }
 
     /**
@@ -153,6 +184,28 @@ abstract contract DynamicERC20 is ERC20, ERC165, IDynamicERC20 {
         dynamicPriceRouter = _dynamicPriceRouter;
 
         emit DynamicPriceRouterSet(address(this), _dynamicPriceRouter);
+    }
+
+    /**
+     * Checks
+     */
+
+    function _checkBaseToQuotePath(address[] memory _path) internal virtual {
+        require(_path.length > 1, "Path must have at least 2 tokens");
+        require(_path[0] == baseToken, "Base token must be first in path");
+        require(
+            _path[_path.length - 1] == quoteToken,
+            "Quote token must be last in path"
+        );
+    }
+
+    function _checkQuoteToBasePath(address[] memory _path) internal virtual {
+        require(_path.length > 1, "Path must have at least 2 tokens");
+        require(_path[0] == quoteToken, "Quote token must be first in path");
+        require(
+            _path[_path.length - 1] == baseToken,
+            "Base token must be last in path"
+        );
     }
 
     /**
