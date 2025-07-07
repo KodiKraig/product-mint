@@ -315,5 +315,20 @@ describe('UniswapV3DynamicPriceRouter', () => {
         uniswapV3DynamicPriceRouter.setUniswapV3Router(ZeroAddress),
       ).to.be.revertedWith('Uniswap router cannot be zero address');
     });
+
+    it('revert not the owner', async () => {
+      const { uniswapV3DynamicPriceRouter, otherAccount } = await loadFixture(
+        loadUniswapV3DynamicPriceRouter,
+      );
+
+      await expect(
+        uniswapV3DynamicPriceRouter
+          .connect(otherAccount)
+          .setUniswapV3Router(ZeroAddress),
+      ).to.be.revertedWithCustomError(
+        uniswapV3DynamicPriceRouter,
+        'OwnableUnauthorizedAccount',
+      );
+    });
   });
 });
