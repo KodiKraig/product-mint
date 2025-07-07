@@ -1,8 +1,7 @@
 import { loadFixture } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import hre from 'hardhat';
-import { parseUnits, ZeroAddress } from 'ethers';
-import calculateInterfaceId from '../../utils/calculate-interface-id';
+import { parseUnits } from 'ethers';
 
 describe('UniswapV3DynamicERC20', () => {
   async function deployDynamicERC20() {
@@ -146,6 +145,101 @@ describe('UniswapV3DynamicERC20', () => {
       const { dynamicERC20, owner } = await loadFixture(deployDynamicERC20);
 
       expect(await dynamicERC20.owner()).to.equal(owner);
+    });
+  });
+
+  describe('Dynamic ERC20', () => {
+    it('base token price is correct', async () => {
+      const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
+
+      expect(await dynamicERC20.getBaseTokenPrice.staticCall()).to.equal(
+        parseUnits('20.120540', 6),
+      );
+    });
+
+    it('balance of quote is correct', async () => {
+      const { dynamicERC20, mintToken, otherAccount } = await loadFixture(
+        deployDynamicERC20,
+      );
+
+      await mintToken.mint(otherAccount, parseUnits('200', 18));
+
+      expect(
+        await dynamicERC20.balanceOfQuote.staticCall(otherAccount),
+      ).to.equal(parseUnits('4024.108', 6));
+    });
+
+    it('balance of quote is correct when the amount is zero', async () => {
+      const { dynamicERC20, otherAccount } = await loadFixture(
+        deployDynamicERC20,
+      );
+
+      expect(
+        await dynamicERC20.balanceOfQuote.staticCall(otherAccount),
+      ).to.equal(0);
+    });
+
+    it('allowance quote is correct', async () => {
+      const { dynamicERC20, mintToken, otherAccount, owner } =
+        await loadFixture(deployDynamicERC20);
+
+      await mintToken.approve(otherAccount, parseUnits('200', 18));
+
+      expect(
+        await dynamicERC20.allowanceQuote.staticCall(owner, otherAccount),
+      ).to.equal(parseUnits('4024.108', 6));
+    });
+
+    it('allowance quote is correct when the amount is zero', async () => {
+      const { dynamicERC20, otherAccount, owner } = await loadFixture(
+        deployDynamicERC20,
+      );
+
+      expect(
+        await dynamicERC20.allowanceQuote.staticCall(owner, otherAccount),
+      ).to.equal(0);
+    });
+
+    it('base token amount is correct', async () => {
+      const { dynamicERC20, mintToken } = await loadFixture(deployDynamicERC20);
+
+      expect(
+        await dynamicERC20.getBaseTokenAmount.staticCall(parseUnits('20', 6)),
+      ).to.deep.equal([
+        await mintToken.getAddress(),
+        parseUnits('101.0606', 18),
+      ]);
+    });
+
+    it('base token amount is correct when the amount is zero', async () => {
+      const { dynamicERC20, mintToken } = await loadFixture(deployDynamicERC20);
+
+      expect(await dynamicERC20.getBaseTokenAmount.staticCall(0)).to.deep.equal(
+        [await mintToken.getAddress(), 0],
+      );
+    });
+
+    it('quote token amount is correct', async () => {
+      const { dynamicERC20, mintStableToken } = await loadFixture(
+        deployDynamicERC20,
+      );
+
+      expect(
+        await dynamicERC20.getQuoteTokenAmount.staticCall(parseUnits('20', 18)),
+      ).to.deep.equal([
+        await mintStableToken.getAddress(),
+        parseUnits('402.4108', 6),
+      ]);
+    });
+
+    it('quote token amount is correct when the amount is zero', async () => {
+      const { dynamicERC20, mintStableToken } = await loadFixture(
+        deployDynamicERC20,
+      );
+
+      expect(
+        await dynamicERC20.getQuoteTokenAmount.staticCall(0),
+      ).to.deep.equal([await mintStableToken.getAddress(), 0]);
     });
   });
 });
