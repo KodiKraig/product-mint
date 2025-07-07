@@ -86,6 +86,15 @@ contract MockUniswapV3Router is AccessControl, ICustomUniswapV3Router {
         uint8 baseDecimals = IERC20Metadata(baseToken).decimals();
         uint8 quoteDecimals = IERC20Metadata(quoteToken).decimals();
 
+        // Simulate updating the path
+        path = abi.encodePacked(
+            baseToken,
+            uint24(0),
+            quoteToken,
+            uint24(0),
+            baseToken
+        );
+
         if (baseDecimals > quoteDecimals) {
             amountOut =
                 (amountIn * prices[baseToken]) /
