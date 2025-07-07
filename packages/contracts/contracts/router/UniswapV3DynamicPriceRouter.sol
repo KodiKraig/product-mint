@@ -133,6 +133,8 @@ contract UniswapV3DynamicPriceRouter is
      * Fees
      */
 
+    error FeeDoesNotExist(Fee _fee);
+
     function getFee(Fee _fee) external pure returns (uint256) {
         return FEE_DENOMINATOR - _getFeeMinusDenominator(_fee);
     }
@@ -146,9 +148,8 @@ contract UniswapV3DynamicPriceRouter is
             return 997000;
         } else if (_fee == Fee.HIGH_1) {
             return 990000;
-        } else {
-            revert("Invalid fee");
         }
+        revert FeeDoesNotExist(_fee);
     }
 
     /**
