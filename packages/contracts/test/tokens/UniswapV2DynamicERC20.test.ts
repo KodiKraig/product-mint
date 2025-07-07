@@ -241,10 +241,10 @@ describe('UniswapV2DynamicERC20', () => {
     });
   });
 
-  describe('Dynamic ERC20 view functions', () => {
+  describe('Dynamic ERC20 static call functions', () => {
     it('should return the base token price', async () => {
       const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
-      expect(await dynamicERC20.getBaseTokenPriceView()).to.equal(
+      expect(await dynamicERC20.getBaseTokenPrice.staticCall()).to.equal(
         parseUnits('20.06018', 6),
       );
     });
@@ -253,7 +253,7 @@ describe('UniswapV2DynamicERC20', () => {
       const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
 
       const [baseToken, baseTokenAmount] =
-        await dynamicERC20.getBaseTokenAmountView(parseUnits('100', 6));
+        await dynamicERC20.getBaseTokenAmount.staticCall(parseUnits('100', 6));
 
       expect(baseToken).to.equal(await dynamicERC20.baseToken());
       expect(baseTokenAmount).to.equal(parseUnits('100.3009', 18));
@@ -263,7 +263,7 @@ describe('UniswapV2DynamicERC20', () => {
       const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
 
       const [quoteToken, quoteTokenAmount] =
-        await dynamicERC20.getQuoteTokenAmountView(parseUnits('20', 18));
+        await dynamicERC20.getQuoteTokenAmount.staticCall(parseUnits('20', 18));
 
       expect(quoteToken).to.equal(await dynamicERC20.quoteToken());
       expect(quoteTokenAmount).to.equal(parseUnits('401.2036', 6));
@@ -357,20 +357,10 @@ describe('UniswapV2DynamicERC20', () => {
         'getBaseToQuotePath()',
         'getQuoteToBasePath()',
         'getBaseTokenPrice()',
+        'balanceOfQuote(address)',
+        'allowanceQuote(address,address)',
         'getBaseTokenAmount(uint256)',
         'getQuoteTokenAmount(uint256)',
-      ]);
-
-      expect(await dynamicERC20.supportsInterface(interfaceId)).to.be.true;
-    });
-
-    it('should return true for IDynamicERC20View interface', async () => {
-      const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
-
-      const interfaceId = calculateInterfaceId([
-        'getBaseTokenPriceView()',
-        'getBaseTokenAmountView(uint256)',
-        'getQuoteTokenAmountView(uint256)',
       ]);
 
       expect(await dynamicERC20.supportsInterface(interfaceId)).to.be.true;
@@ -452,6 +442,10 @@ describe('UniswapV2DynamicERC20', () => {
       expect(await dynamicERC20.allowance(otherAccount, otherAccount)).to.equal(
         0,
       );
+
+      expect(
+        await dynamicERC20.allowanceQuote(otherAccount, otherAccount),
+      ).to.equal(0);
     });
 
     it('should return the allowance of the base token when it is not zero', async () => {
@@ -464,8 +458,12 @@ describe('UniswapV2DynamicERC20', () => {
         .approve(otherAccount, parseUnits('1000', 18));
 
       expect(await dynamicERC20.allowance(otherAccount, otherAccount)).to.equal(
-        parseUnits('20060.18', 6),
+        parseUnits('1000', 18),
       );
+
+      expect(
+        await dynamicERC20.allowanceQuote(otherAccount, otherAccount),
+      ).to.equal(parseUnits('20060.18', 6));
     });
 
     it('should return the balance of the base token when it is zero', async () => {
@@ -474,6 +472,8 @@ describe('UniswapV2DynamicERC20', () => {
       );
 
       expect(await dynamicERC20.balanceOf(otherAccount)).to.equal(0);
+
+      expect(await dynamicERC20.balanceOfQuote(otherAccount)).to.equal(0);
     });
 
     it('should return the balance of the base token when it is not zero', async () => {
@@ -484,6 +484,10 @@ describe('UniswapV2DynamicERC20', () => {
       await mintToken.mint(otherAccount, parseUnits('1000', 18));
 
       expect(await dynamicERC20.balanceOf(otherAccount)).to.equal(
+        parseUnits('1000', 18),
+      );
+
+      expect(await dynamicERC20.balanceOfQuote(otherAccount)).to.equal(
         parseUnits('20060.18', 6),
       );
     });

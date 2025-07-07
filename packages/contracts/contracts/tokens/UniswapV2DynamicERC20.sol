@@ -14,7 +14,6 @@ import {
     IUniswapV2DynamicPriceRouter
 } from "../router/IUniswapV2DynamicPriceRouter.sol";
 import {DynamicERC20} from "../abstract/DynamicERC20.sol";
-import {IDynamicERC20View} from "../tokens/IDynamicERC20View.sol";
 
 /*
  ____                 _            _   __  __ _       _   
@@ -33,7 +32,6 @@ import {IDynamicERC20View} from "../tokens/IDynamicERC20View.sol";
  * @title UniswapV2DynamicERC20
  * @notice A dynamic ERC20 token that uses Uniswap V2 to get the current swap price.
  * @dev A UniswapV2DynamicERC20 cannot be minted, burned, or transferred
- * Implements the IDynamicERC20Read interface to allow for view function price calculations.
  *
  * Used within the ProductMint system to act as a proxy for the base token against the quote token.
  * The base token is used to charge for payment.
@@ -44,11 +42,7 @@ import {IDynamicERC20View} from "../tokens/IDynamicERC20View.sol";
  * An organization can use the DynamicERC20 to create a pricing model that targets a price of 100 USDC.
  * Then, when a user purchases a product, 100 USDC worth of WETH will be transferred to the organization.
  */
-contract UniswapV2DynamicERC20 is
-    DynamicERC20,
-    Ownable2Step,
-    IDynamicERC20View
-{
+contract UniswapV2DynamicERC20 is DynamicERC20, Ownable2Step {
     constructor(
         string memory _name,
         string memory _symbol,
@@ -79,6 +73,18 @@ contract UniswapV2DynamicERC20 is
         return _getQuoteTokenAmount(10 ** IERC20Metadata(baseToken).decimals());
     }
 
+    function balanceOfQuote(address _account) external view returns (uint256) {
+        return _getQuoteTokenAmount(IERC20(baseToken).balanceOf(_account));
+    }
+
+    function allowanceQuote(
+        address _owner,
+        address _spender
+    ) external view returns (uint256) {
+        return
+            _getQuoteTokenAmount(IERC20(baseToken).allowance(_owner, _spender));
+    }
+
     function getBaseTokenAmount(
         uint256 _quoteTokenAmount
     ) external view returns (address, uint256) {
@@ -107,42 +113,6 @@ contract UniswapV2DynamicERC20 is
         return
             IUniswapV2DynamicPriceRouter(dynamicPriceRouter)
                 .getPriceFeesRemoved(_amount, baseToQuotePath);
-    }
-
-    /**
-     * IDynamicERC20View
-     */
-
-    function getBaseTokenPriceView() external view returns (uint256) {
-        return _getQuoteTokenAmount(10 ** IERC20Metadata(baseToken).decimals());
-    }
-
-    function getBaseTokenAmountView(
-        uint256 _quoteTokenAmount
-    ) external view returns (address, uint256) {
-        return (baseToken, _getBaseTokenAmount(_quoteTokenAmount));
-    }
-
-    function getQuoteTokenAmountView(
-        uint256 _baseTokenAmount
-    ) external view returns (address, uint256) {
-        return (quoteToken, _getQuoteTokenAmount(_baseTokenAmount));
-    }
-
-    /**
-     * IERC20
-     */
-
-    function balanceOf(address account) public view override returns (uint256) {
-        return _getQuoteTokenAmount(IERC20(baseToken).balanceOf(account));
-    }
-
-    function allowance(
-        address owner,
-        address spender
-    ) public view override returns (uint256) {
-        return
-            _getQuoteTokenAmount(IERC20(baseToken).allowance(owner, spender));
     }
 
     /**
@@ -245,17 +215,5 @@ contract UniswapV2DynamicERC20 is
         );
 
         super._setDynamicPriceRouter(_dynamicPriceRouter);
-    }
-
-    /**
-     * ERC165
-     */
-
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view override returns (bool) {
-        return
-            interfaceId == type(IDynamicERC20View).interfaceId ||
-            super.supportsInterface(interfaceId);
     }
 }

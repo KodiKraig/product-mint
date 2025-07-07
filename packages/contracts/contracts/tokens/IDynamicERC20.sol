@@ -50,6 +50,23 @@ interface IDynamicERC20 {
     function getBaseTokenPrice() external returns (uint256);
 
     /**
+     * @notice Get the balance of the base token in terms of the quote token pricing
+     * @param _account The address to get the balance of
+     * @return The balance of the base token
+     */
+    function balanceOfQuote(address _account) external returns (uint256);
+
+    /**
+     * @notice Get the allowance of the base token in terms of the quote token pricing
+     * @param _owner The address to get the allowance of
+     * @return The allowance of the base token
+     */
+    function allowanceQuote(
+        address _owner,
+        address _spender
+    ) external returns (uint256);
+
+    /**
      * @notice Get the amount of base tokens that would be received for a given amount of quote tokens
      * @param _quoteTokenAmount The amount of quote tokens to convert to base tokens
      * @return _baseToken The address of the base token

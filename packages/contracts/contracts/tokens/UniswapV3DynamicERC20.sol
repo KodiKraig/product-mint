@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.24;
 
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
@@ -84,6 +85,18 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
 
     function getBaseTokenPrice() external returns (uint256) {
         return _getQuoteTokenAmount(10 ** IERC20Metadata(baseToken).decimals());
+    }
+
+    function balanceOfQuote(address _account) external returns (uint256) {
+        return _getQuoteTokenAmount(IERC20(baseToken).balanceOf(_account));
+    }
+
+    function allowanceQuote(
+        address _owner,
+        address _spender
+    ) external returns (uint256) {
+        return
+            _getQuoteTokenAmount(IERC20(baseToken).allowance(_owner, _spender));
     }
 
     function getBaseTokenAmount(

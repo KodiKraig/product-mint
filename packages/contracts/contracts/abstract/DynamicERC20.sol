@@ -111,8 +111,6 @@ abstract contract DynamicERC20 is
      * IERC20
      */
 
-    error BalanceOfNotAllowed();
-    error AllowanceNotAllowed();
     error TransferNotAllowed();
     error ApproveNotAllowed();
 
@@ -120,12 +118,10 @@ abstract contract DynamicERC20 is
         return IERC20(baseToken).totalSupply();
     }
 
-    /**
-     * @dev Not allowed to get the balance of the token.
-     * Parent contracts should implement if possible and return the quote token of the base token balance.
-     */
-    function balanceOf(address) external view virtual returns (uint256) {
-        revert BalanceOfNotAllowed();
+    function balanceOf(
+        address account
+    ) external view virtual returns (uint256) {
+        return IERC20(baseToken).balanceOf(account);
     }
 
     /**
@@ -135,15 +131,11 @@ abstract contract DynamicERC20 is
         revert TransferNotAllowed();
     }
 
-    /**
-     * @dev Not allowed to get the allowance of the token.
-     * Parent contracts should implement if possible and return the quote token of the base token allowance.
-     */
     function allowance(
-        address,
-        address
+        address owner,
+        address spender
     ) external view virtual returns (uint256) {
-        revert AllowanceNotAllowed();
+        return IERC20(baseToken).allowance(owner, spender);
     }
 
     /**
