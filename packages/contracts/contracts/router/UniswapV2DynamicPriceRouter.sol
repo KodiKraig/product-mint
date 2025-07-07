@@ -35,9 +35,6 @@ contract UniswapV2DynamicPriceRouter is
     ERC165,
     IUniswapV2DynamicPriceRouter
 {
-    // The Uniswap V2 router used to check swap prices
-    ICustomUniswapV2Router public uniswapV2Router;
-
     // The fee per hop in basis points
     // Fixed for all Uniswap V2 pools
     uint256 public constant FEE_FACTOR = 997;
@@ -50,6 +47,9 @@ contract UniswapV2DynamicPriceRouter is
 
     // The name of the underlying swap router
     string public constant ROUTER_NAME = "uniswap-v2";
+
+    // The Uniswap V2 router used to check swap prices
+    address public uniswapV2Router;
 
     constructor(address _uniswapRouter) Ownable(_msgSender()) {
         _setUniswapV2Router(_uniswapRouter);
@@ -95,10 +95,8 @@ contract UniswapV2DynamicPriceRouter is
         _checkAmountIn(_amountIn);
         _checkPath(_path);
 
-        uint256 amountOutWithFee = uniswapV2Router.getAmountsOut(
-            _amountIn,
-            _path
-        )[_path.length - 1];
+        uint256 amountOutWithFee = ICustomUniswapV2Router(uniswapV2Router)
+            .getAmountsOut(_amountIn, _path)[_path.length - 1];
 
         _checkOutputAmount(amountOutWithFee);
 
@@ -145,7 +143,7 @@ contract UniswapV2DynamicPriceRouter is
             "Uniswap router cannot be zero address"
         );
 
-        uniswapV2Router = ICustomUniswapV2Router(_uniswapRouter);
+        uniswapV2Router = _uniswapRouter;
 
         emit UniswapV2RouterSet(_uniswapRouter);
     }

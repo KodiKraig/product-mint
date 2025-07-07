@@ -39,9 +39,6 @@ contract UniswapV3DynamicPriceRouter is
     ERC165,
     IUniswapV3DynamicPriceRouter
 {
-    // The Uniswap V3 router used to check swap prices
-    ICustomUniswapV3Router public uniswapV3Router;
-
     // Larger denominator for the fee in basis points
     uint256 public constant FEE_DENOMINATOR = 1000000;
 
@@ -50,6 +47,9 @@ contract UniswapV3DynamicPriceRouter is
 
     // The name of the underlying swap router
     string public constant ROUTER_NAME = "uniswap-v3";
+
+    // The Uniswap V3 router used to check swap prices
+    address public uniswapV3Router;
 
     constructor(address _uniswapRouter) Ownable(_msgSender()) {
         _setUniswapV3Router(_uniswapRouter);
@@ -100,10 +100,9 @@ contract UniswapV3DynamicPriceRouter is
         _checkPath(_path);
         _checkAmountIn(_amountIn);
 
-        (uint256 amountOutWithFee, , , ) = uniswapV3Router.quoteExactInput(
-            _path,
-            _amountIn
-        );
+        (uint256 amountOutWithFee, , , ) = ICustomUniswapV3Router(
+            uniswapV3Router
+        ).quoteExactInput(_path, _amountIn);
 
         _checkOutputAmount(amountOutWithFee);
 
@@ -172,7 +171,7 @@ contract UniswapV3DynamicPriceRouter is
             "Uniswap router cannot be zero address"
         );
 
-        uniswapV3Router = ICustomUniswapV3Router(_uniswapRouter);
+        uniswapV3Router = _uniswapRouter;
 
         emit UniswapV3RouterSet(_uniswapRouter);
     }
