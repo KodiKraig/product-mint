@@ -153,12 +153,10 @@ contract UniswapV2DynamicERC20 is
      * @notice Emitted when the base to quote path is set
      * @param dynamicERC20 The address of the current dynamic ERC20 contract
      * @param baseToQuotePath The path used to convert the base token to the quote token
-     * @param price The current price for the amount of base token to the quote token
      */
     event UniswapV2BaseToQuotePathSet(
         address indexed dynamicERC20,
-        address[] baseToQuotePath,
-        uint256 price
+        address[] baseToQuotePath
     );
 
     function setBaseToQuotePath(
@@ -169,16 +167,11 @@ contract UniswapV2DynamicERC20 is
 
     function _setBaseToQuotePath(address[] memory _baseToQuotePath) internal {
         _checkBaseToQuotePath(_baseToQuotePath);
-
-        uint256 price = _checkPriceValid(_baseToQuotePath);
+        _checkPriceValid(_baseToQuotePath);
 
         baseToQuotePath = _baseToQuotePath;
 
-        emit UniswapV2BaseToQuotePathSet(
-            address(this),
-            _baseToQuotePath,
-            price
-        );
+        emit UniswapV2BaseToQuotePathSet(address(this), _baseToQuotePath);
     }
 
     /**
@@ -189,12 +182,10 @@ contract UniswapV2DynamicERC20 is
      * @notice Emitted when the quote to base path is set
      * @param dynamicERC20 The address of the current dynamic ERC20 contract
      * @param quoteToBasePath The path used to convert the quote token to the base token
-     * @param price The current price for the amount of quote token to the base token
      */
     event UniswapV2QuoteToBasePathSet(
         address indexed dynamicERC20,
-        address[] quoteToBasePath,
-        uint256 price
+        address[] quoteToBasePath
     );
 
     function setQuoteToBasePath(
@@ -205,16 +196,11 @@ contract UniswapV2DynamicERC20 is
 
     function _setQuoteToBasePath(address[] memory _quoteToBasePath) internal {
         _checkQuoteToBasePath(_quoteToBasePath);
-
-        uint256 price = _checkPriceValid(_quoteToBasePath);
+        _checkPriceValid(_quoteToBasePath);
 
         quoteToBasePath = _quoteToBasePath;
 
-        emit UniswapV2QuoteToBasePathSet(
-            address(this),
-            _quoteToBasePath,
-            price
-        );
+        emit UniswapV2QuoteToBasePathSet(address(this), _quoteToBasePath);
     }
 
     /**
@@ -226,18 +212,14 @@ contract UniswapV2DynamicERC20 is
      */
     error InvalidPath(address[] _path);
 
-    function _checkPriceValid(
-        address[] memory _path
-    ) internal view returns (uint256 price) {
+    function _checkPriceValid(address[] memory _path) internal view {
         try
             IUniswapV2DynamicPriceRouter(dynamicPriceRouter)
                 .getPriceFeesRemoved(
                     10 ** IERC20Metadata(_path[0]).decimals(),
                     _path
                 )
-        returns (uint256 _price) {
-            price = _price;
-        } catch {
+        {} catch {
             revert InvalidPath(_path);
         }
     }

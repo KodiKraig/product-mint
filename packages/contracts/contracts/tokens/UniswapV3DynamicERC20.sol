@@ -49,10 +49,10 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
     bytes public quoteToBasePathEncoded;
 
     // Fees for each pool in the base to quote path
-    IUniswapV3DynamicPriceRouter.Fee[] public baseToQuoteFees;
+    IUniswapV3DynamicPriceRouter.Fee[] private baseToQuoteFees;
 
     // Fees for each pool in the quote to base path
-    IUniswapV3DynamicPriceRouter.Fee[] public quoteToBaseFees;
+    IUniswapV3DynamicPriceRouter.Fee[] private quoteToBaseFees;
 
     constructor(
         string memory _name,
@@ -124,20 +124,26 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
      * Base to quote path
      */
 
+    function getBaseToQuoteFees()
+        external
+        view
+        returns (IUniswapV3DynamicPriceRouter.Fee[] memory)
+    {
+        return baseToQuoteFees;
+    }
+
     /**
      * @notice Emitted when the base to quote path is set
      * @param dynamicERC20 The address of the current dynamic ERC20 contract
      * @param path The path used to convert the base token to the quote token
      * @param fees The fees for each pool in the path
      * @param pathEncoded The encoded path
-     * @param price The current price for the amount of base token to the quote token
      */
     event UniswapV3BaseToQuotePathSet(
         address indexed dynamicERC20,
         address[] path,
         IUniswapV3DynamicPriceRouter.Fee[] fees,
-        bytes pathEncoded,
-        uint256 price
+        bytes pathEncoded
     );
 
     function setBaseToQuotePath(
@@ -154,7 +160,7 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
         _checkBaseToQuotePath(_path);
         _checkFees(_path, _fees);
 
-        (bytes memory pathEncoded, uint256 price) = _encodePath(_path, _fees);
+        bytes memory pathEncoded = _encodePath(_path, _fees);
         baseToQuotePathEncoded = pathEncoded;
         baseToQuotePath = _path;
         baseToQuoteFees = _fees;
@@ -163,8 +169,7 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
             address(this),
             _path,
             _fees,
-            pathEncoded,
-            price
+            pathEncoded
         );
     }
 
@@ -172,20 +177,26 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
      * Quote to base path
      */
 
+    function getQuoteToBaseFees()
+        external
+        view
+        returns (IUniswapV3DynamicPriceRouter.Fee[] memory)
+    {
+        return quoteToBaseFees;
+    }
+
     /**
      * @notice Emitted when the quote to base path is set
      * @param dynamicERC20 The address of the current dynamic ERC20 contract
      * @param path The path used to convert the quote token to the base token
      * @param fees The fees for each pool in the path
      * @param pathEncoded The encoded path
-     * @param price The current price for the amount of quote token to the base token
      */
     event UniswapV3QuoteToBasePathSet(
         address indexed dynamicERC20,
         address[] path,
         IUniswapV3DynamicPriceRouter.Fee[] fees,
-        bytes pathEncoded,
-        uint256 price
+        bytes pathEncoded
     );
 
     function setQuoteToBasePath(
@@ -202,7 +213,7 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
         _checkQuoteToBasePath(_path);
         _checkFees(_path, _fees);
 
-        (bytes memory pathEncoded, uint256 price) = _encodePath(_path, _fees);
+        bytes memory pathEncoded = _encodePath(_path, _fees);
         quoteToBasePathEncoded = pathEncoded;
         quoteToBasePath = _path;
         quoteToBaseFees = _fees;
@@ -211,8 +222,7 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
             address(this),
             _path,
             _fees,
-            pathEncoded,
-            price
+            pathEncoded
         );
     }
 
@@ -228,7 +238,7 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
     function _encodePath(
         address[] memory _path,
         IUniswapV3DynamicPriceRouter.Fee[] memory _fees
-    ) internal returns (bytes memory pathEncoded, uint256 price) {
+    ) internal returns (bytes memory pathEncoded) {
         IUniswapV3DynamicPriceRouter _router = IUniswapV3DynamicPriceRouter(
             dynamicPriceRouter
         );
@@ -244,14 +254,11 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
         pathEncoded = abi.encodePacked(pathEncoded, _path[_path.length - 1]);
 
         try
-            _router.getPriceFeesRemoved(
+            _router.getPrice(
                 10 ** IERC20Metadata(_path[0]).decimals(),
-                pathEncoded,
-                _fees
+                pathEncoded
             )
-        returns (uint256 _price) {
-            price = _price;
-        } catch {
+        {} catch {
             revert InvalidPath(_path);
         }
     }

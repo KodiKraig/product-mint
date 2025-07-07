@@ -65,30 +65,37 @@ contract MockUniswapV3Router is AccessControl, ICustomUniswapV3Router {
         gasEstimate = 0;
 
         // Get first token address
-        address firstToken;
+        address baseToken;
         assembly {
-            firstToken := mload(add(path, 20)) // Load first 20 bytes after length prefix
+            baseToken := mload(add(path, 20))
         }
 
         // Get last token address
-        address lastToken;
+        address quoteToken;
         assembly {
-            lastToken := mload(add(add(path, mload(path)), sub(0x20, 20))) // Load last 20 bytes
+            let len := mload(path)
+            if lt(len, 43) {
+                revert(0, 0)
+            }
+            let numTokens := add(div(sub(len, 23), 23), 2)
+            let offset := add(20, mul(sub(numTokens, 1), 23))
+            quoteToken := mload(add(path, offset))
         }
 
         // Calculate amount out based on token decimals
-        uint8 baseDecimals = IERC20Metadata(firstToken).decimals();
-        uint8 quoteDecimals = IERC20Metadata(lastToken).decimals();
+        uint8 baseDecimals = IERC20Metadata(baseToken).decimals();
+        uint8 quoteDecimals = IERC20Metadata(quoteToken).decimals();
 
         if (baseDecimals > quoteDecimals) {
             amountOut =
-                (amountIn * prices[firstToken]) /
+                (amountIn * prices[baseToken]) /
                 10 ** (baseDecimals - quoteDecimals);
         } else {
             amountOut =
-                (amountIn * prices[firstToken]) *
+                (amountIn * prices[baseToken]) *
                 10 ** (quoteDecimals - baseDecimals);
         }
+
         return (
             amountOut,
             sqrtPriceX96AfterList,
