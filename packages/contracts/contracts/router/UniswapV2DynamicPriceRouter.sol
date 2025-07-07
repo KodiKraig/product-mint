@@ -94,13 +94,13 @@ contract UniswapV2DynamicPriceRouter is
         _checkAmountIn(amountIn);
         _checkPath(path);
 
-        (bool success, bytes memory returnedData) = uniswapV2Router.staticcall(
+        (bool success, bytes memory result) = uniswapV2Router.staticcall(
             // equals to getAmountsOut(uint,address[])
             abi.encodeWithSelector(0xd06ca61f, amountIn, path)
         );
         require(success, "Failed to get price from dex");
 
-        uint256 amountOutWithFee = abi.decode(returnedData, (uint256[]))[
+        uint256 amountOutWithFee = abi.decode(result, (uint256[]))[
             path.length - 1
         ];
 
