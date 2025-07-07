@@ -35,18 +35,18 @@ interface IDynamicPriceRegistry {
 
     /**
      * @notice Check if a token is registered in the registry
-     * @param _token The address of the token to check
+     * @param token The address of the token to check
      * @return True if the token is registered, false otherwise
      */
-    function isTokenRegistered(address _token) external view returns (bool);
+    function isTokenRegistered(address token) external view returns (bool);
 
     /**
      * @notice Check if a list of tokens are registered in the registry
-     * @param _tokens The list of tokens to check
+     * @param tokens The list of tokens to check
      * @return True if all tokens are registered, false otherwise
      */
     function isTokenRegisteredBatch(
-        address[] calldata _tokens
+        address[] calldata tokens
     ) external view returns (bool);
 
     /**
@@ -55,23 +55,23 @@ interface IDynamicPriceRegistry {
 
     /**
      * @notice Emitted when a token is registered or unregistered
-     * @param _token The address of the token that was registered or unregistered
-     * @param _registered True if the token was registered, false if it was unregistered
+     * @param token The address of the token that was registered or unregistered
+     * @param registered True if the token was registered, false if it was unregistered
      */
     event DynamicTokenRegistrationUpdated(
-        address indexed _token,
-        bool _registered
+        address indexed token,
+        bool registered
     );
 
     /**
      * @notice Register a token in the registry
-     * @param _token The address of the token to register
+     * @param token The address of the token to register
      */
-    function registerToken(address _token) external;
+    function registerToken(address token) external;
 
     /**
      * @notice Unregister a token in the registry
-     * @param _token The address of the token to unregister
+     * @param token The address of the token to unregister
      */
-    function unregisterToken(address _token) external;
+    function unregisterToken(address token) external;
 }
