@@ -78,41 +78,41 @@ contract UniswapV2DynamicERC20 is DynamicERC20, Ownable2Step {
     }
 
     function allowanceQuote(
-        address _owner,
-        address _spender
+        address owner,
+        address spender
     ) external view returns (uint256) {
         return
-            _getQuoteTokenAmount(IERC20(baseToken).allowance(_owner, _spender));
+            _getQuoteTokenAmount(IERC20(baseToken).allowance(owner, spender));
     }
 
     function getBaseTokenAmount(
-        uint256 _quoteTokenAmount
+        uint256 quoteTokenAmount
     ) external view returns (address, uint256) {
-        return (baseToken, _getBaseTokenAmount(_quoteTokenAmount));
+        return (baseToken, _getBaseTokenAmount(quoteTokenAmount));
     }
 
     function getQuoteTokenAmount(
-        uint256 _baseTokenAmount
+        uint256 baseTokenAmount
     ) external view returns (address, uint256) {
-        return (quoteToken, _getQuoteTokenAmount(_baseTokenAmount));
+        return (quoteToken, _getQuoteTokenAmount(baseTokenAmount));
     }
 
     function _getBaseTokenAmount(
-        uint256 _amount
+        uint256 amount
     ) internal view returns (uint256) {
-        if (_amount == 0) return 0;
+        if (amount == 0) return 0;
         return
             IUniswapV2DynamicPriceRouter(dynamicPriceRouter)
-                .getPriceFeesRemoved(_amount, quoteToBasePath);
+                .getPriceFeesRemoved(amount, quoteToBasePath);
     }
 
     function _getQuoteTokenAmount(
-        uint256 _amount
+        uint256 amount
     ) internal view returns (uint256) {
-        if (_amount == 0) return 0;
+        if (amount == 0) return 0;
         return
             IUniswapV2DynamicPriceRouter(dynamicPriceRouter)
-                .getPriceFeesRemoved(_amount, baseToQuotePath);
+                .getPriceFeesRemoved(amount, baseToQuotePath);
     }
 
     /**

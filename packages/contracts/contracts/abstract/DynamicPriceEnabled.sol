@@ -31,13 +31,13 @@ abstract contract DynamicPriceEnabled {
      * @dev Translate the purchase price of a dynamic token to the base token
      */
     function _translateBaseTokenPurchasePrice(
-        address _token,
-        uint256 _amount
+        address token,
+        uint256 amount
     ) internal virtual returns (address, uint256) {
-        if (dynamicPriceRegistry.isTokenRegistered(_token)) {
-            return IDynamicERC20(_token).getBaseTokenAmount(_amount);
+        if (dynamicPriceRegistry.isTokenRegistered(token)) {
+            return IDynamicERC20(token).getBaseTokenAmount(amount);
         }
-        return (_token, _amount);
+        return (token, amount);
     }
 
     /**

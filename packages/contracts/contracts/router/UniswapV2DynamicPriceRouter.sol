@@ -59,17 +59,17 @@ contract UniswapV2DynamicPriceRouter is
      */
 
     function getPrice(
-        uint256 _amountIn,
-        address[] calldata _path
+        uint256 amountIn,
+        address[] calldata path
     ) external view returns (uint256) {
-        return _getPrice(_amountIn, _path);
+        return _getPrice(amountIn, path);
     }
 
     function getPriceFeesRemoved(
-        uint256 _amountIn,
-        address[] calldata _path
+        uint256 amountIn,
+        address[] calldata path
     ) external view returns (uint256) {
-        uint256 amountOutWithFee = _getPrice(_amountIn, _path);
+        uint256 amountOutWithFee = _getPrice(amountIn, path);
 
         // Remove the fees from the amount out based on the number of hops
         // NOTE: This is a best approximation of the price without fees.
@@ -77,7 +77,7 @@ contract UniswapV2DynamicPriceRouter is
         uint256 feeProduct = FEE_FACTOR;
 
         // Remove the fee for multiple hops
-        for (uint256 i = 1; i < _path.length - 1; i++) {
+        for (uint256 i = 1; i < path.length - 1; i++) {
             feeProduct = (feeProduct * FEE_FACTOR) / FEE_DENOMINATOR;
         }
 
@@ -88,20 +88,20 @@ contract UniswapV2DynamicPriceRouter is
     }
 
     function _getPrice(
-        uint256 _amountIn,
-        address[] calldata _path
+        uint256 amountIn,
+        address[] calldata path
     ) internal view returns (uint256) {
-        _checkAmountIn(_amountIn);
-        _checkPath(_path);
+        _checkAmountIn(amountIn);
+        _checkPath(path);
 
         (bool success, bytes memory returnedData) = uniswapV2Router.staticcall(
             // equals to getAmountsOut(uint,address[])
-            abi.encodeWithSelector(0xd06ca61f, _amountIn, _path)
+            abi.encodeWithSelector(0xd06ca61f, amountIn, path)
         );
         require(success, "Failed to get price from dex");
 
         uint256 amountOutWithFee = abi.decode(returnedData, (uint256[]))[
-            _path.length - 1
+            path.length - 1
         ];
 
         _checkOutputAmount(amountOutWithFee);

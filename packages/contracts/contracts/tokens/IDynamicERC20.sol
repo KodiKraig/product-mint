@@ -51,38 +51,38 @@ interface IDynamicERC20 {
 
     /**
      * @notice Get the balance of the base token in terms of the quote token pricing
-     * @param _account The address to get the balance of
+     * @param account The address to get the balance of
      * @return The balance of the base token
      */
-    function balanceOfQuote(address _account) external returns (uint256);
+    function balanceOfQuote(address account) external returns (uint256);
 
     /**
      * @notice Get the allowance of the base token in terms of the quote token pricing
-     * @param _owner The address to get the allowance of
+     * @param owner The address to get the allowance of
      * @return The allowance of the base token
      */
     function allowanceQuote(
-        address _owner,
-        address _spender
+        address owner,
+        address spender
     ) external returns (uint256);
 
     /**
      * @notice Get the amount of base tokens that would be received for a given amount of quote tokens
-     * @param _quoteTokenAmount The amount of quote tokens to convert to base tokens
-     * @return _baseToken The address of the base token
-     * @return _baseTokenAmount The amount of base tokens that would be received
+     * @param quoteTokenAmount The amount of quote tokens to convert to base tokens
+     * @return baseToken The address of the base token
+     * @return baseTokenAmount The amount of base tokens that would be received
      */
     function getBaseTokenAmount(
-        uint256 _quoteTokenAmount
-    ) external returns (address _baseToken, uint256 _baseTokenAmount);
+        uint256 quoteTokenAmount
+    ) external returns (address baseToken, uint256 baseTokenAmount);
 
     /**
      * @notice Get the amount of quote tokens that would be received for a given amount of base tokens
-     * @param _baseTokenAmount The amount of base tokens to convert to quote tokens
-     * @return _quoteToken The address of the quote token
-     * @return _quoteTokenAmount The amount of quote tokens that would be received
+     * @param baseTokenAmount The amount of base tokens to convert to quote tokens
+     * @return quoteToken The address of the quote token
+     * @return quoteTokenAmount The amount of quote tokens that would be received
      */
     function getQuoteTokenAmount(
-        uint256 _baseTokenAmount
-    ) external returns (address _quoteToken, uint256 _quoteTokenAmount);
+        uint256 baseTokenAmount
+    ) external returns (address quoteToken, uint256 quoteTokenAmount);
 }

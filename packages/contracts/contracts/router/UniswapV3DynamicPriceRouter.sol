@@ -60,30 +60,30 @@ contract UniswapV3DynamicPriceRouter is
      */
 
     function getPrice(
-        uint256 _amountIn,
-        bytes calldata _path
+        uint256 amountIn,
+        bytes calldata path
     ) external returns (uint256) {
-        return _getPrice(_amountIn, _path);
+        return _getPrice(amountIn, path);
     }
 
     function getPriceFeesRemoved(
-        uint256 _amountIn,
-        bytes calldata _path,
-        Fee[] calldata _fees
+        uint256 amountIn,
+        bytes calldata path,
+        Fee[] calldata fees
     ) external returns (uint256) {
-        _checkFees(_fees);
+        _checkFees(fees);
 
-        uint256 amountOutWithFee = _getPrice(_amountIn, _path);
+        uint256 amountOutWithFee = _getPrice(amountIn, path);
 
         // Remove the fees from the amount out based on the number of fees
         // NOTE: This is a best approximation of the price without fees.
 
-        uint256 feeProduct = _getFeeMinusDenominator(_fees[0]);
+        uint256 feeProduct = _getFeeMinusDenominator(fees[0]);
 
         // Remove the fee for multiple hops
-        for (uint256 i = 1; i < _fees.length; i++) {
+        for (uint256 i = 1; i < fees.length; i++) {
             feeProduct =
-                (feeProduct * _getFeeMinusDenominator(_fees[i])) /
+                (feeProduct * _getFeeMinusDenominator(fees[i])) /
                 FEE_DENOMINATOR;
         }
 
@@ -94,15 +94,15 @@ contract UniswapV3DynamicPriceRouter is
     }
 
     function _getPrice(
-        uint256 _amountIn,
-        bytes calldata _path
+        uint256 amountIn,
+        bytes calldata path
     ) internal returns (uint256) {
-        _checkPath(_path);
-        _checkAmountIn(_amountIn);
+        _checkPath(path);
+        _checkAmountIn(amountIn);
 
         (uint256 amountOutWithFee, , , ) = ICustomUniswapV3Router(
             uniswapV3Router
-        ).quoteExactInput(_path, _amountIn);
+        ).quoteExactInput(path, amountIn);
 
         _checkOutputAmount(amountOutWithFee);
 
@@ -135,21 +135,21 @@ contract UniswapV3DynamicPriceRouter is
 
     error FeeDoesNotExist(Fee _fee);
 
-    function getFee(Fee _fee) external pure returns (uint256) {
-        return FEE_DENOMINATOR - _getFeeMinusDenominator(_fee);
+    function getFee(Fee fee) external pure returns (uint256) {
+        return FEE_DENOMINATOR - _getFeeMinusDenominator(fee);
     }
 
-    function _getFeeMinusDenominator(Fee _fee) internal pure returns (uint256) {
-        if (_fee == Fee.LOWEST_001) {
+    function _getFeeMinusDenominator(Fee fee) internal pure returns (uint256) {
+        if (fee == Fee.LOWEST_001) {
             return 999900;
-        } else if (_fee == Fee.LOW_005) {
+        } else if (fee == Fee.LOW_005) {
             return 999500;
-        } else if (_fee == Fee.MEDIUM_03) {
+        } else if (fee == Fee.MEDIUM_03) {
             return 997000;
-        } else if (_fee == Fee.HIGH_1) {
+        } else if (fee == Fee.HIGH_1) {
             return 990000;
         }
-        revert FeeDoesNotExist(_fee);
+        revert FeeDoesNotExist(fee);
     }
 
     /**

@@ -11,24 +11,24 @@ import {IDynamicPriceRouter} from "./IDynamicPriceRouter.sol";
 interface IUniswapV2DynamicPriceRouter is IDynamicPriceRouter {
     /**
      * @notice Get the direct swap price for the final token in the given path with Uniswap fees included.
-     * @param _amountIn The amount of token to convert.
-     * @param _path The path to use for the conversion.
+     * @param amountIn The amount of token to convert.
+     * @param path The path to use for the conversion.
      * @return The amount of token at the end of the path received.
      */
     function getPrice(
-        uint256 _amountIn,
-        address[] calldata _path
+        uint256 amountIn,
+        address[] calldata path
     ) external view returns (uint256);
 
     /**
      * @notice Get the direct swap price for the final token in the given path with Uniswap fees excluded.
      * @dev We do a best approximation of the price without fees.
-     * @param _amountIn The amount of token to convert.
-     * @param _path The path to use for the conversion.
+     * @param amountIn The amount of token to convert.
+     * @param path The path to use for the conversion.
      * @return The amount of token at the end of the path received.
      */
     function getPriceFeesRemoved(
-        uint256 _amountIn,
-        address[] calldata _path
+        uint256 amountIn,
+        address[] calldata path
     ) external view returns (uint256);
 }

@@ -87,47 +87,47 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
         return _getQuoteTokenAmount(10 ** IERC20Metadata(baseToken).decimals());
     }
 
-    function balanceOfQuote(address _account) external returns (uint256) {
-        return _getQuoteTokenAmount(IERC20(baseToken).balanceOf(_account));
+    function balanceOfQuote(address account) external returns (uint256) {
+        return _getQuoteTokenAmount(IERC20(baseToken).balanceOf(account));
     }
 
     function allowanceQuote(
-        address _owner,
-        address _spender
+        address owner,
+        address spender
     ) external returns (uint256) {
         return
-            _getQuoteTokenAmount(IERC20(baseToken).allowance(_owner, _spender));
+            _getQuoteTokenAmount(IERC20(baseToken).allowance(owner, spender));
     }
 
     function getBaseTokenAmount(
-        uint256 _quoteTokenAmount
+        uint256 quoteTokenAmount
     ) external returns (address, uint256) {
-        return (baseToken, _getBaseTokenAmount(_quoteTokenAmount));
+        return (baseToken, _getBaseTokenAmount(quoteTokenAmount));
     }
 
     function getQuoteTokenAmount(
-        uint256 _baseTokenAmount
+        uint256 baseTokenAmount
     ) external returns (address, uint256) {
-        return (quoteToken, _getQuoteTokenAmount(_baseTokenAmount));
+        return (quoteToken, _getQuoteTokenAmount(baseTokenAmount));
     }
 
-    function _getBaseTokenAmount(uint256 _amount) internal returns (uint256) {
-        if (_amount == 0) return 0;
+    function _getBaseTokenAmount(uint256 amount) internal returns (uint256) {
+        if (amount == 0) return 0;
         return
             IUniswapV3DynamicPriceRouter(dynamicPriceRouter)
                 .getPriceFeesRemoved(
-                    _amount,
+                    amount,
                     quoteToBasePathEncoded,
                     quoteToBaseFees
                 );
     }
 
-    function _getQuoteTokenAmount(uint256 _amount) internal returns (uint256) {
-        if (_amount == 0) return 0;
+    function _getQuoteTokenAmount(uint256 amount) internal returns (uint256) {
+        if (amount == 0) return 0;
         return
             IUniswapV3DynamicPriceRouter(dynamicPriceRouter)
                 .getPriceFeesRemoved(
-                    _amount,
+                    amount,
                     baseToQuotePathEncoded,
                     baseToQuoteFees
                 );
