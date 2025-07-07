@@ -25,6 +25,7 @@ describe('UniswapV3DynamicERC20', () => {
 
     const MintToken = await hre.ethers.getContractFactory('MintToken');
     const mintToken = await MintToken.deploy();
+    const mintToken2 = await MintToken.deploy();
 
     const MintStableToken = await hre.ethers.getContractFactory(
       'MintStableToken',
@@ -47,10 +48,18 @@ describe('UniswapV3DynamicERC20', () => {
       await mintToken.getAddress(),
       await mintStableToken.getAddress(),
       await uniswapV3DynamicPriceRouter.getAddress(),
-      [await mintToken.getAddress(), await mintStableToken.getAddress()],
-      [await mintStableToken.getAddress(), await mintToken.getAddress()],
-      [2],
-      [1],
+      [
+        await mintToken.getAddress(),
+        await mintToken2.getAddress(),
+        await mintStableToken.getAddress(),
+      ],
+      [
+        await mintStableToken.getAddress(),
+        await mintToken2.getAddress(),
+        await mintToken.getAddress(),
+      ],
+      [2, 2],
+      [1, 3],
     );
 
     return {
@@ -59,6 +68,7 @@ describe('UniswapV3DynamicERC20', () => {
       owner,
       otherAccount,
       mintToken,
+      mintToken2,
       mintStableToken,
       uniswapV3DynamicPriceRouter,
       mockUniswapV3Router,
@@ -72,6 +82,7 @@ describe('UniswapV3DynamicERC20', () => {
         mintToken,
         mintStableToken,
         uniswapV3DynamicPriceRouter,
+        mintToken2,
       } = await loadFixture(deployDynamicERC20);
 
       expect(await dynamicERC20.name()).to.equal('Dynamic WETH vs USDC');
@@ -87,11 +98,13 @@ describe('UniswapV3DynamicERC20', () => {
 
       expect(await dynamicERC20.getBaseToQuotePath()).to.deep.equal([
         await mintToken.getAddress(),
+        await mintToken2.getAddress(),
         await mintStableToken.getAddress(),
       ]);
 
       expect(await dynamicERC20.getQuoteToBasePath()).to.deep.equal([
         await mintStableToken.getAddress(),
+        await mintToken2.getAddress(),
         await mintToken.getAddress(),
       ]);
 
@@ -101,9 +114,11 @@ describe('UniswapV3DynamicERC20', () => {
 
       expect(await dynamicERC20.baseToQuotePathEncoded()).to.equal(
         hre.ethers.solidityPacked(
-          ['address', 'uint24', 'address'],
+          ['address', 'uint24', 'address', 'uint24', 'address'],
           [
             await mintToken.getAddress(),
+            3000,
+            await mintToken2.getAddress(),
             3000,
             await mintStableToken.getAddress(),
           ],
@@ -112,17 +127,25 @@ describe('UniswapV3DynamicERC20', () => {
 
       expect(await dynamicERC20.quoteToBasePathEncoded()).to.equal(
         hre.ethers.solidityPacked(
-          ['address', 'uint24', 'address'],
+          ['address', 'uint24', 'address', 'uint24', 'address'],
           [
             await mintStableToken.getAddress(),
             500,
+            await mintToken2.getAddress(),
+            10000,
             await mintToken.getAddress(),
           ],
         ),
       );
 
-      expect(await dynamicERC20.getBaseToQuoteFees()).to.deep.equal([2]);
-      expect(await dynamicERC20.getQuoteToBaseFees()).to.deep.equal([1]);
+      expect(await dynamicERC20.getBaseToQuoteFees()).to.deep.equal([2, 2]);
+      expect(await dynamicERC20.getQuoteToBaseFees()).to.deep.equal([1, 3]);
+    });
+
+    it('correct owner is set', async () => {
+      const { dynamicERC20, owner } = await loadFixture(deployDynamicERC20);
+
+      expect(await dynamicERC20.owner()).to.equal(owner);
     });
   });
 });
