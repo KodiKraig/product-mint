@@ -8,7 +8,6 @@ import {ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
 import {IUniswapV2DynamicPriceRouter} from "./IUniswapV2DynamicPriceRouter.sol";
 import {IDynamicPriceRouter} from "./IDynamicPriceRouter.sol";
-import {ICustomUniswapV2Router} from "./ICustomUniswapV2Router.sol";
 
 /*
  ____                 _            _   __  __ _       _   
@@ -95,8 +94,15 @@ contract UniswapV2DynamicPriceRouter is
         _checkAmountIn(_amountIn);
         _checkPath(_path);
 
-        uint256 amountOutWithFee = ICustomUniswapV2Router(uniswapV2Router)
-            .getAmountsOut(_amountIn, _path)[_path.length - 1];
+        (bool success, bytes memory returnedData) = uniswapV2Router.staticcall(
+            // equals to getAmountsOut(uint,address[])
+            abi.encodeWithSelector(0xd06ca61f, _amountIn, _path)
+        );
+        require(success, "Failed to get price from dex");
+
+        uint256 amountOutWithFee = abi.decode(returnedData, (uint256[]))[
+            _path.length - 1
+        ];
 
         _checkOutputAmount(amountOutWithFee);
 
