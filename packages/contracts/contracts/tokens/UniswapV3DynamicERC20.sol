@@ -254,9 +254,10 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
         pathEncoded = abi.encodePacked(pathEncoded, _path[_path.length - 1]);
 
         try
-            _router.getPrice(
+            _router.getPriceFeesRemoved(
                 10 ** IERC20Metadata(_path[0]).decimals(),
-                pathEncoded
+                pathEncoded,
+                _fees
             )
         {} catch {
             revert InvalidPath(_path);

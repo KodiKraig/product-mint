@@ -1,11 +1,12 @@
 import { loadFixture } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import hre from 'hardhat';
-import { parseUnits } from 'ethers';
+import { parseUnits, ZeroAddress } from 'ethers';
+import calculateInterfaceId from '../../utils/calculate-interface-id';
 
 describe('MockUniswapV3Router', () => {
   async function deployMockRouter() {
-    const [owner] = await hre.ethers.getSigners();
+    const [owner, otherAccount] = await hre.ethers.getSigners();
 
     const MockUniswapV3Router = await hre.ethers.getContractFactory(
       'MockUniswapV3Router',
@@ -27,6 +28,7 @@ describe('MockUniswapV3Router', () => {
       token1,
       token2,
       token3,
+      otherAccount,
     };
   }
 
@@ -96,6 +98,72 @@ describe('MockUniswapV3Router', () => {
 
       // Should still work correctly regardless of fee values
       expect(tx[0]).to.equal(parseUnits('2000', 18));
+    });
+
+    it('revert if the path is too short', async () => {
+      const { mockRouter, token1 } = await loadFixture(deployMockRouter);
+
+      const path = hre.ethers.solidityPacked(
+        ['address', 'uint24'],
+        [await token1.getAddress(), 3000],
+      );
+
+      await expect(
+        mockRouter.quoteExactInput(path, parseUnits('100', 18)),
+      ).to.be.revertedWith('Path too short');
+    });
+  });
+
+  describe('Set Price', () => {
+    it('revert if the caller does not have the PRICE_SETTER_ROLE', async () => {
+      const { mockRouter, otherAccount, token1 } = await loadFixture(
+        deployMockRouter,
+      );
+
+      await expect(
+        mockRouter
+          .connect(otherAccount)
+          .setPrice(await token1.getAddress(), 20),
+      ).to.be.revertedWithCustomError(
+        mockRouter,
+        'AccessControlUnauthorizedAccount',
+      );
+    });
+
+    it('revert if the token address is zero', async () => {
+      const { mockRouter, owner } = await loadFixture(deployMockRouter);
+
+      await expect(
+        mockRouter.connect(owner).setPrice(ZeroAddress, 20),
+      ).to.be.revertedWith('Token address cannot be zero');
+    });
+  });
+
+  describe('Supports Interface', () => {
+    it('should support the ICustomUniswapV3Router interface', async () => {
+      const { mockRouter } = await loadFixture(deployMockRouter);
+
+      const interfaceId = calculateInterfaceId([
+        'quoteExactInput(bytes,uint256)',
+      ]);
+
+      expect(await mockRouter.supportsInterface(interfaceId)).to.be.true;
+    });
+
+    it('should support the IERC165 interface', async () => {
+      const { mockRouter } = await loadFixture(deployMockRouter);
+
+      const interfaceId = calculateInterfaceId(['supportsInterface(bytes4)']);
+
+      expect(await mockRouter.supportsInterface(interfaceId)).to.be.true;
+    });
+
+    it('revert if the interface id is not supported', async () => {
+      const { mockRouter } = await loadFixture(deployMockRouter);
+
+      const interfaceId = calculateInterfaceId(['notSupported(bytes4)']);
+
+      expect(await mockRouter.supportsInterface(interfaceId)).to.be.false;
     });
   });
 });

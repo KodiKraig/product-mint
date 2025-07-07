@@ -127,7 +127,7 @@ describe('MockUniswapV2Router', () => {
         mockUniswapV2Router
           .connect(owner)
           .setPrice(ZeroAddress, ethers.parseUnits('1', 18)),
-      ).to.be.revertedWith('Invalid token address');
+      ).to.be.revertedWith('Token address cannot be zero');
     });
 
     it('revert if the caller is not the price setter', async () => {

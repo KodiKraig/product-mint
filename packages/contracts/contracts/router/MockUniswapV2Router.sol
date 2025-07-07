@@ -79,7 +79,7 @@ contract MockUniswapV2Router is AccessControl, ICustomUniswapV2Router {
         address _token,
         uint256 _price
     ) external onlyRole(PRICE_SETTER_ROLE) {
-        require(_token != address(0), "Invalid token address");
+        require(_token != address(0), "Token address cannot be zero");
 
         prices[_token] = _price;
 
