@@ -19,9 +19,7 @@
     "deploy:pass-metadata-v2:base-sepolia": "hardhat ignition deploy ./ignition/modules/UpgradePassMetadata.ts --network baseSepolia",
     "deploy:pass-metadata-v2:base-mainnet": "hardhat ignition deploy ./ignition/modules/UpgradePassMetadata.ts --network base",
     "deploy:renewal-processor:base-sepolia": "hardhat ignition deploy ./ignition/modules/RenewalProcessor.ts --network baseSepolia",
-    "deploy:renewal-processor:base-mainnet": "hardhat ignition deploy ./ignition/modules/RenewalProcessor.ts --network base",
-    "deploy:permissions:base-sepolia": "hardhat ignition deploy ./ignition/modules/MigrateManagerPermissions.ts --network baseSepolia --parameters ./ignition/parameters/base-sepolia.json",
-    "deploy:permissions:base-mainnet": "hardhat ignition deploy ./ignition/modules/MigrateManagerPermissions.ts --network base --parameters ./ignition/parameters/base-mainnet.json"
+    "deploy:renewal-processor:base-mainnet": "hardhat ignition deploy ./ignition/modules/RenewalProcessor.ts --network base"
   },
   "keywords": [
     "productmint",
