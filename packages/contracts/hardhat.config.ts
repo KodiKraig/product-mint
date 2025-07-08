@@ -30,6 +30,10 @@ const config: HardhatUserConfig = {
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
   },
   // networks: {
+  //   ethereum: {
+  //     url: process.env.ETHEREUM_MAINNET_RPC_URL,
+  //     accounts: [PRIVATE_KEY],
+  //   },
   //   base: {
   //     url: process.env.BASE_MAINNET_RPC_URL,
   //     accounts: [PRIVATE_KEY],
@@ -41,6 +45,7 @@ const config: HardhatUserConfig = {
   // },
   // etherscan: {
   //   apiKey: {
+  //     ethereum: process.env.BASE_SCAN_API_KEY ?? '',
   //     base: process.env.BASE_SCAN_API_KEY ?? '',
   //     baseSepolia: process.env.BASE_SCAN_API_KEY ?? '',
   //   },
