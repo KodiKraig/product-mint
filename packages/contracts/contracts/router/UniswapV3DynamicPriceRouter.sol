@@ -29,7 +29,7 @@ import {ICustomUniswapV3Router} from "./ICustomUniswapV3Router.sol";
  * @notice A dynamic price router that uses Uniswap V3 to get the current swap price.
  * @dev The router will calculate the price with fees included or excluded.
  *
- * For example, if the fee is 0.3% for one hop and 0.5% for the other, the router will return the price with 0.8% fees removed.
+ * For example, if the fee is 0.3% for one hop and 1.0% for the other, the router will return the price with 1.3% fees removed.
  * In order to get the price without fees, you must pass the total fee across all pools in the path.
  *
  * The router dynamically calculates the price without fees based on the fees passed in.
