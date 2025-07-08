@@ -28,7 +28,9 @@ describe('UsageRecorder', () => {
     const DynamicPriceRegistry = await hre.ethers.getContractFactory(
       'DynamicPriceRegistry',
     );
-    const dynamicPriceRegistry = await DynamicPriceRegistry.deploy();
+    const dynamicPriceRegistry = await DynamicPriceRegistry.deploy(
+      contractRegistry,
+    );
 
     const PurchaseManager = await hre.ethers.getContractFactory(
       'PurchaseManager',

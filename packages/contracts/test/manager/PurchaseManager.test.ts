@@ -171,12 +171,16 @@ describe('PurchaseManager', () => {
 
   describe('Set Dynamic Price Registry', () => {
     it('should set a new dynamic price registry', async () => {
-      const { purchaseManager } = await loadFixture(deployPurchaseManager);
+      const { purchaseManager, contractRegistry } = await loadFixture(
+        deployPurchaseManager,
+      );
 
       const DynamicPriceRegistry = await ethers.getContractFactory(
         'DynamicPriceRegistry',
       );
-      const newDynamicPriceRegistry = await DynamicPriceRegistry.deploy();
+      const newDynamicPriceRegistry = await DynamicPriceRegistry.deploy(
+        contractRegistry,
+      );
 
       await expect(
         purchaseManager.setDynamicPriceRegistry(

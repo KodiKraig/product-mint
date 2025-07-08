@@ -88,7 +88,9 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
   ]);
 
   // Dynamic price registry
-  const dynamicPriceRegistry = m.contract('DynamicPriceRegistry');
+  const dynamicPriceRegistry = m.contract('DynamicPriceRegistry', [
+    contractRegistry,
+  ]);
 
   // Purchase manager
   const purchaseManager = m.contract('PurchaseManager', [

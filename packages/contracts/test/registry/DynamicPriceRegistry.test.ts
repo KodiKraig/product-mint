@@ -7,12 +7,28 @@ describe('DynamicPriceRegistry', () => {
   async function deployDynamicPriceRegistry() {
     const [owner, otherAccount] = await hre.ethers.getSigners();
 
+    // Contract registry
+
+    const ContractRegistry = await hre.ethers.getContractFactory(
+      'ContractRegistry',
+    );
+    const contractRegistry = await ContractRegistry.deploy();
+
+    // Payment escrow
+
+    const PaymentEscrow = await hre.ethers.getContractFactory('PaymentEscrow');
+    const paymentEscrow = await PaymentEscrow.deploy(contractRegistry);
+
+    await contractRegistry.setPaymentEscrow(paymentEscrow);
+
     // Registry
 
     const DynamicPriceRegistry = await hre.ethers.getContractFactory(
       'DynamicPriceRegistry',
     );
-    const dynamicPriceRegistry = await DynamicPriceRegistry.deploy();
+    const dynamicPriceRegistry = await DynamicPriceRegistry.deploy(
+      contractRegistry,
+    );
 
     // Router
 
@@ -71,6 +87,8 @@ describe('DynamicPriceRegistry', () => {
       dynamicERC20_2,
       uniswapV2DynamicPriceRouter,
       mockUniswapV2Router,
+      paymentEscrow,
+      contractRegistry,
       owner,
       otherAccount,
     };
@@ -109,6 +127,14 @@ describe('DynamicPriceRegistry', () => {
           owner,
         ),
       ).to.be.true;
+    });
+
+    it('should set the contract registry', async () => {
+      const { dynamicPriceRegistry, contractRegistry } = await loadFixture(
+        deployDynamicPriceRegistry,
+      );
+
+      expect(await dynamicPriceRegistry.registry()).to.equal(contractRegistry);
     });
   });
 
@@ -154,8 +180,27 @@ describe('DynamicPriceRegistry', () => {
 
   describe('Register Token', () => {
     it('should register multiple dynamic tokens and remove them successfully', async () => {
-      const { dynamicPriceRegistry, dynamicERC20, dynamicERC20_2, owner } =
-        await loadFixture(deployDynamicPriceRegistry);
+      const {
+        dynamicPriceRegistry,
+        dynamicERC20,
+        dynamicERC20_2,
+        owner,
+        paymentEscrow,
+      } = await loadFixture(deployDynamicPriceRegistry);
+
+      // Whitelist tokens
+      await paymentEscrow.setWhitelistedToken(
+        await dynamicERC20.baseToken(),
+        true,
+      );
+      await paymentEscrow.setWhitelistedToken(
+        await dynamicERC20.getAddress(),
+        true,
+      );
+      await paymentEscrow.setWhitelistedToken(
+        await dynamicERC20_2.getAddress(),
+        true,
+      );
 
       // Register first token
       await expect(
@@ -269,8 +314,17 @@ describe('DynamicPriceRegistry', () => {
     });
 
     it('revert if the token is already registered', async () => {
-      const { dynamicPriceRegistry, dynamicERC20, owner } = await loadFixture(
-        deployDynamicPriceRegistry,
+      const { dynamicPriceRegistry, dynamicERC20, owner, paymentEscrow } =
+        await loadFixture(deployDynamicPriceRegistry);
+
+      // Whitelist tokens
+      await paymentEscrow.setWhitelistedToken(
+        await dynamicERC20.baseToken(),
+        true,
+      );
+      await paymentEscrow.setWhitelistedToken(
+        await dynamicERC20.getAddress(),
+        true,
       );
 
       await dynamicPriceRegistry
@@ -313,6 +367,34 @@ describe('DynamicPriceRegistry', () => {
           otherAccount,
           await dynamicPriceRegistry.REGISTER_TOKEN_ROLE(),
         );
+    });
+
+    it('revert if the dynamic token is not whitelisted', async () => {
+      const { dynamicPriceRegistry, dynamicERC20, owner } = await loadFixture(
+        deployDynamicPriceRegistry,
+      );
+
+      await expect(
+        dynamicPriceRegistry
+          .connect(owner)
+          .registerToken(await dynamicERC20.getAddress()),
+      ).to.be.revertedWith('Dynamic token is not whitelisted');
+    });
+
+    it('revert if the base token is not whitelisted', async () => {
+      const { dynamicPriceRegistry, dynamicERC20, owner, paymentEscrow } =
+        await loadFixture(deployDynamicPriceRegistry);
+
+      await paymentEscrow.setWhitelistedToken(
+        await dynamicERC20.getAddress(),
+        true,
+      );
+
+      await expect(
+        dynamicPriceRegistry
+          .connect(owner)
+          .registerToken(await dynamicERC20.getAddress()),
+      ).to.be.revertedWith('Base token is not whitelisted');
     });
   });
 

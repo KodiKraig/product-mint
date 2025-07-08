@@ -113,7 +113,9 @@ export async function deployPurchaseManager() {
   const DynamicPriceRegistry = await hre.ethers.getContractFactory(
     'DynamicPriceRegistry',
   );
-  const dynamicPriceRegistry = await DynamicPriceRegistry.deploy();
+  const dynamicPriceRegistry = await DynamicPriceRegistry.deploy(
+    contractRegistry,
+  );
 
   // Dynamic Price Router
 

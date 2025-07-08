@@ -10,6 +10,8 @@ import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
 
 import {IDynamicERC20} from "../tokens/IDynamicERC20.sol";
 import {IDynamicPriceRegistry} from "./IDynamicPriceRegistry.sol";
+import {IPaymentEscrow} from "../escrow/IPaymentEscrow.sol";
+import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
 
 /*
  ____                 _            _   __  __ _       _   
@@ -29,7 +31,11 @@ import {IDynamicPriceRegistry} from "./IDynamicPriceRegistry.sol";
  * @notice Manages the dynamic price tokens for the ProductMint system.
  * The registry is used to store the dynamic token contract addresses.
  */
-contract DynamicPriceRegistry is AccessControl, IDynamicPriceRegistry {
+contract DynamicPriceRegistry is
+    AccessControl,
+    RegistryEnabled,
+    IDynamicPriceRegistry
+{
     using EnumerableSet for EnumerableSet.AddressSet;
 
     // The set of all dynamic tokens
@@ -43,7 +49,9 @@ contract DynamicPriceRegistry is AccessControl, IDynamicPriceRegistry {
     bytes32 public constant UNREGISTER_TOKEN_ROLE =
         keccak256("UNREGISTER_TOKEN_ROLE");
 
-    constructor() AccessControl() {
+    constructor(
+        address _contractRegistry
+    ) AccessControl() RegistryEnabled(_contractRegistry) {
         _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _grantRole(REGISTER_TOKEN_ROLE, _msgSender());
         _grantRole(UNREGISTER_TOKEN_ROLE, _msgSender());
@@ -90,6 +98,16 @@ contract DynamicPriceRegistry is AccessControl, IDynamicPriceRegistry {
         require(
             IERC165(_token).supportsInterface(type(IDynamicERC20).interfaceId),
             "Token does not support IDynamicERC20"
+        );
+        require(
+            IPaymentEscrow(registry.paymentEscrow()).whitelistedTokens(_token),
+            "Dynamic token is not whitelisted"
+        );
+        require(
+            IPaymentEscrow(registry.paymentEscrow()).whitelistedTokens(
+                IDynamicERC20(_token).baseToken()
+            ),
+            "Base token is not whitelisted"
         );
 
         tokens.add(_token);
