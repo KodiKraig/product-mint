@@ -56,7 +56,7 @@ contract UniswapV3DynamicPriceRouter is
     }
 
     /**
-     * IDynamicPriceRouter
+     * Pricing
      */
 
     function getPrice(

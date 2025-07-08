@@ -55,7 +55,7 @@ contract UniswapV2DynamicPriceRouter is
     }
 
     /**
-     * IUniswapV2DynamicPriceRouter
+     * Pricing
      */
 
     function getPrice(

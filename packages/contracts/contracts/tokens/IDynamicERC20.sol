@@ -45,21 +45,21 @@ interface IDynamicERC20 {
 
     /**
      * @notice Get the current swap price of the base token in terms of the quote token
-     * @return The amount of quote token per base token
+     * @return The amount of quote token per 1 base token
      */
     function getBaseTokenPrice() external returns (uint256);
 
     /**
      * @notice Get the balance of the base token in terms of the quote token pricing
      * @param account The address to get the balance of
-     * @return The balance of the base token
+     * @return The balance of the base token in quote token terms
      */
     function balanceOfQuote(address account) external returns (uint256);
 
     /**
      * @notice Get the allowance of the base token in terms of the quote token pricing
      * @param owner The address to get the allowance of
-     * @return The allowance of the base token
+     * @return The allowance of the base token in quote token terms
      */
     function allowanceQuote(
         address owner,

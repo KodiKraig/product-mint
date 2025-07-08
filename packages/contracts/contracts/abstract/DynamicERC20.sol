@@ -12,6 +12,13 @@ import {
 import {IDynamicERC20} from "../tokens/IDynamicERC20.sol";
 import {IDynamicPriceRouter} from "../router/IDynamicPriceRouter.sol";
 
+/**
+ * @title DynamicERC20
+ * @notice DynamicERC20 is an abstract contract that implements the IDynamicERC20 interface.
+ * It is used to create dynamic ERC20 tokens that can be used to pay for products.
+ *
+ * This contract should be used to create Dynamic tokens using dex routers.
+ */
 abstract contract DynamicERC20 is
     ERC165,
     IERC20,
