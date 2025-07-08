@@ -148,15 +148,19 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
     /**
      * @notice Emitted when the base to quote path is set
      * @param dynamicERC20 The address of the current dynamic ERC20 contract
+     * @param baseToken The address of the base token
+     * @param quoteToken The address of the quote token
      * @param path The path used to convert the base token to the quote token
-     * @param fees The fees for each pool in the path
      * @param pathEncoded The encoded path
+     * @param fees The fees for each pool in the path
      */
     event UniswapV3BaseToQuotePathSet(
         address indexed dynamicERC20,
+        address indexed baseToken,
+        address indexed quoteToken,
         address[] path,
-        IUniswapV3DynamicPriceRouter.Fee[] fees,
-        bytes pathEncoded
+        bytes pathEncoded,
+        IUniswapV3DynamicPriceRouter.Fee[] fees
     );
 
     function setBaseToQuotePath(
@@ -180,9 +184,11 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
 
         emit UniswapV3BaseToQuotePathSet(
             address(this),
+            baseToken,
+            quoteToken,
             _path,
-            _fees,
-            pathEncoded
+            pathEncoded,
+            _fees
         );
     }
 
@@ -201,15 +207,19 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
     /**
      * @notice Emitted when the quote to base path is set
      * @param dynamicERC20 The address of the current dynamic ERC20 contract
+     * @param baseToken The address of the base token
+     * @param quoteToken The address of the quote token
      * @param path The path used to convert the quote token to the base token
-     * @param fees The fees for each pool in the path
      * @param pathEncoded The encoded path
+     * @param fees The fees for each pool in the path
      */
     event UniswapV3QuoteToBasePathSet(
         address indexed dynamicERC20,
+        address indexed baseToken,
+        address indexed quoteToken,
         address[] path,
-        IUniswapV3DynamicPriceRouter.Fee[] fees,
-        bytes pathEncoded
+        bytes pathEncoded,
+        IUniswapV3DynamicPriceRouter.Fee[] fees
     );
 
     function setQuoteToBasePath(
@@ -233,9 +243,11 @@ contract UniswapV3DynamicERC20 is DynamicERC20, Ownable2Step {
 
         emit UniswapV3QuoteToBasePathSet(
             address(this),
+            baseToken,
+            quoteToken,
             _path,
-            _fees,
-            pathEncoded
+            pathEncoded,
+            _fees
         );
     }
 

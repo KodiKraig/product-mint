@@ -510,7 +510,12 @@ describe('UniswapV2DynamicERC20', () => {
 
       await expect(dynamicERC20.setBaseToQuotePath(expectedPath))
         .to.emit(dynamicERC20, 'UniswapV2BaseToQuotePathSet')
-        .withArgs(await dynamicERC20.getAddress(), expectedPath);
+        .withArgs(
+          await dynamicERC20.getAddress(),
+          await mintToken.getAddress(),
+          await mintStableToken.getAddress(),
+          expectedPath,
+        );
 
       const baseToQuotePath = await dynamicERC20.getBaseToQuotePath();
       expect(baseToQuotePath).to.deep.equal(expectedPath);
@@ -604,7 +609,12 @@ describe('UniswapV2DynamicERC20', () => {
 
       await expect(dynamicERC20.setQuoteToBasePath(expectedPath))
         .to.emit(dynamicERC20, 'UniswapV2QuoteToBasePathSet')
-        .withArgs(await dynamicERC20.getAddress(), expectedPath);
+        .withArgs(
+          await dynamicERC20.getAddress(),
+          await mintToken.getAddress(),
+          await mintStableToken.getAddress(),
+          expectedPath,
+        );
 
       const quoteToBasePath = await dynamicERC20.getQuoteToBasePath();
       expect(quoteToBasePath).to.deep.equal(expectedPath);

@@ -122,10 +122,14 @@ contract UniswapV2DynamicERC20 is DynamicERC20, Ownable2Step {
     /**
      * @notice Emitted when the base to quote path is set
      * @param dynamicERC20 The address of the current dynamic ERC20 contract
+     * @param baseToken The address of the base token
+     * @param quoteToken The address of the quote token
      * @param baseToQuotePath The path used to convert the base token to the quote token
      */
     event UniswapV2BaseToQuotePathSet(
         address indexed dynamicERC20,
+        address indexed baseToken,
+        address indexed quoteToken,
         address[] baseToQuotePath
     );
 
@@ -141,7 +145,12 @@ contract UniswapV2DynamicERC20 is DynamicERC20, Ownable2Step {
 
         baseToQuotePath = _baseToQuotePath;
 
-        emit UniswapV2BaseToQuotePathSet(address(this), _baseToQuotePath);
+        emit UniswapV2BaseToQuotePathSet(
+            address(this),
+            baseToken,
+            quoteToken,
+            _baseToQuotePath
+        );
     }
 
     /**
@@ -155,6 +164,8 @@ contract UniswapV2DynamicERC20 is DynamicERC20, Ownable2Step {
      */
     event UniswapV2QuoteToBasePathSet(
         address indexed dynamicERC20,
+        address indexed baseToken,
+        address indexed quoteToken,
         address[] quoteToBasePath
     );
 
@@ -170,7 +181,12 @@ contract UniswapV2DynamicERC20 is DynamicERC20, Ownable2Step {
 
         quoteToBasePath = _quoteToBasePath;
 
-        emit UniswapV2QuoteToBasePathSet(address(this), _quoteToBasePath);
+        emit UniswapV2QuoteToBasePathSet(
+            address(this),
+            baseToken,
+            quoteToken,
+            _quoteToBasePath
+        );
     }
 
     /**
