@@ -110,7 +110,7 @@ describe('MockUniswapV2Router', () => {
           .connect(owner)
           .setPrice(await mintToken.getAddress(), ethers.parseUnits('1', 18)),
       )
-        .to.emit(mockUniswapV2Router, 'MockTokenPriceSet')
+        .to.emit(mockUniswapV2Router, 'MockUniswapV2TokenPriceSet')
         .withArgs(await mintToken.getAddress(), ethers.parseUnits('1', 18));
 
       expect(

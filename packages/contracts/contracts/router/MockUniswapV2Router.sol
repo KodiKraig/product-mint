@@ -81,7 +81,7 @@ contract MockUniswapV2Router is AccessControl, ICustomUniswapV2Router {
      * @param token The token address
      * @param price The price (quote token amount per base token amount, unscaled)
      */
-    event MockTokenPriceSet(address indexed token, uint256 price);
+    event MockUniswapV2TokenPriceSet(address indexed token, uint256 price);
 
     /**
      * @notice Set or update the price for a token (for testing purposes).
@@ -96,7 +96,7 @@ contract MockUniswapV2Router is AccessControl, ICustomUniswapV2Router {
 
         prices[_token] = _price;
 
-        emit MockTokenPriceSet(_token, _price);
+        emit MockUniswapV2TokenPriceSet(_token, _price);
     }
 
     /**

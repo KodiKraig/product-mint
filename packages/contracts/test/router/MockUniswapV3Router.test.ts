@@ -1,7 +1,7 @@
 import { loadFixture } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import hre from 'hardhat';
-import { parseUnits, ZeroAddress } from 'ethers';
+import { ethers, parseUnits, ZeroAddress } from 'ethers';
 import calculateInterfaceId from '../../utils/calculate-interface-id';
 
 describe('MockUniswapV3Router', () => {
@@ -115,6 +115,25 @@ describe('MockUniswapV3Router', () => {
   });
 
   describe('Set Price', () => {
+    it('should set the price for a token', async () => {
+      const { mockRouter, owner } = await loadFixture(deployMockRouter);
+
+      const MintToken = await hre.ethers.getContractFactory('MintToken');
+      const mintToken = await MintToken.deploy();
+
+      await expect(
+        mockRouter
+          .connect(owner)
+          .setPrice(await mintToken.getAddress(), ethers.parseUnits('1', 18)),
+      )
+        .to.emit(mockRouter, 'MockUniswapV3TokenPriceSet')
+        .withArgs(await mintToken.getAddress(), ethers.parseUnits('1', 18));
+
+      expect(await mockRouter.prices(await mintToken.getAddress())).to.equal(
+        ethers.parseUnits('1', 18),
+      );
+    });
+
     it('revert if the caller does not have the PRICE_SETTER_ROLE', async () => {
       const { mockRouter, otherAccount, token1 } = await loadFixture(
         deployMockRouter,
