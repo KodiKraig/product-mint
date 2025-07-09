@@ -20,7 +20,8 @@
     "deploy:pass-metadata-v2:base-mainnet": "hardhat ignition deploy ./ignition/modules/UpgradePassMetadata.ts --network base",
     "deploy:renewal-processor:base-sepolia": "hardhat ignition deploy ./ignition/modules/RenewalProcessor.ts --network baseSepolia",
     "deploy:renewal-processor:base-mainnet": "hardhat ignition deploy ./ignition/modules/RenewalProcessor.ts --network base",
-    "deploy:uniswap-v2-dynamic-router:base-mainnet": "hardhat ignition deploy ./ignition/modules/DeployUniswapV2DynamicRouter.ts --network base --parameters ./ignition/parameters/base-mainnet.json"
+    "deploy:uniswap-v2-dynamic-router:base-mainnet": "hardhat ignition deploy ./ignition/modules/DeployUniswapV2DynamicRouter.ts --network base --parameters ./ignition/parameters/base-mainnet.json",
+    "deploy:dynamic-weth-usdc:base-mainnet": "hardhat ignition deploy ./ignition/modules/tokens/uniswap-v2/DeployDynamicWETH_USDC.ts --network base --parameters ./ignition/parameters/base-mainnet.json"
   },
   "keywords": [
     "productmint",
