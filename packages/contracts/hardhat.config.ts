@@ -44,29 +44,17 @@ const config: HardhatUserConfig = {
   //   },
   // },
   // etherscan: {
-  //   apiKey: {
-  //     ethereum: process.env.BASE_SCAN_API_KEY ?? '',
-  //     base: process.env.BASE_SCAN_API_KEY ?? '',
-  //     baseSepolia: process.env.BASE_SCAN_API_KEY ?? '',
+  //   apiKey: process.env.ETHERSCAN_SCAN_API_KEY ?? '',
+  // customChains: [
+  //   {
+  //     network: 'baseSepolia',
+  //     chainId: 84532,
+  //     urls: {
+  //       apiURL: 'https://api.etherscan.io/v2/api?chainid=84532',
+  //       browserURL: 'https://sepolia.basescan.org',
+  //     },
   //   },
-  //   customChains: [
-  //     {
-  //       network: 'base',
-  //       chainId: 8453,
-  //       urls: {
-  //         apiURL: 'https://api.etherscan.io/v2/api?chainid=8453',
-  //         browserURL: 'https://basescan.org',
-  //       },
-  //     },
-  //     {
-  //       network: 'baseSepolia',
-  //       chainId: 84532,
-  //       urls: {
-  //         apiURL: 'https://api.etherscan.io/v2/api?chainid=84532',
-  //         browserURL: 'https://sepolia.basescan.org',
-  //       },
-  //     },
-  //   ],
+  // ],
   // },
 };
 

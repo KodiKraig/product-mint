@@ -33,10 +33,12 @@
   "author": "@kodikraig",
   "license": "BUSL-1.1",
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomicfoundation/hardhat-toolbox": "^6.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.14",
+    "@nomicfoundation/hardhat-ignition": "^0.15.12",
     "@openzeppelin/contracts": "^5.1.0",
     "dotenv": "^16.4.7",
-    "hardhat": "^2.22.17",
+    "hardhat": "^2.25.0",
     "hardhat-contract-sizer": "^2.10.0",
     "nodemon": "^3.1.9"
   },
