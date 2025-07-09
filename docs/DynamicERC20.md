@@ -9,13 +9,21 @@ DynamicERC20 are composed of two ERC20s:
 - The base token (e.g. WETH)
 - The quote token (e.g. USDC)
 
-The base token is the token that is used for payment. The quote token is the token that is used to price the base token. An organization can then create a pricing model using the DynamicERC20 token based on the price of the quote token.
+The base token is the token that is used for payment. The quote token is the token that is used to price the subscription. An organization can then create a pricing model using the DynamicERC20 token based on the price of the quote token.
 
 ### Example
 
-Assume an organizations wants to be paid in 100 USD worth of WETH for their subscription. To achieve this, the organization would create the pricing model using the DynamicERC20 with a price target of 100 USDC. Then, whenever the subscription is minted or renewed, 100 USDC worth of WETH would be paid.
+Assume an organizations wants to be paid in 100 USDC worth of WETH for their subscription. To achieve this, the organization would create the pricing model using the dynamic pricing token `dWETH-USDC` with a price target of 100 USDC. Then, whenever the subscription is minted or renewed, 100 USDC worth of WETH will be charged.
+
+## Architecture
+
+All DynamicERC20s require a dynamic pricing router to get the price of the tokens via a dex such as Uniswap V2 or Uniswap V3. Once the DynamicERC20 is deployed and registered, the system will check if the pricing model token is registered. If so, the system will use the quote token pricing to get the price in terms of the base token charging accordingly.
+
+![DynamicERC20](./assets/DynamicPricing.png)
 
 ## DynamicERC20 Contract Addresses
 
 ### Base - Mainnet
 - _dWETH-USDC_: `0x3eB0f547a95A9a52cA19E65917f5a06Cb28f06d2`
+    - Base (WETH): `0x4200000000000000000000000000000000000006`
+    - Quote (USDC): `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`
