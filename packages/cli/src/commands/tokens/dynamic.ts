@@ -1,4 +1,7 @@
-import { IDynamicERC20__factory } from '@product-mint/ethers-sdk';
+import {
+  IDynamicERC20__factory,
+  MintStableToken__factory,
+} from '@product-mint/ethers-sdk';
 import { Command } from 'commander';
 import { provider } from '../../provider';
 
@@ -61,5 +64,25 @@ export default function registerDynamicTokenCommands(program: Command) {
         await contract.getQuoteTokenAmount.staticCall(baseTokenAmount);
       console.log(`Quote token: ${quoteToken}`);
       console.log(`Quote token amount: ${quoteTokenAmount}`);
+    });
+
+  dynamicCommand
+    .command('metadata')
+    .description('Get the metadata of a dynamic token')
+    .argument('<dynamicTokenAddress>', 'The address of the dynamic token')
+    .action(async (dynamicTokenAddress) => {
+      const contract = MintStableToken__factory.connect(
+        dynamicTokenAddress,
+        provider,
+      );
+      const name = await contract.name();
+      const symbol = await contract.symbol();
+      const decimals = await contract.decimals();
+
+      console.log('--------------------------------');
+      console.log(`Dynamic Token Address: ${dynamicTokenAddress}`);
+      console.log(`Name: ${name}`);
+      console.log(`Symbol: ${symbol}`);
+      console.log(`Decimals: ${decimals}`);
     });
 }

@@ -21,5 +21,6 @@
   "organizationNFT": "0xC2bea1D2A05931c8A560BDe3Dbaaf4f75e1a4EE3",
   "productPassNFT": "0x10D6eF4A569c79b7d40f750EBeAba859a5B8c0db",
   "renewalProcessor": "0x98ffecB049695349ed448b7F9A5636c417BE4220",
-  "uniswapV2DynamicRouter": "0x0000000000000000000000000000000000000000"
+  "uniswapV2DynamicRouter": "0xD5443f3b7DbD9c3ec399077FbB9E59d5Db4Ba76d",
+  "mintStableToken": "0xD89A17a42087d03CBC8e97699e85d98f73466fCe"
 }

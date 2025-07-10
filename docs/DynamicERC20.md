@@ -25,5 +25,10 @@ All DynamicERC20s require a dynamic pricing router to get the price of the token
 
 ### Base - Mainnet
 - _dWETH-USDC_: `0x3eB0f547a95A9a52cA19E65917f5a06Cb28f06d2`
-    - Base (WETH): `0x4200000000000000000000000000000000000006`
-    - Quote (USDC): `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`
+    - Base (_WETH_): `0x4200000000000000000000000000000000000006`
+    - Quote (_USDC_): `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`
+
+### Base - Sepolia (UniswapV2 Mock Router)
+- _dMINT-USDC_: `0x8510eacF095f5d642c2c503316238d1bdaA69913`
+    - Base (_MINT_): `0xfEf7A1A463ad76814a959abbF04f75C1f769e057`
+    - Quote (_USDC_): `0xD89A17a42087d03CBC8e97699e85d98f73466fCe`
