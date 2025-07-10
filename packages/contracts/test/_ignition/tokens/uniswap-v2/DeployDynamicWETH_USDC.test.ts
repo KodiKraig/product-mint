@@ -48,6 +48,8 @@ describe('DeployDynamicWETH_USDC', () => {
 
     // ASSERTS
     expect(await dynamicToken.getAddress()).to.not.be.undefined;
+    expect(await dynamicToken.name()).to.equal('Uniswap V2 Dynamic WETH/USDC');
+    expect(await dynamicToken.symbol()).to.equal('dWETH-USDC');
     expect(await dynamicToken.baseToken()).to.equal(
       await mintToken.getAddress(),
     );

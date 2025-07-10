@@ -24,7 +24,7 @@ const DeployMockUniswapV2DynamicToken = buildModule(
 
     // Deploy the dynamic ERC20 token
     const dynamicToken = m.contract('UniswapV2DynamicERC20', [
-      'Mock UniswapV2 Dynamic Token MINT/USDC',
+      'Mock Uniswap V2 Dynamic Token MINT/USDC',
       'dMINT-USDC',
       mintTokenAddress,
       mintStableToken,

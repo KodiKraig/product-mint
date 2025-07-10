@@ -17,6 +17,10 @@ describe('DeployMockUniswapV2DynamicToken', () => {
       });
 
     expect(await dynamicToken.getAddress()).to.not.be.undefined;
+    expect(await dynamicToken.name()).to.equal(
+      'Mock Uniswap V2 Dynamic Token MINT/USDC',
+    );
+    expect(await dynamicToken.symbol()).to.equal('dMINT-USDC');
     expect(await dynamicToken.baseToken()).to.equal(
       await mintToken.getAddress(),
     );
