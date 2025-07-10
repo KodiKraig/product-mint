@@ -41,7 +41,7 @@ export interface MockUniswapV3RouterInterface extends Interface {
 
   getEvent(
     nameOrSignatureOrTopic:
-      | "MockTokenPriceSet"
+      | "MockUniswapV3TokenPriceSet"
       | "RoleAdminChanged"
       | "RoleGranted"
       | "RoleRevoked"
@@ -120,7 +120,7 @@ export interface MockUniswapV3RouterInterface extends Interface {
   ): Result;
 }
 
-export namespace MockTokenPriceSetEvent {
+export namespace MockUniswapV3TokenPriceSetEvent {
   export type InputTuple = [token: AddressLike, price: BigNumberish];
   export type OutputTuple = [token: string, price: bigint];
   export interface OutputObject {
@@ -361,11 +361,11 @@ export interface MockUniswapV3Router extends BaseContract {
   ): TypedContractMethod<[interfaceId: BytesLike], [boolean], "view">;
 
   getEvent(
-    key: "MockTokenPriceSet"
+    key: "MockUniswapV3TokenPriceSet"
   ): TypedContractEvent<
-    MockTokenPriceSetEvent.InputTuple,
-    MockTokenPriceSetEvent.OutputTuple,
-    MockTokenPriceSetEvent.OutputObject
+    MockUniswapV3TokenPriceSetEvent.InputTuple,
+    MockUniswapV3TokenPriceSetEvent.OutputTuple,
+    MockUniswapV3TokenPriceSetEvent.OutputObject
   >;
   getEvent(
     key: "RoleAdminChanged"
@@ -390,15 +390,15 @@ export interface MockUniswapV3Router extends BaseContract {
   >;
 
   filters: {
-    "MockTokenPriceSet(address,uint256)": TypedContractEvent<
-      MockTokenPriceSetEvent.InputTuple,
-      MockTokenPriceSetEvent.OutputTuple,
-      MockTokenPriceSetEvent.OutputObject
+    "MockUniswapV3TokenPriceSet(address,uint256)": TypedContractEvent<
+      MockUniswapV3TokenPriceSetEvent.InputTuple,
+      MockUniswapV3TokenPriceSetEvent.OutputTuple,
+      MockUniswapV3TokenPriceSetEvent.OutputObject
     >;
-    MockTokenPriceSet: TypedContractEvent<
-      MockTokenPriceSetEvent.InputTuple,
-      MockTokenPriceSetEvent.OutputTuple,
-      MockTokenPriceSetEvent.OutputObject
+    MockUniswapV3TokenPriceSet: TypedContractEvent<
+      MockUniswapV3TokenPriceSetEvent.InputTuple,
+      MockUniswapV3TokenPriceSetEvent.OutputTuple,
+      MockUniswapV3TokenPriceSetEvent.OutputObject
     >;
 
     "RoleAdminChanged(bytes32,bytes32,bytes32)": TypedContractEvent<

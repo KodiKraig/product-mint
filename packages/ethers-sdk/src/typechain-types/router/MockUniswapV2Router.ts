@@ -36,12 +36,13 @@ export interface MockUniswapV2RouterInterface extends Interface {
       | "renounceRole"
       | "revokeRole"
       | "setPrice"
+      | "setPriceBatch"
       | "supportsInterface"
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
-      | "MockTokenPriceSet"
+      | "MockUniswapV2TokenPriceSet"
       | "RoleAdminChanged"
       | "RoleGranted"
       | "RoleRevoked"
@@ -85,6 +86,10 @@ export interface MockUniswapV2RouterInterface extends Interface {
     values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "setPriceBatch",
+    values: [AddressLike[], BigNumberish[]]
+  ): string;
+  encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
   ): string;
@@ -115,12 +120,16 @@ export interface MockUniswapV2RouterInterface extends Interface {
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setPrice", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "setPriceBatch",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
 }
 
-export namespace MockTokenPriceSetEvent {
+export namespace MockUniswapV2TokenPriceSetEvent {
   export type InputTuple = [token: AddressLike, price: BigNumberish];
   export type OutputTuple = [token: string, price: bigint];
   export interface OutputObject {
@@ -278,6 +287,12 @@ export interface MockUniswapV2Router extends BaseContract {
     "nonpayable"
   >;
 
+  setPriceBatch: TypedContractMethod<
+    [_tokens: AddressLike[], _prices: BigNumberish[]],
+    [void],
+    "nonpayable"
+  >;
+
   supportsInterface: TypedContractMethod<
     [interfaceId: BytesLike],
     [boolean],
@@ -343,15 +358,22 @@ export interface MockUniswapV2Router extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "setPriceBatch"
+  ): TypedContractMethod<
+    [_tokens: AddressLike[], _prices: BigNumberish[]],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "supportsInterface"
   ): TypedContractMethod<[interfaceId: BytesLike], [boolean], "view">;
 
   getEvent(
-    key: "MockTokenPriceSet"
+    key: "MockUniswapV2TokenPriceSet"
   ): TypedContractEvent<
-    MockTokenPriceSetEvent.InputTuple,
-    MockTokenPriceSetEvent.OutputTuple,
-    MockTokenPriceSetEvent.OutputObject
+    MockUniswapV2TokenPriceSetEvent.InputTuple,
+    MockUniswapV2TokenPriceSetEvent.OutputTuple,
+    MockUniswapV2TokenPriceSetEvent.OutputObject
   >;
   getEvent(
     key: "RoleAdminChanged"
@@ -376,15 +398,15 @@ export interface MockUniswapV2Router extends BaseContract {
   >;
 
   filters: {
-    "MockTokenPriceSet(address,uint256)": TypedContractEvent<
-      MockTokenPriceSetEvent.InputTuple,
-      MockTokenPriceSetEvent.OutputTuple,
-      MockTokenPriceSetEvent.OutputObject
+    "MockUniswapV2TokenPriceSet(address,uint256)": TypedContractEvent<
+      MockUniswapV2TokenPriceSetEvent.InputTuple,
+      MockUniswapV2TokenPriceSetEvent.OutputTuple,
+      MockUniswapV2TokenPriceSetEvent.OutputObject
     >;
-    MockTokenPriceSet: TypedContractEvent<
-      MockTokenPriceSetEvent.InputTuple,
-      MockTokenPriceSetEvent.OutputTuple,
-      MockTokenPriceSetEvent.OutputObject
+    MockUniswapV2TokenPriceSet: TypedContractEvent<
+      MockUniswapV2TokenPriceSetEvent.InputTuple,
+      MockUniswapV2TokenPriceSetEvent.OutputTuple,
+      MockUniswapV2TokenPriceSetEvent.OutputObject
     >;
 
     "RoleAdminChanged(bytes32,bytes32,bytes32)": TypedContractEvent<
