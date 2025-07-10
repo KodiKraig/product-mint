@@ -7,15 +7,20 @@ describe('DeployMockUniswapV2DynamicToken', () => {
   it('should deploy the dynamic token', async () => {
     const { mintToken } = await loadWithPurchasedFlatRateSubscription();
 
-    const { dynamicToken, mintStableToken, dynamicUniswapV2Router } =
-      await hre.ignition.deploy(DeployMockUniswapV2DynamicToken, {
-        parameters: {
-          DeployMockUniswapV2DynamicToken: {
-            mintToken: await mintToken.getAddress(),
-          },
+    const {
+      dynamicToken,
+      mintStableToken,
+      dynamicUniswapV2Router,
+      mockUniswapV2Router,
+    } = await hre.ignition.deploy(DeployMockUniswapV2DynamicToken, {
+      parameters: {
+        DeployMockUniswapV2DynamicToken: {
+          mintToken: await mintToken.getAddress(),
         },
-      });
+      },
+    });
 
+    // Check the dynamic token
     expect(await dynamicToken.getAddress()).to.not.be.undefined;
     expect(await dynamicToken.name()).to.equal(
       'Mock Uniswap V2 Dynamic Token MINT/USDC',
@@ -41,5 +46,13 @@ describe('DeployMockUniswapV2DynamicToken', () => {
     expect(await dynamicToken.getBaseTokenPrice()).to.equal(
       ethers.parseUnits('100.3009', 6),
     );
+
+    // Check mock router pricing
+    expect(
+      await mockUniswapV2Router.prices(await mintToken.getAddress()),
+    ).to.equal(100);
+    expect(
+      await mockUniswapV2Router.prices(await mintStableToken.getAddress()),
+    ).to.equal(1);
   });
 });
