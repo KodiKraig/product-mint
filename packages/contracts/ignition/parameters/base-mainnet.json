@@ -14,5 +14,10 @@
       "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
       "0x4200000000000000000000000000000000000006"
     ]
+  },
+  "MigrateManagerDynamicPricing": {
+    "oldPurchaseManager": "0xCAb385EA250814948A24928B840348f2832459Df",
+    "permissionRegistry": "0x1cbCe3b5a74a967672864b4dE5740Dbca53D6958",
+    "contractRegistry": "0xcF6AA18E24B2904F4Bb007c78d2D0FAbF5961F41"
   }
 }

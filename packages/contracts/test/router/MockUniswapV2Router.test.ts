@@ -118,6 +118,36 @@ describe('MockUniswapV2Router', () => {
       ).to.equal(ethers.parseUnits('1', 18));
     });
 
+    it('should set the price for a batch of tokens', async () => {
+      const { mockUniswapV2Router, owner } = await loadFixture(
+        deployMockUniswapV2Router,
+      );
+
+      const MintToken = await hre.ethers.getContractFactory('MintToken');
+      const mintToken = await MintToken.deploy();
+      const mintToken2 = await MintToken.deploy();
+
+      await expect(
+        mockUniswapV2Router
+          .connect(owner)
+          .setPriceBatch(
+            [await mintToken.getAddress(), await mintToken2.getAddress()],
+            [ethers.parseUnits('1', 18), ethers.parseUnits('2', 18)],
+          ),
+      )
+        .to.emit(mockUniswapV2Router, 'MockUniswapV2TokenPriceSet')
+        .withArgs(await mintToken.getAddress(), ethers.parseUnits('1', 18))
+        .and.to.emit(mockUniswapV2Router, 'MockUniswapV2TokenPriceSet')
+        .withArgs(await mintToken2.getAddress(), ethers.parseUnits('2', 18));
+
+      expect(
+        await mockUniswapV2Router.prices(await mintToken.getAddress()),
+      ).to.equal(ethers.parseUnits('1', 18));
+      expect(
+        await mockUniswapV2Router.prices(await mintToken2.getAddress()),
+      ).to.equal(ethers.parseUnits('2', 18));
+    });
+
     it('revert if the token is the zero address', async () => {
       const { mockUniswapV2Router, owner } = await loadFixture(
         deployMockUniswapV2Router,
@@ -143,6 +173,39 @@ describe('MockUniswapV2Router', () => {
         mockUniswapV2Router,
         'AccessControlUnauthorizedAccount',
       );
+
+      await expect(
+        mockUniswapV2Router
+          .connect(otherAccount)
+          .setPriceBatch([ZeroAddress], [ethers.parseUnits('1', 18)]),
+      ).to.be.revertedWithCustomError(
+        mockUniswapV2Router,
+        'AccessControlUnauthorizedAccount',
+      );
+    });
+
+    it('revert if the tokens and prices have different lengths', async () => {
+      const { mockUniswapV2Router, owner } = await loadFixture(
+        deployMockUniswapV2Router,
+      );
+
+      await expect(
+        mockUniswapV2Router
+          .connect(owner)
+          .setPriceBatch([], [ethers.parseUnits('1', 18)]),
+      ).to.be.revertedWith('Tokens and prices must have the same length');
+    });
+
+    it('revert if the tokens are the zero address', async () => {
+      const { mockUniswapV2Router, owner } = await loadFixture(
+        deployMockUniswapV2Router,
+      );
+
+      await expect(
+        mockUniswapV2Router
+          .connect(owner)
+          .setPriceBatch([ZeroAddress], [ethers.parseUnits('1', 18)]),
+      ).to.be.revertedWith('Token address cannot be zero');
     });
   });
 });

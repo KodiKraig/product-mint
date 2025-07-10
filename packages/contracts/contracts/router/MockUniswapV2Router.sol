@@ -99,6 +99,25 @@ contract MockUniswapV2Router is AccessControl, ICustomUniswapV2Router {
         emit MockUniswapV2TokenPriceSet(_token, _price);
     }
 
+    function setPriceBatch(
+        address[] calldata _tokens,
+        uint256[] calldata _prices
+    ) external onlyRole(PRICE_SETTER_ROLE) {
+        require(
+            _tokens.length == _prices.length,
+            "Tokens and prices must have the same length"
+        );
+        require(_tokens.length > 0, "No tokens provided");
+
+        for (uint256 i = 0; i < _tokens.length; i++) {
+            require(_tokens[i] != address(0), "Token address cannot be zero");
+
+            prices[_tokens[i]] = _prices[i];
+
+            emit MockUniswapV2TokenPriceSet(_tokens[i], _prices[i]);
+        }
+    }
+
     /**
      * Supports Interface
      */
