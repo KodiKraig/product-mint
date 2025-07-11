@@ -63,6 +63,14 @@
     "PurchaseManagerWithPermissions": {
       "address": "0xCAb385EA250814948A24928B840348f2832459Df",
       "startBlock": 31608847
+    },
+    "DynamicPriceRegistry": {
+      "address": "0x030a1E979c02ed241Ec91579F6639679b779C73F",
+      "startBlock": 32738845
+    },
+    "PurchaseManagerDynamicPricing": {
+      "address": "0x679E2Fb685235e21E351C6563B4DB86Fcc4593d3",
+      "startBlock": 32738851
     }
   },
   "base-sepolia": {
@@ -129,6 +137,14 @@
     "PurchaseManagerWithPermissions": {
       "address": "0x0Ed5dd012eDbB169D47eA8A2ec3A53BD507db469",
       "startBlock": 27084394
+    },
+    "DynamicPriceRegistry": {
+      "address": "0xEC3C9FDD6a1984F39810c465cE35213286a5bf6b",
+      "startBlock": 28208942
+    },
+    "PurchaseManagerDynamicPricing": {
+      "address": "0x0cc166547D438e2D890321459B59A9Cd0D423501",
+      "startBlock": 28208948
     }
   }
 }
