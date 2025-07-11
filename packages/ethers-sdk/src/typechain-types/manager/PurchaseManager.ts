@@ -117,6 +117,7 @@ export interface PurchaseManagerInterface extends Interface {
       | "cancelSubscriptionBatch"
       | "changeSubscriptionPricing"
       | "changeTieredSubscriptionUnitQuantity"
+      | "dynamicPriceRegistry"
       | "owner"
       | "passSupply"
       | "pausePurchases"
@@ -131,6 +132,7 @@ export interface PurchaseManagerInterface extends Interface {
       | "renewSubscription"
       | "renewSubscriptionBatch"
       | "renounceOwnership"
+      | "setDynamicPriceRegistry"
       | "setPermissionRegistry"
       | "supportsInterface"
       | "transferOwnership"
@@ -139,6 +141,7 @@ export interface PurchaseManagerInterface extends Interface {
 
   getEvent(
     nameOrSignatureOrTopic:
+      | "DynamicPriceRegistryUpdated"
       | "OwnershipTransferStarted"
       | "OwnershipTransferred"
       | "Paused"
@@ -167,6 +170,10 @@ export interface PurchaseManagerInterface extends Interface {
   encodeFunctionData(
     functionFragment: "changeTieredSubscriptionUnitQuantity",
     values: [BigNumberish, BigNumberish, BigNumberish, boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "dynamicPriceRegistry",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -216,6 +223,10 @@ export interface PurchaseManagerInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "setDynamicPriceRegistry",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setPermissionRegistry",
     values: [AddressLike]
   ): string;
@@ -250,6 +261,10 @@ export interface PurchaseManagerInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "changeTieredSubscriptionUnitQuantity",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "dynamicPriceRegistry",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -297,6 +312,10 @@ export interface PurchaseManagerInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setDynamicPriceRegistry",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setPermissionRegistry",
     data: BytesLike
   ): Result;
@@ -312,6 +331,18 @@ export interface PurchaseManagerInterface extends Interface {
     functionFragment: "unpausePurchases",
     data: BytesLike
   ): Result;
+}
+
+export namespace DynamicPriceRegistryUpdatedEvent {
+  export type InputTuple = [_dynamicPriceRegistry: AddressLike];
+  export type OutputTuple = [_dynamicPriceRegistry: string];
+  export interface OutputObject {
+    _dynamicPriceRegistry: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export namespace OwnershipTransferStartedEvent {
@@ -538,6 +569,8 @@ export interface PurchaseManager extends BaseContract {
     "nonpayable"
   >;
 
+  dynamicPriceRegistry: TypedContractMethod<[], [string], "view">;
+
   owner: TypedContractMethod<[], [string], "view">;
 
   passSupply: TypedContractMethod<[], [bigint], "view">;
@@ -589,6 +622,12 @@ export interface PurchaseManager extends BaseContract {
   >;
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+
+  setDynamicPriceRegistry: TypedContractMethod<
+    [_dynamicPriceRegistry: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
   setPermissionRegistry: TypedContractMethod<
     [_permissionRegistry: AddressLike],
@@ -654,6 +693,9 @@ export interface PurchaseManager extends BaseContract {
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "dynamicPriceRegistry"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
@@ -721,6 +763,13 @@ export interface PurchaseManager extends BaseContract {
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "setDynamicPriceRegistry"
+  ): TypedContractMethod<
+    [_dynamicPriceRegistry: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "setPermissionRegistry"
   ): TypedContractMethod<
     [_permissionRegistry: AddressLike],
@@ -737,6 +786,13 @@ export interface PurchaseManager extends BaseContract {
     nameOrSignature: "unpausePurchases"
   ): TypedContractMethod<[], [void], "nonpayable">;
 
+  getEvent(
+    key: "DynamicPriceRegistryUpdated"
+  ): TypedContractEvent<
+    DynamicPriceRegistryUpdatedEvent.InputTuple,
+    DynamicPriceRegistryUpdatedEvent.OutputTuple,
+    DynamicPriceRegistryUpdatedEvent.OutputObject
+  >;
   getEvent(
     key: "OwnershipTransferStarted"
   ): TypedContractEvent<
@@ -788,6 +844,17 @@ export interface PurchaseManager extends BaseContract {
   >;
 
   filters: {
+    "DynamicPriceRegistryUpdated(address)": TypedContractEvent<
+      DynamicPriceRegistryUpdatedEvent.InputTuple,
+      DynamicPriceRegistryUpdatedEvent.OutputTuple,
+      DynamicPriceRegistryUpdatedEvent.OutputObject
+    >;
+    DynamicPriceRegistryUpdated: TypedContractEvent<
+      DynamicPriceRegistryUpdatedEvent.InputTuple,
+      DynamicPriceRegistryUpdatedEvent.OutputTuple,
+      DynamicPriceRegistryUpdatedEvent.OutputObject
+    >;
+
     "OwnershipTransferStarted(address,address)": TypedContractEvent<
       OwnershipTransferStartedEvent.InputTuple,
       OwnershipTransferStartedEvent.OutputTuple,

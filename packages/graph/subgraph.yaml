@@ -553,3 +553,76 @@ dataSources:
         - event: Unpaused(address)
           handler: handleUnpaused
       file: ./src/purchase-manager-with-permissions.ts
+  - kind: ethereum
+    name: DynamicPriceRegistry
+    network: base
+    source:
+      abi: DynamicPriceRegistry
+      address: "0x030a1E979c02ed241Ec91579F6639679b779C73F"
+      startBlock: 32738845
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - DynamicTokenRegistrationUpdated
+        - DynamicPriceRegistryRoleAdminChanged
+        - DynamicPriceRegistryRoleGranted
+        - DynamicPriceRegistryRoleRevoked
+      abis:
+        - name: DynamicPriceRegistry
+          file: ./abis/DynamicPriceRegistry.json
+      eventHandlers:
+        - event: DynamicTokenRegistrationUpdated(indexed address,bool)
+          handler: handleDynamicTokenRegistrationUpdated
+        - event: RoleAdminChanged(indexed bytes32,indexed bytes32,indexed bytes32)
+          handler: handleRoleAdminChanged
+        - event: RoleGranted(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleGranted
+        - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleRevoked
+      file: ./src/dynamic-price-registry.ts
+  - kind: ethereum
+    name: PurchaseManagerDynamicPricing
+    network: base
+    source:
+      abi: PurchaseManagerDynamicPricing
+      address: "0x679E2Fb685235e21E351C6563B4DB86Fcc4593d3"
+      startBlock: 32738851
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - DynamicPriceRegistryUpdated
+        - PurchaseManagerDynamicPricingOwnershipTransferStarted
+        - PurchaseManagerDynamicPricingOwnershipTransferred
+        - PurchaseManagerDynamicPricingPaused
+        - PurchaseManagerDynamicPricingPerformPurchase
+        - PurchaseManagerDynamicPricingProductsPurchased
+        - PurchaseManagerDynamicPricingSubscriptionRenewed
+        - PurchaseManagerDynamicPricingUnpaused
+      abis:
+        - name: PurchaseManagerDynamicPricing
+          file: ./abis/PurchaseManagerDynamicPricing.json
+      eventHandlers:
+        - event: DynamicPriceRegistryUpdated(indexed address)
+          handler: handleDynamicPriceRegistryUpdated
+        - event: OwnershipTransferStarted(indexed address,indexed address)
+          handler: handleOwnershipTransferStarted
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Paused(address)
+          handler: handlePaused
+        - event: PerformPurchase(indexed uint256,indexed address,indexed
+            address,address,uint256)
+          handler: handlePerformPurchase
+        - event: ProductsPurchased(indexed uint256,indexed uint256,indexed
+            address,uint256[],uint256[],uint256[],address,uint256)
+          handler: handleProductsPurchased
+        - event: SubscriptionRenewed(indexed uint256,indexed uint256,indexed
+            uint256,address,address,uint256)
+          handler: handleSubscriptionRenewed
+        - event: Unpaused(address)
+          handler: handleUnpaused
+      file: ./src/purchase-manager-dynamic-pricing.ts

@@ -2,6 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export { AttributeProvider__factory } from "./AttributeProvider__factory";
+export { DynamicERC20__factory } from "./DynamicERC20__factory";
+export { DynamicPriceEnabled__factory } from "./DynamicPriceEnabled__factory";
 export { ExternalMetadataERC721__factory } from "./ExternalMetadataERC721__factory";
 export { IMetadataProvider__factory } from "./IMetadataProvider__factory";
 export { IRestrictedAccess__factory } from "./IRestrictedAccess__factory";

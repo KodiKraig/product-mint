@@ -9,6 +9,7 @@ import registerCalculatorCommand from './calculator';
 import registerMetadataCommand from './metadata';
 import registerAdminCommand from './admin';
 import registerRenewalCommands from './renewal';
+import registerRouterCommands from './router';
 
 export function registerAllCommands(program: Command) {
   registerAdminCommand(program);
@@ -21,4 +22,5 @@ export function registerAllCommands(program: Command) {
   registerCalculatorCommand(program);
   registerMetadataCommand(program);
   registerRenewalCommands(program);
+  registerRouterCommands(program);
 }

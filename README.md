@@ -100,6 +100,11 @@ _* Additional settings configurable by the product owner_
         <td>❌</td>
     </tr>
     <tr>
+        <td style="text-align: left;"><a href="./docs/DynamicERC20.md">Dynamic Pricing</a></td>
+        <td>✅</td>
+        <td>❌</td>
+    </tr>
+    <tr>
         <td style="text-align: left;">One time product purchases</td>
         <td>✅</td>
         <td>✅</td>

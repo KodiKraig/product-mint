@@ -23,6 +23,7 @@ import {ICouponRegistry} from "../registry/ICouponRegistry.sol";
 import {IDiscountRegistry} from "../registry/IDiscountRegistry.sol";
 import {PermissionChecker} from "../abstract/PermissionChecker.sol";
 import {PermissionUtils} from "../libs/PermissionUtils.sol";
+import {DynamicPriceEnabled} from "../abstract/DynamicPriceEnabled.sol";
 
 /*
  ____                 _            _   __  __ _       _   
@@ -50,6 +51,7 @@ import {PermissionUtils} from "../libs/PermissionUtils.sol";
  */
 contract PurchaseManager is
     RegistryEnabled,
+    DynamicPriceEnabled,
     ReentrancyGuard,
     Pausable,
     IERC165,
@@ -63,13 +65,15 @@ contract PurchaseManager is
     constructor(
         address _contractRegistry,
         address _permissionRegistry,
-        address _oldPurchaseManager
+        address _oldPurchaseManager,
+        address _dynamicPriceRegistry
     )
         Ownable(_msgSender())
         RegistryEnabled(_contractRegistry)
         ReentrancyGuard()
         Pausable()
         PermissionChecker(_permissionRegistry)
+        DynamicPriceEnabled(_dynamicPriceRegistry)
     {
         if (_oldPurchaseManager != address(0)) {
             passSupply = IPurchaseManager(_oldPurchaseManager).passSupply();
@@ -195,6 +199,11 @@ contract PurchaseManager is
         uint256 totalAmount = IPricingCalculator(registry.pricingCalculator())
             .getInitialPurchaseCost(params.pricingIds, params.quantities);
 
+        (token, totalAmount) = _translateBaseTokenPurchasePrice(
+            token,
+            totalAmount
+        );
+
         if (totalAmount > 0) {
             _performPurchase(
                 PerformPurchaseParams({
@@ -264,6 +273,8 @@ contract PurchaseManager is
             );
 
         if (amount > 0) {
+            (token, amount) = _translateBaseTokenPurchasePrice(token, amount);
+
             _performPurchase(
                 PerformPurchaseParams({
                     orgId: params.orgId,
@@ -322,6 +333,8 @@ contract PurchaseManager is
             orgId,
             passOwner
         );
+
+        (token, price) = _translateBaseTokenPurchasePrice(token, price);
 
         if (price > 0) {
             _performPurchase(
@@ -390,6 +403,8 @@ contract PurchaseManager is
         );
 
         if (amount > 0) {
+            (token, amount) = _translateBaseTokenPurchasePrice(token, amount);
+
             _performPurchase(
                 PerformPurchaseParams({
                     orgId: orgId,
@@ -612,6 +627,16 @@ contract PurchaseManager is
         address _permissionRegistry
     ) external onlyOwner {
         _setPermissionRegistry(_permissionRegistry);
+    }
+
+    /**
+     * Dynamic Price Registry
+     */
+
+    function setDynamicPriceRegistry(
+        address _dynamicPriceRegistry
+    ) external onlyOwner {
+        _setDynamicPriceRegistry(_dynamicPriceRegistry);
     }
 
     /**

@@ -30,6 +30,10 @@ const config: HardhatUserConfig = {
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
   },
   // networks: {
+  //   ethereum: {
+  //     url: process.env.ETHEREUM_MAINNET_RPC_URL,
+  //     accounts: [PRIVATE_KEY],
+  //   },
   //   base: {
   //     url: process.env.BASE_MAINNET_RPC_URL,
   //     accounts: [PRIVATE_KEY],
@@ -40,16 +44,13 @@ const config: HardhatUserConfig = {
   //   },
   // },
   // etherscan: {
-  //   apiKey: {
-  //     base: process.env.BASE_SCAN_API_KEY ?? '',
-  //     baseSepolia: process.env.BASE_SCAN_API_KEY ?? '',
-  //   },
+  //   apiKey: process.env.ETHERSCAN_SCAN_API_KEY ?? '',
   //   customChains: [
   //     {
   //       network: 'baseSepolia',
   //       chainId: 84532,
   //       urls: {
-  //         apiURL: 'https://api-sepolia.basescan.org/api',
+  //         apiURL: 'https://api.etherscan.io/v2/api?chainid=84532',
   //         browserURL: 'https://sepolia.basescan.org',
   //       },
   //     },
