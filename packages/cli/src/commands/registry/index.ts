@@ -5,6 +5,7 @@ import registerPurchaseCommand from './purchase';
 import registerCouponCommand from './coupon';
 import registerDiscountCommand from './discount';
 import registerPermissionCommand from './permission';
+import registerDynamicCommand from './dynamic';
 
 export default function registerRegistryCommands(program: Command) {
   const registry = program
@@ -19,4 +20,5 @@ export default function registerRegistryCommands(program: Command) {
   registerCouponCommand(registry);
   registerDiscountCommand(registry);
   registerPermissionCommand(registry);
+  registerDynamicCommand(registry);
 }

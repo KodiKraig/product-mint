@@ -2746,4 +2746,252 @@ describe('Purchase Manager', () => {
       hashPermissionId('test.permission'),
     ]);
   });
+
+  describe('Dynamic price token', () => {
+    async function loadWithDynamicPriceToken() {
+      const results = await loadWithDefaultProduct();
+
+      const {
+        paymentEscrow,
+        mintToken,
+        dynamicERC20,
+        otherAccount,
+        pricingRegistry,
+        productRegistry,
+      } = results;
+
+      // Mint 1000 MINT tokens
+      await mintToken
+        .connect(otherAccount)
+        .mint(otherAccount, ethers.parseUnits('1000', 18));
+
+      // Approve payment escrow to spend the base MINT token
+      await mintToken
+        .connect(otherAccount)
+        .approve(
+          await paymentEscrow.getAddress(),
+          ethers.parseUnits('1000', 18),
+        );
+
+      // Create product 2
+      await productRegistry.createProduct({
+        orgId: 1,
+        name: 'Product 2',
+        description: 'P2 Description',
+        imageUrl: 'https://example.com/product2',
+        externalUrl: 'https://example.com/product2-image',
+        isTransferable: false,
+      });
+
+      // Create flat rate pricing with 100 dynamic price tokens
+      await pricingRegistry.createFlatRateSubscriptionPricing({
+        organizationId: 1,
+        flatPrice: ethers.parseUnits('100', 6),
+        token: await dynamicERC20.getAddress(),
+        isRestricted: false,
+        chargeFrequency: 1,
+      });
+
+      // Create flat rate pricing with 0 dynamic price tokens
+      await pricingRegistry.createFlatRateSubscriptionPricing({
+        organizationId: 1,
+        flatPrice: 0,
+        token: await dynamicERC20.getAddress(),
+        isRestricted: false,
+        chargeFrequency: 1,
+      });
+
+      // Create flat rate pricing with 0 dynamic price tokens
+      await pricingRegistry.createFlatRateSubscriptionPricing({
+        organizationId: 1,
+        flatPrice: ethers.parseUnits('200', 6),
+        token: await dynamicERC20.getAddress(),
+        isRestricted: false,
+        chargeFrequency: 2,
+      });
+
+      // Link pricing to product
+      await productRegistry.linkPricing(1, [1, 2, 3]);
+      await productRegistry.linkPricing(2, [1, 2, 3]);
+
+      // Set 8% fee in payment escrow
+      await paymentEscrow.setFeeEnabled(true);
+      await paymentEscrow.setFee(await mintToken.getAddress(), 800);
+
+      return results;
+    }
+
+    it('should purchase products with dynamic price greater than 0', async () => {
+      const {
+        purchaseManager,
+        paymentEscrow,
+        mintToken,
+        otherAccount,
+        productPassNFT,
+      } = await loadWithDynamicPriceToken();
+
+      // Purchase product
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseProducts({
+          to: otherAccount,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      )
+        .to.emit(purchaseManager, 'ProductsPurchased')
+        .withArgs(
+          1,
+          1,
+          otherAccount,
+          [1],
+          [1],
+          [0],
+          await mintToken.getAddress(),
+          ethers.parseUnits('100.3009', 18),
+        )
+        .and.to.emit(paymentEscrow, 'TransferAmount')
+        .withArgs(
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('100.3009', 18),
+          ethers.parseUnits('92.276828', 18),
+        );
+
+      // Check that the purchase was successful
+      expect(await mintToken.balanceOf(otherAccount)).to.equal(
+        ethers.parseUnits('899.6991', 18),
+      );
+      expect(await productPassNFT.ownerOf(1)).to.equal(otherAccount);
+
+      // Check that the payment escrow balances are correct
+      expect(
+        await paymentEscrow.orgBalances(1, await mintToken.getAddress()),
+      ).to.equal(ethers.parseUnits('92.276828', 18));
+      expect(
+        await paymentEscrow.getFeeBalance(await mintToken.getAddress()),
+      ).to.equal(ethers.parseUnits('8.024072', 18));
+    });
+
+    it('should purchase products with dynamic price equal to 0', async () => {
+      const {
+        purchaseManager,
+        otherAccount,
+        mintToken,
+        paymentEscrow,
+        productPassNFT,
+      } = await loadWithDynamicPriceToken();
+
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseProducts({
+          to: otherAccount,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [2],
+          quantities: [0],
+          discountIds: [],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      )
+        .to.emit(purchaseManager, 'ProductsPurchased')
+        .withArgs(
+          1,
+          1,
+          otherAccount,
+          [1],
+          [2],
+          [0],
+          await mintToken.getAddress(),
+          0,
+        )
+        .and.not.to.emit(paymentEscrow, 'TransferAmount');
+
+      // Check purchase successful
+      expect(await mintToken.balanceOf(otherAccount)).to.equal(
+        ethers.parseUnits('1000', 18),
+      );
+      expect(await productPassNFT.ownerOf(1)).to.equal(otherAccount);
+    });
+
+    it('should purchase additional products with dynamic price greater than 0', async () => {
+      const { purchaseManager, otherAccount, mintToken, paymentEscrow } =
+        await loadWithDynamicPriceToken();
+
+      // Purchase initial product
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseProducts({
+          to: otherAccount,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      )
+        .to.emit(purchaseManager, 'ProductsPurchased')
+        .withArgs(
+          1,
+          1,
+          otherAccount,
+          [1],
+          [1],
+          [0],
+          await mintToken.getAddress(),
+          ethers.parseUnits('100.3009', 18),
+        )
+        .and.to.emit(paymentEscrow, 'TransferAmount')
+        .withArgs(
+          1,
+          otherAccount,
+          await mintToken.getAddress(),
+          ethers.parseUnits('100.3009', 18),
+          ethers.parseUnits('92.276828', 18),
+        );
+
+      // Check that the purchase was successful
+      expect(await mintToken.balanceOf(otherAccount)).to.equal(
+        ethers.parseUnits('899.6991', 18),
+      );
+
+      // Purchase additional product
+      await expect(
+        purchaseManager.connect(otherAccount).purchaseAdditionalProducts({
+          productPassId: 1,
+          productIds: [2],
+          pricingIds: [3],
+          quantities: [0],
+          couponCode: '',
+          airdrop: false,
+          pause: false,
+        }),
+      )
+        .to.emit(purchaseManager, 'ProductsPurchased')
+        .withArgs(
+          1,
+          1,
+          otherAccount,
+          [2],
+          [3],
+          [0],
+          await mintToken.getAddress(),
+          ethers.parseUnits('200.6018', 18),
+        );
+
+      // Check that the purchase was successful
+      expect(await mintToken.balanceOf(otherAccount)).to.equal(
+        ethers.parseUnits('699.0973', 18),
+      );
+    });
+  });
 });

@@ -4,9 +4,11 @@
 export { ContractRegistry__factory } from "./ContractRegistry__factory";
 export { CouponRegistry__factory } from "./CouponRegistry__factory";
 export { DiscountRegistry__factory } from "./DiscountRegistry__factory";
+export { DynamicPriceRegistry__factory } from "./DynamicPriceRegistry__factory";
 export { IContractRegistry__factory } from "./IContractRegistry__factory";
 export { ICouponRegistry__factory } from "./ICouponRegistry__factory";
 export { IDiscountRegistry__factory } from "./IDiscountRegistry__factory";
+export { IDynamicPriceRegistry__factory } from "./IDynamicPriceRegistry__factory";
 export { IPermissionRegistry__factory } from "./IPermissionRegistry__factory";
 export { IPricingRegistry__factory } from "./IPricingRegistry__factory";
 export { IProductRegistry__factory } from "./IProductRegistry__factory";

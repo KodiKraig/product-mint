@@ -9,7 +9,7 @@
     "test:coverage:watch": "nodemon -e js,ts,sol --watch contracts --watch test --watch ignition/modules --exec 'hardhat coverage'",
     "compile": "hardhat compile",
     "clean": "hardhat clean",
-    "visualize": "hardhat ignition visualize ./ignition/modules/MigrateManagerPermissions.ts",
+    "visualize": "hardhat ignition visualize ./ignition/modules/MigrateManagerDynamicPricing.ts",
     "node:local": "hardhat node",
     "deploy:local": "hardhat ignition deploy ./ignition/modules/ProductMintSystem.ts --network localhost",
     "deploy:base-sepolia": "hardhat ignition deploy ./ignition/modules/ProductMintSystem.ts --network baseSepolia",
@@ -20,8 +20,11 @@
     "deploy:pass-metadata-v2:base-mainnet": "hardhat ignition deploy ./ignition/modules/UpgradePassMetadata.ts --network base",
     "deploy:renewal-processor:base-sepolia": "hardhat ignition deploy ./ignition/modules/RenewalProcessor.ts --network baseSepolia",
     "deploy:renewal-processor:base-mainnet": "hardhat ignition deploy ./ignition/modules/RenewalProcessor.ts --network base",
-    "deploy:permissions:base-sepolia": "hardhat ignition deploy ./ignition/modules/MigrateManagerPermissions.ts --network baseSepolia --parameters ./ignition/parameters/base-sepolia.json",
-    "deploy:permissions:base-mainnet": "hardhat ignition deploy ./ignition/modules/MigrateManagerPermissions.ts --network base --parameters ./ignition/parameters/base-mainnet.json"
+    "deploy:uniswap-v2-dynamic-router:base-mainnet": "hardhat ignition deploy ./ignition/modules/DeployUniswapV2DynamicRouter.ts --network base --parameters ./ignition/parameters/base-mainnet.json",
+    "deploy:dynamic-weth-usdc:base-mainnet": "hardhat ignition deploy ./ignition/modules/tokens/uniswap-v2/DeployDynamicWETH_USDC.ts --network base --parameters ./ignition/parameters/base-mainnet.json",
+    "deploy:mock-uniswap-v2-dynamic-token:base-sepolia": "hardhat ignition deploy ./ignition/modules/tokens/mock/DeployMockUniswapV2DynamicToken.ts --network baseSepolia --parameters ./ignition/parameters/base-sepolia.json",
+    "deploy:migrate-manager-dynamic-pricing:base-mainnet": "hardhat ignition deploy ./ignition/modules/MigrateManagerDynamicPricing.ts --network base --parameters ./ignition/parameters/base-mainnet.json",
+    "deploy:migrate-manager-dynamic-pricing:base-sepolia": "hardhat ignition deploy ./ignition/modules/MigrateManagerDynamicPricing.ts --network baseSepolia --parameters ./ignition/parameters/base-sepolia.json"
   },
   "keywords": [
     "productmint",
@@ -33,10 +36,12 @@
   "author": "@kodikraig",
   "license": "BUSL-1.1",
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomicfoundation/hardhat-toolbox": "^6.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.14",
+    "@nomicfoundation/hardhat-ignition": "^0.15.12",
     "@openzeppelin/contracts": "^5.1.0",
     "dotenv": "^16.4.7",
-    "hardhat": "^2.22.17",
+    "hardhat": "^2.25.0",
     "hardhat-contract-sizer": "^2.10.0",
     "nodemon": "^3.1.9"
   },

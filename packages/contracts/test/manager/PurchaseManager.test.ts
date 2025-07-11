@@ -146,8 +146,12 @@ describe('PurchaseManager', () => {
 
   describe('Upgrade and migration', () => {
     it('should set the initial pass supply to the pass supply of the old purchase manager if one is provided', async () => {
-      const { purchaseManager, contractRegistry, permissionRegistry } =
-        await loadWithPurchasedFlatRateSubscription();
+      const {
+        purchaseManager,
+        contractRegistry,
+        permissionRegistry,
+        dynamicPriceRegistry,
+      } = await loadWithPurchasedFlatRateSubscription();
 
       expect(await purchaseManager.passSupply()).to.equal(1);
 
@@ -158,9 +162,65 @@ describe('PurchaseManager', () => {
         contractRegistry,
         permissionRegistry,
         purchaseManager,
+        dynamicPriceRegistry,
       );
 
       expect(await newPurchaseManager.passSupply()).to.equal(1);
+    });
+  });
+
+  describe('Set Dynamic Price Registry', () => {
+    it('should set a new dynamic price registry', async () => {
+      const { purchaseManager, contractRegistry } = await loadFixture(
+        deployPurchaseManager,
+      );
+
+      const DynamicPriceRegistry = await ethers.getContractFactory(
+        'DynamicPriceRegistry',
+      );
+      const newDynamicPriceRegistry = await DynamicPriceRegistry.deploy(
+        contractRegistry,
+      );
+
+      await expect(
+        purchaseManager.setDynamicPriceRegistry(
+          await newDynamicPriceRegistry.getAddress(),
+        ),
+      )
+        .to.emit(purchaseManager, 'DynamicPriceRegistryUpdated')
+        .withArgs(await newDynamicPriceRegistry.getAddress());
+
+      expect(await purchaseManager.dynamicPriceRegistry()).to.equal(
+        await newDynamicPriceRegistry.getAddress(),
+      );
+    });
+
+    it('revert if not the owner', async () => {
+      const { purchaseManager, dynamicPriceRegistry, otherAccount } =
+        await loadFixture(deployPurchaseManager);
+
+      await expect(
+        purchaseManager
+          .connect(otherAccount)
+          .setDynamicPriceRegistry(await dynamicPriceRegistry.getAddress()),
+      )
+        .to.be.revertedWithCustomError(
+          purchaseManager,
+          'OwnableUnauthorizedAccount',
+        )
+        .withArgs(otherAccount);
+    });
+
+    it('revert if does not conform to the dynamic price registry interface', async () => {
+      const { purchaseManager, organizationNFT } = await loadFixture(
+        deployPurchaseManager,
+      );
+
+      await expect(
+        purchaseManager.setDynamicPriceRegistry(
+          await organizationNFT.getAddress(),
+        ),
+      ).to.be.revertedWith('IDynamicPriceRegistry not supported');
     });
   });
 });

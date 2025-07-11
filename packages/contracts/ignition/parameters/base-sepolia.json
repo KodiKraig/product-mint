@@ -1,6 +1,10 @@
 {
-  "MigrateManagerPermissions": {
-    "contractRegistryAddress": "0xe495E460649166B5d49Aac122198172DC07f31e0",
-    "oldPurchaseManagerAddress": "0x0da94511236963A849aDd2D7BE97B143F1b126Bd"
+  "MigrateManagerDynamicPricing": {
+    "oldPurchaseManager": "0x0Ed5dd012eDbB169D47eA8A2ec3A53BD507db469",
+    "permissionRegistry": "0x0b1165FbB06560fE40f6764A74Ae8ee31655318b",
+    "contractRegistry": "0xe495E460649166B5d49Aac122198172DC07f31e0"
+  },
+  "DeployMockUniswapV2DynamicToken": {
+    "mintToken": "0xfEf7A1A463ad76814a959abbF04f75C1f769e057"
   }
 }
