@@ -4,9 +4,11 @@
 export type { ContractRegistry } from "./ContractRegistry";
 export type { CouponRegistry } from "./CouponRegistry";
 export type { DiscountRegistry } from "./DiscountRegistry";
+export type { DynamicPriceRegistry } from "./DynamicPriceRegistry";
 export type { IContractRegistry } from "./IContractRegistry";
 export type { ICouponRegistry } from "./ICouponRegistry";
 export type { IDiscountRegistry } from "./IDiscountRegistry";
+export type { IDynamicPriceRegistry } from "./IDynamicPriceRegistry";
 export type { IPermissionRegistry } from "./IPermissionRegistry";
 export type { IPricingRegistry } from "./IPricingRegistry";
 export type { IProductRegistry } from "./IProductRegistry";

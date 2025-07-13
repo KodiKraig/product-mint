@@ -1,6 +1,23 @@
 {
-  "MigrateManagerPermissions": {
-    "contractRegistryAddress": "0xcF6AA18E24B2904F4Bb007c78d2D0FAbF5961F41",
-    "oldPurchaseManagerAddress": "0xBf31aD908EA3b7930aa85AD06eC290Ac9A11103D"
+  "DeployUniswapV2DynamicRouter": {
+    "uniswapV2RouterAddress": "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24"
+  },
+  "DeployDynamicWETH_USDC": {
+    "baseToken": "0x4200000000000000000000000000000000000006",
+    "quoteToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "dynamicPriceRouter": "0x17B0e768Cd785fCAad2729650714fbF57E8F4DdC",
+    "baseToQuotePath": [
+      "0x4200000000000000000000000000000000000006",
+      "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+    ],
+    "quoteToBasePath": [
+      "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "0x4200000000000000000000000000000000000006"
+    ]
+  },
+  "MigrateManagerDynamicPricing": {
+    "oldPurchaseManager": "0xCAb385EA250814948A24928B840348f2832459Df",
+    "permissionRegistry": "0x1cbCe3b5a74a967672864b4dE5740Dbca53D6958",
+    "contractRegistry": "0xcF6AA18E24B2904F4Bb007c78d2D0FAbF5961F41"
   }
 }

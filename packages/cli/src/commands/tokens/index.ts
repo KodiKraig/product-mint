@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import registerOrganizationCommand from './organization';
 import registerMintTokenCommand from './mint-token';
 import registerProductPassCommand from './pass';
+import registerDynamicTokenCommand from './dynamic';
 
 export default function registerTokensCommand(program: Command) {
   const tokens = program
@@ -11,4 +12,5 @@ export default function registerTokensCommand(program: Command) {
   registerOrganizationCommand(tokens);
   registerMintTokenCommand(tokens);
   registerProductPassCommand(tokens);
+  registerDynamicTokenCommand(tokens);
 }
