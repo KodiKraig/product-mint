@@ -34,6 +34,8 @@ import {AttributeDate} from "../libs/AttributeDate.sol";
  * - Organization -> <Organization ID>
  * - Product <Product ID> -> <Product Name>
  * - Subscription <Product ID> -> <Subscription Status>
+ * - Subscription <Product ID> Start -> <Start Date Block Timestamp>
+ * - Subscription <Product ID> End -> <End Date Block Timestamp>
  * - Discount <Discount ID> -> <Discount Name>
  * - Total Discount
  *
@@ -42,7 +44,11 @@ import {AttributeDate} from "../libs/AttributeDate.sol";
  * Product 1 -> Pro Plan
  * Product 2 -> Token Usage
  * Subscription 1 -> Active
+ * Subscription 1 Start -> 1779158400
+ * Subscription 1 End -> 1779763200
  * Subscription 2 -> Active
+ * Subscription 2 Start -> 1879158400
+ * Subscription 2 End -> 1879763200
  * Discount 1 -> OG
  * Discount 2 -> FOUNDER
  * Total Discount -> 8%

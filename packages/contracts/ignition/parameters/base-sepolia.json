@@ -6,5 +6,9 @@
   },
   "DeployMockUniswapV2DynamicToken": {
     "mintToken": "0xfEf7A1A463ad76814a959abbF04f75C1f769e057"
+  },
+  "MigratePassAttributesSubDate": {
+    "passMetadataProvider": "0x2B113946Cb729f94254aF5cC6bd412499F021df9",
+    "contractRegistry": "0xe495E460649166B5d49Aac122198172DC07f31e0"
   }
 }
