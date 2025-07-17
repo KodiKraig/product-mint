@@ -206,6 +206,7 @@ describe('ProductPassNFT', () => {
         mintToken,
         paymentEscrow,
         purchaseRegistry,
+        subscriptionEscrow,
         owner,
         otherAccount,
         otherAccount2,
@@ -350,6 +351,12 @@ describe('ProductPassNFT', () => {
       const tokenUris = await productPassNFT.tokenURIBatch([1, 2, 3, 4, 5]);
       expect(tokenUris.length).to.equal(5);
 
+      // Subscriptions
+      const [sub1] = await subscriptionEscrow.getSubscription(1, 1);
+      const [sub2] = await subscriptionEscrow.getSubscription(1, 4);
+      const [sub3] = await subscriptionEscrow.getSubscription(2, 1);
+      const [sub4] = await subscriptionEscrow.getSubscription(4, 1);
+
       assertMetadata(tokenUris[0], {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
@@ -357,7 +364,27 @@ describe('ProductPassNFT', () => {
           { trait_type: 'Product 1', value: 'Product 1' },
           { trait_type: 'Product 4', value: 'Name 4' },
           { trait_type: 'Subscription 1', value: 'Active' },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 Start',
+            value: Number(sub1.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 End',
+            value: Number(sub1.endDate),
+          },
           { trait_type: 'Subscription 4', value: 'Active' },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 4 Start',
+            value: Number(sub2.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 4 End',
+            value: Number(sub2.endDate),
+          },
         ],
       });
 
@@ -367,6 +394,16 @@ describe('ProductPassNFT', () => {
           { trait_type: 'Organization', value: '1' },
           { trait_type: 'Product 1', value: 'Product 1' },
           { trait_type: 'Subscription 1', value: 'Active' },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 Start',
+            value: Number(sub3.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 End',
+            value: Number(sub3.endDate),
+          },
         ],
       });
 
@@ -385,6 +422,16 @@ describe('ProductPassNFT', () => {
           { trait_type: 'Organization', value: '1' },
           { trait_type: 'Product 1', value: 'Product 1' },
           { trait_type: 'Subscription 1', value: 'Active' },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 Start',
+            value: Number(sub4.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 End',
+            value: Number(sub4.endDate),
+          },
         ],
       });
 

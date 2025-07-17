@@ -181,6 +181,10 @@ describe('Purchase Manager', () => {
       // ADVANCE TO ALL PAST DUE PRODUCTS
       await time.increase(getCycleDuration(3) + 1);
 
+      const [sub1] = await subscriptionEscrow.getSubscription(1, 1);
+      const [sub2] = await subscriptionEscrow.getSubscription(1, 2);
+      const [sub3] = await subscriptionEscrow.getSubscription(1, 3);
+
       // Check metadata
       assertMetadata(await productPassNFT.tokenURI(1), {
         ...EMPTY_METADATA,
@@ -190,8 +194,38 @@ describe('Purchase Manager', () => {
           { trait_type: 'Product 2', value: 'Product 2' },
           { trait_type: 'Product 3', value: 'Product 3' },
           { trait_type: 'Subscription 1', value: 'Past Due' },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 Start',
+            value: Number(sub1.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 End',
+            value: Number(sub1.endDate),
+          },
           { trait_type: 'Subscription 2', value: 'Past Due' },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 2 Start',
+            value: Number(sub2.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 2 End',
+            value: Number(sub2.endDate),
+          },
           { trait_type: 'Subscription 3', value: 'Past Due' },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 3 Start',
+            value: Number(sub3.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 3 End',
+            value: Number(sub3.endDate),
+          },
         ],
       });
 
@@ -539,12 +573,24 @@ describe('Purchase Manager', () => {
         .connect(otherAccount)
         .cancelSubscription(1, 1, true);
 
+      const [sub1] = await subscriptionEscrow.getSubscription(1, 1);
+
       assertMetadata(await productPassNFT.tokenURI(1), {
         ...EMPTY_METADATA,
         attributes: [
           { trait_type: 'Organization', value: '1' },
           { trait_type: 'Product 1', value: 'Product 1' },
           { trait_type: 'Subscription 1', value: 'Cancelled' },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 Start',
+            value: Number(sub1.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 End',
+            value: Number(sub1.endDate),
+          },
         ],
       });
 
@@ -1366,12 +1412,24 @@ describe('Purchase Manager', () => {
         ethers.parseUnits('90', 6),
       );
 
+      const [sub1] = await subscriptionEscrow.getSubscription(1, 1);
+
       assertMetadata(await productPassNFT.tokenURI(1), {
         ...EMPTY_METADATA,
         attributes: [
           { trait_type: 'Organization', value: '1' },
           { trait_type: 'Product 1', value: 'Product 1' },
           { trait_type: 'Subscription 1', value: 'Paused' },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 Start',
+            value: Number(sub1.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 End',
+            value: Number(sub1.endDate),
+          },
         ],
       });
 

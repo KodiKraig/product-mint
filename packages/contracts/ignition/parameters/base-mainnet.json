@@ -19,5 +19,9 @@
     "oldPurchaseManager": "0xCAb385EA250814948A24928B840348f2832459Df",
     "permissionRegistry": "0x1cbCe3b5a74a967672864b4dE5740Dbca53D6958",
     "contractRegistry": "0xcF6AA18E24B2904F4Bb007c78d2D0FAbF5961F41"
+  },
+  "MigratePassAttributesSubDate": {
+    "passMetadataProvider": "0xF703Ae43E972fb4F225FBA9da9A7520E2A89BAD3",
+    "contractRegistry": "0xcF6AA18E24B2904F4Bb007c78d2D0FAbF5961F41"
   }
 }
