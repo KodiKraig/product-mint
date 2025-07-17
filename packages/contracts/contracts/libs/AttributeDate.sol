@@ -8,13 +8,13 @@ library AttributeDate {
     using Strings for uint256;
 
     /**
-     * @notice Convert a date value to a Metadata attribute with proper display type.
-     * @param value The date value to convert.
+     * @notice Convert a date value to a metadata attribute with proper display type.
+     * @param value The block timestamp value representing the date.
      * @param traitType The trait type of the attribute.
      * @return The attribute as a string.
      *
      * Format:
-     * { 'display_type': 'date', 'trait_type': '<TRAIT TYPE>', 'value': '<VALUE>' }
+     * { 'display_type': 'date', 'trait_type': '<TRAIT TYPE>', 'value': '<BLOCK TIMESTAMP>' }
      */
     function attributeTraitTypeDate(
         uint256 value,
