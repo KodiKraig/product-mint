@@ -4,6 +4,9 @@ pragma solidity ^0.8.24;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
+/**
+ * @notice Library for converting a block timestamp to a metadata date attribute.
+ */
 library AttributeDate {
     using Strings for uint256;
 
