@@ -121,10 +121,12 @@ describe('Pass Metadata Provider', () => {
 
   describe('Get Token Metadata', () => {
     it('should return the correct metadata for an org with no custom metadata', async () => {
-      const { passMetadataProviderV2, purchaseRegistry } =
+      const { passMetadataProviderV2, purchaseRegistry, subscriptionEscrow } =
         await loadWithDefaultMetadata();
 
       expect(await purchaseRegistry.passOrganization(1)).to.equal(1);
+
+      const [sub1] = await subscriptionEscrow.getSubscription(1, 1);
 
       assertMetadata(await passMetadataProviderV2.getTokenMetadata(1), {
         ...EXPECTED_DEFAULT_PASS_METADATA,
@@ -141,6 +143,16 @@ describe('Pass Metadata Provider', () => {
             trait_type: 'Subscription 1',
             value: 'Active',
           },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 Start',
+            value: Number(sub1.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 End',
+            value: Number(sub1.endDate),
+          },
         ],
       });
     });
@@ -154,6 +166,7 @@ describe('Pass Metadata Provider', () => {
         productRegistry,
         pricingRegistry,
         paymentEscrow,
+        subscriptionEscrow,
         mintToken,
         owner,
         otherAccount,
@@ -288,6 +301,11 @@ describe('Pass Metadata Provider', () => {
       expect(await purchaseRegistry.passOrganization(3)).to.equal(2);
       expect(await purchaseRegistry.passOrganization(4)).to.equal(1);
 
+      const [sub1] = await subscriptionEscrow.getSubscription(1, 1);
+      const [sub2] = await subscriptionEscrow.getSubscription(2, 2);
+      const [sub3] = await subscriptionEscrow.getSubscription(3, 2);
+      const [sub4] = await subscriptionEscrow.getSubscription(4, 1);
+
       assertMetadata(await passMetadataProviderV2.getTokenMetadata(1), {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         name: 'NEW 1',
@@ -303,6 +321,16 @@ describe('Pass Metadata Provider', () => {
           {
             trait_type: 'Subscription 1',
             value: 'Active',
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 Start',
+            value: Number(sub1.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 End',
+            value: Number(sub1.endDate),
           },
         ],
       });
@@ -322,6 +350,16 @@ describe('Pass Metadata Provider', () => {
             trait_type: 'Subscription 2',
             value: 'Active',
           },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 2 Start',
+            value: Number(sub2.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 2 End',
+            value: Number(sub2.endDate),
+          },
         ],
       });
 
@@ -339,6 +377,16 @@ describe('Pass Metadata Provider', () => {
           {
             trait_type: 'Subscription 2',
             value: 'Active',
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 2 Start',
+            value: Number(sub3.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 2 End',
+            value: Number(sub3.endDate),
           },
         ],
       });
@@ -359,12 +407,22 @@ describe('Pass Metadata Provider', () => {
             trait_type: 'Subscription 1',
             value: 'Active',
           },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 Start',
+            value: Number(sub4.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 End',
+            value: Number(sub4.endDate),
+          },
         ],
       });
     });
 
     it('should return the correct metadata for discounts that have decimals', async () => {
-      const { passMetadataProviderV2, discountRegistry } =
+      const { passMetadataProviderV2, discountRegistry, subscriptionEscrow } =
         await loadWithDefaultMetadata();
 
       await discountRegistry.createDiscount({
@@ -387,6 +445,8 @@ describe('Pass Metadata Provider', () => {
 
       await discountRegistry.mintDiscountsToPassByOrg(1, [1], [1, 2]);
 
+      const [sub1] = await subscriptionEscrow.getSubscription(1, 1);
+
       assertMetadata(await passMetadataProviderV2.getTokenMetadata(1), {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
@@ -401,6 +461,16 @@ describe('Pass Metadata Provider', () => {
           {
             trait_type: 'Subscription 1',
             value: 'Active',
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 Start',
+            value: Number(sub1.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 End',
+            value: Number(sub1.endDate),
           },
           {
             trait_type: 'Discount 1',
@@ -419,7 +489,7 @@ describe('Pass Metadata Provider', () => {
     });
 
     it('should return the correct metadata for discounts that do NOT have decimals', async () => {
-      const { passMetadataProviderV2, discountRegistry } =
+      const { passMetadataProviderV2, discountRegistry, subscriptionEscrow } =
         await loadWithDefaultMetadata();
 
       await discountRegistry.createDiscount({
@@ -442,6 +512,8 @@ describe('Pass Metadata Provider', () => {
 
       await discountRegistry.mintDiscountsToPassByOrg(1, [1], [1, 2]);
 
+      const [sub1] = await subscriptionEscrow.getSubscription(1, 1);
+
       assertMetadata(await passMetadataProviderV2.getTokenMetadata(1), {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
@@ -456,6 +528,16 @@ describe('Pass Metadata Provider', () => {
           {
             trait_type: 'Subscription 1',
             value: 'Active',
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 Start',
+            value: Number(sub1.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 End',
+            value: Number(sub1.endDate),
           },
           {
             trait_type: 'Discount 1',
