@@ -24,7 +24,9 @@
     "deploy:dynamic-weth-usdc:base-mainnet": "hardhat ignition deploy ./ignition/modules/tokens/uniswap-v2/DeployDynamicWETH_USDC.ts --network base --parameters ./ignition/parameters/base-mainnet.json",
     "deploy:mock-uniswap-v2-dynamic-token:base-sepolia": "hardhat ignition deploy ./ignition/modules/tokens/mock/DeployMockUniswapV2DynamicToken.ts --network baseSepolia --parameters ./ignition/parameters/base-sepolia.json",
     "deploy:migrate-manager-dynamic-pricing:base-mainnet": "hardhat ignition deploy ./ignition/modules/MigrateManagerDynamicPricing.ts --network base --parameters ./ignition/parameters/base-mainnet.json",
-    "deploy:migrate-manager-dynamic-pricing:base-sepolia": "hardhat ignition deploy ./ignition/modules/MigrateManagerDynamicPricing.ts --network baseSepolia --parameters ./ignition/parameters/base-sepolia.json"
+    "deploy:migrate-manager-dynamic-pricing:base-sepolia": "hardhat ignition deploy ./ignition/modules/MigrateManagerDynamicPricing.ts --network baseSepolia --parameters ./ignition/parameters/base-sepolia.json",
+    "deploy:migrate-pass-attributes-sub-date:base-mainnet": "hardhat ignition deploy ./ignition/modules/MigratePassAttributesSubDate.ts --network base --parameters ./ignition/parameters/base-mainnet.json",
+    "deploy:migrate-pass-attributes-sub-date:base-sepolia": "hardhat ignition deploy ./ignition/modules/MigratePassAttributesSubDate.ts --network baseSepolia --parameters ./ignition/parameters/base-sepolia.json"
   },
   "keywords": [
     "productmint",

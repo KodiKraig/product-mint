@@ -11,6 +11,7 @@ import {IProductRegistry} from "../registry/IProductRegistry.sol";
 import {RegistryEnabled} from "../abstract/RegistryEnabled.sol";
 import {AttributeUtils} from "../libs/AttributeUtils.sol";
 import {ISubscriptionEscrow} from "../escrow/ISubscriptionEscrow.sol";
+import {AttributeDate} from "../libs/AttributeDate.sol";
 
 /*
  ____                 _            _   __  __ _       _   
@@ -33,6 +34,8 @@ import {ISubscriptionEscrow} from "../escrow/ISubscriptionEscrow.sol";
  * - Organization -> <Organization ID>
  * - Product <Product ID> -> <Product Name>
  * - Subscription <Product ID> -> <Subscription Status>
+ * - Subscription <Product ID> Start -> <Start Date Block Timestamp>
+ * - Subscription <Product ID> End -> <End Date Block Timestamp>
  * - Discount <Discount ID> -> <Discount Name>
  * - Total Discount
  *
@@ -41,7 +44,11 @@ import {ISubscriptionEscrow} from "../escrow/ISubscriptionEscrow.sol";
  * Product 1 -> Pro Plan
  * Product 2 -> Token Usage
  * Subscription 1 -> Active
+ * Subscription 1 Start -> 1779158400
+ * Subscription 1 End -> 1779763200
  * Subscription 2 -> Active
+ * Subscription 2 Start -> 1879158400
+ * Subscription 2 End -> 1879763200
  * Discount 1 -> OG
  * Discount 2 -> FOUNDER
  * Total Discount -> 8%
@@ -51,6 +58,7 @@ contract PassAttributeProvider is AttributeProvider, RegistryEnabled {
     using AttributeUtils for string;
     using AttributeUtils for string[];
     using AttributeUtils for uint256;
+    using AttributeDate for uint256;
 
     constructor(address registry) RegistryEnabled(registry) {}
 
@@ -187,6 +195,8 @@ contract PassAttributeProvider is AttributeProvider, RegistryEnabled {
      *
      * Format:
      * { 'trait_type': 'Subscription <Product ID>', 'value': '<SUBSCRIPTION STATUS>' },
+     * { 'display_type': 'date', 'trait_type': 'Subscription <Product ID> Start', 'value': '<START DATE>' },
+     * { 'display_type': 'date', 'trait_type': 'Subscription <Product ID> End', 'value': '<END DATE>' },
      */
     function _getPassSubAttributes(
         uint256 tokenId
@@ -208,9 +218,12 @@ contract PassAttributeProvider is AttributeProvider, RegistryEnabled {
         string[] memory subAttributes = new string[](_subs.length);
 
         for (uint256 i = 0; i < _subs.length; i++) {
-            subAttributes[i] = _getSubStatusAttribute(
-                _statuses[i],
-                productIds[i]
+            subAttributes[i] = string.concat(
+                _getSubStatusAttribute(_statuses[i], productIds[i]),
+                ",",
+                _getSubStartDate(_subs[i].startDate, productIds[i]),
+                ",",
+                _getSubEndDate(_subs[i].endDate, productIds[i])
             );
         }
 
@@ -239,6 +252,38 @@ contract PassAttributeProvider is AttributeProvider, RegistryEnabled {
         return
             statusString.attributeTraitType(
                 string.concat("Subscription ", productId.toString())
+            );
+    }
+
+    /**
+     * @dev Get the attribute for the start date of a subscription.
+     *
+     * Format:
+     * { 'display_type': 'date', 'trait_type': 'Subscription <Product ID> Start', 'value': '<START DATE>' },
+     */
+    function _getSubStartDate(
+        uint256 startDate,
+        uint256 productId
+    ) internal pure returns (string memory) {
+        return
+            startDate.attributeTraitTypeDate(
+                string.concat("Subscription ", productId.toString(), " Start")
+            );
+    }
+
+    /**
+     * @dev Get the attribute for the end date of a subscription.
+     *
+     * Format:
+     * { 'display_type': 'date', 'trait_type': 'Subscription <Product ID> End', 'value': '<END DATE>' },
+     */
+    function _getSubEndDate(
+        uint256 endDate,
+        uint256 productId
+    ) internal pure returns (string memory) {
+        return
+            endDate.attributeTraitTypeDate(
+                string.concat("Subscription ", productId.toString(), " End")
             );
     }
 }

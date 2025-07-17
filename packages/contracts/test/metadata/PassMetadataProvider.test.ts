@@ -103,7 +103,10 @@ describe('Pass Metadata Provider', () => {
 
   describe('Get Token Metadata', () => {
     it('should return the correct metadata for an org with no custom metadata', async () => {
-      const { passMetadataProvider } = await loadWithDefaultMetadata();
+      const { passMetadataProvider, subscriptionEscrow } =
+        await loadWithDefaultMetadata();
+
+      const [sub1] = await subscriptionEscrow.getSubscription(1, 1);
 
       assertMetadata(await passMetadataProvider.getTokenMetadata(1), {
         ...EXPECTED_DEFAULT_PASS_METADATA,
@@ -120,12 +123,22 @@ describe('Pass Metadata Provider', () => {
             trait_type: 'Subscription 1',
             value: 'Active',
           },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 Start',
+            value: Number(sub1.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 End',
+            value: Number(sub1.endDate),
+          },
         ],
       });
     });
 
     it('should return the correct metadata for discounts that have decimals', async () => {
-      const { passMetadataProvider, discountRegistry } =
+      const { passMetadataProvider, discountRegistry, subscriptionEscrow } =
         await loadWithDefaultMetadata();
 
       await discountRegistry.createDiscount({
@@ -148,6 +161,8 @@ describe('Pass Metadata Provider', () => {
 
       await discountRegistry.mintDiscountsToPassByOrg(1, [1], [1, 2]);
 
+      const [sub1] = await subscriptionEscrow.getSubscription(1, 1);
+
       assertMetadata(await passMetadataProvider.getTokenMetadata(1), {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
@@ -162,6 +177,16 @@ describe('Pass Metadata Provider', () => {
           {
             trait_type: 'Subscription 1',
             value: 'Active',
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 Start',
+            value: Number(sub1.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 End',
+            value: Number(sub1.endDate),
           },
           {
             trait_type: 'Discount 1',
@@ -180,7 +205,7 @@ describe('Pass Metadata Provider', () => {
     });
 
     it('should return the correct metadata for discounts that do NOT have decimals', async () => {
-      const { passMetadataProvider, discountRegistry } =
+      const { passMetadataProvider, discountRegistry, subscriptionEscrow } =
         await loadWithDefaultMetadata();
 
       await discountRegistry.createDiscount({
@@ -203,6 +228,8 @@ describe('Pass Metadata Provider', () => {
 
       await discountRegistry.mintDiscountsToPassByOrg(1, [1], [1, 2]);
 
+      const [sub1] = await subscriptionEscrow.getSubscription(1, 1);
+
       assertMetadata(await passMetadataProvider.getTokenMetadata(1), {
         ...EXPECTED_DEFAULT_PASS_METADATA,
         attributes: [
@@ -217,6 +244,16 @@ describe('Pass Metadata Provider', () => {
           {
             trait_type: 'Subscription 1',
             value: 'Active',
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 Start',
+            value: Number(sub1.startDate),
+          },
+          {
+            display_type: 'date',
+            trait_type: 'Subscription 1 End',
+            value: Number(sub1.endDate),
           },
           {
             trait_type: 'Discount 1',
