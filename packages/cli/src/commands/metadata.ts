@@ -43,7 +43,7 @@ export default function registerMetadataCommand(program: Command) {
     .description('Manage metadata for organizations');
 
   const defaultOrganizationMetadataCommand = metadataCommand
-    .command('defaultOrganization')
+    .command('defaultOrg')
     .description('Manage the default metadata for organizations (team only)');
 
   registerOrganizationMetadataCommand(organizationMetadataCommand);

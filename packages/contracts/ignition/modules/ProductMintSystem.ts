@@ -35,9 +35,9 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
     {
       name: 'Product Pass',
       description:
-        'A ProductMint Product Pass is used for tokenizing products and creating permissionless subscriptions. Organizations can sell product passes to their customers to grant them access to their products.',
+        'A Product Pass NFT unlocks exclusive access to products and subscriptions offered by its issuing organization on ProductMint.',
       externalUrl: 'https://productmint.io',
-      image: 'https://productmint.io/image.png',
+      image: 'https://productmint.io/assets/ProductMint_ProductPass.png',
       backgroundColor: '',
       animationUrl: '',
     },
@@ -61,9 +61,9 @@ const ProductMintSystemModule = buildModule('ProductMintSystemModule', (m) => {
     {
       name: 'Organization',
       description:
-        'A ProductMint Organization is required to sell products and subscriptions. Create products and pricing models within the organization to start selling product passes for your products.',
+        'A Organization NFT enables its owner to create and manage products with crypto subscription offerings within the ProductMint ecosystem.',
       externalUrl: 'https://productmint.io',
-      image: 'https://productmint.io/image.png',
+      image: 'https://productmint.io/assets/ProductMint_Org.png',
       backgroundColor: '',
       animationUrl: '',
     },
