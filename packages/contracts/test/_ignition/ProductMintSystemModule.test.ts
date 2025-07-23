@@ -28,10 +28,12 @@ describe('ProductMintSystemModule', () => {
     const metadata = await passMetadataProvider.getDefaultMetadata();
     expect(metadata.name).to.equal('Product Pass');
     expect(metadata.description).to.equal(
-      'A ProductMint Product Pass is used for tokenizing products and creating permissionless subscriptions. Organizations can sell product passes to their customers to grant them access to their products.',
+      'A Product Pass NFT unlocks exclusive access to products and subscriptions offered by its issuing organization on ProductMint.',
     );
     expect(metadata.externalUrl).to.equal('https://productmint.io');
-    expect(metadata.image).to.equal('https://productmint.io/image.png');
+    expect(metadata.image).to.equal(
+      'https://productmint.io/assets/ProductMint_ProductPass.png',
+    );
     expect(metadata.backgroundColor).to.equal('');
     expect(metadata.animationUrl).to.equal('');
   });
@@ -44,10 +46,12 @@ describe('ProductMintSystemModule', () => {
     const metadata = await organizationMetadataProvider.getDefaultMetadata();
     expect(metadata.name).to.equal('Organization');
     expect(metadata.description).to.equal(
-      'A ProductMint Organization is required to sell products and subscriptions. Create products and pricing models within the organization to start selling product passes for your products.',
+      'A Organization NFT enables its owner to create and manage products with crypto subscription offerings within the ProductMint ecosystem.',
     );
     expect(metadata.externalUrl).to.equal('https://productmint.io');
-    expect(metadata.image).to.equal('https://productmint.io/image.png');
+    expect(metadata.image).to.equal(
+      'https://productmint.io/assets/ProductMint_Org.png',
+    );
     expect(metadata.backgroundColor).to.equal('');
     expect(metadata.animationUrl).to.equal('');
   });

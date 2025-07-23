@@ -43,7 +43,7 @@ export default function registerMetadataCommand(program: Command) {
     .description('Manage metadata for organizations');
 
   const defaultOrganizationMetadataCommand = metadataCommand
-    .command('defaultOrganization')
+    .command('defaultOrg')
     .description('Manage the default metadata for organizations (team only)');
 
   registerOrganizationMetadataCommand(organizationMetadataCommand);
@@ -144,6 +144,18 @@ const registerDefaultOrganizationMetadataCommand = (command: Command) => {
     .description('Update the default metadata for organizations (team only)');
 
   updateCommand
+    .command('description')
+    .description('Update the description of the organization')
+    .argument('description', 'The description of the organization')
+    .action(async (description) => {
+      await waitTx(
+        organizationMetadataProvider
+          .connect(signerWallet)
+          .setDefaultMetadataField(1, description),
+      );
+    });
+
+  updateCommand
     .command('image')
     .description('Update the image of the organization')
     .argument('image', 'The image of the organization')
@@ -174,6 +186,18 @@ const registerDefaultPassMetadataCommand = (command: Command) => {
   const updateCommand = command
     .command('update')
     .description('Update the default metadata for product passes (team only)');
+
+  updateCommand
+    .command('description')
+    .description('Update the description of the product pass')
+    .argument('description', 'The description of the product pass')
+    .action(async (description) => {
+      await waitTx(
+        passMetadataProvider
+          .connect(signerWallet)
+          .setDefaultMetadataField(1, description),
+      );
+    });
 
   updateCommand
     .command('image')
