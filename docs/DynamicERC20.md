@@ -32,3 +32,8 @@ All DynamicERC20s require a dynamic pricing router to get the price of the token
 - _dMINT-USDC_ (UniswapV2 Mock): `0x8510eacF095f5d642c2c503316238d1bdaA69913`
     - Base (_MINT_): `0xfEf7A1A463ad76814a959abbF04f75C1f769e057`
     - Quote (_USDC_): `0xD89A17a42087d03CBC8e97699e85d98f73466fCe`
+
+### Ethereum - Sepolia
+- _dMINT-USDC_ (UniswapV2 Mock): `0x313deB1dd6aC07159E88D5a5a3EfF41d76Cf5ffC`
+    - Base (_MINT_): `0xd8c28b0fe48c1237A896748AC9f59bdc496c2Ca8`
+    - Quote (_USDC_): `0x4EBF9e5009367A8e002014b211B3bD2A618B2d9C`

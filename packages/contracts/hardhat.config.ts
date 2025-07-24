@@ -34,6 +34,10 @@ const config: HardhatUserConfig = {
   //     url: process.env.ETHEREUM_MAINNET_RPC_URL,
   //     accounts: [PRIVATE_KEY],
   //   },
+  //   sepolia: {
+  //     url: process.env.ETHEREUM_SEPOLIA_RPC_URL,
+  //     accounts: [PRIVATE_KEY],
+  //   },
   //   base: {
   //     url: process.env.BASE_MAINNET_RPC_URL,
   //     accounts: [PRIVATE_KEY],
