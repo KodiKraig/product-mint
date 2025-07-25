@@ -65,12 +65,17 @@ _* Additional settings configurable by the product owner_
         <td>❌</td>
     </tr>
     <tr>
-        <td style="text-align: left;"><a href="./docs/Permissions.md">Full user control over subscriptions</a></td>
+        <td style="text-align: left;">Lowest fees</td>
         <td>✅</td>
         <td>❌</td>
     </tr>
     <tr>
-        <td style="text-align: left;">Lowest fees</td>
+        <td style="text-align: left;"><a href="./docs/DynamicERC20.md">Dynamic Pricing</a></td>
+        <td>✅</td>
+        <td>❌</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;"><a href="./docs/DiscordIntegration.md">Discord Channel Token Gates</a></td>
         <td>✅</td>
         <td>❌</td>
     </tr>
@@ -100,7 +105,7 @@ _* Additional settings configurable by the product owner_
         <td>❌</td>
     </tr>
     <tr>
-        <td style="text-align: left;"><a href="./docs/DynamicERC20.md">Dynamic Pricing</a></td>
+        <td style="text-align: left;"><a href="./docs/Permissions.md">Full user control over subscriptions</a></td>
         <td>✅</td>
         <td>❌</td>
     </tr>
