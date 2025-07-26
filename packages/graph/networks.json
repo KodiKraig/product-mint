@@ -146,5 +146,71 @@
       "address": "0x0cc166547D438e2D890321459B59A9Cd0D423501",
       "startBlock": 28208948
     }
+  },
+  "sepolia": {
+    "CouponRegistry": {
+      "address": "0x50c15F246dc989c506ca8063265436BDf1137C76",
+      "startBlock": 8834649
+    },
+    "DiscountRegistry": {
+      "address": "0x6D53fA9C01e027B02148EFFF66F5B4F217B49A85",
+      "startBlock": 8834649
+    },
+    "OrganizationAdmin": {
+      "address": "0xe9C7ad55C0351A24107Ef7255bf2896D0a105078",
+      "startBlock": 8834649
+    },
+    "PaymentEscrow": {
+      "address": "0x883e1bc0f4C072506A061a6d3d79d08CB5dEa0e1",
+      "startBlock": 8834649
+    },
+    "PricingRegistry": {
+      "address": "0x87f02C15Dfb51F4ADeff65F16D802E8bC93Ae929",
+      "startBlock": 8839625
+    },
+    "ProductRegistry": {
+      "address": "0x962EaeDCe9487C63de122d0d776DB71a3D47f7e5",
+      "startBlock": 8839636
+    },
+    "PurchaseManager": {
+      "address": "0x064b338F7c5B11CB422724276bD701dc117AA404",
+      "startBlock": 8834654
+    },
+    "PurchaseRegistry": {
+      "address": "0xd5C467f8E3a631130A46584Ee772C2d3c8eE7A8a",
+      "startBlock": 8839659
+    },
+    "SubscriptionEscrow": {
+      "address": "0x31495B8C8227F0BC5cd7E6E7878b4ce65aC8036e",
+      "startBlock": 8834649
+    },
+    "UsageRecorder": {
+      "address": "0x61Fb12CF6898F5B57e726aa63B539dcc49FC8841",
+      "startBlock": 8834649
+    },
+    "OrganizationNFT": {
+      "address": "0x83ad6E2841f178962EeCeA0813A041ed33b92F57",
+      "startBlock": 8834660
+    },
+    "ProductPassNFT": {
+      "address": "0xCD4fA407DfDb88e44e1F32014C52B92A18105FdE",
+      "startBlock": 8834660
+    },
+    "RenewalProcessor": {
+      "address": "0x0fF4ccbd7EAe7ED82035fC51700e1183D2401A0A",
+      "startBlock": 8834649
+    },
+    "PermissionFactory": {
+      "address": "0x8c459CD544c3Bbe3044d8376c0f756bfc10E101e",
+      "startBlock": 8834643
+    },
+    "PermissionRegistry": {
+      "address": "0xBd456872151638C760116c4a067EbEf90A15B7Aa",
+      "startBlock": 8834649
+    },
+    "DynamicPriceRegistry": {
+      "address": "0x72332f942C7abA168216844023dF193C6d78Dc83",
+      "startBlock": 8834649
+    }
   }
 }
