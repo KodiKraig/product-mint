@@ -94,5 +94,72 @@ export default function registerPaymentCommand(program: Command): Command {
       );
     });
 
+  registerFeeCommand(payment);
+
   return payment;
 }
+
+const registerFeeCommand = (program: Command) => {
+  const fee = program
+    .command('fee')
+    .description('Manage fees for the payment escrow contract.');
+
+  fee
+    .command('get')
+    .description('Get the fee for a token.')
+    .argument('<token>', 'The token address to get the fee for.')
+    .action(async (token) => {
+      const fee = await paymentEscrow.fees(token);
+      console.log(`Fee for ${token}: ${fee} (${Number(fee) / 100}%)`);
+    });
+
+  fee
+    .command('set')
+    .description('Set the fee for a token.')
+    .argument('<token>', 'The token address to set the fee for.')
+    .argument('<fee>', 'The fee to set for the token.')
+    .action(async (token, fee) => {
+      await waitTx(paymentEscrow.connect(signerWallet).setFee(token, fee));
+    });
+
+  fee
+    .command('enabled')
+    .description('Are fees enabled for the payment escrow contract?')
+    .action(async () => {
+      const enabled = await paymentEscrow.isFeeEnabled();
+      console.log(`Fees enabled: ${enabled}`);
+    });
+
+  fee
+    .command('enable')
+    .description('Enable the fees for the payment escrow contract.')
+    .action(async () => {
+      await waitTx(paymentEscrow.connect(signerWallet).setFeeEnabled(true));
+    });
+
+  fee
+    .command('disable')
+    .description('Disable fees for the payment escrow contract.')
+    .action(async () => {
+      await waitTx(paymentEscrow.connect(signerWallet).setFeeEnabled(false));
+    });
+
+  fee
+    .command('balance')
+    .description('Get the fee balance of the payment escrow contract.')
+    .argument('<token>', 'The token address to get the balance of.')
+    .action(async (token) => {
+      const balance = await paymentEscrow.getFeeBalance(token);
+      const decimals = await getTokenDecimals(token);
+      console.log(`Token: ${token}`);
+      console.log(`Balance: ${balance} (${formatUnits(balance, decimals)})`);
+    });
+
+  fee
+    .command('withdraw')
+    .description('Withdraw the fee balance of the payment escrow contract.')
+    .argument('<token>', 'The token address to withdraw the balance of.')
+    .action(async (token) => {
+      await waitTx(paymentEscrow.connect(signerWallet).withdrawFee(token));
+    });
+};
