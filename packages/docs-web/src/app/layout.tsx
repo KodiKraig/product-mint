@@ -2,6 +2,7 @@ import { Footer, Layout, Navbar } from "nextra-theme-docs";
 import { Head } from "nextra/components";
 import { getPageMap } from "nextra/page-map";
 import { TRPCReactProvider } from "@/trpc/react";
+import { PostHogProvider } from "@/providers/PostHogProvider";
 import Image from "next/image";
 import "../styles/globals.css";
 import type { Metadata } from "next";
@@ -100,15 +101,17 @@ export default async function RootLayout({
         {/* Your additional tags should be passed as `children` of `<Head>` element */}
       </Head>
       <body>
-        <Layout
-          navbar={navbar}
-          pageMap={await getPageMap()}
-          docsRepositoryBase="https://github.com/KodiKraig/product-mint/tree/main/packages/docs-web"
-          footer={footer}
-          // ... Your additional layout options
-        >
-          <TRPCReactProvider>{children}</TRPCReactProvider>
-        </Layout>
+        <PostHogProvider>
+          <Layout
+            navbar={navbar}
+            pageMap={await getPageMap()}
+            docsRepositoryBase="https://github.com/KodiKraig/product-mint/tree/main/packages/docs-web"
+            footer={footer}
+            // ... Your additional layout options
+          >
+            <TRPCReactProvider>{children}</TRPCReactProvider>
+          </Layout>
+        </PostHogProvider>
       </body>
     </html>
   );
