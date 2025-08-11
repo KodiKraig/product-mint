@@ -15,21 +15,17 @@ export async function generateMetadata(props: Props) {
   return metadata;
 }
 
-// @ts-expect-error - wrapper is a function that returns a component
-const Wrapper = getMDXComponents().wrapper;
+const Wrapper = getMDXComponents({}).wrapper;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function Page(props: any) {
   const params = await props.params;
   const {
     default: MDXContent,
     toc,
     metadata,
-    // @ts-expect-error - sourceCode is not defined in the type
-    sourceCode,
   } = await importPage(params.mdxPath);
   return (
-    <Wrapper toc={toc} metadata={metadata} sourceCode={sourceCode}>
+    <Wrapper toc={toc} metadata={metadata}>
       <MDXContent {...props} params={params} />
     </Wrapper>
   );
