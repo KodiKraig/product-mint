@@ -3,7 +3,7 @@ import appMetadata from "@/config/metadata";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "ProductMint Docs",
+    name: "ProductMint Documentation",
     short_name: "ProductMint Docs",
     description: appMetadata.description,
     start_url: "/",

@@ -1,7 +1,7 @@
 const BASE_URL = "https://docs.productmint.io";
 
 const metadata = {
-  name: "ProductMint Docs",
+  name: "ProductMint Documentation",
   description:
     "Transform your business with the future of crypto subscriptions. ProductMint empowers creators, developers, and entrepreneurs to build sustainable revenue streams through blockchain-powered recurring payments. Create products, set up automatic billing cycles, and sell them as NFTs—all without intermediaries, KYC, or traditional payment processors.",
   url: {
