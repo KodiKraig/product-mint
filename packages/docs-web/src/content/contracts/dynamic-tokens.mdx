@@ -1,0 +1,39 @@
+import { Callout } from 'nextra/components'
+
+# Dynamic Tokens
+
+`DynamicERC20` is a concept unique to ProductMint allowing organizations to create pricing models that target a specific price. This allows organizations to charge a stable price for a volatile token.
+
+<Callout type="info">
+DynamicERC20 tokens are not mintable or transferable. They are only used for price targeting within the ProductMint system.
+</Callout>
+
+
+## How it works
+
+DynamicERC20 are composed of two ERC20s:
+
+- The base token (e.g. WETH)
+- The quote token (e.g. USDC)
+
+The base token is the token that is used for payment. The quote token is the token that is used to price the subscription. An organization can create a pricing model using the DynamicERC20 token based on the price of the quote token. Then, whenever the subscription is minted or renewed, the system will charge the base token based on the price of the quote token.
+
+## Symbol
+
+The symbol of the DynamicERC20 token is prefixed with `d` followed by the base token symbol and the quote token symbol.
+
+## Example
+
+`dWETH-USDC`
+
+Assume an organizations wants to be paid in 100 USDC worth of WETH for their subscription. To achieve this, the organization would create the pricing model using the dynamic pricing token `dWETH-USDC` with a price target of 100. Then, whenever the subscription is minted or renewed, 100 USDC worth of WETH will be charged.
+
+## Architecture
+
+All DynamicERC20s require a dynamic pricing router to get the price of the tokens via a dex such as Uniswap V2 or Uniswap V3. Once the DynamicERC20 is deployed and registered, the system will check if the pricing model token is registered. If so, the system will use the quote token pricing to get the price in terms of the base token charging accordingly.
+
+![DynamicERC20](/assets/DynamicPricing.png)
+
+## How to enable dynamic tokens
+
+When you create a pricing model, simply set the dynamic token and you are good to go! If using our [dashboard](https://dashboard.productmint.io), you will be able to select the dynamic token from the dropdown.
