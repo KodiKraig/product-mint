@@ -296,6 +296,7 @@ _More chains coming soon!_
 
 - <a href="./packages/cli/README.md">__@product-mint/cli__</a>: CLI tool for interacting with deployed contracts from the command line.
 - <a href="./packages/contracts/README.md">__@product-mint/contracts__</a>: Ethereum Solidity contracts.
+- <a href="./packages/docs-web/README.md">__@product-mint/docs-web__</a>: Documentation website for ProductMint.
 - <a href="./packages/ethers-sdk/README.md">__@product-mint/ethers-sdk__</a>: Auto generated TypeChain ethers.js v6 SDK for interacting with deployed contracts.
 - <a href="./packages/graph/README.md">__@product-mint/graph__</a>: GraphProtocol for ProductMint contracts with GraphQL schemas.
 

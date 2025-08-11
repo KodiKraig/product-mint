@@ -1,0 +1,84 @@
+import { Callout } from "nextra/components";
+
+![ProductMint Logo](/OgImage.png)
+
+<br />
+
+# Introduction
+
+**Transform your business with the future of crypto subscriptions.** ProductMint empowers creators, developers, and entrepreneurs to build sustainable revenue streams through blockchain-powered recurring payments. Create products, set up automatic billing cycles, and sell them as NFTs—all without intermediaries, KYC, or traditional payment processors.
+
+**Why ProductMint?**
+- 🚀 **Launch in minutes** - No complex setup or APIs
+- 💰 **Keep more revenue** - Lowest fees in the industry with instant settlements
+- 🔒 **True ownership** - Your customers own their subscriptions as NFTs
+- ⚡ **Permissionless renewals** - Automatic billing that never stops
+- 🌐 **Global reach** - Accept payments from anywhere in the world
+
+## Pricing Models
+Different options for pricing your products and selling them onchain.
+
+- **One-time product purchases**
+- **Recurring subscription products with permissionless renewals**
+    - **Flat Rate**: A fixed amount to charge the customer at the start of each billing cycle.
+    - **Tiered**: Quantity based, paid at start of billing cycle similar to "seats" for SaaS products.
+    - **Usage**: Metered and paid at the end of billing cycle. Useful for products that are metered like data usage, API calls, AI tokens, etc.
+
+## Charge Frequencies
+
+Subscription billing cycles can use the following durations:
+- Daily (24 hours)
+- Weekly (7 days)
+- Monthly (30 days)
+- Quarterly (90 days)
+- Yearly (365 days)
+
+<Callout>
+The exact charge frequency is based on block timestamps onchain linked to subscriptions. Upgrades and downgrades are supported.
+</Callout>
+
+## Payment Tokens
+
+Create pricing models with native chain currency or an approved ERC20 token.
+
+[View approved tokens](https://dashboard.productmint.io/tokens)
+
+## Dynamic Pricing
+
+Dynamic tokens are special ERC20 tokens created by ProductMint allowing you to create pricing models using volatile tokens with stable price targets. 
+
+Want to charge 10 USDC per month but be paid in a volatile token like WETH? We have you covered.
+
+Learn more about dynamic tokens [here](./contracts/dynamic-tokens).
+
+## NFTs
+
+There are two types of NFTs that are used by ProductMint to sell your products and crypto subscriptions.
+
+### Organization NFT
+- Represents your organization allowing you to create and manage products.
+- The owner of the Organization NFT has full control to create and manage products.
+- Only the owner of the Organization NFT can withdraw revenue.
+- Can mint directly from the [dashboard](https://dashboard.productmint.io).
+
+[View on OpenSea](https://opensea.io/collection/productmint-organization-nft)
+
+### Product Pass NFT
+- Sold to your customers to grant them access to your product.
+- Each product sold is attached to a Product Pass NFT that your customers own.
+- Metadata is stored onchain and can be updated by the owner of the Organization NFT.
+
+[View on OpenSea](https://opensea.io/collection/productmint-product-pass-nft)
+
+## Benefits
+
+- **No KYC**
+- **Instant payment settlements ready for withdrawals**
+- **No API or third party services** 
+- **Lowest fees in the industry**
+- **Automatic Renewals**
+- **No Staking Required**
+
+And much much more...
+
+
