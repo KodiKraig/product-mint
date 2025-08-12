@@ -1,0 +1,37 @@
+import { Cards, Callout } from 'nextra/components';
+import { ReceiptTextIcon } from 'lucide-react';
+
+# Payment Escrow
+
+The Payment Escrow contract is used to hold funds for an organization.
+
+Fees are collected on each transaction when a Product Pass is minted or a subscription is renewed or upgraded.
+
+<br/>
+<Cards.Card
+  icon={<ReceiptTextIcon />}
+  title="Deployed Contract Addresses"
+  href="/contracts/deployed-addresses"
+/>
+
+## Fees
+
+Fees are collected on each transaction when a Product Pass NFT is used to purchase a product or a subscription is renewed/upgraded.
+
+<Callout emoji="💰">
+This is the only cost to use the ProductMint system paid only when you get paid.
+</Callout>
+
+### Fees by Chain
+
+Each chain has a different fee structure for the Payment Escrow contract along with different fee percentage based on token characteristics such as stablecoin, market cap, etc.
+
+[View token fees](https://dashboard.productmint.io/tokens)
+
+### Layer 1 vs Layer 2
+
+Layer 1 chains have a higher fee structure than Layer 2 chains. This is because Layer 1 chains have a higher gas price and are more expensive to use and operate our system.
+
+### Stablecoins
+
+Stablecoins such as USDC have a lower fee structure than non-stablecoins. This is because stablecoins prices do not change.

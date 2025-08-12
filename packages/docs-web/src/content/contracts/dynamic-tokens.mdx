@@ -1,11 +1,13 @@
 import { Callout } from 'nextra/components'
+import { ChainImage } from '@/app/_components/chain-image'
+import { ExplorerLink } from '@/app/_components/external-link'
 
 # Dynamic Tokens
 
-`DynamicERC20` is a concept unique to ProductMint allowing organizations to create pricing models that target a specific price. This allows organizations to charge a stable price for a volatile token.
+DynamicERC20 is a concept unique to ProductMint allowing organizations to create pricing models that target a specific price. This allows organizations to charge a stable price for a volatile token.
 
 <Callout type="info">
-DynamicERC20 tokens are not mintable or transferable. They are only used for price targeting within the ProductMint system.
+DynamicERC20 tokens cannot be minted or transferred. They are only used for price targeting within the ProductMint system.
 </Callout>
 
 
@@ -37,3 +39,28 @@ All DynamicERC20s require a dynamic pricing router to get the price of the token
 ## How to enable dynamic tokens
 
 When you create a pricing model, simply set the dynamic token and you are good to go! If using our [dashboard](https://dashboard.productmint.io), you will be able to select the dynamic token from the dropdown.
+
+## Contract Addresses
+
+<br />
+
+<ChainImage chain="base-mainnet" />
+
+### Base Mainnet
+- dWETH-USDC (UniswapV2): <ExplorerLink value="0x3eB0f547a95A9a52cA19E65917f5a06Cb28f06d2" chain="base-mainnet" />
+    - WETH: <ExplorerLink value="0x4200000000000000000000000000000000000006" chain="base-mainnet" />
+    - USDC: <ExplorerLink value="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" chain="base-mainnet"  />
+
+### Base Sepolia
+- dMINT-USDC (UniswapV2 Mock): <ExplorerLink value="0x8510eacF095f5d642c2c503316238d1bdaA69913" chain="base-sepolia" />
+    - MINT: <ExplorerLink value="0xfEf7A1A463ad76814a959abbF04f75C1f769e057" chain="base-sepolia" />
+    - USDC: <ExplorerLink value="0xD89A17a42087d03CBC8e97699e85d98f73466fCe" chain="base-sepolia" />
+
+<br />
+
+<ChainImage chain="ethereum-sepolia" />
+
+### Ethereum Sepolia
+- dMINT-USDC (UniswapV2 Mock): <ExplorerLink value="0x313deB1dd6aC07159E88D5a5a3EfF41d76Cf5ffC" chain="ethereum-sepolia" />
+    - MINT: <ExplorerLink value="0xd8c28b0fe48c1237A896748AC9f59bdc496c2Ca8" chain="ethereum-sepolia" />
+    - USDC: <ExplorerLink value="0x4EBF9e5009367A8e002014b211B3bD2A618B2d9C" chain="ethereum-sepolia" />

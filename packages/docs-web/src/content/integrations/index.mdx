@@ -1,0 +1,26 @@
+---
+asIndexPage: true
+---
+
+import { Cards } from 'nextra/components';
+import { SiDiscord } from "@icons-pack/react-simple-icons";
+import { WebhookIcon } from 'lucide-react';
+
+# Integrations
+
+Below are the integrations that are currently available. We will be adding more integrations in the future. Need a specific integration? Reach out to us. 🤝
+
+<br />
+
+<Cards>
+    <Cards.Card
+        icon={<SiDiscord />}
+        title="Discord"
+        href="/integrations/discord"
+    />
+    <Cards.Card
+        icon={<WebhookIcon />}
+        title="Webhooks"
+        href="/integrations/webhooks"
+    />
+</Cards>
