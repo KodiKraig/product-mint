@@ -1,6 +1,7 @@
-import { Table } from 'nextra/components'
+import { Table, Cards } from 'nextra/components'
 import { ContractAddressTable } from '@/app/_components/contract-address-table'
 import { ChainImage } from '@/app/_components/chain-image'
+import { ReceiptTextIcon } from 'lucide-react';
 
 # Deployed Contracts
 
@@ -32,4 +33,13 @@ Below are the contract addresses for the main contracts deployed across EVM base
     { contract: "PurchaseManager", address: "0x0cc166547D438e2D890321459B59A9Cd0D423501" },
     { contract: "PaymentEscrow", address: "0xfc91B5dFd126A5DFEf9f3E7724D3c738E6b2F772" },
   ]}
+/>
+
+<br />
+
+<Cards.Card
+  icon={<ReceiptTextIcon />}
+  title="View all deployed contracts"
+  href="https://github.com/KodiKraig/product-mint/tree/main/packages/cli/src/contract-address"
+  arrow
 />
