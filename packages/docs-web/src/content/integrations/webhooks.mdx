@@ -1,0 +1,57 @@
+import { Callout } from 'nextra/components';
+
+# Webhooks
+
+Webhooks are a great way to notify you when certain events happen in the ProductMint ecosystem. They are powered by events emitted from the contracts. You can listen to the events directly with a web3 provider such as [Alchemy](https://www.alchemy.com/) or [Infura](https://www.infura.io/).
+
+## Events
+
+The following are the list of the main contracts with their events and topics that you can listen to in your application.
+
+### PurchaseManager
+
+#### ProductsPurchased
+Emitted when product(s) are purchased and minted onto a pass.
+- `0x8b7912ecc904185be7b6e0b9e8a7bf295a7a510a93614e22a4e6da6e1ec25ee7`
+
+#### SubscriptionRenewed
+Emitted when a subscription is successfully renewed through the purchase manager.
+- `0x383e4958e5c5efcbab0c4195ec897248b3d959c6b3cf479f641af2f771c58852`
+
+### SubscriptionEscrow
+
+#### SubscriptionCycleUpdated
+Emitted when a subscription billing cycle changes.
+- `0x6f0e3a3de958fd81892391ad02023c6a650aeac12abdb597d7a69244195c0796`
+
+Will be emitted under the following conditions when the subscription is:
+- Created
+- Pricing model updated
+- Billing cycle updated
+- Paused
+- Resumed
+- Cancelled
+
+#### SubscriptionPricingChanged
+Emitted when a subscription pricing model is changed for the subscription. i.e. when the subscription is upgraded or downgraded.
+- `0x2254a8d1c3153281dc14909ffe8b5f6dc96e6c969c54cf2ef4a4c2764c2c0161`
+
+#### UnitQuantitySet
+Emitted when a subscription with a tiered pricing model has it's unit quantity updated.
+- `0x5ac524ee34f98926275033c378ae9a28d7983ff286e2b81b9b109ba817356838`
+
+### RenewalProcessor
+
+#### RenewalProcessed
+Emitted when a subscription renewal is processed.
+- `0x98309b18044647fd2d369a17c729e099f429fdc51683b0c21cdadd14f48f26ae`
+
+<Callout type="important">
+    Listening to the `RenewalProcessed` event is the best way to know when a subscription renewal has failed. This is because the `SubscriptionRenewed` event is only emitted when the renewal is successful.
+</Callout>
+
+## Useful Guides
+
+In order to setup webhooks with a provider such as Alchemy, you will need to create an account and an app with your target network.
+
+[How to Setup Custom Webhooks with Alchemy](https://www.alchemy.com/docs/reference/custom-webhook)
