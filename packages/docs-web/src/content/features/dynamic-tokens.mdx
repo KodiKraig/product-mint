@@ -4,7 +4,7 @@ import { ExplorerLink } from '@/app/_components/external-link'
 
 # Dynamic Tokens
 
-DynamicERC20 is a concept unique to ProductMint allowing organizations to create pricing models that target a specific price. This allows organizations to charge a stable price for a volatile token.
+DynamicERC20 is a concept unique to ProductMint allowing organizations to create pricing models with static price targets. This allows organizations to charge a stable price for a volatile token.
 
 <Callout type="important">
 DynamicERC20 tokens cannot be minted or transferred. They are only used for price targeting within the ProductMint system.
@@ -13,20 +13,20 @@ DynamicERC20 tokens cannot be minted or transferred. They are only used for pric
 
 ## How it works
 
-DynamicERC20 are composed of two ERC20s:
+DynamicERC20 are composed of two ERC20 tokens:
 
-- The base token (e.g. WETH)
-- The quote token (e.g. USDC)
+- Base (`WETH`)
+- Quote (`USDC`)
 
-The base token is the token that is used for payment. The quote token is the token that is used to price the subscription. An organization can create a pricing model using the DynamicERC20 token based on the price of the quote token. Then, whenever the subscription is minted or renewed, the system will charge the base token based on the price of the quote token.
+The base token is the token that is used for payment and charged to the customer. The quote token is the token that is used for price targeting. An organization can create a pricing model using a DynamicERC20 token based on the price of the quote token. Then, whenever a subscription is minted or renewed, the system will charge the correct base token amount based on the price of the quote token.
 
 ### Symbol
 
-The symbol of the DynamicERC20 token is prefixed with `d` followed by the base token symbol and the quote token symbol.
+- `dWETH-USDC`
+
+The symbols of DynamicERC20 tokens are prefixed with `d` for dynamic followed by the base token symbol and the quote token symbol.
 
 ## Example
-
-`dWETH-USDC`
 
 Assume an organizations wants to create a product with a subscription and be paid in 100 USDC worth of WETH. 
 
@@ -38,27 +38,19 @@ Create your new product that you want to sell as a subscription.
 
 ### Create pricing model
 
-Now create a pricing model or edit an existing one. You need to select the dynamic token `dWETH-USDC` and set the price target to `100`.
+Now create a pricing model or edit an existing one. Select the dynamic token `dWETH-USDC` and set the price target to `100` representing 100 USDC worth of WETH.
 
 ### Link to product
 
-Now link the product to the pricing model with the dynamic token and you are done! You can now sell your product as a subscription and receive 100 USDC worth of WETH based on the current swap rate for each subscription
+Now link the product to the pricing model with the dynamic token and you are done! You can now sell your product as a subscription and receive 100 USDC worth of WETH based on the current swap rate for each subscription.
 
 </Steps>
 
-To achieve this, the organization would create the pricing model using the dynamic pricing token `dWETH-USDC` with a price target of 100. Then, whenever the subscription is minted or renewed, 100 USDC worth of WETH will be charged.
-
 ### Ready to get started?
 
-The easiest way to get started is to use our [dashboard](https://dashboard.productmint.io). You can select the dynamic token from the dropdown when creating a pricing model.
+The easiest way to get started is to use our [dashboard](https://dashboard.productmint.io). You can select a dynamic token from the dropdown when creating a pricing model.
 
-## Architecture
-
-All DynamicERC20s require a dynamic pricing router to get the price of the tokens via a dex such as Uniswap V2 or Uniswap V3. Once the DynamicERC20 is deployed and registered, the system will check if the pricing model token is registered. If so, the system will use the quote token pricing to get the price in terms of the base token charging accordingly.
-
-![DynamicERC20](/assets/DynamicPricing.png)
-
-## Contract Addresses
+## Dynamic Token Addresses
 
 <br />
 
@@ -82,3 +74,5 @@ All DynamicERC20s require a dynamic pricing router to get the price of the token
 - dMINT-USDC (UniswapV2 Mock): <ExplorerLink value="0x313deB1dd6aC07159E88D5a5a3EfF41d76Cf5ffC" chain="ethereum-sepolia" />
     - MINT: <ExplorerLink value="0xd8c28b0fe48c1237A896748AC9f59bdc496c2Ca8" chain="ethereum-sepolia" />
     - USDC: <ExplorerLink value="0x4EBF9e5009367A8e002014b211B3bD2A618B2d9C" chain="ethereum-sepolia" />
+
+[Learn more about dynamic tokens](/system-architecture/registry/dynamic-price)
