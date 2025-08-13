@@ -94,11 +94,7 @@ export default async function RootLayout({
       // Suggested by `next-themes` package https://github.com/pacocoursey/next-themes#with-app
       suppressHydrationWarning
     >
-      <Head
-        backgroundColor={{
-          dark: "#000000",
-        }}
-      >
+      <Head>
         {/* Your additional tags should be passed as `children` of `<Head>` element */}
       </Head>
       <body>
