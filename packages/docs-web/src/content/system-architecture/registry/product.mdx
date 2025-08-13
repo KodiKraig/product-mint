@@ -1,0 +1,30 @@
+# Product
+
+Register products with your organization and link them to pricing models to enable them to be purchased.
+
+- Products can only be created by organization admins
+- When a product is deactivated it cannot be purchased
+- All products must be transferable on a Product Pass NFT in order for the NFT to be transferred
+
+## Product Struct
+
+```solidity
+/**
+ * @param orgId The organization ID that the product belongs to.
+ * @param name The name of the product.
+ * @param description The description of the product.
+ * @param imageUrl An image URL for the product.
+ * @param externalUrl An external URL of the product. (e.g. a link to a product page on a website)
+ * @param isTransferable True if the product is transferable, else False and the product is soulbound to the NFT owner.
+ * @param isActive If true, then the product is purchasable, else it is not available for purchase.
+ */
+struct Product {
+    uint256 orgId;
+    string name;
+    string description;
+    string imageUrl;
+    string externalUrl;
+    bool isTransferable;
+    bool isActive;
+}
+```

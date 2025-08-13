@@ -1,0 +1,38 @@
+# Coupon
+
+The coupon registry is responsible for managing coupons that can be applied during checkout or subscription renewals. They differ from permanent discounts in that they are not stackable and tied to a wallet address rather than a product pass.
+
+- Can be restricted to new customers only
+- One time use option
+- Max number of redemptions
+
+## Coupon Struct
+
+Used to represent a coupon that can be applied during checkout or subscription renewals.
+
+```solidity
+/**
+ * @param orgId Organization ID that the coupon belongs to
+ * @param code Coupon code
+ * @param discount Discount percentage. 10 = 0.1%, 100 = 1%, 250 = 2.5%, 1000 = 10%, 10000 = 100%, etc.
+ * @param expiration Expiration timestamp when the coupon will no longer be valid. 0 = never expires.
+ * @param totalRedemptions Total number of redemptions for the coupon
+ * @param maxTotalRedemptions Maximum total redemptions for the coupon. 0 = unlimited.
+ * @param isInitialPurchaseOnly True then only initial product pass mint purchases should be able to use the coupon
+ * @param isActive True then the coupon is currently active and can be redeemed, else it is inactive and cannot be redeemed
+ * @param isRestricted True then the coupon is restricted to a specific group of users that have been granted access
+ * @param isOneTimeUse True then the coupon can only be used once per customer
+ */
+struct Coupon {
+    uint256 orgId;
+    string code;
+    uint256 discount;
+    uint256 expiration;
+    uint256 totalRedemptions;
+    uint256 maxTotalRedemptions;
+    bool isInitialPurchaseOnly;
+    bool isActive;
+    bool isRestricted;
+    bool isOneTimeUse;
+}
+```

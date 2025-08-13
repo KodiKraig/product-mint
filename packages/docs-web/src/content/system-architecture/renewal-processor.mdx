@@ -1,0 +1,44 @@
+# Renewal Processor
+
+The renewal processor is responsible for processing renewals for subscriptions. When a subscription is up for renewal, ProductMint will submit a renewal transaction to the Renewal Processor.
+
+- Renewals are processed even if the subscription is cannot renew emitting a `RenewalProcessed` event
+- The `RenewalProcessed` event will contain the status of the subscription renewal
+
+## Renewal Status
+
+```solidity
+/**
+ * @dev SUCCESS: The renewal was successful.
+ * @dev FAILED: The renewal failed.
+ * @dev NOT_READY: The renewal is not ready to be processed.
+ * @dev CANCELLED: The subscription was cancelled.
+ * @dev PAUSED: The subscription was paused.
+ * @dev READY: The renewal is ready to be processed.
+ */
+enum RenewalStatus {
+    SUCCESS,
+    FAILED,
+    NOT_READY,
+    CANCELLED,
+    PAUSED,
+    READY
+}
+```
+
+## Renewal Processed Event
+
+```solidity
+/**
+ * @param orgId The organization ID of the subscription.
+ * @param productPassId The product pass ID of the subscription.
+ * @param productId The product ID of the subscription.
+ * @param status The status of the renewal process.
+ */
+event RenewalProcessed(
+    uint256 indexed orgId,
+    uint256 indexed productPassId,
+    uint256 indexed productId,
+    RenewalStatus status
+);
+```

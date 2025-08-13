@@ -1,0 +1,85 @@
+import { Callout, Steps } from 'nextra/components';
+
+# Purchase Manager
+
+The central hub for directing fund transfers. All product purchases and subscription updates are processed through the purchase manager.
+
+- Mint product passes and purchase additional products
+- Subscription management including renewals, pausing, cancelling, and changing pricing models
+- Only the Purchase Manager can transfer funds into Payment Escrow
+
+## Purchase Products
+
+The `purchaseProducts` function is used to purchase products and mint a new product pass.
+
+```solidity
+/**
+ * @param to The address of the user to purchase the products for and mint the product pass to.
+ * @param organizationId The ID of the organization to purchase the products for.
+ * @param productIds The IDs of the products to purchase.
+ * @param pricingIds The IDs of the pricing options for the products.
+ * @param quantities The quantities of the products to purchase.
+ *  Only relevant for products for tiered pricing. 0 must be provided for all other pricing models.
+ * @param discountIds The IDs of the discounts to be minted onto the product pass.
+ * @param couponCode The coupon code to apply to the purchase.
+ * @param airdrop Whether to airdrop the products to the user.
+ *  Can only be called by the org admin.
+ * @param pause Whether to pause any subscriptions that are purchased during the purchase.
+ *  The org must have this feature enabled to pause subscriptions.
+ */
+struct InitialPurchaseParams {
+    address to;
+    uint256 organizationId;
+    uint256[] productIds;
+    uint256[] pricingIds;
+    uint256[] quantities;
+    uint256[] discountIds;
+    string couponCode;
+    bool airdrop;
+    bool pause;
+}
+
+/**
+ * @notice Purchase products by minting a new product pass.
+ * @param params The parameters for the purchase.
+ */
+function purchaseProducts(
+    InitialPurchaseParams calldata params
+) external payable;
+```
+
+## Purchase Additional Products
+
+After a product pass is minted, the `purchaseAdditionalProducts` function can be used to purchase additional products and add them to the existing product pass.
+
+```solidity
+/**
+ * @param productPassId The ID of the product pass to add the products to.
+ * @param productIds The IDs of the products to purchase.
+ * @param pricingIds The IDs of the pricing options for the products.
+ * @param quantities The quantities of the products to purchase.
+ *  Only relevant for products for tiered pricing. 0 must be provided for all other pricing models.
+ * @param couponCode The coupon code to apply to the purchase.
+ * @param airdrop Whether to airdrop the products to the user.
+ *  Can only be called by the pass owner.
+ * @param pause Whether to pause any subscriptions that are purchased during the purchase.
+ *  The org must have this feature enabled to pause subscriptions.
+ */
+struct AdditionalPurchaseParams {
+    uint256 productPassId;
+    uint256[] productIds;
+    uint256[] pricingIds;
+    uint256[] quantities;
+    string couponCode;
+    bool airdrop;
+    bool pause;
+}
+
+/**
+ * @notice Purchase additional products by adding them to an existing product pass.
+ * @param params The parameters for the purchase.
+ */
+function purchaseAdditionalProducts(
+    AdditionalPurchaseParams calldata params
+) external payable;
+```

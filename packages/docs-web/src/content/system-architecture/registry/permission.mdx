@@ -1,0 +1,25 @@
+# Permission
+
+The permission registry is responsible for managing permission for an organization and their product pass customers. In order to charge a customer for a product or subscription, the owner must grant access to the organization.
+
+- Only the owner of the product pass can update their own permissions
+- By default, all charge permissions are granted when a customer mints an organization's product pass
+
+## Permission Struct
+
+```solidity
+/**
+ * @param id The ID of the permission. Hash of the name.
+ * @param name The name of the permission. In dot notation (e.g. "pass.wallet.spend")
+ * @param description The description of the permission.
+ * @param isActive The active status of the permission.
+ * @param createdAt The block timestamp when the permission was created.
+ */
+struct Permission {
+    bytes32 id;
+    string name;
+    string description;
+    bool isActive;
+    uint256 createdAt;
+}
+```

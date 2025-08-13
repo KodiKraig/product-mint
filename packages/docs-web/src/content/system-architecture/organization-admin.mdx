@@ -1,0 +1,31 @@
+# Organization Admin
+
+The Organization Admin contract allows organizations to register wallets as admins. This is useful for organizations that need to record usage and do not want to use the wallet that holds the Organization NFT.
+
+- Only the wallet that holds the Organization NFT can register/unregister admins
+- Admins can do everything the Organization NFT owner can do except withdraw funds
+- Admins can record usage for usage based pricing models
+
+## Add Admin
+
+Add an admin to the organization.
+
+```solidity
+/**
+ * @param organizationId The ID of the organization.
+ * @param admin The address of the admin to add.
+ */
+function addAdmin(uint256 organizationId, address admin) external;
+```
+
+## Remove Admin
+
+Remove an admin from the organization.
+
+```solidity
+/**
+ * @param organizationId The ID of the organization.
+ * @param admin The address of the admin to remove.
+ */
+function removeAdmin(uint256 organizationId, address admin) external;
+```

@@ -1,4 +1,4 @@
-import { Callout } from 'nextra/components'
+import { Callout, Steps } from 'nextra/components'
 import { ChainImage } from '@/app/_components/chain-image'
 import { ExplorerLink } from '@/app/_components/external-link'
 
@@ -6,7 +6,7 @@ import { ExplorerLink } from '@/app/_components/external-link'
 
 DynamicERC20 is a concept unique to ProductMint allowing organizations to create pricing models that target a specific price. This allows organizations to charge a stable price for a volatile token.
 
-<Callout type="info">
+<Callout type="important">
 DynamicERC20 tokens cannot be minted or transferred. They are only used for price targeting within the ProductMint system.
 </Callout>
 
@@ -20,7 +20,7 @@ DynamicERC20 are composed of two ERC20s:
 
 The base token is the token that is used for payment. The quote token is the token that is used to price the subscription. An organization can create a pricing model using the DynamicERC20 token based on the price of the quote token. Then, whenever the subscription is minted or renewed, the system will charge the base token based on the price of the quote token.
 
-## Symbol
+### Symbol
 
 The symbol of the DynamicERC20 token is prefixed with `d` followed by the base token symbol and the quote token symbol.
 
@@ -28,17 +28,35 @@ The symbol of the DynamicERC20 token is prefixed with `d` followed by the base t
 
 `dWETH-USDC`
 
-Assume an organizations wants to be paid in 100 USDC worth of WETH for their subscription. To achieve this, the organization would create the pricing model using the dynamic pricing token `dWETH-USDC` with a price target of 100. Then, whenever the subscription is minted or renewed, 100 USDC worth of WETH will be charged.
+Assume an organizations wants to create a product with a subscription and be paid in 100 USDC worth of WETH. 
+
+<Steps>
+
+### Create product
+
+Create your new product that you want to sell as a subscription.
+
+### Create pricing model
+
+Now create a pricing model or edit an existing one. You need to select the dynamic token `dWETH-USDC` and set the price target to `100`.
+
+### Link to product
+
+Now link the product to the pricing model with the dynamic token and you are done! You can now sell your product as a subscription and receive 100 USDC worth of WETH based on the current swap rate for each subscription
+
+</Steps>
+
+To achieve this, the organization would create the pricing model using the dynamic pricing token `dWETH-USDC` with a price target of 100. Then, whenever the subscription is minted or renewed, 100 USDC worth of WETH will be charged.
+
+### Ready to get started?
+
+The easiest way to get started is to use our [dashboard](https://dashboard.productmint.io). You can select the dynamic token from the dropdown when creating a pricing model.
 
 ## Architecture
 
 All DynamicERC20s require a dynamic pricing router to get the price of the tokens via a dex such as Uniswap V2 or Uniswap V3. Once the DynamicERC20 is deployed and registered, the system will check if the pricing model token is registered. If so, the system will use the quote token pricing to get the price in terms of the base token charging accordingly.
 
 ![DynamicERC20](/assets/DynamicPricing.png)
-
-## How to enable dynamic tokens
-
-When you create a pricing model, simply set the dynamic token and you are good to go! If using our [dashboard](https://dashboard.productmint.io), you will be able to select the dynamic token from the dropdown.
 
 ## Contract Addresses
 

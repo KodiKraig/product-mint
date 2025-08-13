@@ -1,0 +1,34 @@
+# Pricing
+
+Pricing models are created by organizations to determine the price of a product with a subscription.
+
+- Multiple pricing models can be linked to a product
+- Users can upgrade/downgrade their subscription to a different pricing model with a prorated cost
+- Charge styles include one time, flat rate, tiered volume, tiered graduated, usage based volume, and usage based graduated
+
+## Pricing Struct
+
+```solidity
+/**
+ * @param orgId The organization ID that the pricing configuration belongs to.
+ * @param chargeStyle How the product should be charged.
+ * @param chargeFrequency How often the subscription is charged.
+ * @param tiers The tiers of pricing used in TIER and USAGE_BASED models.
+ * @param token The ERC20 token that is used for all tiers. address(0) means use the native token of the chain.
+ * @param flatPrice The price of the product if the pricing model is FLAT_RATE or chargeStyle is ONE_TIME.
+ * @param usageMeterId The usage meter ID that is used to record the usage of the product. 0 if not used.
+ * @param isActive If true, then the pricing configuration can be used in new purchases, else it is not available for purchase.
+ * @param isRestricted If true, then the pricing configuration is restricted to wallets that have been granted restricted access.
+ */
+struct Pricing {
+    uint256 orgId;
+    ChargeStyle chargeStyle;
+    ChargeFrequency chargeFrequency;
+    PricingTier[] tiers;
+    address token;
+    uint256 flatPrice;
+    uint256 usageMeterId;
+    bool isActive;
+    bool isRestricted;
+}
+```

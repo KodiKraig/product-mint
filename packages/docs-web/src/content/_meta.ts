@@ -9,6 +9,9 @@ const meta = {
       breadcrumb: false,
     },
   },
+  contracts: {},
+  integrations: {},
+  "system-architecture": {},
 };
 
 export default meta;

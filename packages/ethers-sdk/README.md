@@ -2,7 +2,13 @@
 
 Auto generated TypeChain ethers.js v6 SDK for interacting with ProductMint deployed contracts.
 
-## Example Usage
+## Installation
+
+```bash
+npm install @product-mint/ethers-sdk
+```
+
+## Usage
 
 Using the ProductMint Ethers SDK requires using [ethers](https://docs.ethers.org/v6/) to interact with the contracts with type safety provided by [TypeChain](https://www.npmjs.com/package/typechain).
 
