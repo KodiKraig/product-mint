@@ -6,16 +6,9 @@ type CardImageProps = {
   href: string;
   src: string;
   alt: string;
-  aspectRatio?: "16/9" | "4/3" | "3/2" | "1/1" | "3/4";
 };
 
-export const CardImage = ({
-  src,
-  alt,
-  title,
-  href,
-  aspectRatio = "16/9",
-}: CardImageProps) => {
+export const CardImage = ({ src, alt, title, href }: CardImageProps) => {
   return (
     <Cards.Card
       className="w-full transition-all duration-300"
@@ -23,14 +16,14 @@ export const CardImage = ({
       href={href}
       arrow
     >
-      <div
-        className={`relative w-full aspect-[${aspectRatio}] overflow-hidden rounded-lg`}
-      >
+      <div className="relative h-auto w-full overflow-hidden rounded-lg">
         <Image
           src={src}
           alt={alt}
-          fill
-          style={{ objectFit: "cover" }}
+          width={0}
+          height={0}
+          sizes="100vw"
+          style={{ width: "100%", height: "auto" }}
           className="transition-transform duration-300 hover:scale-105"
         />
       </div>

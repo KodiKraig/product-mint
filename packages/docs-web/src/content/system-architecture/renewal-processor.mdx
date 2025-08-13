@@ -1,3 +1,5 @@
+import { Callout } from "nextra/components";
+
 # Renewal Processor
 
 The renewal processor is responsible for processing renewals for subscriptions. When a subscription is up for renewal, ProductMint will submit a renewal transaction to the Renewal Processor.
@@ -6,6 +8,8 @@ The renewal processor is responsible for processing renewals for subscriptions. 
 - The `RenewalProcessed` event will contain the status of the subscription renewal
 
 ## Renewal Status
+
+The status of the renewal that is emitted when a renewal is processed.
 
 ```solidity
 /**
@@ -28,6 +32,8 @@ enum RenewalStatus {
 
 ## Renewal Processed Event
 
+Emitted when a renewal is processed allowing you to listen to the status of the renewal even if the renewal fails.
+
 ```solidity
 /**
  * @param orgId The organization ID of the subscription.
@@ -42,3 +48,7 @@ event RenewalProcessed(
     RenewalStatus status
 );
 ```
+
+<Callout type="info">
+Listen to the `RenewalProcessed` event to revoke access to a feature in your application when subscription renewals fail.
+</Callout>

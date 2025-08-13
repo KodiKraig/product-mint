@@ -2,13 +2,15 @@ import { Callout } from 'nextra/components';
 
 # Webhooks
 
-Webhooks are a great way to notify you when certain events happen in the ProductMint ecosystem. They are powered by events emitted from the contracts. You can listen to the events directly with a web3 provider such as [Alchemy](https://www.alchemy.com/) or [Infura](https://www.infura.io/).
+Webhooks are a great way to get notified when certain events happen in the ProductMint ecosystem. They are powered by events emitted from the contracts. You can listen to the events directly with a web3 provider such as [Alchemy](https://www.alchemy.com/) or [Infura](https://www.infura.io/).
 
 ## Events
 
 The following are the list of the main contracts with their events and topics that you can listen to in your application.
 
-### PurchaseManager
+*This is not an exhaustive list of all events. All contracts emit events that you can listen to!*
+
+### [PurchaseManager](/system-architecture/purchase-manager)
 
 #### ProductsPurchased
 Emitted when product(s) are purchased and minted onto a pass.
@@ -18,7 +20,7 @@ Emitted when product(s) are purchased and minted onto a pass.
 Emitted when a subscription is successfully renewed through the purchase manager.
 - `0x383e4958e5c5efcbab0c4195ec897248b3d959c6b3cf479f641af2f771c58852`
 
-### SubscriptionEscrow
+### [SubscriptionEscrow](/system-architecture/escrow/subscription)
 
 #### SubscriptionCycleUpdated
 Emitted when a subscription billing cycle changes.
@@ -40,7 +42,7 @@ Emitted when a subscription pricing model is changed for the subscription. i.e. 
 Emitted when a subscription with a tiered pricing model has it's unit quantity updated.
 - `0x5ac524ee34f98926275033c378ae9a28d7983ff286e2b81b9b109ba817356838`
 
-### RenewalProcessor
+### [RenewalProcessor](/system-architecture/renewal-processor)
 
 #### RenewalProcessed
 Emitted when a subscription renewal is processed.

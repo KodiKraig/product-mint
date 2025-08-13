@@ -1,9 +1,87 @@
 # Purchase
 
-The purchase registry is responsible for keeping track of products minted onto product passes along with additional purchase settings for an organization.
+The purchase registry is responsible for recording product purchases that are minted onto product passes along with additional purchase settings for an organization.
 
 Organization admins can:
 - Set whether new product passes can be minted
-- Set the maximum number of product passes that can be minted
+- Set the maximum number of product passes that can be minted per wallet
 - Set the maximum supply for a product creating market scarcity
-- Set whether mints are closed for an organization and no products can be purchased
+
+## Record Purchase
+
+When a customer purchases a product, the Purchase Manager registers the purchase in the Purchase Registry and sets the mapping of the Product Pass NFT to the correct organization.
+
+```solidity
+/**
+ * @dev Only the purchase manager can record a product purchase.
+ * @param _organizationId The organization ID that the product belongs to.
+ * @param _passId The Product Pass ID to be used in the purchase.
+ * @param _passOwner The owner of the pass.
+ * @param _purchaser The wallet that is purchasing the products.
+ * @param _productIds The product IDs to be used in the purchase.
+ * @param _pricingIds The pricing IDs to be used in the purchase.
+ */
+function recordProductPurchase(
+    uint256 _organizationId,
+    uint256 _passId,
+    address _passOwner,
+    address _purchaser,
+    uint256[] calldata _productIds,
+    uint256[] calldata _pricingIds
+) external;
+```
+
+## Organization Settings
+
+### Max Mints
+
+Want to ensure that your customers can only mint a single product pass? Set the max mints to 1.
+
+```solidity
+/**
+ * @param organizationId The organization ID to set the max mints for.
+ * @param _maxMints The new max mints for the organization. 0 if no limit.
+ */
+function setMaxMints(uint256 organizationId, uint256 _maxMints) external;
+```
+
+### Mint Closed
+
+Need to temporarily disable purchases? Set the mint closed flag to true.
+
+```solidity
+/**
+ * @param organizationId The organization ID to set the mint closed status for.
+ * @param _isMintClosed True if the mint is closed, false otherwise.
+ */
+function setMintClosed(uint256 organizationId, bool _isMintClosed) external;
+```
+
+### Max Product Supply
+
+Want to create market scarcity for a specific product? Set the maximum product supply to the desired number.
+
+```solidity
+/**
+ * @param organizationId The organization ID that the product belongs to.
+ * @param productId The product ID to set the max supply for.
+ * @param _maxSupply The new max supply for the product. 0 if no limit.
+ */
+function setProductMaxSupply(
+    uint256 organizationId,
+    uint256 productId,
+    uint256 _maxSupply
+) external;
+```
+
+### Whitelist
+
+Only allow whitelisted wallet addresses to purchase products and mint Product Pass NFTs for an organization.
+
+```solidity
+/**
+ * @param organizationId The organization ID to set the whitelist for.
+ * @param _isWhitelist True if the organization is whitelist only, false otherwise.
+ */
+function setWhitelist(uint256 organizationId, bool _isWhitelist) external;
+```
