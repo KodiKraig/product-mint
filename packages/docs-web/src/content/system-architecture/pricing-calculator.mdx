@@ -1,6 +1,197 @@
+import { Table } from "nextra/components";
+
 # Pricing Calculator
 
 The pricing calculator holds no state and is pure logic. It is responsible for doing complex price calculations for tiered and usage based pricing models.
 
 - Subscription Escrow uses the calculator to determine the prorated cost of an upgrade
 - Additional utility functions are available to calculate discounts, coupons, and total checkout costs
+
+## Checkout Total Cost
+
+Calculate the total cost of a checkout including discounts, coupons, and permanent discounts.
+
+```solidity
+/**
+ * @param organizationId The id of the organization
+ * @param productPassOwner The address of the product pass owner
+ * @param productIds The ids of the products
+ * @param pricingIds The ids of the pricing
+ * @param quantities The quantities of the pricing
+ * @param discountIds The ids of the discounts
+ * @param couponId The id of the coupon
+ */
+struct CheckoutTotalCostParams {
+    uint256 organizationId;
+    address productPassOwner;
+    uint256[] productIds;
+    uint256[] pricingIds;
+    uint256[] quantities;
+    uint256[] discountIds;
+    uint256 couponId;
+}
+
+/**
+ * @param pricingIds The ids of the pricing
+ * @param token The token of the pricing
+ * @param costs The costs for each pricing id
+ * @param couponCost The cost after applying the coupon
+ * @param couponDiscount The discount percentage applied by the coupon in basis points
+ * @param couponSavings The savings from the coupon
+ * @param permanentCost The cost after applying the permanent discounts
+ * @param permanentDiscount The discount percentage applied by the permanent discounts in basis points
+ * @param permanentSavings The savings from the permanent discounts
+ * @param subTotalCost The sub total cost of the checkout before applying the coupon and permanent discounts
+ * @param checkoutTotalCost The total cost of the checkout after applying the coupon and permanent discounts
+ */
+struct CheckoutTotalCost {
+    uint256[] pricingIds;
+    address token;
+    uint256[] costs;
+    uint256 couponCost;
+    uint256 couponDiscount;
+    uint256 couponSavings;
+    uint256 permanentCost;
+    uint256 permanentDiscount;
+    uint256 permanentSavings;
+    uint256 subTotalCost;
+    uint256 checkoutTotalCost;
+}
+
+/**
+ * @param params The parameters for the checkout total cost calculation
+ * @return checkout The result of the checkout total cost calculation
+ */
+function getCheckoutTotalCost(
+    CheckoutTotalCostParams memory params
+) external view returns (CheckoutTotalCost memory checkout);
+```
+
+## Change Subscription Cost
+
+Calculate the prorated cost of an upgrade to a new subscription pricing.
+
+```solidity
+/**
+ * @param oldPricingId The id of the old pricing
+ * @param newPricingId The id of the new pricing
+ * @param currentStartDate The start date of the current subscription
+ * @param currentEndDate The end date of the current subscription
+ * @param quantity The quantity of the pricing
+ * @return newEndDate The new end date of the subscription
+ * @return token The token of the pricing
+ * @return amount The amount of the pricing
+ */
+function getChangeSubscriptionCost(
+    uint256 oldPricingId,
+    uint256 newPricingId,
+    uint256 currentStartDate,
+    uint256 currentEndDate,
+    uint256 quantity
+) external view returns (uint256 newEndDate, address token, uint256 amount);
+```
+
+## Pricing Tier Costs
+
+Both **tiered** and **usage-based** pricing models use the same logic to calculate the total cost. They offer two different types of pricing tiers.
+
+### Volume
+
+Volume pricing tiers calculate the total cost based on a single tier where the quantity lands.
+
+```solidity
+/**
+ * @param tiers The tiers of the pricing
+ * @param quantity The quantity of the pricing.
+ * @return The total cost of the pricing
+ */
+function totalVolumeCost(
+    PricingUtils.PricingTier[] memory tiers,
+    uint256 quantity
+) external pure returns (uint256);
+```
+
+#### Example
+
+Assume the following arbitrary pricing tiers and quantity of *15*.
+
+<br/>
+<Table>
+    <thead>
+        <Table.Tr>
+            <Table.Th>Tiers</Table.Th>
+            <Table.Th>Cost per unit</Table.Th>
+            <Table.Th>Flat price</Table.Th>
+        </Table.Tr>
+    </thead>
+    <tbody>
+        <Table.Tr>
+            <Table.Td>1-10</Table.Td>
+            <Table.Td>100</Table.Td>
+            <Table.Td>1000</Table.Td>
+        </Table.Tr>
+        <Table.Tr>
+            <Table.Td>11-∞</Table.Td>
+            <Table.Td>50</Table.Td>
+            <Table.Td>200</Table.Td>
+        </Table.Tr>
+    </tbody>
+</Table>
+
+The calculation would be as follows:
+
+```
+Tier 2: 50 * 15 + 200 = 950
+Total: 950
+```
+
+### Graduated
+
+Graduated pricing progressively increases the cost based on the quantity using all tiers.
+
+```solidity
+/**
+ * @param tiers The tiers of the pricing
+ * @param quantity The quantity of the pricing.
+ * @return The total cost of the pricing
+ */
+function totalGraduatedCost(
+    PricingUtils.PricingTier[] memory tiers,
+    uint256 quantity
+) external pure returns (uint256);
+```
+
+#### Example
+
+Assume the same arbitrary pricing tiers and quantity of *15* as the volume example.
+
+<br/>
+<Table>
+    <thead>
+        <Table.Tr>
+            <Table.Th>Tiers</Table.Th>
+            <Table.Th>Cost per unit</Table.Th>
+            <Table.Th>Flat price</Table.Th>
+        </Table.Tr>
+    </thead>
+    <tbody>
+        <Table.Tr>
+            <Table.Td>1-10</Table.Td>
+            <Table.Td>100</Table.Td>
+            <Table.Td>1000</Table.Td>
+        </Table.Tr>
+        <Table.Tr>
+            <Table.Td>11-∞</Table.Td>
+            <Table.Td>50</Table.Td>
+            <Table.Td>200</Table.Td>
+        </Table.Tr>
+    </tbody>
+</Table>
+
+The calculation would be as follows:
+
+```
+Tier 1: 100 * 10 + 1000 = 2000
+Tier 2: 50 * 5 + 200 = 450
+Total: 2000 + 450 = 2450
+```
