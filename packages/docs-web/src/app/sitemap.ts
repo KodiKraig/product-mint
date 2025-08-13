@@ -18,34 +18,34 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.9,
     },
+    {
+      url: `${baseUrl}/contract-addresses`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
 
-    // Contracts
+    // Features
     {
-      url: `${baseUrl}/contracts`,
+      url: `${baseUrl}/features`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/contracts/deployed-addresses`,
+      url: `${baseUrl}/features/dynamic-tokens`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/contracts/dynamic-tokens`,
+      url: `${baseUrl}/features/lowest-fees`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/contracts/payment-escrow`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/contracts/permissions`,
+      url: `${baseUrl}/features/permissions`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,

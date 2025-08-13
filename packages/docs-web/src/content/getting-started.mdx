@@ -32,11 +32,11 @@ Interact with the ProductMint contracts directly using our TypeChain SDK.
 
 ## Setup Instructions
 
-All the steps below use the `@product-mint/ethers-sdk` package. These are direct interactions with the smart contracts powering the ProductMint platform. Both the dashboard and the CLI tool use this package under the hood.
+The steps below use the `@product-mint/ethers-sdk` package. These are all direct interactions with the smart contracts powering the ProductMint system. Both the dashboard and the CLI tool use this package under the hood.
 
 <Steps>
 
-### Install ProductMint SDK and Ethers
+### Install ProductMint SDK
 
 <Tabs items={['npm', 'yarn', 'pnpm']}>
     <Tabs.Tab label="npm">
@@ -56,7 +56,7 @@ All the steps below use the `@product-mint/ethers-sdk` package. These are direct
     </Tabs.Tab>
 </Tabs>
 
-### Configure RPC Provider and Signer Wallet
+### Configure RPC Provider
 
 Set up an RPC provider to interact with the Ethereum network.
 
@@ -64,13 +64,25 @@ Set up an RPC provider to interact with the Ethereum network.
 import { ethers } from 'ethers';
 
 const provider = new ethers.providers.JsonRpcProvider('https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID');
+```
+
+### Create Signer Wallet
+
+Create a signer wallet that will be used to interact with the ProductMint smart contracts and submit the transactions.
+
+```typescript
+import { ethers } from 'ethers';
 
 const signerWallet = new ethers.Wallet('YOUR_PRIVATE_KEY', provider);
 ```
 
+<Callout type="error">
+    Never store your private key in your code. Always use environment variables and consider using an [Organization Admin](/system-architecture/organization-admin) wallet to help reduce the risk of your organization being compromised.
+</Callout>
+
 ### Mint Organization NFT
 
-Mint the Organization NFT to represent your organization. Get the Organization NFT contract address from [contract addresses](/contracts/deployed-addresses) for the network you are using.
+Mint the Organization NFT to represent your organization. Get the Organization NFT contract address from [contract addresses](/contract-addresses) for the network you are using.
 
 ```typescript
 import { OrganizationNFT__factory } from '@product-mint/ethers-sdk';
@@ -85,13 +97,13 @@ await organizationNFT.connect(signerWallet).mint(
 );
 ```
 
-<Callout type="important" emoji="💰">
+<Callout type="important">
     Organization NFTs are free to mint and transferable. They are required to create products, manage subscriptions, and claim your revenue.
 </Callout>
 
 ### Create product
 
-Products are what you are selling to your customers.
+Products are what you are selling to your customers. Every product is completely independent allowing a customer to have multiple different products and subscriptions.
 
 ```typescript
 import { ProductRegistry__factory } from '@product-mint/ethers-sdk';
@@ -113,7 +125,7 @@ await productRegistry
 );
 ```
 
-<Callout type="warning">
+<Callout type="info">
     In order for your Product Pass NFTs to be transferable, all products on the NFT must be transferable along with any subscriptions being in a paused state.
 </Callout>
 
@@ -145,11 +157,11 @@ You can choose any ERC20 token to use for the subscription from the list of toke
 
 [View supported tokens](https://dashboard.productmint.io/tokens)
 
-Interested in using a dynamic token to have stable pricing in a volatile token? Learn more about them [here](/contracts/dynamic-tokens).
+Interested in using a dynamic token to have stable pricing in a volatile token? Learn more about them [here](/features/dynamic-tokens).
 
 ### Link pricing to product
 
-In order to sell your product, you need to link the pricing model to the product. You can link multiple pricing models to a single product. Any pricing model can be linked to multiple products.
+In order to sell your product, you need to link a pricing model to the product. You can link multiple pricing models to a single product. Any pricing model can be linked to multiple products.
 
 ```typescript
 import { ProductRegistry__factory } from '@product-mint/ethers-sdk';
@@ -163,13 +175,13 @@ await productRegistry
     .connect(signerWallet)
     .linkPricing(
         10, // The product ID
-        [21], // The pricing ID
+        [12, 21], // The pricing IDs
 );
 ```
 
-### Ready to sell!
+### Ready to mint!
 
-You are now ready to start selling your products and subscriptions by minting your Product Pass NFTs. You can mint them directly from the contract on your website by calling the `purchaseProducts` function on the `PurchaseManager` contract.
+You are now ready to start selling your products and subscriptions by minting Product Pass NFTs. You can mint them directly from the contract on your website by calling the `purchaseProducts` function on the `PurchaseManager` contract.
 
 ```typescript
 import { PurchaseManager__factory } from '@product-mint/ethers-sdk';
@@ -194,12 +206,45 @@ await purchaseManager.connect(signerWallet).purchaseProducts(
 );
 ```
 
+**Using a React based framework?** Consider using [WAGMI](https://wagmi.sh) to write to the ProductMint contracts and providing the ABI via the `@product-mint/ethers-sdk` package.
+
+```typescript
+"use client";
+
+import { useWriteContract } from "wagmi";
+import { PurchaseManager__factory } from "@product-mint/ethers-sdk";
+
+export const useMint = () => {
+  const { writeContract } = useWriteContract();
+
+  const mint = (address: `0x${string}`) =>
+    writeContract({
+      abi: PurchaseManager__factory.abi,
+      functionName: "purchaseProducts",
+      args: [
+        {
+          to: address,
+          organizationId: 1,
+          productIds: [1],
+          pricingIds: [1],
+          quantities: [0],
+          discountIds: [],
+          couponCode: "",
+          airdrop: false,
+          pause: false,
+        },
+      ],
+      address: '0x...', // Purchase Manager contract address
+    });
+};
+```
+
 <Callout>
-    We are in the process of building a customer minting and portal for organizations to provide their customers with a way to purchase their Product Pass NFTs and manage their subscriptions. This will be available in the near future!
+    A customer minting and portal website is in development for organizations to provide their customers with a way to purchase their Product Pass NFTs and manage their subscriptions. This will be available in the near future!
 </Callout>
 
 </Steps>
 
 🎉 That's all it takes to get started! 🎉
 
-While it is significantly easier to use ProductMint than using a traditional payment processor API, it is still a bit of work. If you are looking for an easier way to get started, don't forget to check out the [dashboard](https://dashboard.productmint.io).
+While it is significantly easier to use ProductMint than a traditional payment processor API, it is still a bit of work. If you are looking for an easier way to configure your products and pricing models, check out the [dashboard](https://dashboard.productmint.io).

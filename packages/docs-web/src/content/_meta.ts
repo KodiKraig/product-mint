@@ -9,7 +9,12 @@ const meta = {
       breadcrumb: false,
     },
   },
-  contracts: {},
+  "contract-addresses": {
+    theme: {
+      breadcrumb: false,
+    },
+  },
+  features: {},
   integrations: {},
   "system-architecture": {},
 };
