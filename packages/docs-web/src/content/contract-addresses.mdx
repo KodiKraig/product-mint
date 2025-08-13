@@ -7,6 +7,10 @@ import { ReceiptTextIcon } from 'lucide-react';
 
 Below are the contract addresses for the main contracts deployed across EVM based chains.
 
+## Layer 2
+
+Ethereum layer 2 networks are supported and recommended. Layer 2 networks provide a much lower gas cost, faster transaction times, allowing for lower fees.
+
 <br />
 
 <ChainImage chain="base-mainnet" />
@@ -36,6 +40,32 @@ Below are the contract addresses for the main contracts deployed across EVM base
     { contract: "PaymentEscrow", address: "0xfc91B5dFd126A5DFEf9f3E7724D3c738E6b2F772" },
     { contract: "SubscriptionEscrow", address: "0xA92B6576B6070Ece85d730136E9A95Da28b70453" },
     { contract: "RenewalProcessor", address: "0x98ffecB049695349ed448b7F9A5636c417BE4220" },
+  ]}
+/>
+
+## Layer 1
+
+Ethereum is supported for those seeking the highest level of security and decentralization. However, due to higher gas costs, there are higher fees.
+
+<br />
+
+<ChainImage chain="ethereum-mainnet" />
+
+### Ethereum Mainnet
+
+Deployment coming soon!
+
+### Ethereum Sepolia
+
+<ContractAddressTable
+  chain="ethereum-sepolia"
+  contracts={[
+    { contract: "OrganizationNFT", address: "0x83ad6E2841f178962EeCeA0813A041ed33b92F57" },
+    { contract: "ProductPassNFT", address: "0xCD4fA407DfDb88e44e1F32014C52B92A18105FdE" },
+    { contract: "PurchaseManager", address: "0x064b338F7c5B11CB422724276bD701dc117AA404" },
+    { contract: "PaymentEscrow", address: "0x883e1bc0f4C072506A061a6d3d79d08CB5dEa0e1" },
+    { contract: "SubscriptionEscrow", address: "0x31495B8C8227F0BC5cd7E6E7878b4ce65aC8036e" },
+    { contract: "RenewalProcessor", address: "0x0fF4ccbd7EAe7ED82035fC51700e1183D2401A0A" },
   ]}
 />
 
