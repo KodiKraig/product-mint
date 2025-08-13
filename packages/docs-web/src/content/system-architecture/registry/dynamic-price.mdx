@@ -1,6 +1,83 @@
+import { Steps, Callout } from "nextra/components";
+
 # Dynamic Price
 
 Dynamic tokens are registered with the Dynamic Price registry. Dynamic tokens allow organizations to set stable price targets for their products and subscriptions using a volatile token such as WETH.
 
 - Dynamic tokens are created and managed by the ProductMint team
 - During a purchase, the Purchase Manager will check the registry with the pricing model token to check if it is a dynamic token
+
+## Architecture
+
+All DynamicERC20 tokens require a dynamic pricing router to get the price of the tokens via a dex such as Uniswap V2 or Uniswap V3. Once the DynamicERC20 is deployed and registered, the system will check if the pricing model token is registered as a dynamic token. If so, the system will use the quote token price amount to get the price in terms of the base token and charge the customer accordingly.
+
+![DynamicERC20](/assets/DynamicPricing.png)
+
+## Price Translation Flow
+
+<Steps>
+
+### Check Registry
+The Purchase Manager gets the base token price in terms of the quote token from the DynamicERC20 token.
+
+```solidity
+/**
+ * @dev Translate the purchase price of a dynamic token to the base token
+ */
+function _translateBaseTokenPurchasePrice(
+    address token,
+    uint256 amount
+) internal virtual returns (address, uint256) {
+    if (dynamicPriceRegistry.isTokenRegistered(token)) {
+        return IDynamicERC20(token).getBaseTokenAmount(amount);
+    }
+    return (token, amount);
+}
+```
+
+### Get Price
+The DynamicERC20 will then use it's dynamic price router to get the price of the base token in terms of the quote token.
+
+```solidity
+/**
+ * @param quoteTokenAmount The amount of quote tokens to convert to base tokens
+ * @return baseToken The address of the base token
+ * @return baseTokenAmount The amount of base tokens that would be received
+ */
+function getBaseTokenAmount(
+    uint256 quoteTokenAmount
+) external returns (address baseToken, uint256 baseTokenAmount);
+```
+
+### Check Swap Rate
+Then the dynamic price router will use the dex router to get the price of the base token in terms of the quote token.
+
+```solidity
+function _getPrice(
+    uint256 amountIn,
+    address[] calldata path
+) internal view returns (uint256) {
+    _checkAmountIn(amountIn);
+    _checkPath(path);
+
+    (bool success, bytes memory result) = uniswapV2Router.staticcall(
+        // equals to getAmountsOut(uint,address[])
+        abi.encodeWithSelector(0xd06ca61f, amountIn, path)
+    );
+    require(success, "Failed to get price from dex");
+
+    uint256 amountOutWithFee = abi.decode(result, (uint256[]))[
+        path.length - 1
+    ];
+
+    _checkOutputAmount(amountOutWithFee);
+
+    return amountOutWithFee;
+}
+```
+
+<Callout>
+    All prices are calculated with fees removed from the amount out from the dex.
+</Callout>
+
+</Steps>
