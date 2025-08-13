@@ -1,0 +1,28 @@
+---
+asIndexPage: true
+---
+
+import { Cards } from 'nextra/components';
+import { ReceiptTextIcon, RocketIcon, DollarSignIcon, LockIcon } from 'lucide-react';
+
+# Features
+
+The ProductMint system is built on top of a set of smart contracts that are deployed to the blockchain providing a set of features to create, manage products, and subscriptions. Select a feature below to learn more.
+
+<Cards>
+    <Cards.Card
+        icon={<RocketIcon />}
+        title="Dynamic Tokens"
+        href="/features/dynamic-tokens"
+    />
+    <Cards.Card
+        icon={<DollarSignIcon />}
+        title="Lowest Fees"
+        href="/features/lowest-fees"
+    />
+    <Cards.Card
+        icon={<LockIcon />}
+        title="Permissions"
+        href="/features/permissions"
+    />
+</Cards>

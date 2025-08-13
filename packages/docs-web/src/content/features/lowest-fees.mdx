@@ -1,9 +1,9 @@
 import { Cards, Callout } from 'nextra/components';
 import { ReceiptTextIcon } from 'lucide-react';
 
-# Payment Escrow
+# Lowest Fees
 
-The Payment Escrow contract is used to hold funds for an organization.
+ProductMint offers the lowest fees in the industry even across traditional payment processors along with micro-payment support.
 
 Fees are collected on each transaction when a Product Pass is minted or a subscription is renewed or upgraded.
 
@@ -11,7 +11,7 @@ Fees are collected on each transaction when a Product Pass is minted or a subscr
 <Cards.Card
   icon={<ReceiptTextIcon />}
   title="Deployed Contract Addresses"
-  href="/contracts/deployed-addresses"
+  href="/contract-addresses"
 />
 
 ## Fees
@@ -28,10 +28,20 @@ Each chain has a different fee structure for the Payment Escrow contract along w
 
 [View token fees](https://dashboard.productmint.io/tokens)
 
-### Layer 1 vs Layer 2
+### Micro-Payments
+
+ProductMint supports micro-payments allowing you to charge small amounts with no minimums. No need to worry about flat minimum fees.
+
+## Payment Escrow
+
+The Payment Escrow contract is used to hold funds for an organization. Whenever a product is purchased or a subscription is renewed/upgraded, the funds will be transferred to the Payment Escrow contract immediately ready for the Organization NFT holder to claim.
+
+[Learn more about the Payment Escrow contract](/system-architecture/escrow/payment)
+
+## Layer 1 vs Layer 2
 
 Layer 1 chains have a higher fee structure than Layer 2 chains. This is because Layer 1 chains have a higher gas price and are more expensive to use and operate our system.
 
-### Stablecoins
+## Stablecoins
 
 Stablecoins such as USDC have a lower fee structure than non-stablecoins. This is because stablecoins prices do not change.

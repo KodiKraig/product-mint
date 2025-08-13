@@ -1,0 +1,73 @@
+import { Callout, Steps } from 'nextra/components';
+
+# Usage Recorder
+
+The usage recorder is responsible for tracking usages for usage based pricing models. 
+
+## Aggregation Methods
+
+There are two types of aggregation methods: count and sum.
+
+### Count
+
+- Can be incremented by 1 each time
+
+```solidity
+/**
+ * @notice Increments a COUNT meter for a product pass token ID.
+ * @param meterId The ID of the meter.
+ * @param tokenId The ID of the product pass token.
+ */
+function incrementMeter(uint256 meterId, uint256 tokenId) external;
+```
+
+### Sum
+
+- Increase by a specified value each time
+
+```solidity
+/**
+ * @notice Increases a SUM meter for a product pass token ID.
+ * @param meterId The ID of the meter.
+ * @param tokenId The ID of the product pass token.
+ * @param value The value to increment the meter by.
+ */
+function increaseMeter(uint256 meterId, uint256 tokenId, uint256 value) external;
+```
+
+## Recording Usage
+
+<Steps>
+
+### Create usage meter
+
+Organizations create usage meters to track usage.
+
+```solidity
+/**
+ * @notice Creates a new meter for an organization.
+ * @param organizationId The ID of the organization.
+ * @param aggregationMethod The method of aggregation for the meter.
+ */
+function createMeter(
+    uint256 organizationId,
+    AggregationMethod aggregationMethod
+) external;
+```
+
+### Link to pricing model
+
+After creating a usage meter, link it to a usage based pricing model.
+
+### Record usage
+
+Start recording usage by submitting a transaction with the usage meter ID and the product pass token ID. 
+
+- When a subscription is renewed using a usage based pricing model, the usage will charged and the usage for the product pass will be reset.
+- If incorrect usage is recorded, the organization can set the usage directly to reset.
+
+</Steps>
+
+<Callout type="info">
+Consider using an Organization Admin wallet to record usage.
+</Callout>

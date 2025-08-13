@@ -1,0 +1,50 @@
+# Subscription
+
+Subscription state is stored in the Subscription Escrow contract.
+
+- Subscriptions are fully onchain and do not require any external services
+- Interacts with the Pricing Calculator to determine prorated upgrade costs
+- Subscription status is derived the subscription struct
+
+## Subscription Struct
+
+Used to represent a subscription for a product.
+
+```solidity
+/**
+ * @param orgId Organization token ID
+ * @param pricingId Pricing model ID
+ * @param startDate Start date of the subscription
+ * @param endDate End date of the subscription
+ * @param timeRemaining Time remaining in the subscription
+ * @param isCancelled Whether the subscription has been cancelled
+ * @param isPaused Whether the subscription has been paused
+ */
+struct Subscription {
+    uint256 orgId;
+    uint256 pricingId;
+    uint256 startDate;
+    uint256 endDate;
+    uint256 timeRemaining;
+    bool isCancelled;
+    bool isPaused;
+}
+```
+
+## Status
+
+The status of a subscription is derived from the subscription struct current state.
+
+- `ACTIVE`: The subscription is active and the product should be accessible.
+- `CANCELLED`: Will not renew at the end of the current period but product access should remain granted.
+- `PAST_DUE`: Attempted to renew at the end of the current period but failed. Product access should be revoked.
+- `PAUSED`: Subscription is paused and product access should be revoked.
+
+```solidity
+enum SubscriptionStatus {
+    ACTIVE, // 0
+    CANCELLED, // 1
+    PAST_DUE, // 2
+    PAUSED // 3
+}
+```

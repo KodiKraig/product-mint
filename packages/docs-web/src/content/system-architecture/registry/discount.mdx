@@ -1,0 +1,60 @@
+import { Callout } from 'nextra/components';
+
+# Discount
+
+Permanent discounts are minted onto product passes. They offer a percentage discount off the total price of a product and subscription.
+
+- Whitelist only option
+- Max number of mints
+- Included in the metadata for the pass
+- Must be active to be minted
+
+<Callout type="info">
+Allow customers to stack discounts onto their pass making it unique and more valuable.
+</Callout>
+
+## Discount Struct
+
+Used to represent a permanent discount that can be minted onto a product pass.
+
+```solidity
+/**
+ * @param id The id of the discount
+ * @param orgId The organization ID
+ * @param name The name of the discount. Must be unique within the organization.
+ * @param discount The discount amount. 100 = 1% off, 1000 = 10% off, 2500 = 25% off...
+ * @param totalMints The total number of mints for the discount
+ * @param maxMints The maximum number of times the discount can be minted
+ * @param isActive Whether the discount is active
+ * @param isRestricted Whether the discount is restricted
+ */
+struct Discount {
+    uint256 id;
+    uint256 orgId;
+    string name;
+    uint256 discount;
+    uint256 totalMints;
+    uint256 maxMints;
+    bool isActive;
+    bool isRestricted;
+}
+```
+
+## Permanent Discount Metadata
+
+Below is an example of the metadata for a product pass with multiple discounts.
+
+```json
+{
+    "attributes": [
+        // ... other attributes
+        { trait_type: 'Discount 3', value: 'Chosen One' },
+        { trait_type: 'Discount 2', value: 'Goodbye Ops' },
+        { trait_type: 'Discount 5', value: 'HYCHAIN Forever' },
+        { trait_type: 'Discount 4', value: 'Trench Warrior' },
+        { trait_type: 'Total Discount', value: '19.50%' }
+    ]
+}
+```
+
+[Additional metadata details](/system-architecture/nfts#metadata)

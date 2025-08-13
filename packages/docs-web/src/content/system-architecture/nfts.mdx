@@ -1,0 +1,153 @@
+import { Callout, Steps } from 'nextra/components';
+
+# NFTs
+
+ProductMint uses NFTs to represent ownership for both the business (organization) and the customer (product pass). All metadata is onchain and configurable by the organization.
+
+## Organization NFT
+
+Used to represent the business that is selling products and crypto subscriptions. 
+
+- Transferable 
+- Free to mint
+- Required to create products and pricing models
+
+<Callout type="warning">
+Only the wallet that holds the Organization NFT has the ability to withdraw revenue from the escrow system. If you lose access to the wallet that holds the Organization NFT, you will not be able to withdraw your revenue.
+</Callout>
+
+Ready to mint your own Organization NFT? [Visit the dashboard](https://dashboard.productmint.io)
+
+## Product Pass NFT
+
+A product pass is minted to a user when they purchase product(s) from an organization using the ProductMint system.
+
+- Only transferable if all products on the pass are transferable and all subscriptions are paused
+- Must purchase products from an organization to mint
+- Additional products can be added to the pass after mint
+
+## Metadata
+
+Metadata providers are responsible for returning a base64 encoded JSON string for each token. Both the Organization and Product Pass NFTs have their own metadata providers.
+
+- Metadata conforms to the [OpenSea ERC721 standard](https://docs.opensea.io/docs/metadata-standards)
+- Each organization can set their own metadata for their NFTs
+
+```solidity
+/**
+ * @param name The name of the token.
+ * @param description The description of the token.
+ * @param externalUrl The external URL of the token.
+ * @param image The image of the token.
+ * @param backgroundColor The background color of the token.
+ * @param animationUrl The animation URL of the token.
+ */
+struct Metadata {
+    string name;
+    string description;
+    string externalUrl;
+    string image;
+    string backgroundColor;
+    string animationUrl;
+}
+```
+
+### Attributes
+
+All metadata attributes are derived from the contract state. Below are examples of the metadata json.
+
+#### Organization NFT
+
+```json
+{
+  // ...
+  attributes: [
+    { trait_type: 'Whitelist Only', value: 'False' },
+    { trait_type: 'Max Mints', value: '1' },
+    { trait_type: 'Products Sold', value: 166 },
+    { trait_type: 'Product Pass Mints', value: 89 }  ]
+}
+```
+
+##### Whitelist Only
+
+If `True` then only whitelisted addresses can mint product passes, else anyone can mint a product pass.
+
+##### Max Mints
+
+The maximum number of product pass mints per wallet.
+
+##### Products Sold
+
+The total number of products sold across all product passes for the organization.
+
+##### Product Pass Mints
+
+The total number of product passes minted for the organization.
+
+#### Product Pass NFT
+
+```json
+{
+  // ...
+  attributes: [
+    { trait_type: 'Organization', value: '1' },
+    { trait_type: 'Product 1', value: 'Pro Usage - Wallets' },
+    { trait_type: 'Product 3', value: 'Pro Usage - Steaks' },
+    { trait_type: 'Subscription 1', value: 'Active' },
+    {
+      display_type: 'date',
+      trait_type: 'Subscription 1 Start',
+      value: 1753485325
+    },
+    {
+      display_type: 'date',
+      trait_type: 'Subscription 1 End',
+      value: 1756077325
+    },
+    { trait_type: 'Subscription 3', value: 'Active' },
+    {
+      display_type: 'date',
+      trait_type: 'Subscription 3 Start',
+      value: 1753485331
+    },
+    {
+      display_type: 'date',
+      trait_type: 'Subscription 3 End',
+      value: 1756077331
+    },
+    { trait_type: 'Discount 1', value: 'OG' },
+    { trait_type: 'Total Discount', value: '5%' }
+  ]
+}
+```
+
+##### Organization
+
+The token ID of the Organization NFT that the product pass belongs to.
+
+##### Product `ID`
+
+The name for the product with the given ID.
+
+##### Subscription `ID`
+
+The status of the subscription with the given product ID.
+
+[View all subscription statuses](/system-architecture/escrow/subscription#status)
+
+#### Subscription `ID` Start
+
+The start date of the subscription with the given product ID.
+
+##### Subscription `ID` End
+
+The end date of the subscription with the given product ID.
+
+#### Discount `ID`
+
+The discount code name for the given discount ID.
+
+#### Total Discount
+
+The total stacked discount of all discounts applied to the product pass.
