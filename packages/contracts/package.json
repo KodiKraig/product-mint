@@ -9,7 +9,7 @@
     "test:coverage:watch": "nodemon -e js,ts,sol --watch contracts --watch test --watch ignition/modules --exec 'hardhat coverage'",
     "compile": "hardhat compile",
     "clean": "hardhat clean",
-    "visualize": "hardhat ignition visualize ./ignition/modules/ProductMintSystem.ts",
+    "visualize": "hardhat ignition visualize ./ignition/modules/core/token/CoreToken_PassNFT.ts",
     "node:local": "hardhat node",
     "deploy:local": "hardhat ignition deploy ./ignition/modules/ProductMintSystem.ts --network localhost",
     "deploy:ethereum-sepolia": "hardhat ignition deploy ./ignition/modules/ProductMintSystem.ts --network sepolia",
@@ -29,7 +29,8 @@
     "deploy:migrate-manager-dynamic-pricing:base-mainnet": "hardhat ignition deploy ./ignition/modules/MigrateManagerDynamicPricing.ts --network base --parameters ./ignition/parameters/base-mainnet.json",
     "deploy:migrate-manager-dynamic-pricing:base-sepolia": "hardhat ignition deploy ./ignition/modules/MigrateManagerDynamicPricing.ts --network baseSepolia --parameters ./ignition/parameters/base-sepolia.json",
     "deploy:migrate-pass-attributes-sub-date:base-mainnet": "hardhat ignition deploy ./ignition/modules/MigratePassAttributesSubDate.ts --network base --parameters ./ignition/parameters/base-mainnet.json",
-    "deploy:migrate-pass-attributes-sub-date:base-sepolia": "hardhat ignition deploy ./ignition/modules/MigratePassAttributesSubDate.ts --network baseSepolia --parameters ./ignition/parameters/base-sepolia.json"
+    "deploy:migrate-pass-attributes-sub-date:base-sepolia": "hardhat ignition deploy ./ignition/modules/MigratePassAttributesSubDate.ts --network baseSepolia --parameters ./ignition/parameters/base-sepolia.json",
+    "verify:ethereum-mainnet": "hardhat ignition verify chain-1 --include-unrelated-contracts"
   },
   "keywords": [
     "productmint",
