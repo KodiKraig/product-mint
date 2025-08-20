@@ -147,7 +147,7 @@
       "startBlock": 28208948
     }
   },
-  "ethereum": {
+  "mainnet": {
     "CouponRegistry": {
       "address": "0x61Fb12CF6898F5B57e726aa63B539dcc49FC8841",
       "startBlock": 23183291
