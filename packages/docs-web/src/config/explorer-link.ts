@@ -15,6 +15,8 @@ export function getExplorerLink({
     return `https://sepolia.basescan.org/${type}/${value}`;
   } else if (chain === "ethereum-sepolia") {
     return `https://sepolia.etherscan.io/${type}/${value}`;
+  } else if (chain === "ethereum-mainnet") {
+    return `https://etherscan.io/${type}/${value}`;
   }
 
   throw new Error(`Unsupported chain`);

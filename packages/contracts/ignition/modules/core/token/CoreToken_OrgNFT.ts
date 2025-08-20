@@ -25,14 +25,9 @@ const CoreToken_OrgNFT = buildModule('CoreToken_OrgNFT', (m) => {
     },
   ]);
 
-  const organizationNFT = m.contract('OrganizationNFT', [
-    organizationMetadataProvider,
-  ]);
-
   return {
     organizationAttributeProvider,
     organizationMetadataProvider,
-    organizationNFT,
   };
 });
 
