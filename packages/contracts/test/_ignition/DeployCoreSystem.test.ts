@@ -17,7 +17,9 @@ import CoreRegistry_SetAllContracts from '../../ignition/modules/core/registry/C
 
 import CoreToken_MintCoin from '../../ignition/modules/core/token/CoreToken_MintCoin';
 import CoreToken_OrgNFT from '../../ignition/modules/core/token/CoreToken_OrgNFT';
+import CoreToken_OrgNFT_Deploy from '../../ignition/modules/core/token/CoreToken_OrgNFT_Deploy';
 import CoreToken_PassNFT from '../../ignition/modules/core/token/CoreToken_PassNFT';
+import CoreToken_PassNFT_Deploy from '../../ignition/modules/core/token/CoreToken_PassNFT_Deploy';
 
 import Core_Permission from '../../ignition/modules/core/Core_Permission';
 import Core_PricingCalculator from '../../ignition/modules/core/Core_PricingCalculator';
@@ -119,10 +121,28 @@ describe('DeployCoreSystem', () => {
       },
     });
 
+    const passNFTDeploy = await hre.ignition.deploy(CoreToken_PassNFT_Deploy, {
+      parameters: {
+        CoreToken_PassNFT_Deploy: {
+          contractRegistry: contractRegistryAddress,
+          passMetadataProvider: await passNFT.passMetadataProvider.getAddress(),
+        },
+      },
+    });
+
     const orgNFT = await hre.ignition.deploy(CoreToken_OrgNFT, {
       parameters: {
         CoreToken_OrgNFT: {
           contractRegistry: contractRegistryAddress,
+        },
+      },
+    });
+
+    const orgNFTDeploy = await hre.ignition.deploy(CoreToken_OrgNFT_Deploy, {
+      parameters: {
+        CoreToken_OrgNFT_Deploy: {
+          organizationMetadataProvider:
+            await orgNFT.organizationMetadataProvider.getAddress(),
         },
       },
     });
@@ -220,8 +240,8 @@ describe('DeployCoreSystem', () => {
           contractRegistry: contractRegistryAddress,
           purchaseManager: await purchaseManager.getAddress(),
           orgAdmin: await orgAdmin.getAddress(),
-          productPassNFT: await passNFT.productPassNFT.getAddress(),
-          organizationNFT: await orgNFT.organizationNFT.getAddress(),
+          productPassNFT: await passNFTDeploy.productPassNFT.getAddress(),
+          organizationNFT: await orgNFTDeploy.organizationNFT.getAddress(),
           productRegistry: await productRegistry.getAddress(),
           pricingRegistry: await pricingRegistry.getAddress(),
           purchaseRegistry: await purchaseRegistry.getAddress(),
@@ -246,7 +266,9 @@ describe('DeployCoreSystem', () => {
       discountRegistry,
       pricingCalculator,
       ...orgNFT,
+      ...orgNFTDeploy,
       ...passNFT,
+      ...passNFTDeploy,
       subscriptionEscrow,
       paymentEscrow,
       ...permission,

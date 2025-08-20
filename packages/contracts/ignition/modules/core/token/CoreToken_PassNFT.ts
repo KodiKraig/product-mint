@@ -24,13 +24,7 @@ const CoreToken_PassNFT = buildModule('CoreToken_PassNFT', (m) => {
     },
   ]);
 
-  const productPassNFT = m.contract('ProductPassNFT', [
-    contractRegistryAddress,
-    passMetadataProvider,
-  ]);
-
   return {
-    productPassNFT,
     passAttributeProvider,
     passMetadataProvider,
   };
