@@ -32,23 +32,29 @@ Set `Address` to the [contract address](/contract-addresses) of the Product Pass
 ### Minimum Balance
 Set `Balance` Min Amount to `1` to ensure the user has at least one Product Pass NFT.
 
+### Set Metadata Rules
+Configure the TGR based on the metadata attributes below to determine who is granted access to the Discord server channel.
+
 </Steps>
 
 ### TGR Options
 
-There are three different options for TGRs:
+There are three primary options for metadata attribute TGRs.
 
-### Option 1: Subscription Status (OR condition)
+### Option 1: Subscription Status
 
-Gate based on the status of subscriptions.
+Gate based on the status of a subscription for a particular product using the OR condition.
 
+#### Active
 - Set `Trait` to `Subscription <Product ID>`
 - Set `Value` to `Active`
+
+#### Cancelled
 - Set `Trait` to `Subscription <Product ID>`
 - Set `Value` to `Cancelled`
 
 <Callout type="info">
-When using the OR condition, the holder must meet at least one of the subscription statuses to be granted access. It is important to include `Cancelled` as the subscription should still be active until the subscription end date at which point the status will automatically change to `Past Due`.
+It is important to include the `Cancelled` subscription status as access should still be granted until the subscription end date at which point the status will automatically change to `Past Due`.
 </Callout>
 
 ### Option 2: Any Products and Subscriptions
