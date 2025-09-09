@@ -12,7 +12,7 @@ interface IHooks {
  * @notice Supports the Uniswap V4 quote function to get dynamic token prices
  */
 interface ICustomUniswapV4Router {
-    type Currency is address; // Simplified; actual is library Currency with functions like wrap/unwrap
+    type Currency is address;
 
     struct PathKey {
         Currency intermediateCurrency;
