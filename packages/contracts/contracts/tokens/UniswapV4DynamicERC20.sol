@@ -284,15 +284,33 @@ contract UniswapV4DynamicERC20 is DynamicERC20, Ownable2Step {
      */
     error InvalidPath(address[] _path, Fee[] _fees);
 
+    /**
+     * @dev Error when attempting to set an invalid fee
+     */
+    error InvalidFee(uint24 _fee, uint256 _maxFee);
+
     function _generatePathKeys(
         address[] memory _path,
         Fee[] memory _fees
     ) internal returns (ICustomUniswapV4Router.PathKey[] memory pathKeys) {
-        _checkFees(_path, _fees);
+        require(
+            _fees.length == _path.length - 1,
+            "Fees must be provided for all hops"
+        );
 
         pathKeys = new ICustomUniswapV4Router.PathKey[](_fees.length);
 
+        IUniswapV4DynamicPriceRouter router = IUniswapV4DynamicPriceRouter(
+            dynamicPriceRouter
+        );
+
+        uint256 maxFee = router.FEE_DENOMINATOR();
+
         for (uint256 i = 0; i < _fees.length; i++) {
+            if (_fees[i].fee >= maxFee || _fees[i].fee == 0) {
+                revert InvalidFee(_fees[i].fee, maxFee);
+            }
+
             pathKeys[i] = ICustomUniswapV4Router.PathKey({
                 intermediateCurrency: ICustomUniswapV4Router.Currency.wrap(
                     _path[i + 1]
@@ -311,22 +329,9 @@ contract UniswapV4DynamicERC20 is DynamicERC20, Ownable2Step {
                 exactAmount: uint128(10 ** IERC20Metadata(_path[0]).decimals())
             });
 
-        try
-            IUniswapV4DynamicPriceRouter(dynamicPriceRouter)
-                .getPriceFeesRemoved(params)
-        {} catch {
+        try router.getPriceFeesRemoved(params) {} catch {
             revert InvalidPath(_path, _fees);
         }
-    }
-
-    function _checkFees(
-        address[] memory _path,
-        Fee[] memory _fees
-    ) internal pure {
-        require(
-            _fees.length == _path.length - 1,
-            "Fees must be provided for all hops"
-        );
     }
 
     /**

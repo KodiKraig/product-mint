@@ -12,6 +12,11 @@ import {IDynamicPriceRouter} from "./IDynamicPriceRouter.sol";
  */
 interface IUniswapV4DynamicPriceRouter is IDynamicPriceRouter {
     /**
+     * @return The max fee denominator used for fee removal.
+     */
+    function FEE_DENOMINATOR() external pure returns (uint256);
+
+    /**
      * @notice Get the swap price with Uniswap fees included.
      * @param params The parameters for the price calculation.
      * @return The amount of token at the end of the path received.

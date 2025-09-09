@@ -573,5 +573,35 @@ describe('UniswapV4DynamicERC20', () => {
           [[100n, 1n]],
         );
     });
+
+    it('should revert if the fee is greater than the max fee', async () => {
+      const { dynamicERC20, mintToken, mintStableToken } = await loadFixture(
+        deployDynamicERC20,
+      );
+
+      await expect(
+        dynamicERC20.setQuoteToBasePath(
+          [await mintStableToken.getAddress(), await mintToken.getAddress()],
+          [{ fee: 1000000, tickSpacing: 1 }],
+        ),
+      )
+        .to.be.revertedWithCustomError(dynamicERC20, 'InvalidFee')
+        .withArgs(1000000, 1000000);
+    });
+
+    it('should revert if the fee is zero', async () => {
+      const { dynamicERC20, mintToken, mintStableToken } = await loadFixture(
+        deployDynamicERC20,
+      );
+
+      await expect(
+        dynamicERC20.setQuoteToBasePath(
+          [await mintStableToken.getAddress(), await mintToken.getAddress()],
+          [{ fee: 0, tickSpacing: 1 }],
+        ),
+      )
+        .to.be.revertedWithCustomError(dynamicERC20, 'InvalidFee')
+        .withArgs(0, 1000000);
+    });
   });
 });
