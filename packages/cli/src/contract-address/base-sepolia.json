@@ -23,5 +23,6 @@
   "renewalProcessor": "0x98ffecB049695349ed448b7F9A5636c417BE4220",
   "uniswapV2DynamicRouter": "0xD5443f3b7DbD9c3ec399077FbB9E59d5Db4Ba76d",
   "mintStableToken": "0xD89A17a42087d03CBC8e97699e85d98f73466fCe",
-  "dynamicPriceRegistry": "0xEC3C9FDD6a1984F39810c465cE35213286a5bf6b"
+  "dynamicPriceRegistry": "0xEC3C9FDD6a1984F39810c465cE35213286a5bf6b",
+  "uniswapV4DynamicRouter": "0x0000000000000000000000000000000000000000"
 }
