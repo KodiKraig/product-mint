@@ -10,3 +10,4 @@ export type { OrganizationNFT } from "./OrganizationNFT";
 export type { ProductPassNFT } from "./ProductPassNFT";
 export type { UniswapV2DynamicERC20 } from "./UniswapV2DynamicERC20";
 export type { UniswapV3DynamicERC20 } from "./UniswapV3DynamicERC20";
+export type { UniswapV4DynamicERC20 } from "./UniswapV4DynamicERC20";

@@ -10,3 +10,4 @@ export { OrganizationNFT__factory } from "./OrganizationNFT__factory";
 export { ProductPassNFT__factory } from "./ProductPassNFT__factory";
 export { UniswapV2DynamicERC20__factory } from "./UniswapV2DynamicERC20__factory";
 export { UniswapV3DynamicERC20__factory } from "./UniswapV3DynamicERC20__factory";
+export { UniswapV4DynamicERC20__factory } from "./UniswapV4DynamicERC20__factory";
