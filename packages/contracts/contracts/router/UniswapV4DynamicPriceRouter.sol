@@ -28,7 +28,8 @@ import {ICustomUniswapV4Router} from "./ICustomUniswapV4Router.sol";
  * @title UniswapV4DynamicPriceRouter
  * @notice A dynamic price router that uses Uniswap V4 to get the current swap price.
  * @dev The router will calculate the price with fees included or excluded.
- * Assumes no custom hook data or price limits for simplicity. Fees are approximated.
+ * Assumes no custom hook data or price limits for simplicity.
+ * Fee removal is approximated to reduce gas usage.
  */
 contract UniswapV4DynamicPriceRouter is
     Ownable2Step,

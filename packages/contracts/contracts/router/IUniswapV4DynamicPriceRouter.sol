@@ -7,8 +7,7 @@ import {IDynamicPriceRouter} from "./IDynamicPriceRouter.sol";
 
 /**
  * @title IUniswapV4DynamicPriceRouter
- * @notice Interface for a dynamic price router that uses Uniswap V4.
- * @dev The router will calculate the price with fees included or excluded.
+ * @notice Interface for a dynamic price router that uses Uniswap V4 to get onchain swap prices.
  */
 interface IUniswapV4DynamicPriceRouter is IDynamicPriceRouter {
     /**
