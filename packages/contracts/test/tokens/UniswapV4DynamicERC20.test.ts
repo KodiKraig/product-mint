@@ -75,6 +75,19 @@ describe('UniswapV4DynamicERC20', () => {
       otherAccount,
     };
   }
+  async function deployWithNewTokens() {
+    const result = await loadFixture(deployDynamicERC20);
+
+    const MintToken = await hre.ethers.getContractFactory('MintToken');
+    const mintToken3 = await MintToken.deploy();
+
+    const MintStableToken = await hre.ethers.getContractFactory(
+      'MintStableToken',
+    );
+    const mintStableToken2 = await MintStableToken.deploy();
+
+    return { ...result, mintToken3, mintStableToken2 };
+  }
 
   describe('Deployment', () => {
     it('owner is set', async () => {
@@ -246,6 +259,319 @@ describe('UniswapV4DynamicERC20', () => {
           await dynamicERC20.getQuoteTokenAmount.staticCall(0),
         ).to.deep.equal([await mintStableToken.getAddress(), 0]);
       });
+    });
+  });
+
+  describe('Set dynamic price router', () => {
+    it('should set the dynamic price router', async () => {
+      const { dynamicERC20, mockUniswapV4Router } = await loadFixture(
+        deployDynamicERC20,
+      );
+
+      const UniswapV4DynamicPriceRouter = await hre.ethers.getContractFactory(
+        'UniswapV4DynamicPriceRouter',
+      );
+      const newRouter = await UniswapV4DynamicPriceRouter.deploy(
+        mockUniswapV4Router,
+      );
+
+      await dynamicERC20.setDynamicPriceRouter(newRouter);
+
+      expect(await dynamicERC20.dynamicPriceRouter()).to.equal(newRouter);
+    });
+
+    it('should revert if the caller is not the owner', async () => {
+      const { dynamicERC20, otherAccount } = await loadFixture(
+        deployDynamicERC20,
+      );
+
+      await expect(
+        dynamicERC20.connect(otherAccount).setDynamicPriceRouter(otherAccount),
+      ).to.be.revertedWithCustomError(
+        dynamicERC20,
+        'OwnableUnauthorizedAccount',
+      );
+    });
+
+    it('should revert if the router does not implement IUniswapV4DynamicPriceRouter', async () => {
+      const { dynamicERC20, mintToken } = await loadFixture(deployDynamicERC20);
+
+      await expect(
+        dynamicERC20.setDynamicPriceRouter(await mintToken.getAddress()),
+      ).to.be.revertedWith('Does not implement IUniswapV4DynamicPriceRouter');
+    });
+  });
+
+  describe('Set base to quote path', () => {
+    it('should set the base to quote path', async () => {
+      const { dynamicERC20, mintToken, mintStableToken, mintToken3 } =
+        await loadFixture(deployWithNewTokens);
+
+      await expect(
+        dynamicERC20.setBaseToQuotePath(
+          [
+            await mintToken.getAddress(),
+            await mintToken3.getAddress(),
+            await mintStableToken.getAddress(),
+          ],
+          [
+            { fee: 100, tickSpacing: 1 },
+            { fee: 10, tickSpacing: 1 },
+          ],
+        ),
+      )
+        .to.emit(dynamicERC20, 'UniswapV4BaseToQuotePathSet')
+        .withArgs(
+          await dynamicERC20.getAddress(),
+          await mintToken.getAddress(),
+          await mintStableToken.getAddress(),
+          [
+            await mintToken.getAddress(),
+            await mintToken3.getAddress(),
+            await mintStableToken.getAddress(),
+          ],
+          [
+            [await mintToken3.getAddress(), 100n, 1n, ZeroAddress, '0x'],
+            [await mintStableToken.getAddress(), 10n, 1n, ZeroAddress, '0x'],
+          ],
+        );
+
+      expect(await dynamicERC20.getBaseToQuotePath()).to.deep.equal([
+        await mintToken.getAddress(),
+        await mintToken3.getAddress(),
+        await mintStableToken.getAddress(),
+      ]);
+
+      expect(await dynamicERC20.getBaseToQuotePathKeys()).to.deep.equal([
+        [await mintToken3.getAddress(), 100n, 1n, ZeroAddress, '0x'],
+        [await mintStableToken.getAddress(), 10n, 1n, ZeroAddress, '0x'],
+      ]);
+    });
+
+    it('should revert if the caller is not the owner', async () => {
+      const { dynamicERC20, otherAccount } = await loadFixture(
+        deployDynamicERC20,
+      );
+
+      await expect(
+        dynamicERC20.connect(otherAccount).setBaseToQuotePath([], []),
+      ).to.be.revertedWithCustomError(
+        dynamicERC20,
+        'OwnableUnauthorizedAccount',
+      );
+    });
+
+    it('should revert if the path does not have at least 2 tokens', async () => {
+      const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
+
+      await expect(dynamicERC20.setBaseToQuotePath([], [])).to.be.revertedWith(
+        'Path must have at least 2 tokens',
+      );
+    });
+
+    it('should revert if the base token is not the first token in the path', async () => {
+      const { dynamicERC20, mintToken, mintStableToken } = await loadFixture(
+        deployDynamicERC20,
+      );
+
+      await expect(
+        dynamicERC20.setBaseToQuotePath(
+          [await mintStableToken.getAddress(), await mintToken.getAddress()],
+          [],
+        ),
+      ).to.be.revertedWith('Base token must be first in path');
+    });
+
+    it('should revert if the quote token is not the last token in the path', async () => {
+      const { dynamicERC20, mintToken } = await loadFixture(deployDynamicERC20);
+
+      await expect(
+        dynamicERC20.setBaseToQuotePath(
+          [await mintToken.getAddress(), await mintToken.getAddress()],
+          [],
+        ),
+      ).to.be.revertedWith('Quote token must be last in path');
+    });
+
+    it('should revert if the fees are not provided for all hops', async () => {
+      const { dynamicERC20, mintToken, mintStableToken } = await loadFixture(
+        deployDynamicERC20,
+      );
+
+      await expect(
+        dynamicERC20.setBaseToQuotePath(
+          [await mintToken.getAddress(), await mintStableToken.getAddress()],
+          [],
+        ),
+      ).to.be.revertedWith('Fees must be provided for all hops');
+    });
+
+    it('revert if test query to price router fails', async () => {
+      const { dynamicERC20, mintToken, mintStableToken, mockUniswapV4Router } =
+        await loadFixture(deployDynamicERC20);
+
+      await mockUniswapV4Router.setPrice(await mintToken.getAddress(), 0);
+
+      await expect(
+        dynamicERC20.setBaseToQuotePath(
+          [await mintToken.getAddress(), await mintStableToken.getAddress()],
+          [{ fee: 100, tickSpacing: 1 }],
+        ),
+      )
+        .to.be.revertedWithCustomError(dynamicERC20, 'InvalidPath')
+        .withArgs(
+          [await mintToken.getAddress(), await mintStableToken.getAddress()],
+          [[100n, 1n]],
+        );
+    });
+
+    it('should allow single hop path', async () => {
+      const { dynamicERC20, mintToken, mintStableToken } = await loadFixture(
+        deployDynamicERC20,
+      );
+
+      await expect(
+        dynamicERC20.setBaseToQuotePath(
+          [await mintToken.getAddress(), await mintStableToken.getAddress()],
+          [{ fee: 100, tickSpacing: 1 }],
+        ),
+      ).to.be.not.reverted;
+
+      expect(await dynamicERC20.getBaseToQuotePath()).to.deep.equal([
+        await mintToken.getAddress(),
+        await mintStableToken.getAddress(),
+      ]);
+
+      expect(await dynamicERC20.getBaseToQuotePathKeys()).to.deep.equal([
+        [await mintStableToken.getAddress(), 100n, 1n, ZeroAddress, '0x'],
+      ]);
+    });
+  });
+
+  describe('Set quote to base path', () => {
+    it('should set the quote to base path', async () => {
+      const { dynamicERC20, mintToken, mintStableToken, mintToken3 } =
+        await loadFixture(deployWithNewTokens);
+
+      await expect(
+        dynamicERC20.setQuoteToBasePath(
+          [
+            await mintStableToken.getAddress(),
+            await mintToken3.getAddress(),
+            await mintToken.getAddress(),
+          ],
+          [
+            { fee: 100, tickSpacing: 1 },
+            { fee: 10, tickSpacing: 1 },
+          ],
+        ),
+      )
+        .to.emit(dynamicERC20, 'UniswapV4QuoteToBasePathSet')
+        .withArgs(
+          await dynamicERC20.getAddress(),
+          await mintToken.getAddress(),
+          await mintStableToken.getAddress(),
+          [
+            await mintStableToken.getAddress(),
+            await mintToken3.getAddress(),
+            await mintToken.getAddress(),
+          ],
+          [
+            [await mintToken3.getAddress(), 100n, 1n, ZeroAddress, '0x'],
+            [await mintToken.getAddress(), 10n, 1n, ZeroAddress, '0x'],
+          ],
+        );
+
+      expect(await dynamicERC20.getQuoteToBasePath()).to.deep.equal([
+        await mintStableToken.getAddress(),
+        await mintToken3.getAddress(),
+        await mintToken.getAddress(),
+      ]);
+
+      expect(await dynamicERC20.getQuoteToBasePathKeys()).to.deep.equal([
+        [await mintToken3.getAddress(), 100n, 1n, ZeroAddress, '0x'],
+        [await mintToken.getAddress(), 10n, 1n, ZeroAddress, '0x'],
+      ]);
+    });
+
+    it('should revert if the caller is not the owner', async () => {
+      const { dynamicERC20, otherAccount } = await loadFixture(
+        deployDynamicERC20,
+      );
+
+      await expect(
+        dynamicERC20.connect(otherAccount).setQuoteToBasePath([], []),
+      ).to.be.revertedWithCustomError(
+        dynamicERC20,
+        'OwnableUnauthorizedAccount',
+      );
+    });
+
+    it('should revert if the path does not have at least 2 tokens', async () => {
+      const { dynamicERC20 } = await loadFixture(deployDynamicERC20);
+
+      await expect(dynamicERC20.setQuoteToBasePath([], [])).to.be.revertedWith(
+        'Path must have at least 2 tokens',
+      );
+    });
+
+    it('should revert if the quote token is not the first token in the path', async () => {
+      const { dynamicERC20, mintToken } = await loadFixture(deployDynamicERC20);
+
+      await expect(
+        dynamicERC20.setQuoteToBasePath(
+          [await mintToken.getAddress(), await mintToken.getAddress()],
+          [],
+        ),
+      ).to.be.revertedWith('Quote token must be first in path');
+    });
+
+    it('should revert if the base token is not the last token in the path', async () => {
+      const { dynamicERC20, mintStableToken } = await loadFixture(
+        deployDynamicERC20,
+      );
+
+      await expect(
+        dynamicERC20.setQuoteToBasePath(
+          [
+            await mintStableToken.getAddress(),
+            await mintStableToken.getAddress(),
+          ],
+          [],
+        ),
+      ).to.be.revertedWith('Base token must be last in path');
+    });
+
+    it('should revert if the fees are not provided for all hops', async () => {
+      const { dynamicERC20, mintToken, mintStableToken } = await loadFixture(
+        deployDynamicERC20,
+      );
+
+      await expect(
+        dynamicERC20.setQuoteToBasePath(
+          [await mintStableToken.getAddress(), await mintToken.getAddress()],
+          [],
+        ),
+      ).to.be.revertedWith('Fees must be provided for all hops');
+    });
+
+    it('revert if test query to price router fails', async () => {
+      const { dynamicERC20, mintToken, mintStableToken, mockUniswapV4Router } =
+        await loadFixture(deployDynamicERC20);
+
+      await mockUniswapV4Router.setPrice(await mintStableToken.getAddress(), 0);
+
+      await expect(
+        dynamicERC20.setQuoteToBasePath(
+          [await mintStableToken.getAddress(), await mintToken.getAddress()],
+          [{ fee: 100, tickSpacing: 1 }],
+        ),
+      )
+        .to.be.revertedWithCustomError(dynamicERC20, 'InvalidPath')
+        .withArgs(
+          [await mintStableToken.getAddress(), await mintToken.getAddress()],
+          [[100n, 1n]],
+        );
     });
   });
 });

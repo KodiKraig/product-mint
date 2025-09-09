@@ -164,15 +164,13 @@ contract UniswapV4DynamicERC20 is DynamicERC20, Ownable2Step {
      * @param quoteToken The address of the quote token
      * @param path The path used to convert the base token to the quote token
      * @param pathKeys The path keys used to convert the base token to the quote token
-     * @param fees The fees for each pool in the path
      */
     event UniswapV4BaseToQuotePathSet(
         address indexed dynamicERC20,
         address indexed baseToken,
         address indexed quoteToken,
         address[] path,
-        ICustomUniswapV4Router.PathKey[] pathKeys,
-        Fee[] fees
+        ICustomUniswapV4Router.PathKey[] pathKeys
     );
 
     function getBaseToQuotePathKeys()
@@ -195,7 +193,6 @@ contract UniswapV4DynamicERC20 is DynamicERC20, Ownable2Step {
         Fee[] memory _fees
     ) internal {
         _checkBaseToQuotePath(_path);
-        _checkFees(_path, _fees);
 
         ICustomUniswapV4Router.PathKey[] memory keys = _generatePathKeys(
             _path,
@@ -214,9 +211,8 @@ contract UniswapV4DynamicERC20 is DynamicERC20, Ownable2Step {
             address(this),
             baseToken,
             quoteToken,
-            _path,
-            baseToQuotePathKeys,
-            _fees
+            baseToQuotePath,
+            baseToQuotePathKeys
         );
     }
 
@@ -227,15 +223,13 @@ contract UniswapV4DynamicERC20 is DynamicERC20, Ownable2Step {
      * @param quoteToken The address of the quote token
      * @param path The path used to convert the quote token to the base token
      * @param pathKeys The path keys used to convert the quote token to the base token
-     * @param fees The fees for each pool in the path
      */
     event UniswapV4QuoteToBasePathSet(
         address indexed dynamicERC20,
         address indexed baseToken,
         address indexed quoteToken,
         address[] path,
-        ICustomUniswapV4Router.PathKey[] pathKeys,
-        Fee[] fees
+        ICustomUniswapV4Router.PathKey[] pathKeys
     );
 
     function getQuoteToBasePathKeys()
@@ -258,7 +252,6 @@ contract UniswapV4DynamicERC20 is DynamicERC20, Ownable2Step {
         Fee[] memory _fees
     ) internal {
         _checkQuoteToBasePath(_path);
-        _checkFees(_path, _fees);
 
         ICustomUniswapV4Router.PathKey[] memory keys = _generatePathKeys(
             _path,
@@ -277,9 +270,8 @@ contract UniswapV4DynamicERC20 is DynamicERC20, Ownable2Step {
             address(this),
             baseToken,
             quoteToken,
-            _path,
-            quoteToBasePathKeys,
-            _fees
+            quoteToBasePath,
+            quoteToBasePathKeys
         );
     }
 
@@ -296,6 +288,8 @@ contract UniswapV4DynamicERC20 is DynamicERC20, Ownable2Step {
         address[] memory _path,
         Fee[] memory _fees
     ) internal returns (ICustomUniswapV4Router.PathKey[] memory pathKeys) {
+        _checkFees(_path, _fees);
+
         pathKeys = new ICustomUniswapV4Router.PathKey[](_fees.length);
 
         for (uint256 i = 0; i < _fees.length; i++) {
@@ -331,7 +325,7 @@ contract UniswapV4DynamicERC20 is DynamicERC20, Ownable2Step {
     ) internal pure {
         require(
             _fees.length == _path.length - 1,
-            "Fees length must match hops"
+            "Fees must be provided for all hops"
         );
     }
 
