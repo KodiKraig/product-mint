@@ -1,9 +1,11 @@
 import {
   IDynamicERC20__factory,
   MintStableToken__factory,
+  MintToken__factory,
 } from '@product-mint/ethers-sdk';
 import { Command } from 'commander';
 import { provider } from '../../provider';
+import { formatUnits } from 'ethers';
 
 export default function registerDynamicTokenCommands(program: Command) {
   const dynamicCommand = program
@@ -20,8 +22,16 @@ export default function registerDynamicTokenCommands(program: Command) {
         provider,
       );
 
+      const quoteToken = await contract.quoteToken();
+
       const price = await contract.getBaseTokenPrice.staticCall();
-      console.log(`Price: ${price}`);
+
+      const decimals = await MintToken__factory.connect(
+        quoteToken,
+        provider,
+      ).decimals();
+
+      console.log(`Price: ${price} (${formatUnits(price, decimals)})`);
     });
 
   dynamicCommand
@@ -39,10 +49,22 @@ export default function registerDynamicTokenCommands(program: Command) {
         dynamicTokenAddress,
         provider,
       );
+
       const [baseToken, baseTokenAmount] =
         await contract.getBaseTokenAmount.staticCall(quoteTokenAmount);
+
+      const decimals = await MintToken__factory.connect(
+        baseToken,
+        provider,
+      ).decimals();
+
       console.log(`Base token: ${baseToken}`);
-      console.log(`Base token amount: ${baseTokenAmount}`);
+      console.log(
+        `Base token amount: ${baseTokenAmount} (${formatUnits(
+          baseTokenAmount,
+          decimals,
+        )})`,
+      );
     });
 
   dynamicCommand

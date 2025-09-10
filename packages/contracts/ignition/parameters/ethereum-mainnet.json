@@ -17,5 +17,30 @@
   },
   "DeployUniswapV4DynamicRouter": {
     "uniswapV4QuoterAddress": "0x52F0E24D1c21C8A0cB1e5a5dD6198556BD9E1203"
+  },
+  "DeployDynamicKONG_USDC": {
+    "baseToken": "0x8db036f007841C21B97eFF7dfc2c187241d59BaF",
+    "quoteToken": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "dynamicPriceRouter": "0x168041C10840D87802f7AcDA4Bd37f0FC095146e",
+    "baseToQuotePath": [
+      "0x8db036f007841C21B97eFF7dfc2c187241d59BaF",
+      "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+    ],
+    "quoteToBasePath": [
+      "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "0x8db036f007841C21B97eFF7dfc2c187241d59BaF"
+    ],
+    "baseToQuoteFees": [
+      {
+        "fee": 10000,
+        "tickSpacing": 100
+      }
+    ],
+    "quoteToBaseFees": [
+      {
+        "fee": 10000,
+        "tickSpacing": 100
+      }
+    ]
   }
 }
